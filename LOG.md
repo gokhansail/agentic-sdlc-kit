@@ -2,6 +2,17 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-10-30 (2) - T-11 playbook draft
+
+- The maintainer asked to start T-11 in the same session after T-10.
+- `tech-writer` (Sonnet, effort high) wrote `PLAYBOOK.md`: a core of about 450 words and appendices A to I, 2,308 words in total, and one CHANGELOG line. It read only the source map, `CLAUDE.md` and `DECISIONS.md`.
+- TL review round 1 found 9 items, fixed in round 2. Three were wrong or unsupported claims: the server was described as already tested; the mechanics table described the source projects as if they were this repository; two sentences had no source row and were removed.
+- TL checks after round 2: 65 cited IDs, all present in the map or the decisions; one map row uncited (C-26, target T-12); no non-ASCII characters; banned-word list clean; guard clean; `python -m pytest -q`: 31 passed.
+- Rows the writer reported as missing from the map: decision record format (left to T-12 templates). Not added to the map.
+- The maintainer approved committing the draft before reading it. The end-to-end read is a G1 criterion, not a commit criterion; changes from the read go in a separate commit.
+- Commit: "Add playbook draft (T-11)".
+- Metrics (T-11): review rounds 2, questions back 0, out-of-scope files 0, models Sonnet (tech-writer).
+
 ## 2026-10-30 (1) - T-10 source map
 
 - Decision DEC-016: the committed source map names private sources by ID and section; the ID-to-file index stays in an ignored local file.

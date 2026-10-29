@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-10-30
-Now: Phase 1 · T-11 in progress · repository private · guard code written, tests green
+Now: Phase 1 · T-11 in review · repository private · guard code written, tests green
 
 ## Phase
 
@@ -22,7 +22,7 @@ Phase 1 Playbook is open. G1 criteria (TASKS.md): every claim maps to a source-m
 
 ## Next
 
-- T-11 `PLAYBOOK.md` (in progress), then T-12 templates, T-13 role files, T-14 gate G1. The maintainer reads the source map and the playbook before G1.
+- T-11 maintainer read of `PLAYBOOK.md` (draft committed), then T-12 templates, T-13 role files, T-14 gate G1.
 
 ## Repository
 

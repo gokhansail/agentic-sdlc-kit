@@ -16,6 +16,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 - Toolchain notes (`docs/toolchain.md`) and development requirements (`requirements-dev.txt`).
 - Session instructions (`CLAUDE.md`): how a session in this repository runs the work.
 - Source map (`docs/source-map.md`): the concepts the playbook may use, each traced to a source section.
+- Playbook (`PLAYBOOK.md`): the method in tool-neutral English, every claim traced to the source map.
 
 ### Changed
 
