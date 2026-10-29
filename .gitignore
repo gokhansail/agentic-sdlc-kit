@@ -1,7 +1,6 @@
-# Local working notes, not part of the project
-PRIVATE.md
-CLAUDE.md
-PLAN.md
+# Private, never committed: personal session instructions and the frozen day-0 plan
+CLAUDE.local.md
+archive/
 .claude/settings.local.json
 
 # Python

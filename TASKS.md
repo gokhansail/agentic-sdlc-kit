@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-05 Product CLAUDE.md. Then the G0 gate check.
+G0 gate check by the maintainer, then phase 1 (T-10 source map) in a fresh session.
 
 ## Phases
 
@@ -41,7 +41,7 @@ T-05 Product CLAUDE.md. Then the G0 gate check.
 - Acceptance: Python 3.10 vs minimum `mcp` SDK version confirmed; Claude Code plugin docs read (`hooks/hooks.json`, `.mcp.json`, `--plugin-dir`, `claude plugin eval`, headless `claude -p` with an MCP config for T-46); how Claude Code treats an `@` import in `CLAUDE.md` when the imported file is missing (needed by T-05); each line has a source link and a date.
 - Tests: none. `scout` reads, `developer` tries the install, TL writes.
 
-### [ ] T-05 [E] Product CLAUDE.md (after T-04)
+### [x] T-05 [E] Product CLAUDE.md (after T-04; scope widened by DEC-015)
 - Goal: a committed English `CLAUDE.md` of at most 80 lines that tells any session how this repository is run: roles, records, task loop, gates, language, guard. It is part of the evidence that the project uses its own process.
 - Touch: `CLAUDE.md` (replaced by the product version), `.gitignore` (replace the `CLAUDE.md` line with `CLAUDE.local.md`), `CLAUDE.local.md` (new, ignored; takes the current private session instructions, DEC-014). Do not touch: role files, `DEV_RULES.md`, other records.
 - Acceptance: no private content in the committed file and no private file name in it (guard passes); a fresh session in this folder still gets the maintainer's private instructions; a clone without `CLAUDE.local.md` works; writing rules from DEC-003 hold.
@@ -49,7 +49,7 @@ T-05 Product CLAUDE.md. Then the G0 gate check.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 1: T-10 source map · T-11 `PLAYBOOK.md` · T-12 templates · T-13 role files and `docs/portability.md` (concept mapping only) · T-14 gate G1.
-- Phase 2: T-20 metric scripts with synthetic fixtures · T-21 run on both source projects, totals only · T-22 gate G2.
+- Phase 2: T-20 metric scripts with synthetic fixtures (the source records use non-English marker words; keep them out of committed code as literals, use unicode escapes or the local pattern file, since the guard rejects those letters) · T-21 run on both source projects, totals only · T-22 gate G2.
 - Phase 3: T-30 plugin skeleton and commands · T-31 scope guard hook · T-32 git hook installer command · T-33 dogfood on Project A · T-34 gate G3.
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass · T-46 eval with and without the server (DEC-012) · T-45 gate G4. T-43 dropped (DEC-011).
 - Phase 5: T-50 README · T-51 v0.1.0 and marketplace · T-52 gate G5.

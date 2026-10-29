@@ -67,4 +67,4 @@ Source: https://code.claude.com/docs/en/memory.md
 
 - `CLAUDE.local.md` is loaded automatically after `CLAUDE.md` in the same folder and is meant to be ignored by git.
 - `@path` imports resolve relative to the importing file, up to four levels deep.
-- Not verified: what happens when an imported file is missing. T-05 avoids the question by using `CLAUDE.local.md` (see DEC-014).
+- Not documented: what happens when an imported file is missing. Nothing here depends on it; private instructions use `CLAUDE.local.md` instead (DEC-014).

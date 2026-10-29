@@ -110,3 +110,11 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: Claude Code loads `CLAUDE.local.md` after `CLAUDE.md` by itself (documented). The behaviour of an `@` import whose file is missing is not documented, and the import line would show a private file name in the public file. The pre-push guard already rejects `CLAUDE.local.md`.
 - Consequences: the committed `CLAUDE.md` mentions no private file; a clone without `CLAUDE.local.md` works as is.
 - Outcome:
+
+## DEC-015 All documentation in English, each rule in one place
+- Date: 2026-10-29 · Raised by the maintainer during T-05
+- Options: a) every file in English, committed or not; process rules only in `CLAUDE.md`, personal rules only in `CLAUDE.local.md`; the day-0 plan translated once and frozen b) private files stay in the maintainer's language next to an English `CLAUDE.md` c) one private `CLAUDE.md` now, split before release
+- Decision: a).
+- Reason: b) keeps two copies of the same rules that drift apart. c) moves the same split to just before release, the riskiest moment, and leaves the repository without a `CLAUDE.md` until then.
+- Consequences: the local file starts with a table that says which file holds what and a test for new rules. The two earlier private files were merged into it and removed. The plan lives in an ignored archive folder and is not a source of truth. Conversation and sub-agent reports stay in the maintainer's language; that rule is in the local file.
+- Outcome:

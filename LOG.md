@@ -2,6 +2,17 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-10-29 (6) - T-05 product CLAUDE.md, all documentation in English
+
+- The maintainer asked for every document in English, committed or not, and no rule kept in two places (DEC-015).
+- `CLAUDE.md` written by `tech-writer` (Sonnet): 80 lines, process rules only. TL fixed two lines (dropped "tool-independent", which DEC-011 does not support; corrected who writes the CHANGELOG line).
+- Personal rules moved to an ignored local file that starts with a table of which file holds what and a test for new rules. The two earlier private files were merged into it; the TL checked each rule against the old files before removing them.
+- The day-0 plan was translated once (Sonnet) into an ignored archive folder and frozen.
+- `.gitignore` now ignores the local file and the archive instead of the old private files.
+- Not checked: that a fresh session loads both instruction files. A headless check failed on an expired login; the maintainer checks it in a new session (G0).
+- Note for T-20: the source records use non-English marker words; committed code must not hold them as literals.
+- Metrics (T-05): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (writer, translation).
+
 ## 2026-10-29 (5) - T-04 toolchain check
 
 - Docs part: Claude Code documentation read by a docs sub-agent; facts and links in `docs/toolchain.md`. Found: `MultiEdit` is not in the current tool list; `--bare` headless runs need an API key, not the subscription login; `claude plugin eval` exists and runs with an isolated config; the behaviour of a missing `@` import is not documented.
