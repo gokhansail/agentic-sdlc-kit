@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-G0 gate check by the maintainer, then phase 1 (T-10 source map) in a fresh session.
+G0 passed (2026-10-29). Phase 1: T-10 source map in a fresh session; the TL writes the contract when it starts.
 
 ## Phases
 

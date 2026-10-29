@@ -3,18 +3,13 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-10-29
-Now: Phase 0 · G0 check · repository private · guard code written, tests green
+Now: Phase 1 · T-10 next · repository private · guard code written, tests green
 
 ## Phase
 
-Phase 0 Setup. All phase 0 tasks are done. Gate G0 waits for the maintainer's check; after that, phase 1 opens.
+Phase 0 Setup closed: G0 passed 2026-10-29 (maintainer check in a fresh session; see LOG).
 
-G0 criteria:
-- [x] Decisions recorded (DEC-001 to DEC-015).
-- [x] The guard rejects a planted secret: 31 tests, plus a dry-run push from this repository that was rejected.
-- [x] Toolchain notes have no "not verified" line for phases 1-3 (open points are for phase 4, T-46).
-- [x] Product `CLAUDE.md` written (T-05). Committed with the G0 commit.
-- [ ] Maintainer check: a fresh session in this folder resumes correctly from these files.
+Phase 1 Playbook is open. G1 criteria (TASKS.md): every claim maps to a source-map line; no private data; maintainer read it once end to end; verdict by `auditor`, then `auditor-mini`.
 
 ## Done
 
@@ -26,7 +21,7 @@ G0 criteria:
 
 ## Next
 
-- G0 check, then phase 1 in a fresh session: T-10 source map, T-11 `PLAYBOOK.md`, T-12 templates, T-13 role files, T-14 gate G1.
+- T-10 source map in a fresh session, then T-11 `PLAYBOOK.md`, T-12 templates, T-13 role files, T-14 gate G1.
 
 ## Repository
 
