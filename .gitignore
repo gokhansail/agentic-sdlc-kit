@@ -1,0 +1,17 @@
+# Local working notes, not part of the project
+PRIVATE.md
+CLAUDE.md
+PLAN.md
+.claude/settings.local.json
+
+# Python
+__pycache__/
+.venv/
+.pytest_cache/
+
+# Node
+node_modules/
+
+# Raw measurement data stays local; only totals are committed
+evidence/raw/
+.sdlc/local/
