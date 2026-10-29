@@ -51,7 +51,7 @@ G0 passed (2026-10-29). Phase 1: T-10 source map in a fresh session; the TL writ
 - Phase 1: T-10 source map · T-11 `PLAYBOOK.md` · T-12 templates · T-13 role files and `docs/portability.md` (concept mapping only) · T-14 gate G1.
 - Phase 2: T-20 metric scripts with synthetic fixtures (the source records use non-English marker words; keep them out of committed code as literals, use unicode escapes or the local pattern file, since the guard rejects those letters) · T-21 run on both source projects, totals only · T-22 gate G2.
 - Phase 3: T-30 plugin skeleton and commands · T-31 scope guard hook · T-32 git hook installer command · T-33 dogfood on Project A · T-34 gate G3.
-- Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass · T-46 eval with and without the server (DEC-012) · T-45 gate G4. T-43 dropped (DEC-011).
+- Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).
 - Phase 5: T-50 README · T-51 v0.1.0 and marketplace · T-52 gate G5.
 
 ## Not on the list

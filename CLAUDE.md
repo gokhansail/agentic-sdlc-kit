@@ -64,7 +64,7 @@ Everything in the repository is English (DEC-003): code, documents, records, rol
 - Commit messages end with `Co-Authored-By: Claude <model> <noreply@anthropic.com>`.
 
 ## Privacy and status line
-No secrets, email addresses, local paths, personal data or raw logs in the repository. Source projects appear as Project A and Project B (DEC-006). From the metric scripts, only totals are committed. Every reply ends with one line: phase, task, repository visibility, code state.
+No secrets, email addresses, local paths, personal data or raw logs in the repository. Source projects appear as Project A and Project B (DEC-006). From the metric scripts, only totals are committed. Every reply ends with one line: phase, task (the open one, or the next one when none is open), repository visibility, code state (whether the repository holds code, not whether this reply changed any).
 
 ## Target layout
 ```
