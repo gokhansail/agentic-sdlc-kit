@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-03 Pre-push guard. Until it is installed, every push is preceded by a manual scan of the outgoing commits (see LOG 2026-10-29 (2)).
+T-04 Toolchain check. The pre-push guard (T-03) is installed; every push now goes through it.
 
 ## Phases
 
@@ -28,7 +28,7 @@ T-03 Pre-push guard. Until it is installed, every push is preceded by a manual s
 - Acceptance: all English, no conversation, no names other than `gokhansail`; `STATUS.md` answers "where are we" on its own; local commit after maintainer approval; no push before T-03.
 - Tests: none. Written by TL and `scribe`.
 
-### [ ] T-03 [M] Pre-push guard (0.0.1)
+### [x] T-03 [M] Pre-push guard (0.0.1)
 - Goal: stop secrets and private content from reaching the remote.
 - Touch: `hooks/git/pre-push`, `tools/install_git_hooks.py`, `.sdlc/guard-patterns.txt` (committed, generic), support for `.sdlc/local/private-patterns.txt` (ignored, names and private terms), `tests/test_pre_push.py`, `.gitattributes` (LF for the hook and scripts; the machine converts to CRLF on checkout and a CRLF hook does not run). Do not touch: documents.
 - Checks the added lines and commit messages of the commits being pushed: key patterns (`AKIA`, `sk-`, `ghp_`, `xox`), `.env`, private files (plan, private rules), `evidence/raw/`, email addresses other than GitHub noreply, absolute user paths, document and script service URLs, debug flags left on, and non-English letters in English-only files.
@@ -37,7 +37,7 @@ T-03 Pre-push guard. Until it is installed, every push is preceded by a manual s
 
 ### [ ] T-04 [M] Toolchain check
 - Goal: confirm every tool and version used in phases 1-4. No guesses.
-- Touch: `docs/toolchain.md`.
+- Touch: `docs/toolchain.md`, `requirements-dev.txt` (pytest is used by T-03 tests but not declared yet).
 - Acceptance: Python 3.10 vs minimum `mcp` SDK version confirmed; Claude Code plugin docs read (`hooks/hooks.json`, `.mcp.json`, `--plugin-dir`, `claude plugin eval`, headless `claude -p` with an MCP config for T-46); each line has a source link and a date.
 - Tests: none. `scout` reads, `developer` tries the install, TL writes.
 

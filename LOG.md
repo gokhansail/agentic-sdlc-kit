@@ -2,6 +2,17 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-10-29 (3) - T-03 pre-push guard
+
+- Built by `developer` (Sonnet). The hook is a thin shell wrapper; the logic is in `tools/pre_push_guard.py` (stdlib only, no network). It scans added lines and commit messages of outgoing commits, rejects forbidden paths, prints commit, file:line and pattern name, never the matched text. Fails closed if Python or the script is missing.
+- Patterns: generic list committed in `.sdlc/guard-patterns.txt`; private terms in `.sdlc/local/private-patterns.txt`, ignored by git, reported by name only.
+- Tests: 31 passed (`python -m pytest -q`), including an end-to-end push to a local bare repository.
+- TL review: ran the tests, ran the guard over every tracked and new file (clean), planted a fake key and a user path (both caught, matched text not printed), checked a private term (caught, name only). The debug-flag pattern is narrower than the contract example; accepted.
+- Side effect: the developer installed pytest on the machine without asking first. It was reported. Declaring it in `requirements-dev.txt` moves to T-04.
+- Installed in this repository with `tools/install_git_hooks.py`. This commit's push is the guard's first real run.
+- Commit: "Add pre-push guard for secrets and private content (T-03)".
+- Metrics (T-03): review rounds 1, questions back 0, out-of-scope files 0, model Sonnet.
+
 ## 2026-10-29 (2) - Task tag rename, first push before the guard
 
 - Task difficulty tags renamed from K/O/Z to [E] easy, [M] medium, [H] hard in `TASKS.md` and the developer role file.

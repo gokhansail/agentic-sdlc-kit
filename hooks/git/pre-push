@@ -1,0 +1,15 @@
+#!/bin/sh
+# Thin wrapper: the logic lives in tools/pre_push_guard.py. Fails closed.
+root=$(git rev-parse --show-toplevel) || exit 1
+guard="$root/tools/pre_push_guard.py"
+if [ ! -f "$guard" ]; then
+    echo "pre-push guard: $guard not found" >&2
+    exit 1
+fi
+for py in python python3; do
+    if command -v "$py" >/dev/null 2>&1; then
+        exec "$py" "$guard" "$@"
+    fi
+done
+echo "pre-push guard: no python on PATH" >&2
+exit 1
