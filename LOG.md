@@ -2,6 +2,14 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-10-29 (2) - Task tag rename, first push before the guard
+
+- Task difficulty tags renamed from K/O/Z to [E] easy, [M] medium, [H] hard in `TASKS.md` and the developer role file.
+- T-03 contract extended: `.gitattributes` keeps the hook and scripts in LF (the machine converts to CRLF on checkout, and a CRLF hook does not run); an end-to-end test pushes to a local bare repository.
+- The maintainer chose to push now, before T-03. Impact: no automatic check on this push. Mitigation: the outgoing commits and pending changes were scanned by hand for key patterns, `.env`, email addresses other than GitHub noreply, absolute user paths, service URLs, debug flags, private file names, private terms and non-English letters. Result: clean; the only name found is the GitHub handle.
+- Commit: "Rename task tags to E/M/H, extend T-03 contract".
+- Metrics: not a contract task; TL work.
+
 ## 2026-10-29 (1) - T-01 decisions and T-02 record skeleton
 
 - Goal: settle the open decisions D-1 to D-11 before any code.

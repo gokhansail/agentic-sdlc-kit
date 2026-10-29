@@ -27,8 +27,8 @@ Phase 0 Setup. Gate G0 is open. Decisions are recorded. The pre-push guard (T-03
 ## Repository
 
 - Private (DEC-007). Only the maintainer changes visibility.
-- Remote has one commit: d167f49 (initial commit). The T-01/T-02 commit is local only.
-- No push until the T-03 guard is installed and tested.
+- Pushed up to the tag rename commit (2026-10-29). The maintainer chose to push before T-03; the outgoing commits were scanned by hand first (LOG 2026-10-29 (2)).
+- Until the T-03 guard is installed, every push is preceded by the same manual scan.
 - Language: English for everything in the repository (DEC-003).
 
 ## Open questions

@@ -1,9 +1,9 @@
 # Tasks
 
-Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [K] easy (one file, no behaviour change), [O] medium, [Z] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
+Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-03 Pre-push guard. No push until it is installed and tested.
+T-03 Pre-push guard. Until it is installed, every push is preceded by a manual scan of the outgoing commits (see LOG 2026-10-29 (2)).
 
 ## Phases
 
@@ -19,23 +19,23 @@ T-03 Pre-push guard. No push until it is installed and tested.
 
 ## Phase 0
 
-### [x] T-01 [K] Decisions
+### [x] T-01 [E] Decisions
 - Goal: settle D-1 to D-11. Result: DEC-001 to DEC-012 in `DECISIONS.md`.
 
-### [x] T-02 [K] Record skeleton (0.0.1)
+### [x] T-02 [E] Record skeleton (0.0.1)
 - Goal: set up the committed record layer (DEC-003).
 - Touch: `TASKS.md` (TL), `STATUS.md` (at most 60 lines), `LOG.md`, `CHANGELOG.md` (Unreleased), `LESSONS.md` (empty skeleton), `LICENSE` (MIT, `gokhansail`). Do not touch: `.claude/agents/*`, `DEV_RULES.md`, `README.md`, private files.
 - Acceptance: all English, no conversation, no names other than `gokhansail`; `STATUS.md` answers "where are we" on its own; local commit after maintainer approval; no push before T-03.
 - Tests: none. Written by TL and `scribe`.
 
-### [ ] T-03 [O] Pre-push guard (0.0.1)
+### [ ] T-03 [M] Pre-push guard (0.0.1)
 - Goal: stop secrets and private content from reaching the remote.
-- Touch: `hooks/git/pre-push`, `tools/install_git_hooks.py`, `.sdlc/guard-patterns.txt` (committed, generic), support for `.sdlc/local/private-patterns.txt` (ignored, names and private terms), `tests/test_pre_push.py`. Do not touch: documents.
+- Touch: `hooks/git/pre-push`, `tools/install_git_hooks.py`, `.sdlc/guard-patterns.txt` (committed, generic), support for `.sdlc/local/private-patterns.txt` (ignored, names and private terms), `tests/test_pre_push.py`, `.gitattributes` (LF for the hook and scripts; the machine converts to CRLF on checkout and a CRLF hook does not run). Do not touch: documents.
 - Checks the added lines and commit messages of the commits being pushed: key patterns (`AKIA`, `sk-`, `ghp_`, `xox`), `.env`, private files (plan, private rules), `evidence/raw/`, email addresses other than GitHub noreply, absolute user paths, document and script service URLs, debug flags left on, and non-English letters in English-only files.
-- Acceptance: a planted secret is rejected with file, line and pattern; a clean commit passes; a pattern from the local file is caught without that pattern ever being committed; the installer is idempotent.
-- Tests: reject, pass, local-pattern, installer re-run. Tag [O], `developer` (Sonnet).
+- Acceptance: a planted secret is rejected with file, line and pattern; a clean commit passes; a pattern from the local file is caught without that pattern ever being committed; the installer is idempotent; the installed hook runs through a real `git push` to a local bare repository on this machine (Windows, Git Bash; call `python`, not `python3`).
+- Tests: reject, pass, local-pattern, installer re-run, end-to-end push to a bare repository. Tag [M], `developer` (Sonnet).
 
-### [ ] T-04 [O] Toolchain check
+### [ ] T-04 [M] Toolchain check
 - Goal: confirm every tool and version used in phases 1-4. No guesses.
 - Touch: `docs/toolchain.md`.
 - Acceptance: Python 3.10 vs minimum `mcp` SDK version confirmed; Claude Code plugin docs read (`hooks/hooks.json`, `.mcp.json`, `--plugin-dir`, `claude plugin eval`, headless `claude -p` with an MCP config for T-46); each line has a source link and a date.
