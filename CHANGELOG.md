@@ -15,6 +15,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 - Pre-push guard (`hooks/git/pre-push`, `tools/pre_push_guard.py`, `tools/install_git_hooks.py`, `.sdlc/guard-patterns.txt`): rejects secrets, private files and private terms in outgoing commits.
 - Toolchain notes (`docs/toolchain.md`) and development requirements (`requirements-dev.txt`).
 - Session instructions (`CLAUDE.md`): how a session in this repository runs the work.
+- Source map (`docs/source-map.md`): the concepts the playbook may use, each traced to a source section.
 
 ### Changed
 

@@ -118,3 +118,19 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: b) keeps two copies of the same rules that drift apart. c) moves the same split to just before release, the riskiest moment, and leaves the repository without a `CLAUDE.md` until then.
 - Consequences: the local file starts with a table that says which file holds what and a test for new rules. The two earlier private files were merged into it and removed. The plan lives in an ignored archive folder and is not a source of truth. Conversation and sub-agent reports stay in the maintainer's language; that rule is in the local file.
 - Outcome:
+
+## DEC-016 How the source map names private sources
+- Date: 2026-10-30 · Raised in T-10
+- Options: a) committed map with source IDs and section numbers; the ID to file mapping in an ignored local index b) the whole map ignored c) real file names in the committed map
+- Decision: a).
+- Reason: the G1 claim "every claim maps to a source" stays visible in the repository, and an auditor on the maintainer's machine can resolve each ID. b) hides the evidence for that claim. c) exposes the structure of private documents, against DEC-006.
+- Consequences: `docs/source-map.md` holds IDs, generic source descriptions and section numbers only; `.sdlc/local/source-index.md` holds the mapping. G1 is audited on the maintainer's machine.
+- Outcome:
+
+## DEC-017 All process lessons go into the source map and the playbook
+- Date: 2026-10-30 · Raised by the maintainer during T-10
+- Options: a) all process lessons (6 of the 19 entries in the lessons log) b) at most 3, as in the day-0 plan
+- Decision: a).
+- Reason: the cap of 3 had no stated reason. The three left out are the origin of three rules in the map (seat rule, current documents, tests belong to the user); without them those rules cannot be traced to an event. Map rows hold anonymous one-line summaries only, so six rows carry no more private detail than three.
+- Consequences: the map lists six lesson concepts and no lesson in the dropped table. T-11 may use all six. Gate G1 reviews this choice: the auditor reports any privacy, length or relevance problem with the lessons as a finding.
+- Outcome:

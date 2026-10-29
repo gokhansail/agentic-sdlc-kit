@@ -2,6 +2,18 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-10-30 (1) - T-10 source map
+
+- Decision DEC-016: the committed source map names private sources by ID and section; the ID-to-file index stays in an ignored local file.
+- Decision DEC-017: every process lesson goes into the map and may appear in the playbook; added to the G1 agenda.
+- `scout` (Haiku) extracted 51 concepts from the base list plus 13 more method concepts from the same sources; all 16 base rows covered. The TL spot-checked section numbers and lesson dates against the sources: all matched.
+- Two deviations from the base list. The contract line "no number from a source" was narrowed by the TL to "no measured number" so method parameters (15-line cap, 2 rounds) can be cited. The lesson cap of 3 from the base list was removed by the maintainer (DEC-017): the lessons log has 19 entries, 6 of them process lessons, and all 6 are in the map. Gate G1 reviews this choice.
+- `tech-writer` (Sonnet) wrote `docs/source-map.md` (9 sources, 64 concepts, 6 dropped rows), the local index and one CHANGELOG line. Round 2 fixed three items: one term for the customer role, the concurrency item added to the single-writer concept, a dropped row for the project entry section. A third edit for DEC-017 moved three lessons from the dropped table into the concept table; this was a scope change, not a review round.
+- TL review: guard clean over the changed files (exit 0); `python -m pytest -q`: 31 passed.
+- Maintainer approved T-10. The maintainer reads the map and the playbook later, before G1.
+- Commit: "Add source map with private sources as IDs (T-10)".
+- Metrics (T-10): review rounds 2, questions back 0, out-of-scope files 0, models Haiku (scout), Sonnet (tech-writer).
+
 ## 2026-10-29 (8) - G0 review findings fixed
 
 - The maintainer asked to fix every finding from the G0 close.

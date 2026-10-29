@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-10-29
-Now: Phase 1 · T-10 next · repository private · guard code written, tests green
+Last updated: 2026-10-30
+Now: Phase 1 · T-11 in progress · repository private · guard code written, tests green
 
 ## Phase
 
@@ -18,10 +18,11 @@ Phase 1 Playbook is open. G1 criteria (TASKS.md): every claim maps to a source-m
 - T-03 Pre-push guard (0.0.1): installed, every push goes through it.
 - T-04 Toolchain check: `docs/toolchain.md`, `requirements-dev.txt`; MCP SDK 2.x (DEC-013).
 - T-05 Product `CLAUDE.md`: process rules in English, at most 80 lines. Personal rules are kept outside the repository, each rule in one place (DEC-014, DEC-015).
+- T-10 Source map: `docs/source-map.md`, 9 sources, 64 concepts; private sources by ID (DEC-016); all 6 process lessons included (DEC-017).
 
 ## Next
 
-- T-10 source map in a fresh session, then T-11 `PLAYBOOK.md`, T-12 templates, T-13 role files, T-14 gate G1.
+- T-11 `PLAYBOOK.md` (in progress), then T-12 templates, T-13 role files, T-14 gate G1. The maintainer reads the source map and the playbook before G1.
 
 ## Repository
 
