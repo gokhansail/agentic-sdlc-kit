@@ -3,13 +3,13 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-04 Toolchain check. The pre-push guard (T-03) is installed; every push now goes through it.
+T-05 Product CLAUDE.md. Then the G0 gate check.
 
 ## Phases
 
 | Phase | Goal | Gate | Verdict by |
 |---|---|---|---|
-| 0 Setup | decisions, records, guard, toolchain | G0: decisions recorded; guard rejects a planted secret (test); toolchain doc has no "not verified" line for phases 1-3 | TL list + maintainer |
+| 0 Setup | decisions, records, guard, toolchain | G0: decisions recorded; guard rejects a planted secret (test); toolchain doc has no "not verified" line for phases 1-3; product `CLAUDE.md` committed (T-05) | TL list + maintainer |
 | 1 Playbook | the method in tool-neutral English, no code | G1: every claim maps to a source-map line; no private data; maintainer read it once end to end | `auditor`, then `auditor-mini` |
 | 2 Evidence | before/after numbers, reproducible | G2: scripts reproduce the numbers; 3 numbers recounted by hand; limits section | `auditor-mini` |
 | 3 Plugin | Claude Code plugin: roles, commands, hooks | G3: loads with `--plugin-dir`; scope guard blocks and allows (tests); one real task done with it on Project A | `auditor`, then `auditor-mini` |
@@ -35,11 +35,17 @@ T-04 Toolchain check. The pre-push guard (T-03) is installed; every push now goe
 - Acceptance: a planted secret is rejected with file, line and pattern; a clean commit passes; a pattern from the local file is caught without that pattern ever being committed; the installer is idempotent; the installed hook runs through a real `git push` to a local bare repository on this machine (Windows, Git Bash; call `python`, not `python3`).
 - Tests: reject, pass, local-pattern, installer re-run, end-to-end push to a bare repository. Tag [M], `developer` (Sonnet).
 
-### [ ] T-04 [M] Toolchain check
+### [x] T-04 [M] Toolchain check
 - Goal: confirm every tool and version used in phases 1-4. No guesses.
 - Touch: `docs/toolchain.md`, `requirements-dev.txt` (pytest is used by T-03 tests but not declared yet).
-- Acceptance: Python 3.10 vs minimum `mcp` SDK version confirmed; Claude Code plugin docs read (`hooks/hooks.json`, `.mcp.json`, `--plugin-dir`, `claude plugin eval`, headless `claude -p` with an MCP config for T-46); each line has a source link and a date.
+- Acceptance: Python 3.10 vs minimum `mcp` SDK version confirmed; Claude Code plugin docs read (`hooks/hooks.json`, `.mcp.json`, `--plugin-dir`, `claude plugin eval`, headless `claude -p` with an MCP config for T-46); how Claude Code treats an `@` import in `CLAUDE.md` when the imported file is missing (needed by T-05); each line has a source link and a date.
 - Tests: none. `scout` reads, `developer` tries the install, TL writes.
+
+### [ ] T-05 [E] Product CLAUDE.md (after T-04)
+- Goal: a committed English `CLAUDE.md` of at most 80 lines that tells any session how this repository is run: roles, records, task loop, gates, language, guard. It is part of the evidence that the project uses its own process.
+- Touch: `CLAUDE.md` (replaced by the product version), `.gitignore` (replace the `CLAUDE.md` line with `CLAUDE.local.md`), `CLAUDE.local.md` (new, ignored; takes the current private session instructions, DEC-014). Do not touch: role files, `DEV_RULES.md`, other records.
+- Acceptance: no private content in the committed file and no private file name in it (guard passes); a fresh session in this folder still gets the maintainer's private instructions; a clone without `CLAUDE.local.md` works; writing rules from DEC-003 hold.
+- Tests: guard run over the new file. `tech-writer` writes the English text from a TL brief; TL moves the private text.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 1: T-10 source map · T-11 `PLAYBOOK.md` · T-12 templates · T-13 role files and `docs/portability.md` (concept mapping only) · T-14 gate G1.

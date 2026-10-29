@@ -94,3 +94,19 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: shows with numbers whether the server changes the result. General knowledge questions would not measure that.
 - Consequences: raw outputs stay local; the repository gets the script, the questions, the totals and a limits section.
 - Outcome:
+
+## DEC-013 MCP SDK major version
+- Date: 2026-10-29 · Raised in T-04
+- Options: a) 2.x (2.3.0, `MCPServer`) b) 1.x (1.30.0, `FastMCP`)
+- Decision: a) 2.x, `mcp>=2.3,<3`.
+- Reason: both pass the smoke test on Python 3.10. 2.x is the current major; a new project that starts on the previous one starts with a migration to do. The server is small, and the SDK has a migration guide for older examples.
+- Consequences: phase 4 code uses `MCPServer`; examples written for `FastMCP` need translating.
+- Outcome:
+
+## DEC-014 Where the private session instructions live
+- Date: 2026-10-29 · Raised in T-04, for T-05
+- Options: a) `CLAUDE.local.md`, ignored by git b) an `@` import from the committed `CLAUDE.md`
+- Decision: a).
+- Reason: Claude Code loads `CLAUDE.local.md` after `CLAUDE.md` by itself (documented). The behaviour of an `@` import whose file is missing is not documented, and the import line would show a private file name in the public file. The pre-push guard already rejects `CLAUDE.local.md`.
+- Consequences: the committed `CLAUDE.md` mentions no private file; a clone without `CLAUDE.local.md` works as is.
+- Outcome:
