@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 1: T-12 templates; the TL asks the open questions, then writes the contract. G1 read item from T-11 is still open.
+Phase 1: T-13 role files and `docs/portability.md` (the TL writes the contract when it starts, in a fresh session). Then the maintainer reads `PLAYBOOK.md` once end to end (G1 item from T-11), then T-14 gate G1.
 
 ## Phases
 
@@ -67,11 +67,22 @@ Phase 1: T-12 templates; the TL asks the open questions, then writes the contrac
 - Acceptance: core at most about 500 words; every cited ID exists in the map; no private names or paths; tool names only in the last two appendices; guard clean; writing-style list holds; maintainer reads it once end to end (may follow later, needed for G1).
 - Tests: guard over the file; `python -m pytest -q` stays green; TL counts cited IDs against the map with a one-off script.
 
+### [x] T-12 [M] Templates
+- Result: 7 templates in `templates/`, 2 review rounds; size label field (C-52) added in round 2; C-26 moved to T-44.
+- Goal: `templates/` holds 7 fill-in templates that match the playbook, so a new project can start the method by copying them.
+- Writer: `tech-writer` (Sonnet, effort medium), two rounds at most. Reads `PLAYBOOK.md`, `docs/source-map.md`, `DECISIONS.md` (record format), `DEV_RULES.md`, `CLAUDE.md`; never the private sources.
+- Files (new): `templates/task-contract.md` [C-08, C-40], `templates/decision-record.md` [format of `DECISIONS.md`], `templates/lesson-entry.md` [C-48, C-61], `templates/audit-report.md` [C-42, C-43, C-44], `templates/reverify-table.md` [C-37, C-45], `templates/push-checklist.md` [C-25, C-38], `templates/dev-rules.md` [C-18, C-56].
+- Also touch: `CHANGELOG.md` (one line); `docs/source-map.md` only the target cell of C-26 (T-12 to T-44). Do not touch: `PLAYBOOK.md`, role files, other records, the guard.
+- Form: each file starts with a "What is this file?" line, then the fields, each with a one-line fill-in instruction; it ends with the source IDs it uses. No example data from the source projects. Tool-neutral: no tool or product names.
+- Acceptance: each template has every field its source rows name and no field without a source; a filled contract fits in 15 lines; a filled dev-rules file fits in 40 lines; every cited ID exists in the map; no private names or paths; guard clean; writing-style list holds.
+- Tests: guard over the new files; `python -m pytest -q` stays green; the TL checks each template's fields against its map rows.
+- Deferred: C-26 public endpoint checklist goes to T-44 (the kit has no public endpoint).
+
 ## Later phases (headlines; contracts are written when the phase opens)
-- Phase 1: T-12 templates · T-13 role files and `docs/portability.md` (concept mapping only) · T-14 gate G1. G1 agenda item (DEC-017): all six process lessons are in the map and may appear in the playbook; the auditor reports any privacy, length or relevance problem with them as a finding.
+- Phase 1: T-13 role files and `docs/portability.md` (concept mapping only) · T-14 gate G1. G1 agenda item (DEC-017): all six process lessons are in the map and may appear in the playbook; the auditor reports any privacy, length or relevance problem with them as a finding.
 - Phase 2: T-20 metric scripts with synthetic fixtures (the source records use non-English marker words; keep them out of committed code as literals, use unicode escapes or the local pattern file, since the guard rejects those letters) · T-21 run on both source projects, totals only · T-22 gate G2.
 - Phase 3: T-30 plugin skeleton and commands · T-31 scope guard hook · T-32 git hook installer command · T-33 dogfood on Project A · T-34 gate G3.
-- Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).
+- Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).
 - Phase 5: T-50 README · T-51 v0.1.0 and marketplace · T-52 gate G5.
 
 ## Not on the list

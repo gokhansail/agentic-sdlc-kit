@@ -2,6 +2,25 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-10-30 (4) - T-12 templates
+
+- The maintainer chose the TL recommendation on 4 open questions: 7 templates; one Markdown file each under `templates/`; `tech-writer` (Sonnet, medium); the G1 end-to-end read stays a criterion, done once after T-13 and before G1.
+- C-26 (public endpoint checklist) moved from T-12 to T-44, because the kit has no public endpoint. The target cell of the source map row was changed.
+- `tech-writer` wrote 7 templates: task contract, decision record, lesson entry, audit report, re-verify table, push checklist, developer rules. One CHANGELOG line added. The writer has no shell tool, so the TL ran the guard and the tests.
+- TL review round 1 found 6 items, fixed in round 2:
+  - a non-ASCII character, and a field name that did not match the decision record format;
+  - a duplicated verdict line and an unsourced counts field in the audit report;
+  - the re-verify role name;
+  - missing source IDs in the push checklist and the re-verify table;
+  - an unsourced sentence in the developer rules.
+- The size label field (C-52) was missing from the task contract template, because the TL contract did not list C-52. Added in round 2.
+- After round 2 the TL made 2 more edits: one blank line added in the audit report, and the C-02 source ID added to the lesson entry. Role exceeded (2 lines, after the 2-round limit).
+- Not added, per the writer report: per-task result fields (C-22) belong in the log. Rule headings (C-32) and report placement (C-15) belong to T-13.
+- TL checks: every cited ID exists in the source map; no non-ASCII characters; banned-word list clean; guard clean (exit 0); `python -m pytest -q`: 31 passed. A filled task contract is 10 lines (cap 15).
+- Maintainer approved T-12 (2026-10-31).
+- Commit: "Add templates (T-12)".
+- Metrics (T-12): review rounds 2, questions back 2 (non-ASCII character, who runs the guard), out-of-scope files 0, models Sonnet (tech-writer), Haiku (scribe).
+
 ## 2026-10-30 (3) - T-11 closed, heading fix
 
 - The maintainer found `PLAYBOOK.md` too long and asked for a summary. The TL summarised the core and the appendices and reported 2 review items: the core heading "What it is not" did not match its text; the appendices repeat much of the core.

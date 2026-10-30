@@ -47,7 +47,7 @@ Targets: T-11 playbook, T-12 templates, T-13 role files and portability notes.
 | C-23 | One request equals one version | S-02 rule 16 | T-11 | Several tasks from one request ship as one version. The changelog lists each item. |
 | C-24 | One current version, stated each reply | S-02 rule 10 | T-11 | Only the current state is tested. Each reply states the version and whether code was written. |
 | C-25 | Secrets and private data stay out of the repository | S-02 rule 17 | T-11 | No addresses, keys, tokens or personal data in a repository or commit message. Values live only in ignored local files. A leaked value counts as burned. |
-| C-26 | Standard for public endpoints | S-02 rule 13 a-j | T-12 | Write-only endpoint, fail closed without a key, validate input, escape formulas, cheap checks before locks, rate and volume limits, minimal permission, a closing path, local tests with mutation checks. |
+| C-26 | Standard for public endpoints | S-02 rule 13 a-j | T-44 | Write-only endpoint, fail closed without a key, validate input, escape formulas, cheap checks before locks, rate and volume limits, minimal permission, a closing path, local tests with mutation checks. |
 | C-27 | Adversarial review before deploy | S-02 rule 13, how-to-apply part | T-11, T-12 | A second reviewer reads the endpoint as an attacker before deploy. |
 | C-28 | Documents current, documents first | S-02 rule 18 | T-11 | A stale line is fixed before work starts. A changing fact lives in one place. A check runs at the end of each task. |
 | C-29 | Generalisable lesson check | S-02 rule 19 | T-11 | After each task, ask whether the lesson applies elsewhere. Record the event, and the rule if it repeats. |
