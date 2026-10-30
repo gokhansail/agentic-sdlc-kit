@@ -2,6 +2,15 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-10-30 (3) - T-11 closed, heading fix
+
+- The maintainer found `PLAYBOOK.md` too long and asked for a summary. The TL summarised the core and the appendices and reported 2 review items: the core heading "What it is not" did not match its text; the appendices repeat much of the core.
+- The maintainer asked for the TL's fixes and decided not to act on the length. Fixed: heading renamed to "Scope and limits". Not done: shortening the appendices (maintainer decision).
+- The heading was edited by the TL directly, not by `tech-writer`. Role exceeded at the maintainer's request (one line).
+- Impact note: the G1 criterion "maintainer read it once end to end" is not met. The maintainer read the TL summary, not the file. The item stays open for G1; the TL warned that a summary does not replace the read.
+- The lesson on plan limits copied without their reason (T-10) was added to `LESSONS.md`.
+- Metrics (T-11 fix): review rounds 0, questions back 0, out-of-scope files 0, models none.
+
 ## 2026-10-30 (2) - T-11 playbook draft
 
 - The maintainer asked to start T-11 in the same session after T-10.

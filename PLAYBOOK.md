@@ -10,7 +10,7 @@ Several AI agents do software work, each in one role. The customer, a person, se
 
 Three rules hold it together. Each document has one writing role. Whoever wrote or ran the work cannot pass its gate. No change starts without the customer's go-ahead. [C-05, C-11, C-41]
 
-### What it is not
+### Scope and limits
 
 It sets who writes, who reviews and what is recorded, so the work can move to another model through files. [C-05, C-15]
 

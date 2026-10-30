@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 1: T-11 `PLAYBOOK.md` in progress (contract below). Then T-12 templates.
+Phase 1: T-12 templates; the TL asks the open questions, then writes the contract. G1 read item from T-11 is still open.
 
 ## Phases
 
@@ -57,7 +57,8 @@ Phase 1: T-11 `PLAYBOOK.md` in progress (contract below). Then T-12 templates.
 - Acceptance: every row of the base list is covered or listed as dropped with a reason; every source ID resolves in the local index; the committed file has no source file name, path, project or person name, and no measured number taken from a source (counts, usage, prices; these come only from phase 2; method parameters such as the 15-line cap are allowed); guard clean; the writing-style list holds.
 - Tests: guard run over the new committed file; `python -m pytest -q` stays green.
 
-### [ ] T-11 [H] PLAYBOOK.md
+### [x] T-11 [H] PLAYBOOK.md
+- Result: draft committed; one heading fixed after review ("What it is not" to "Scope and limits"). The maintainer read a TL summary, not the file end to end; the G1 read item stays open.
 - Goal: `PLAYBOOK.md` states the method in tool-neutral English: a core of at most one page, then appendices. Every claim traces to a row of `docs/source-map.md`.
 - Writer: `tech-writer` (Sonnet, effort high), two rounds at most. Reads `docs/source-map.md`, `CLAUDE.md`, `DECISIONS.md`; never the private sources.
 - Touch: `PLAYBOOK.md` (new), `CHANGELOG.md` (one line). Do not touch: the source map, templates, role files, other records.
