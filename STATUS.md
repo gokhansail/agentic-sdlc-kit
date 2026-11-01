@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-10-31
-Now: Phase 1 · T-13 next · repository private · guard code written, tests green
+Last updated: 2026-11-01
+Now: Phase 1 · maintainer's end-to-end read of PLAYBOOK.md next · repository private · guard code written, tests green
 
 ## Phase
 
@@ -21,10 +21,11 @@ Phase 1 Playbook is open. G1 criteria (TASKS.md): every claim maps to a source-m
 - T-10 Source map: `docs/source-map.md`, 9 sources, 64 concepts; private sources by ID (DEC-016); all 6 process lessons included (DEC-017).
 - T-11 Playbook: `PLAYBOOK.md`, core and appendices A to I, every claim traced to the source map. The maintainer's end-to-end read is still open (G1).
 - T-12 Templates: 7 files in `templates/`, each field traced to the source map; C-26 moved to T-44.
+- T-13 Role files: 7 role files and `DEV_RULES.md` revised, each traced to the source map; `docs/portability.md` dropped (DEC-018); one term "customer" (DEC-019). Approved 2026-11-01.
 
 ## Next
 
-- T-13 role files and `docs/portability.md`, then the maintainer's end-to-end read of `PLAYBOOK.md`, then T-14 gate G1.
+- The maintainer's end-to-end read of `PLAYBOOK.md` (G1 item), then T-14 gate G1.
 
 ## Repository
 

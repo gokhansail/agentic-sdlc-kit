@@ -22,3 +22,4 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 ### Changed
 
 - Session instructions (`CLAUDE.md`): the end-of-reply status line fields are defined.
+- Role files and developer rules (`.claude/agents/`, `DEV_RULES.md`): private details removed, each rule traced to the source map.

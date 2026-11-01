@@ -134,3 +134,19 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: the cap of 3 had no stated reason. The three left out are the origin of three rules in the map (seat rule, current documents, tests belong to the user); without them those rules cannot be traced to an event. Map rows hold anonymous one-line summaries only, so six rows carry no more private detail than three.
 - Consequences: the map lists six lesson concepts and no lesson in the dropped table. T-11 may use all six. Gate G1 reviews this choice: the auditor reports any privacy, length or relevance problem with the lessons as a finding.
 - Outcome:
+
+## DEC-018 No separate portability document
+- Date: 2026-11-01 · Raised in T-13
+- Options: a) drop `docs/portability.md`; appendices H and I of `PLAYBOOK.md` are the portability note b) a short file per kit component, concept and part to rebuild, pointing to appendix H c) a table of Claude Code features and their equivalents in a second tool, with a new source row
+- Decision: a).
+- Reason: appendices H and I already map each concept to its mechanics and list the parts to rebuild in another tool. b) repeats them in a second place. c) needs claims about another tool that no source row backs, and the second-client task was dropped (DEC-011).
+- Consequences: T-13 covers the role files and `DEV_RULES.md` only. Source-map rows that target T-13 are traced in the role files or are already cited in appendix H.
+- Outcome:
+
+## DEC-019 Role file wording: one term for the person, report language from the brief
+- Date: 2026-11-01 · Raised in T-13
+- Options for the term: a) "customer", as in `PLAYBOOK.md` b) "maintainer" c) "user". Options for the report language: a) the TL's brief names it; committed files name no language b) the committed developer rules name it
+- Decision: a) and a).
+- Reason: role files are part of the product and should use the playbook's term. In this repository the customer is the maintainer. The conversation language is the maintainer's choice, not a rule of the method (DEC-015).
+- Consequences: role files and `DEV_RULES.md` say "customer" and "the language the brief names". The TL names the language in every brief.
+- Outcome:

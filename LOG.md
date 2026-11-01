@@ -2,6 +2,33 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-01 (1) - T-13 role files in product form
+
+- The maintainer chose the TL recommendation on 5 open questions:
+  - revise the 7 role files and `DEV_RULES.md` in place, each traced to the source map;
+  - one term for the customer role (DEC-019);
+  - `docs/portability.md` dropped; appendices H and I of `PLAYBOOK.md` are the portability note (DEC-018);
+  - report language named in the brief, not in committed files (DEC-019);
+  - role files stay in `.claude/agents/`; the plugin copy is T-30.
+- The TL found these problems before the contract:
+  - a local path and purpose-revealing words in the writer role and the developer rules;
+  - source-project details and game-specific folder names;
+  - references to a `PLAN.md` that does not exist;
+  - stale lines (option b of D-4, hard-coded model versions);
+  - scribe formats that did not match `LOG.md` and `STATUS.md`;
+  - three terms for the same person.
+- `tech-writer` (Sonnet, medium) revised the 7 role files and `DEV_RULES.md`, and added one CHANGELOG line. Each file now ends with a Sources line. Every file grew by 1 to 2 lines.
+- TL review round 1 found 4 items, fixed in round 2:
+  - Sources lines cited rows the text does not use. Removed: developer C-15, C-16, C-55; cto C-13. The writer also removed auditor C-57, auditor-mini C-11 and C-58, and developer rules C-15 and C-16.
+  - Rules without a map row are now traced to project records: `TASKS.md` G4, G5, T-02, phase 4; DEC-007; `CLAUDE.md`.
+  - scribe sent check items to "Open questions" instead of "Next".
+  - a tool name in a writer rule.
+- Acceptance rows C-15, C-16 and C-55 are covered by `PLAYBOOK.md` appendix H. All other acceptance rows are cited in a role file.
+- TL checks: guard clean over the changed files (exit 0); `python -m pytest -q`: 31 passed; the 8 files are ASCII only; banned-word list clean; every cited ID exists in the map or the decisions.
+- Maintainer approved T-13 (2026-11-01).
+- Commit: "Revise role files and developer rules (T-13)".
+- Metrics (T-13): review rounds 2, questions back 3 (unsourced rules, a D-x label, a tool name in a rule), out-of-scope files 0, models Sonnet (tech-writer), Haiku (scribe).
+
 ## 2026-10-30 (4) - T-12 templates
 
 - The maintainer chose the TL recommendation on 4 open questions: 7 templates; one Markdown file each under `templates/`; `tech-writer` (Sonnet, medium); the G1 end-to-end read stays a criterion, done once after T-13 and before G1.

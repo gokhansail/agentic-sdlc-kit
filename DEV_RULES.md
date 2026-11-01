@@ -9,8 +9,8 @@
 4. No network calls in the code you write: the hooks and the MCP server work offline. No secrets, no absolute user paths, no personal data in code, tests or fixtures.
 
 ## Language and style
-5. Code, comments, docstrings, test names, README snippets: English. **Reports to the TL: Turkish** (user preference; applies to every sub-agent in this project). Comments are rare and explain why, not what.
-6. Python: compatible with 3.10 (the machine runs 3.10.4) unless decision D-4 says otherwise; type hints; `pytest -q`; no new dependency without naming it in "Technical decisions". TypeScript (only if D-4 = b): Node 24, `strict` on, `npm test`.
+5. Code, comments, docstrings, test names, README snippets: English. Reports to the TL: the language the brief names; English if the brief names none. Comments are rare and explain why, not what.
+6. Python: compatible with 3.10 (DEC-004); type hints; `pytest -q`; no new dependency without naming it in "Technical decisions".
 7. Markdown files are the source of truth. The server and the hooks read and write them in place; the only other store is `.sdlc/metrics.jsonl`.
 
 ## Verification
@@ -19,7 +19,9 @@
 10. Path safety: every file operation resolves inside the project root given at start; include tests with `..` segments and absolute paths outside the root.
 
 ## Source material
-11. When a contract points at `Documents/Unity/...`, a game project or office notes, read only the named section and take **concepts, never text**: no game or repo names, no player data, no URLs, no keys, no company or product names. Numbers come only from `tools/metrics` output.
+11. When a contract points at a private source (a project folder or notes the brief names), read only the named section and take concepts, never text: no project names, no user data, no URLs, no keys, no company or product names. Numbers come only from `tools/metrics` output.
 
 ## Report
-12. Fixed format from `developer.md` (or `tech-writer.md`): TASK · MODEL · CHANGED FILES · BUILD/TESTS · OUT OF SCOPE · TECHNICAL DECISIONS · OPEN QUESTION · WHAT THE TL SHOULD CHECK · CHANGELOG. State your model name correctly (Sonnet is not Opus).
+12. Fixed format from `developer.md` (or `tech-writer.md`): TASK | MODEL | CHANGED FILES | BUILD/TESTS | OUT OF SCOPE | TECHNICAL DECISIONS | OPEN QUESTION | WHAT THE TL SHOULD CHECK | CHANGELOG. State your model name correctly: the model you run on, not another one.
+
+Sources: [C-18, C-56, C-25, C-02, C-03, C-58, DEC-004, TASKS.md G4 (rules 4, 10), TASKS.md phase 4 (rule 7)]

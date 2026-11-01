@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 1: T-13 role files and `docs/portability.md` (the TL writes the contract when it starts, in a fresh session). Then the maintainer reads `PLAYBOOK.md` once end to end (G1 item from T-11), then T-14 gate G1.
+Phase 1: the maintainer reads `PLAYBOOK.md` once end to end (G1 item from T-11), then T-14 gate G1.
 
 ## Phases
 
@@ -78,8 +78,18 @@ Phase 1: T-13 role files and `docs/portability.md` (the TL writes the contract w
 - Tests: guard over the new files; `python -m pytest -q` stays green; the TL checks each template's fields against its map rows.
 - Deferred: C-26 public endpoint checklist goes to T-44 (the kit has no public endpoint).
 
+### [x] T-13 [M] Role files in product form
+- Result: 7 role files and `DEV_RULES.md` revised in 2 rounds, each ends with a Sources line; `docs/portability.md` dropped (DEC-018).
+- Goal: the 7 files in `.claude/agents/` and `DEV_RULES.md` hold only rules a stranger can use, each traced to a source-map row or a decision (DEC-018, DEC-019).
+- Writer: `tech-writer` (Sonnet, effort medium), two rounds at most. Reads the 8 files, `docs/source-map.md`, `PLAYBOOK.md` appendix A, `DECISIONS.md`, `CLAUDE.md`, `LOG.md` and `STATUS.md` (for their formats); never the private sources.
+- Touch: `.claude/agents/{cto,developer,scout,scribe,auditor,auditor-mini,tech-writer}.md`, `DEV_RULES.md`, `CHANGELOG.md` (one line). Do not touch: front matter `name`, `model`, `effort`, `tools`; `PLAYBOOK.md`, templates, the source map, other records, the guard.
+- Fix: local paths, private source details, purpose-revealing words and game-specific folder names; references to `PLAN.md` (none exists); stale lines (D-4 option b, hard-coded model versions); formats in `scribe.md` that differ from `LOG.md` and `STATUS.md`; "user" becomes "customer"; report language becomes "the language the brief names".
+- Trace: each file ends with one `Sources:` line of C-IDs and DEC-IDs, as in `templates/`. `tech-writer.md` traces to DEC-003 and DEC-015. A rule with no row is removed or listed in the report.
+- Acceptance: map rows C-02, C-03, C-15, C-16, C-19, C-20, C-32 to C-37, C-44, C-54, C-55, C-56, C-58 are each cited in a role file or in `PLAYBOOK.md` appendix H; ASCII only; no file grows by more than 5 lines; `DEV_RULES.md` stays under 40 lines; guard clean; writing-style list holds.
+- Tests: guard over the changed files; `python -m pytest -q` stays green; the TL checks each cited ID against the map and greps for the fixed items.
+
 ## Later phases (headlines; contracts are written when the phase opens)
-- Phase 1: T-13 role files and `docs/portability.md` (concept mapping only) · T-14 gate G1. G1 agenda item (DEC-017): all six process lessons are in the map and may appear in the playbook; the auditor reports any privacy, length or relevance problem with them as a finding.
+- Phase 1: T-14 gate G1. G1 agenda item (DEC-017): all six process lessons are in the map and may appear in the playbook; the auditor reports any privacy, length or relevance problem with them as a finding.
 - Phase 2: T-20 metric scripts with synthetic fixtures (the source records use non-English marker words; keep them out of committed code as literals, use unicode escapes or the local pattern file, since the guard rejects those letters) · T-21 run on both source projects, totals only · T-22 gate G2.
 - Phase 3: T-30 plugin skeleton and commands · T-31 scope guard hook · T-32 git hook installer command · T-33 dogfood on Project A · T-34 gate G3.
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).
