@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-02
-Now: Phase 2 · P-20 format pass next · repository private · guard code written, tests green
+Now: Phase 2 · T-20 contract next · repository private · guard code written, tests green
 
 ## Phase
 
@@ -27,10 +27,11 @@ Phase 2 Evidence is open. G2 criteria (TASKS.md, DEC-026): byte-identical rerun;
 - T-14 G1 audit: CONDITIONAL ACCEPT (2026-11-02); 6 questions answered (DEC-020).
 - T-15 G1 fixes: all findings fixed; the maintainer read `PLAYBOOK.md` end to end (2026-11-02), no corrections.
 - Phase 2 plan: `cto/2026-11-02_phase2-plan.md`; decisions DEC-021 to DEC-027.
+- P-20 record format pass: local format note for the parsers; Project B has data for changelog, log and one audit only.
 
 ## Next
 
-- P-20 record format pass (`scout`, read only); the TL writes a local format note, then the T-20 contract.
+- The TL writes the T-20 contract (metrics core and text metrics, `developer` Sonnet high).
 
 ## Repository
 

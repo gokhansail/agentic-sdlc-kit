@@ -2,6 +2,20 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-02 (6) - P-20 record format pass
+
+- The maintainer approved the commit and P-20.
+- `scout` (Haiku, low) read the record files of Project A and Project B, read only, and returned their formats with placeholders, folded markers and edge cases.
+- TL spot check against the sources: changelog heading and status forms, per-task metric-line form, decision heading states, test attributes, Project B audit folder untracked. All matched the scout report.
+- Findings:
+  - Project A has every record type the metrics read.
+  - Project B has a changelog, a log without metric lines and one audit report in an untracked folder; no decision log, task list or test attributes at HEAD.
+  - The revert word has three uses in Project A's changelog (version, item, feature in the scope text); only the first two are reverts.
+  - A second label family in Project A's log means game measurements, not process metrics.
+- The TL wrote the local format note `.sdlc/local/record-formats.md` (ignored, invented examples only) and marked P-20 done in `TASKS.md`.
+- Outcome: not committed (`TASKS.md`, records); the T-20 contract is next.
+- Metrics (P-20): review rounds 0, questions back 0, out-of-scope files 0, models Haiku (scout), Haiku (scribe).
+
 ## 2026-11-02 (5) - Phase 2 decisions
 
 - The maintainer chose the recommended option on D-21 to D-27. The TL recorded DEC-021 to DEC-027.
@@ -13,7 +27,8 @@ What is this file? A dated record of what was asked, decided, built and checked.
   - Five tasks T-20 to T-24; G2 as 6 checks; the G2 verdict stays with `auditor-mini` (DEC-026).
   - Metrics lines carry the customer result from T-20 on (DEC-027).
 - The TL updated `TASKS.md`: G2 row, phase 2 section with the P-20 format pass contract and T-20 to T-24 headlines, NOW NEXT.
-- Outcome: not committed; awaiting the maintainer's go-ahead for P-20 and the commit.
+- Commit: "Add phase 2 plan and decisions DEC-021 to DEC-027".
+- Pushed: 20825a8.
 
 ## 2026-11-02 (4) - CTO phase 2 plan
 

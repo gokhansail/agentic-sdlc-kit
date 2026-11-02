@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 2: P-20 record format pass (`scout`, read only), then the TL writes the T-20 contract. Plan: `cto/2026-11-02_phase2-plan.md`, DEC-021 to DEC-027.
+Phase 2: the TL writes the T-20 contract from `.sdlc/local/record-formats.md` (P-20 done). Plan: `cto/2026-11-02_phase2-plan.md`, DEC-021 to DEC-027.
 
 ## Phases
 
@@ -109,7 +109,8 @@ Phase 2: P-20 record format pass (`scout`, read only), then the TL writes the T-
 
 Plan: `cto/2026-11-02_phase2-plan.md`. Metrics M1, M2, M3, M5, M6, M8, M9, M12, M13 (DEC-021); folded ASCII markers in committed profiles (DEC-022); three sources: Project A, Project B, this repository (DEC-023); snapshot plus manifest (DEC-024); cells under 5 items show counts only (DEC-025); metrics lines carry the customer result from T-20 on (DEC-027).
 
-### [ ] P-20 [E] Record format pass (prerequisite of T-20)
+### [x] P-20 [E] Record format pass (prerequisite of T-20)
+- Result: `.sdlc/local/record-formats.md` written 2026-11-02; Project A has all record types; Project B has changelog, log and one untracked audit report only; open points for T-20 and T-21 listed at the end of the note.
 - Goal: `developer` can parse the source record formats without reading the private records (DEV_RULES 11, DEC-026).
 - Steps: `scout` (Haiku, low) reads the record files of Project A and Project B named in the brief, read only, and returns per record type: file role, heading and entry grammar, marker words in folded ASCII, metric-line phrasings, date formats, edge cases. No quotes, no names, no counts beyond the number of phrasings. The TL writes the format note from that.
 - Touch: `.sdlc/local/record-formats.md` (new, ignored), written by the TL with invented examples only. Do not touch: the sources, committed files.
