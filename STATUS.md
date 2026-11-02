@@ -2,14 +2,16 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-01
-Now: Phase 1 · maintainer's end-to-end read of PLAYBOOK.md next · repository private · guard code written, tests green
+Last updated: 2026-11-02
+Now: Phase 1 · G1 re-verification by auditor-mini next · repository private · guard code written, tests green
 
 ## Phase
 
 Phase 0 Setup closed: G0 passed 2026-10-29 (maintainer check in a fresh session; see LOG).
 
 Phase 1 Playbook is open. G1 criteria (TASKS.md): every claim maps to a source-map line; no private data; maintainer read it once end to end; verdict by `auditor`, then `auditor-mini`.
+
+G1 audit 2026-11-02 (`audits/2026-11-02_gate1.md`): CONDITIONAL ACCEPT; read criterion not met; 1 High, 4 Medium, 8 Low findings.
 
 ## Done
 
@@ -22,10 +24,12 @@ Phase 1 Playbook is open. G1 criteria (TASKS.md): every claim maps to a source-m
 - T-11 Playbook: `PLAYBOOK.md`, core and appendices A to I, every claim traced to the source map. The maintainer's end-to-end read is still open (G1).
 - T-12 Templates: 7 files in `templates/`, each field traced to the source map; C-26 moved to T-44.
 - T-13 Role files: 7 role files and `DEV_RULES.md` revised, each traced to the source map; `docs/portability.md` dropped (DEC-018); one term "customer" (DEC-019). Approved 2026-11-01.
+- T-14 G1 audit: CONDITIONAL ACCEPT (2026-11-02); 6 questions answered (DEC-020).
+- T-15 G1 fixes: all findings fixed; the maintainer read `PLAYBOOK.md` end to end (2026-11-02), no corrections.
 
 ## Next
 
-- The maintainer's end-to-end read of `PLAYBOOK.md` (G1 item), then T-14 gate G1.
+- `auditor-mini` re-verifies G1; on ACCEPT, phase 1 closes and the CTO proposes phase 2.
 
 ## Repository
 

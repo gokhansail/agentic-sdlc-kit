@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 1: the maintainer reads `PLAYBOOK.md` once end to end (G1 item from T-11), then T-14 gate G1.
+Phase 1: `auditor-mini` re-verifies G1 (T-14 verdict 2026-11-02: CONDITIONAL ACCEPT; T-15 fixes done; maintainer read done). On ACCEPT, phase 1 closes and the CTO proposes phase 2.
 
 ## Phases
 
@@ -88,8 +88,25 @@ Phase 1: the maintainer reads `PLAYBOOK.md` once end to end (G1 item from T-11),
 - Acceptance: map rows C-02, C-03, C-15, C-16, C-19, C-20, C-32 to C-37, C-44, C-54, C-55, C-56, C-58 are each cited in a role file or in `PLAYBOOK.md` appendix H; ASCII only; no file grows by more than 5 lines; `DEV_RULES.md` stays under 40 lines; guard clean; writing-style list holds.
 - Tests: guard over the changed files; `python -m pytest -q` stays green; the TL checks each cited ID against the map and greps for the fixed items.
 
+### [ ] T-14 Gate G1
+- Result so far: `auditor` verdict CONDITIONAL ACCEPT (2026-11-02); answers in DEC-020; fixes in T-15; `auditor-mini` re-verification open.
+- Goal: an independent verdict on phase 1 (ACCEPT, CONDITIONAL ACCEPT or REJECT) in `audits/2026-11-02_gate1.md`.
+- Auditor: `auditor` (Fable, xhigh), on the maintainer's machine (DEC-016). Reads the whole repository, its git history, `.sdlc/local/source-index.md` and the private sources it names, read only. No private name, path or quote enters the report.
+- Agenda: (1) every claim in `PLAYBOOK.md`, `templates/` and `.claude/agents/` cites an existing row, and the row backs the claim; map rows checked against their source sections (all rows the core cites, at least 15 others); (2) no private data in the tree or the history; (3) the read criterion: the maintainer skimmed `PLAYBOOK.md` on 2026-11-02 and asked this audit to review its content; the auditor judges whether the criterion is met; (4) `PLAYBOOK.md` content: correct, consistent with `CLAUDE.md`, role files and templates, writing-style list; (5) the six lessons (DEC-017): privacy, length, relevance; (6) phase 1 process: T-10 to T-13 records, review rounds, role-exceeded entries.
+- Content problems go to the customer as questions in the report; the auditor fixes nothing.
+- Then: the TL takes the questions to the maintainer, writes fix contracts, `auditor-mini` re-verifies.
+
+### [x] T-15 [M] G1 fixes
+- Result: all findings fixed in 2 rounds; the maintainer read `PLAYBOOK.md` end to end on 2026-11-02, no corrections.
+- Goal: close the G1 findings by the answers in DEC-020, so `auditor-mini` can re-verify.
+- Writer: `tech-writer` (Sonnet, effort medium), two rounds at most. Reads `audits/2026-11-02_gate1.md` sections 4 and 7, `DECISIONS.md` (DEC-009, DEC-020), the files below; never the private sources.
+- Touch: `PLAYBOOK.md` (D-1, D-2, D-3, D-4, D-5, D-9; line 17 "one maintainer" to "one person", D-6); `docs/source-map.md` (C-10 "sets" to "proposes"; "user" to "customer" in the 8 rows of D-6); `.claude/agents/scout.md` (R-1); `.claude/agents/tech-writer.md` (R-2); `templates/audit-report.md` (D-8, cite DEC-020); `CLAUDE.md` (D-7: the 1-2 tasks are the plan, the 3-5 trigger is the ceiling; no new line); `CHANGELOG.md` (one line). The TL edits `DECISIONS.md` (S-1, done); `scribe` edits the count in LOG 2026-10-30 (1).
+- Do not touch: other role files, other templates, `DEV_RULES.md`, the audit report, the front matter of role files except the `description` of `scout.md`.
+- Acceptance: each finding in the touch list is fixed as the report recommends, or the report lists why not; every cited ID exists; `CLAUDE.md` stays at most 80 lines; ASCII only; guard clean; writing-style list holds.
+- Tests: guard over the changed files; `python -m pytest -q` stays green; the TL re-counts the citations in `PLAYBOOK.md` (0 missing).
+
 ## Later phases (headlines; contracts are written when the phase opens)
-- Phase 1: T-14 gate G1. G1 agenda item (DEC-017): all six process lessons are in the map and may appear in the playbook; the auditor reports any privacy, length or relevance problem with them as a finding.
+- Phase 1: none left after T-14. G1 agenda item (DEC-017): all six process lessons are in the map and may appear in the playbook; the auditor reports any privacy, length or relevance problem with them as a finding.
 - Phase 2: T-20 metric scripts with synthetic fixtures (the source records use non-English marker words; keep them out of committed code as literals, use unicode escapes or the local pattern file, since the guard rejects those letters) · T-21 run on both source projects, totals only · T-22 gate G2.
 - Phase 3: T-30 plugin skeleton and commands · T-31 scope guard hook · T-32 git hook installer command · T-33 dogfood on Project A · T-34 gate G3.
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).

@@ -24,4 +24,4 @@ A contract: target file(s) | purpose and reader | length limit | the source map 
 3. Round 2 applies the TL's and the customer's corrections only; do not restructure or add material. There is no round 3 without a new contract.
 4. Report (in the language the brief names; English if none): files written, word count, open spots marked `[MEASURE]` or `[DECISION D-x]`, anything you left out because no source backed it.
 
-Sources: [DEC-003, DEC-015, C-25, C-58, C-02, C-03, C-19, C-20, CLAUDE.md (Language section, Agents table)]
+Sources: [DEC-003, DEC-015, C-25, C-58, C-02, DEC-009, C-20, CLAUDE.md (Language section, Agents table)]

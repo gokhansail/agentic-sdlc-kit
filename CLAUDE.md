@@ -24,9 +24,9 @@ If the maintainer says "you write it", the TL writes it and the LOG records that
 When the maintainer asks where things stand, read `STATUS.md`, the "NOW NEXT" line of `TASKS.md`, the top of `LOG.md` and any open decision. Reply with a short bullet summary and "next is X, continue?". If `STATUS.md` is missing, start from phase 0.
 
 ## Flow
-- 1-2 tasks per session. One request is at most one version.
+- Plan 1-2 tasks per session. One request is at most one version.
 - An open phase gate blocks the next phase. If the maintainer still wants to go ahead, the TL writes an impact note, warns, records it in the LOG, then does it.
-- `auditor` gives the gate verdict. `auditor-mini` re-verifies findings. After 3-5 tasks or a large read, suggest a fresh session at a task boundary.
+- `auditor` gives the gate verdict. `auditor-mini` re-verifies findings. At 3-5 tasks or after a large read, suggest a fresh session at a task boundary.
 
 ## Agents
 | Role | Model, effort | Used for |

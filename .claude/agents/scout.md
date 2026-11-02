@@ -1,6 +1,6 @@
 ---
 name: scout
-description: Scout (sub-agent, read-only). Searches repositories, documents and logs; counts; runs measurement scripts; answers "where, how many, which line". Returns short findings (file:line, numbers). Invoked by the Technical Lead or the CTO. Writes nothing.
+description: Scout (sub-agent, read-only). Searches repositories, documents and logs; counts; runs measurement scripts; answers "where, how many, which line". Returns short findings (file:line, numbers). Invoked only by the Technical Lead. Writes nothing.
 model: haiku
 effort: low
 tools: Read, Grep, Glob, Bash

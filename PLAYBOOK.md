@@ -14,11 +14,11 @@ Three rules hold it together. Each document has one writing role. Whoever wrote 
 
 It sets who writes, who reviews and what is recorded, so the work can move to another model through files. [C-05, C-15]
 
-The evidence is one maintainer on two projects. Results are descriptive. The process and the maintainer changed at the same time, so the method makes no causal claim and no claim of speed or quality. [DEC-010]
+The evidence is one person on two projects. Results are descriptive. The process and the person changed at the same time, so the method makes no causal claim and no claim of speed or quality. [DEC-010]
 
 ### Roles
 
-There are eight roles: customer, TL, CTO, developer, scout, scribe, auditor and auditor-mini. Only the TL calls other agents. A sub-agent cannot ask the customer or start another sub-agent. It returns with a question. The CTO gives options and writes reports. The scout searches and counts. The scribe writes the log and the status. The auditor gives gate verdicts. The auditor-mini re-checks named findings. Appendix A has the matrix. [C-02, C-03, C-33, C-34, C-35, C-36, C-37]
+There are nine roles: customer, TL, CTO, developer, tech-writer, scout, scribe, auditor and auditor-mini. Only the TL calls other agents. A sub-agent cannot ask the customer or start another sub-agent. It returns with a question. The CTO gives options and writes reports. The tech-writer writes and revises English documents from the TL's brief, in two rounds at most, and adds no claim of its own. The scout searches and counts. The scribe writes the log and the status. The auditor gives gate verdicts. The auditor-mini re-checks named findings. Appendix A has the matrix. [C-02, C-03, C-33, C-34, C-35, C-36, C-37, DEC-009]
 
 ### Task loop
 
@@ -26,7 +26,7 @@ The loop has eight steps: status, questions, contract, dispatch, implementation,
 
 ### Phase loop and gates
 
-The TL stops the work at a gate. The customer gives the criterion. The auditor gives the verdict: accept, conditional or reject. The developer fixes. The auditor-mini marks each finding CLOSED, OPEN or PARTIAL, with evidence. The CTO then sets the next agenda. While a gate is open, the next phase waits. [C-10, C-11, C-12]
+The TL stops the work at a gate. The customer gives the criterion. The auditor gives the verdict: accept, conditional or reject. The developer fixes. The auditor-mini marks each finding CLOSED, OPEN or PARTIAL, with evidence. The CTO then proposes the next agenda. While a gate is open, the next phase waits. [C-10, C-11, C-12]
 
 ### Records
 
@@ -40,6 +40,7 @@ The TL writes the task, decision and lesson records. The scribe writes the log a
 | TL | Writes contracts, dispatches, reviews diffs. Writes task, decision and lesson records. Commits and pushes after approval. Does not open code files. | [C-01, C-02, C-18, C-39] |
 | CTO | Gives options with the recommendation first. Writes a report only. Writes no code and makes no decision. | [C-33] |
 | Developer | Implements one contract. Asks instead of guessing. Never commits. Returns a fixed report. Reads only its contract and the developer rules. | [C-02, C-18, C-32] |
+| Tech-writer | Writes and revises English documents from the TL's brief. Two rounds at most. Adds no claim of its own. | [DEC-009] |
 | Scout | Reads only. Returns file and line references and numbers. | [C-34] |
 | Scribe | Writes the log, the status and the changelog check. Never writes decisions or contracts. | [C-35] |
 | Auditor | Runs a full audit with evidence and severity. Ends with a verdict line. Fixes nothing. | [C-36] |
@@ -51,7 +52,8 @@ Who holds each authority:
 |---|---|---|
 | Scope and taste | Customer | [C-01, C-04] |
 | Gate criterion | Customer | [C-04, C-10] |
-| Gate verdict | Auditor only | [C-04, C-11] |
+| Gate verdict | Auditor | [C-04, C-11] |
+| What follows the verdict | Customer | [C-01, C-04] |
 | Contracts and dispatch | TL | [C-01, C-02] |
 | Task, decision and lesson records | TL | [C-02] |
 | Proposes the next agenda after a gate | CTO; the customer decides | [C-10, C-33, C-01] |
@@ -80,17 +82,15 @@ The TL session is cleared only after the records are written and approved. The t
 
 ## Appendix C. Phase loop and gate
 
-1. The TL stops at a gate.
-2. The customer gives the criterion.
-3. The auditor judges and gives a verdict line: accept, conditional or reject. Finding IDs carry a type prefix: process, design, code or role.
-4. The developer fixes. The auditor-mini re-verifies each finding as CLOSED, OPEN or PARTIAL, with evidence. The trigger is a state, not a date.
-5. The CTO sets the next agenda.
-
-[C-10, C-11, C-12, C-44]
+1. The TL stops at a gate. [C-10]
+2. The customer gives the criterion. [C-10]
+3. The auditor judges and gives a verdict line: accept, conditional or reject. Finding IDs carry a type prefix: process, design, code, role, or security and privacy. [C-11, C-44, DEC-020]
+4. The developer fixes. The auditor-mini re-verifies each finding as CLOSED, OPEN or PARTIAL, with evidence. The trigger is a state, not a date. [C-12]
+5. The CTO proposes the next agenda. [C-10, C-33]
 
 While a gate is open, the next phase waits. [C-10, C-41]
 
-How an audit is run: read documents, code, git history and logs. Check every claim. Count what can be counted. Put evidence first. Never close your own finding. [C-42]
+How an audit is run: read documents, code, version history and logs. Check every claim. Count what can be counted. Put evidence first. Never close your own finding. [C-42]
 
 Severity runs critical, high, medium, low, by threat and recurring cost. [C-43]
 
@@ -136,7 +136,7 @@ Standing rules for records and commits:
 - No addresses, keys, tokens or personal data in a repository or a commit message. Values live in ignored local files. A leaked value counts as burned. [C-25]
 - An approved change is committed. At most one approved step stays uncommitted. [C-59]
 
-The six lessons that came from the source projects:
+The six lessons that came from the source projects: [C-49, C-50, C-51, C-62, C-63, C-64]
 
 1. Status record against working tree. A status record said "awaiting approval" while the working tree held code nobody had reviewed. Rule: check the working tree before trusting a status record. [C-49]
 2. Rules on paper. A rule existed that nobody checked. An outside reviewer exposed the gap. Rule: a rule is either enforced or deleted. [C-50]
@@ -153,10 +153,10 @@ Code and documents may reach a second model provider. User data, personal data a
 
 | Concept | Mechanics in the source projects | Source |
 |---|---|---|
-| Contract as handover | A task file. A sub-agent reads it and writes its report under the task. | [C-08, C-15] |
+| Contract as handover | A task file. A sub-agent receives it in its prompt. A backup developer on another profile reads it from the task file and writes its report under the task. | [C-08, C-15, C-55] |
 | Single writer | One role file per role, with the owned files, model and effort set in it. | [C-03, C-05, C-20] |
 | Gate by an independent reviewer | The auditor runs as a sub-agent on the top-tier model. | [C-11, C-19, C-36] |
-| Narrow reading for the developer | A rules file of at most 40 lines. Hooks enforce the same rules. | [C-18, C-56] |
+| Narrow reading for the developer | A rules file of at most 40 lines. The source projects enforce the test flag and the private-data rule with a pre-push hook. The standard calls for hooks to enforce the developer rules as well. | [C-18, C-46, C-47, C-56] |
 | No test flag in pushed work | A local pre-push guard. It checks committed content, not the working copy. | [C-46] |
 | No private data in pushed work | The same guard scans added lines and commit messages for link patterns, a known key and private paths. It reports the location, never the match. | [C-47] |
 | Data boundary | Keys stay in a local launcher or the environment. Reads of secret files are denied in settings. | [C-16] |

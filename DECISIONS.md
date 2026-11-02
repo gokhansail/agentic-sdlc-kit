@@ -48,7 +48,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 ## DEC-006 Naming the source projects
 - Date: 2026-10-29 · Question: D-6
 - Options: a) anonymous b) by name
-- Decision: a). The two source projects appear as "Project A" (Unity, 63 versions) and "Project B" (Unity/WebGL, 103 commits).
+- Decision: a). The two source projects appear as "Project A" and "Project B", two game projects. Their size is measured in phase 2. (Engine name and two counts removed on 2026-11-02, DEC-020.)
 - Reason: the projects are unreleased; their names and data add nothing to the method.
 - Consequences: only totals from the measurement scripts enter the repository. Names can be added if the projects are released.
 - Outcome:
@@ -129,7 +129,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 
 ## DEC-017 All process lessons go into the source map and the playbook
 - Date: 2026-10-30 · Raised by the maintainer during T-10
-- Options: a) all process lessons (6 of the 19 entries in the lessons log) b) at most 3, as in the day-0 plan
+- Options: a) all process lessons (6 entries in the lessons log; total count removed on 2026-11-02, DEC-020) b) at most 3, as in the day-0 plan
 - Decision: a).
 - Reason: the cap of 3 had no stated reason. The three left out are the origin of three rules in the map (seat rule, current documents, tests belong to the user); without them those rules cannot be traced to an event. Map rows hold anonymous one-line summaries only, so six rows carry no more private detail than three.
 - Consequences: the map lists six lesson concepts and no lesson in the dropped table. T-11 may use all six. Gate G1 reviews this choice: the auditor reports any privacy, length or relevance problem with the lessons as a finding.
@@ -149,4 +149,17 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a) and a).
 - Reason: role files are part of the product and should use the playbook's term. In this repository the customer is the maintainer. The conversation language is the maintainer's choice, not a rule of the method (DEC-015).
 - Consequences: role files and `DEV_RULES.md` say "customer" and "the language the brief names". The TL names the language in every brief.
+- Outcome:
+
+## DEC-020 Answers to the G1 audit questions
+- Date: 2026-11-02 · Raised by `audits/2026-11-02_gate1.md` section 7
+- Decision: the auditor's recommendation on all six questions.
+  1. The `tech-writer` role enters the playbook: one sentence in the core Roles paragraph and a row in the Appendix A matrix, cited to DEC-009 (D-1).
+  2. Appendix H states the hooks that exist: a pre-push hook for the test flag and private data (C-46, C-47). Hook enforcement of the developer rules is a rule of the standard (C-56), built in T-31 (D-2).
+  3. No engine name and no measured count from a private source in the records. DEC-006 and DEC-017 edited; the counts come from phase 2. The engine name stays in the history of the first commit; the history is not rewritten, because the name is not a secret (S-1).
+  4. Gate verdict wording: the auditor gives the verdict, the customer decides what follows (D-3).
+  5. The read criterion stays. The maintainer reads `PLAYBOOK.md` end to end after the fixes, and the LOG records the date and the corrections (P-1).
+  6. All Low findings are fixed in the same contract as the Medium ones (T-15). The fifth finding type, S- for security and privacy, is kept and traced to this decision (D-8).
+- Reason: the fixes are small and touch the same files; one contract and one re-verification cost less than two. Reading after the fixes means the read covers the text that passes the gate.
+- Consequences: T-15 fix contract; then the maintainer's read; then `auditor-mini` re-verifies G1.
 - Outcome:

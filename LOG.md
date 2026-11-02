@@ -2,6 +2,39 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-02 (2) - T-15 G1 fixes
+
+- The maintainer chose the auditor's recommendation on all six audit questions (DEC-020). The read criterion stays; the maintainer reads `PLAYBOOK.md` after the fixes.
+- The TL removed the engine name and three measured counts from DEC-006 and DEC-017 (S-1). The first commit keeps the engine name in history; the history is not rewritten (DEC-020).
+- `tech-writer` (Sonnet, medium) fixed D-1 to D-9, R-1 and R-2 in `PLAYBOOK.md`, `docs/source-map.md`, `scout.md`, `tech-writer.md`, `templates/audit-report.md` and `CLAUDE.md`, and added one CHANGELOG line. `scribe` removed the lesson count from LOG 2026-10-30 (1).
+- TL review round 1 found 4 items, fixed in round 2:
+  - "Auditor only" kept against DEC-020;
+  - two terms for the person in one sentence;
+  - Appendix C still listed four finding types after the template got five;
+  - 6 more map rows used "user" for the customer.
+- The writer also changed "sets" to "proposes" in Appendix C item 5, to match C-10; the TL accepted it.
+- TL checks: guard clean (exit 0); `python -m pytest -q`: 31 passed; ASCII only; banned-word list clean; 87 C-citations in `PLAYBOOK.md` lines, 0 missing; core 434 words; `CLAUDE.md` 80 lines.
+- The maintainer read `PLAYBOOK.md` end to end after the fixes (2026-11-02). Corrections: none. This meets the G1 read criterion (P-1).
+- Maintainer approved T-14 and T-15 (2026-11-02).
+- Commit: "Add G1 audit and fixes (T-14, T-15)".
+- Metrics (T-15): review rounds 2, questions back 3 (more "user" rows, "proposes" in Appendix C, length of the core sentence), out-of-scope files 0, models Sonnet (tech-writer), Haiku (scribe).
+
+## 2026-11-02 (1) - T-14 gate G1 audit
+
+- The maintainer said LangGraph is not in this project's scope. The TL confirmed: no record or code uses it, and the decisions fix Python with the MCP SDK (DEC-004, DEC-013).
+- The maintainer skimmed `PLAYBOOK.md` instead of reading it end to end, saw no problem, and asked the audit to review its content and to ask the maintainer about any problem.
+- Impact note: the G1 criterion "maintainer read it once end to end" is not met by a skim. The TL warned and started the audit at the maintainer's request; the auditor was asked to judge the criterion.
+- The TL wrote the T-14 contract in `TASKS.md`.
+- `auditor` (Fable, xhigh) wrote `audits/2026-11-02_gate1.md`. Verdict: CONDITIONAL ACCEPT.
+  - Traceability passed: 139 citations in `PLAYBOOK.md`, 0 missing, all 64 map rows read against their sources.
+  - Privacy passed: tree and 13 commits, 0 hits.
+  - Read criterion not met.
+- Findings: 0 Critical, 1 High (P-1 read criterion), 4 Medium (P-2 records not current, D-1 writer role missing from the playbook, D-2 Appendix H states a hook the source projects do not have, R-1 `scout.md` says the CTO may invoke it), 8 Low. No code finding. The six lessons: no finding.
+- R-1 was a stale line that the T-13 contract named and the TL review missed.
+- TL checks on the report: R-1, D-2, D-3 and S-1 confirmed in the files; guard clean over the report; the report names no private source.
+- Outcome: 5 questions to the maintainer; the fix contract follows the answers. Not committed.
+- Metrics (T-14 audit): review rounds 0, questions back 5, out-of-scope files 0, models Fable (auditor), Haiku (scribe).
+
 ## 2026-11-01 (1) - T-13 role files in product form
 
 - The maintainer chose the TL recommendation on 5 open questions:
@@ -73,7 +106,7 @@ What is this file? A dated record of what was asked, decided, built and checked.
 - Decision DEC-016: the committed source map names private sources by ID and section; the ID-to-file index stays in an ignored local file.
 - Decision DEC-017: every process lesson goes into the map and may appear in the playbook; added to the G1 agenda.
 - `scout` (Haiku) extracted 51 concepts from the base list plus 13 more method concepts from the same sources; all 16 base rows covered. The TL spot-checked section numbers and lesson dates against the sources: all matched.
-- Two deviations from the base list. The contract line "no number from a source" was narrowed by the TL to "no measured number" so method parameters (15-line cap, 2 rounds) can be cited. The lesson cap of 3 from the base list was removed by the maintainer (DEC-017): the lessons log has 19 entries, 6 of them process lessons, and all 6 are in the map. Gate G1 reviews this choice.
+- Two deviations from the base list. The contract line "no number from a source" was narrowed by the TL to "no measured number" so method parameters (15-line cap, 2 rounds) can be cited. The lesson cap of 3 from the base list was removed by the maintainer (DEC-017): 6 entries of the lessons log are process lessons, and all 6 are in the map (total count removed on 2026-11-02, DEC-020). Gate G1 reviews this choice.
 - `tech-writer` (Sonnet) wrote `docs/source-map.md` (9 sources, 64 concepts, 6 dropped rows), the local index and one CHANGELOG line. Round 2 fixed three items: one term for the customer role, the concurrency item added to the single-writer concept, a dropped row for the project entry section. A third edit for DEC-017 moved three lessons from the dropped table into the concept table; this was a scope change, not a review round.
 - TL review: guard clean over the changed files (exit 0); `python -m pytest -q`: 31 passed.
 - Maintainer approved T-10. The maintainer reads the map and the playbook later, before G1.
