@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 2: the CTO proposes the phase 2 plan (phase boundary, in a fresh session); then T-20 metric scripts. G1 passed 2026-11-02.
+Phase 2: P-20 record format pass (`scout`, read only), then the TL writes the T-20 contract. Plan: `cto/2026-11-02_phase2-plan.md`, DEC-021 to DEC-027.
 
 ## Phases
 
@@ -11,7 +11,7 @@ Phase 2: the CTO proposes the phase 2 plan (phase boundary, in a fresh session);
 |---|---|---|---|
 | 0 Setup | decisions, records, guard, toolchain | G0: decisions recorded; guard rejects a planted secret (test); toolchain doc has no "not verified" line for phases 1-3; product `CLAUDE.md` committed (T-05) | TL list + maintainer |
 | 1 Playbook | the method in tool-neutral English, no code | G1: every claim maps to a source-map line; no private data; maintainer read it once end to end | `auditor`, then `auditor-mini` |
-| 2 Evidence | before/after numbers, reproducible | G2: scripts reproduce the numbers; 3 numbers recounted by hand; limits section | `auditor-mini` |
+| 2 Evidence | before/after numbers, reproducible | G2 (DEC-026): rerun from a clean checkout matches the manifest hashes and leaves `evidence/` and `EVIDENCE.md` unchanged; 3 hand counts (H1, H2, H3) match exactly; limits section of at least 9 items; tests green, a known-answer test per metric; guard clean and `evidence/*.json` holds only fixed keys, numbers, dates, hashes and labels; unparsed metric lines 0 or stated in the limits | `auditor-mini` |
 | 3 Plugin | Claude Code plugin: roles, commands, hooks | G3: loads with `--plugin-dir`; scope guard blocks and allows (tests); one real task done with it on Project A | `auditor`, then `auditor-mini` |
 | 4 MCP server | file-based core | G4: tests green; root lock and `..` tests pass; no network; works in Claude Code (DEC-011); eval table from T-46 | `auditor`, then `auditor-mini` |
 | 5 Release | README, v0.1.0, marketplace, public | G5: publish-readiness audit incl. git history; every README number reproducible; maintainer says publish | `auditor` |
@@ -105,9 +105,26 @@ Phase 2: the CTO proposes the phase 2 plan (phase boundary, in a fresh session);
 - Acceptance: each finding in the touch list is fixed as the report recommends, or the report lists why not; every cited ID exists; `CLAUDE.md` stays at most 80 lines; ASCII only; guard clean; writing-style list holds.
 - Tests: guard over the changed files; `python -m pytest -q` stays green; the TL re-counts the citations in `PLAYBOOK.md` (0 missing).
 
+## Phase 2
+
+Plan: `cto/2026-11-02_phase2-plan.md`. Metrics M1, M2, M3, M5, M6, M8, M9, M12, M13 (DEC-021); folded ASCII markers in committed profiles (DEC-022); three sources: Project A, Project B, this repository (DEC-023); snapshot plus manifest (DEC-024); cells under 5 items show counts only (DEC-025); metrics lines carry the customer result from T-20 on (DEC-027).
+
+### [ ] P-20 [E] Record format pass (prerequisite of T-20)
+- Goal: `developer` can parse the source record formats without reading the private records (DEV_RULES 11, DEC-026).
+- Steps: `scout` (Haiku, low) reads the record files of Project A and Project B named in the brief, read only, and returns per record type: file role, heading and entry grammar, marker words in folded ASCII, metric-line phrasings, date formats, edge cases. No quotes, no names, no counts beyond the number of phrasings. The TL writes the format note from that.
+- Touch: `.sdlc/local/record-formats.md` (new, ignored), written by the TL with invented examples only. Do not touch: the sources, committed files.
+- Acceptance: every record type that a DEC-021 metric reads is covered for each source that has it; each example in the note is invented; nothing committed.
+- Tests: none; guard run over the tree stays clean.
+
+### [ ] T-20 [H] Metrics core and text metrics (M1, M2, M5, M6)
+- Contract written after P-20. Scope in the plan, section 1 table: CLI, folding, profiles, snapshot and manifest, deterministic JSON, `..` test, free-text refusal test. `developer`, Sonnet, effort high.
+
+### [ ] T-21 [M] Git, audit and decision metrics; table render (M3, M8, M9, M12, M13)
+### [ ] T-22 [M] Run on the three sources (`scout`, runs only; totals to `evidence/*.json`)
+### [ ] T-23 [M] `EVIDENCE.md` prose and limits (`tech-writer`)
+### [ ] T-24 Gate G2 (`auditor-mini`)
+
 ## Later phases (headlines; contracts are written when the phase opens)
-- Phase 1: none left after T-14. G1 agenda item (DEC-017): all six process lessons are in the map and may appear in the playbook; the auditor reports any privacy, length or relevance problem with them as a finding.
-- Phase 2: T-20 metric scripts with synthetic fixtures (the source records use non-English marker words; keep them out of committed code as literals, use unicode escapes or the local pattern file, since the guard rejects those letters) · T-21 run on both source projects, totals only · T-22 gate G2.
 - Phase 3: T-30 plugin skeleton and commands · T-31 scope guard hook · T-32 git hook installer command · T-33 dogfood on Project A · T-34 gate G3.
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).
 - Phase 5: T-50 README · T-51 v0.1.0 and marketplace · T-52 gate G5.

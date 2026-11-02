@@ -2,6 +2,33 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-02 (5) - Phase 2 decisions
+
+- The maintainer chose the recommended option on D-21 to D-27. The TL recorded DEC-021 to DEC-027.
+  - 9 metrics, all counted by script; M4, M7, M10, M11 dropped (DEC-021).
+  - Folded ASCII markers in committed profiles (DEC-022).
+  - Three sources: Project A, Project B, this repository (DEC-023).
+  - Snapshot into `evidence/raw/` plus a SHA-256 manifest (DEC-024).
+  - Cells under 5 items show counts only (DEC-025).
+  - Five tasks T-20 to T-24; G2 as 6 checks; the G2 verdict stays with `auditor-mini` (DEC-026).
+  - Metrics lines carry the customer result from T-20 on (DEC-027).
+- The TL updated `TASKS.md`: G2 row, phase 2 section with the P-20 format pass contract and T-20 to T-24 headlines, NOW NEXT.
+- Outcome: not committed; awaiting the maintainer's go-ahead for P-20 and the commit.
+
+## 2026-11-02 (4) - CTO phase 2 plan
+
+- The maintainer approved calling `cto` for the phase 2 plan (phase boundary, fresh session).
+- `cto` (Opus, high) wrote `cto/2026-11-02_phase2-plan.md` (120 lines). Proposals:
+  - five tasks: T-20 [H] metrics core and text metrics, T-21 [M] git, audit and decision metrics plus table render, T-22 [M] run on three sources, T-23 [M] `EVIDENCE.md` text, T-24 gate G2;
+  - 8 of the 12 day-0 metrics counted by script, 4 dropped, one added (share of hard tasks);
+  - G2 as 6 checks: byte-identical rerun, 3 named hand counts, a limits list of at least 9 items, tests, privacy, parse coverage;
+  - a `scout` format pass before T-20, so `developer` never reads the private records (DEV_RULES 11).
+- Seven questions to the maintainer (D-21 to D-27): metric set, marker words, this repository as a third source, input pinning, small cells, task split, customer outcome field.
+- TL checks on the report: 0 characters outside ASCII; banned-word list clean; no source-project name, local path or measured count from the sources.
+- `scribe` replaced the stale outcome line of 2026-11-02 (3) with the commit and push lines.
+- Outcome: not committed; awaiting the maintainer's answers to D-21 to D-27.
+- Metrics (CTO phase 2 plan): review rounds 0, questions back 7, out-of-scope files 0, models Opus (cto), Haiku (scribe).
+
 ## 2026-11-02 (3) - G1 re-verification, phase 1 closed
 
 - `auditor-mini` (Opus, high) wrote `audits/2026-11-02_reverify.md`: 14 of 14 findings CLOSED, 4 of 4 verdict conditions met. Verdict: ACCEPT.
@@ -13,7 +40,8 @@ What is this file? A dated record of what was asked, decided, built and checked.
   - The TL corrected the DEC-020 wording for the first and third. Audit reports are not edited after they are written, so the second stays (DEC-020).
 - Phase 1 closed 2026-11-02. Next: the CTO proposes phase 2 at the phase boundary, in a fresh session.
 - Metrics (G1 re-verification): review rounds 0, questions back 0, out-of-scope files 0, models Opus (auditor-mini), Haiku (scribe).
-- Outcome: not committed; awaiting the maintainer's go-ahead.
+- Commit: "Close phase 1: G1 re-verification ACCEPT".
+- Pushed: 599aaf8.
 
 ## 2026-11-02 (2) - T-15 G1 fixes
 

@@ -18,6 +18,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 - Templates (`templates/`): task contract, decision record, lesson entry, audit report, re-verify table, push checklist, developer rules.
 - Source map (`docs/source-map.md`): the concepts the playbook may use, each traced to a source section.
 - Playbook (`PLAYBOOK.md`): the method in tool-neutral English, every claim traced to the source map.
+- Phase 2 plan (`cto/2026-11-02_phase2-plan.md`) and decisions DEC-021 to DEC-027: metric set, input pinning and gate G2 checks.
 
 ### Changed
 

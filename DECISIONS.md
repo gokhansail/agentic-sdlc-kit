@@ -163,3 +163,59 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: the fixes are small and touch the same files; one contract and one re-verification cost less than two. Reading after the fixes means the read covers the text that passes the gate.
 - Consequences: T-15 fix contract; then the maintainer's read; then `auditor-mini` re-verifies G1.
 - Outcome: 2026-11-02, `auditor-mini` closed 14 of 14 findings and all 4 conditions; G1 ACCEPT (`audits/2026-11-02_reverify.md`).
+
+## DEC-021 Phase 2 metric set
+- Date: 2026-11-02 · Question: D-21 (`cto/2026-11-02_phase2-plan.md` section 2)
+- Options: a) 8 metrics counted by script (M1, M2, M3, M5, M6, M8, M9, M12), M4, M7, M10, M11 dropped, M13 share of hard tasks added b) a) plus M4 as a committed hand list c) minimal set M1, M2, M3, M5, M12
+- Decision: a).
+- Reason: every published number then comes from a script and can be rerun. M4 is a hand list with a very small n; M7 needs a hand label; M10 is specific to the source domain and includes other people's sessions; M11 has no source, and T-46 measures cost.
+- Consequences: 9 metrics in T-20 and T-21. A metric with no record in a source shows "no data", never 0. M9 counts filled outcomes only; the right/wrong label is dropped.
+- Outcome:
+
+## DEC-022 Marker words in the source records
+- Date: 2026-11-02 · Question: D-22
+- Options: a) fold the input text to ASCII and keep the folded markers in a committed profile per source b) profiles kept in `.sdlc/local/` c) unicode escapes in the parser code
+- Decision: a).
+- Reason: the counting rule behind each published number stays public and readable, and the guard passes. b) hides the rule, which conflicts with the G5 criterion that every README number is reproducible. c) is unreadable in review.
+- Consequences: the profiles show the language of the source records; no names or content. No marker literal in code; fixtures use invented English markers, plus one folding test that builds its letters with `chr()`.
+- Outcome:
+
+## DEC-023 This repository as a third source
+- Date: 2026-11-02 · Question: D-23
+- Options: a) yes, in its own column, with no before/after comparison b) no
+- Decision: a).
+- Reason: it is the only series a stranger can rerun from the public repository.
+- Consequences: `evidence/kit.json` next to the two source files. The kit column has v2 data only.
+- Outcome:
+
+## DEC-024 Input pinning
+- Date: 2026-11-02 · Question: D-24
+- Options: a) snapshot the named record files into the ignored `evidence/raw/` plus a manifest with SHA-256 hashes and the source HEAD b) read from a source commit only, after the maintainer commits Project A's records c) read the working tree, no pinning
+- Decision: a).
+- Reason: it works while Project A has uncommitted record changes, and a rerun can prove it read the same input.
+- Consequences: a copy of private record text sits inside the kit folder. `.gitignore` and the guard cover `evidence/raw/`; `git add -f` is the remaining hole and is never used. The snapshot date ends Project A's v2 series before T-33 dogfoods the kit on it.
+- Outcome:
+
+## DEC-025 Small cells
+- Date: 2026-11-02 · Question: D-25
+- Options: a) a cell with fewer than 5 items shows the count and no rate b) rates everywhere with n beside them
+- Decision: a).
+- Reason: a rate over 2 or 3 items reads as more than it is. The threshold 5 is a judgment, not derived from data; the limits section says so.
+- Consequences: the render step applies the rule; the limits section lists the cells shown as counts only.
+- Outcome:
+
+## DEC-026 Phase 2 task split and gate
+- Date: 2026-11-02 · Question: D-26
+- Options: a) five tasks: T-20 core and text metrics, T-21 git, audit and decision metrics plus render, T-22 run, T-23 `EVIDENCE.md` text, T-24 gate b) three tasks as first named c) four, T-22 and T-23 merged
+- Decision: a). G2 becomes the 6 checks of the CTO report section 3. The G2 verdict stays with `auditor-mini`.
+- Reason: one script task for all parsers does not fit a 15-line contract. Running on private data (`scout`) and writing prose (`tech-writer`) are different roles. Privacy at G2 is covered by the guard and a JSON schema test; the full `auditor` reviews the whole history at G5.
+- Consequences: before T-20, `scout` returns the record formats and the TL writes a local format note with invented examples, so `developer` never reads the private records (DEV_RULES 11).
+- Outcome:
+
+## DEC-027 Customer result in the per-task metrics line
+- Date: 2026-11-02 · Question: D-27
+- Options: a) the metrics line records "customer result: done | redo | not tested" from T-20 on b) narrow `PLAYBOOK.md` Appendix F to the three fields the kit records c) leave the mismatch
+- Decision: a).
+- Reason: Appendix F names the customer's test result as a per-task metric. The kit should record what its playbook says; b) would fit the method to the gap.
+- Consequences: the TL dictates the field to `scribe` in every metrics line from T-20 on; `scribe.md` already accepts an outcome value. Earlier lines count as "not recorded".
+- Outcome:

@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-02
-Now: Phase 2 · CTO phase plan next · repository private · guard code written, tests green
+Now: Phase 2 · P-20 format pass next · repository private · guard code written, tests green
 
 ## Phase
 
@@ -11,7 +11,7 @@ Phase 0 Setup closed: G0 passed 2026-10-29 (maintainer check in a fresh session;
 
 Phase 1 Playbook closed: G1 passed 2026-11-02 (`auditor` CONDITIONAL ACCEPT, fixes in T-15, `auditor-mini` ACCEPT; `audits/`).
 
-Phase 2 Evidence is open. G2 criteria (TASKS.md): scripts reproduce the numbers; 3 numbers recounted by hand; limits section. Verdict by `auditor-mini`.
+Phase 2 Evidence is open. G2 criteria (TASKS.md, DEC-026): byte-identical rerun; 3 hand counts; limits section of at least 9 items; tests; privacy; parse coverage. Verdict by `auditor-mini`.
 
 ## Done
 
@@ -26,10 +26,11 @@ Phase 2 Evidence is open. G2 criteria (TASKS.md): scripts reproduce the numbers;
 - T-13 Role files: 7 role files and `DEV_RULES.md` revised, each traced to the source map; `docs/portability.md` dropped (DEC-018); one term "customer" (DEC-019). Approved 2026-11-01.
 - T-14 G1 audit: CONDITIONAL ACCEPT (2026-11-02); 6 questions answered (DEC-020).
 - T-15 G1 fixes: all findings fixed; the maintainer read `PLAYBOOK.md` end to end (2026-11-02), no corrections.
+- Phase 2 plan: `cto/2026-11-02_phase2-plan.md`; decisions DEC-021 to DEC-027.
 
 ## Next
 
-- The CTO proposes the phase 2 plan, in a fresh session; then T-20 metric scripts.
+- P-20 record format pass (`scout`, read only); the TL writes a local format note, then the T-20 contract.
 
 ## Repository
 
