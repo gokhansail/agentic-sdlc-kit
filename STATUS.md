@@ -3,15 +3,15 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-02
-Now: Phase 1 · G1 re-verification by auditor-mini next · repository private · guard code written, tests green
+Now: Phase 2 · CTO phase plan next · repository private · guard code written, tests green
 
 ## Phase
 
 Phase 0 Setup closed: G0 passed 2026-10-29 (maintainer check in a fresh session; see LOG).
 
-Phase 1 Playbook is open. G1 criteria (TASKS.md): every claim maps to a source-map line; no private data; maintainer read it once end to end; verdict by `auditor`, then `auditor-mini`.
+Phase 1 Playbook closed: G1 passed 2026-11-02 (`auditor` CONDITIONAL ACCEPT, fixes in T-15, `auditor-mini` ACCEPT; `audits/`).
 
-G1 audit 2026-11-02 (`audits/2026-11-02_gate1.md`): CONDITIONAL ACCEPT; read criterion not met; 1 High, 4 Medium, 8 Low findings.
+Phase 2 Evidence is open. G2 criteria (TASKS.md): scripts reproduce the numbers; 3 numbers recounted by hand; limits section. Verdict by `auditor-mini`.
 
 ## Done
 
@@ -29,7 +29,7 @@ G1 audit 2026-11-02 (`audits/2026-11-02_gate1.md`): CONDITIONAL ACCEPT; read cri
 
 ## Next
 
-- `auditor-mini` re-verifies G1; on ACCEPT, phase 1 closes and the CTO proposes phase 2.
+- The CTO proposes the phase 2 plan, in a fresh session; then T-20 metric scripts.
 
 ## Repository
 

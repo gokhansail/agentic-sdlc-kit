@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 1: `auditor-mini` re-verifies G1 (T-14 verdict 2026-11-02: CONDITIONAL ACCEPT; T-15 fixes done; maintainer read done). On ACCEPT, phase 1 closes and the CTO proposes phase 2.
+Phase 2: the CTO proposes the phase 2 plan (phase boundary, in a fresh session); then T-20 metric scripts. G1 passed 2026-11-02.
 
 ## Phases
 
@@ -88,8 +88,8 @@ Phase 1: `auditor-mini` re-verifies G1 (T-14 verdict 2026-11-02: CONDITIONAL ACC
 - Acceptance: map rows C-02, C-03, C-15, C-16, C-19, C-20, C-32 to C-37, C-44, C-54, C-55, C-56, C-58 are each cited in a role file or in `PLAYBOOK.md` appendix H; ASCII only; no file grows by more than 5 lines; `DEV_RULES.md` stays under 40 lines; guard clean; writing-style list holds.
 - Tests: guard over the changed files; `python -m pytest -q` stays green; the TL checks each cited ID against the map and greps for the fixed items.
 
-### [ ] T-14 Gate G1
-- Result so far: `auditor` verdict CONDITIONAL ACCEPT (2026-11-02); answers in DEC-020; fixes in T-15; `auditor-mini` re-verification open.
+### [x] T-14 Gate G1
+- Result: `auditor` CONDITIONAL ACCEPT (2026-11-02); answers in DEC-020; fixes in T-15; `auditor-mini` ACCEPT, 14 of 14 findings closed (`audits/2026-11-02_reverify.md`). Phase 1 closed.
 - Goal: an independent verdict on phase 1 (ACCEPT, CONDITIONAL ACCEPT or REJECT) in `audits/2026-11-02_gate1.md`.
 - Auditor: `auditor` (Fable, xhigh), on the maintainer's machine (DEC-016). Reads the whole repository, its git history, `.sdlc/local/source-index.md` and the private sources it names, read only. No private name, path or quote enters the report.
 - Agenda: (1) every claim in `PLAYBOOK.md`, `templates/` and `.claude/agents/` cites an existing row, and the row backs the claim; map rows checked against their source sections (all rows the core cites, at least 15 others); (2) no private data in the tree or the history; (3) the read criterion: the maintainer skimmed `PLAYBOOK.md` on 2026-11-02 and asked this audit to review its content; the auditor judges whether the criterion is met; (4) `PLAYBOOK.md` content: correct, consistent with `CLAUDE.md`, role files and templates, writing-style list; (5) the six lessons (DEC-017): privacy, length, relevance; (6) phase 1 process: T-10 to T-13 records, review rounds, role-exceeded entries.

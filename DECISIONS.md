@@ -153,13 +153,13 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 
 ## DEC-020 Answers to the G1 audit questions
 - Date: 2026-11-02 · Raised by `audits/2026-11-02_gate1.md` section 7
-- Decision: the auditor's recommendation on all six questions.
+- Decision: the auditor's recommendation on its five questions, and the TL's recommendation on a sixth (item 6).
   1. The `tech-writer` role enters the playbook: one sentence in the core Roles paragraph and a row in the Appendix A matrix, cited to DEC-009 (D-1).
   2. Appendix H states the hooks that exist: a pre-push hook for the test flag and private data (C-46, C-47). Hook enforcement of the developer rules is a rule of the standard (C-56), built in T-31 (D-2).
-  3. No engine name and no measured count from a private source in the records. DEC-006 and DEC-017 edited; the counts come from phase 2. The engine name stays in the history of the first commit; the history is not rewritten, because the name is not a secret (S-1).
+  3. No engine name and no measured count from a private source in the records. DEC-006 and DEC-017 edited; the counts come from phase 2. The engine name stays in the history of the commits before e42b560; the history is not rewritten, because the name is not a secret (S-1). Audit reports are not edited after they are written, so the G1 report keeps its lesson count as evidence.
   4. Gate verdict wording: the auditor gives the verdict, the customer decides what follows (D-3).
   5. The read criterion stays. The maintainer reads `PLAYBOOK.md` end to end after the fixes, and the LOG records the date and the corrections (P-1).
   6. All Low findings are fixed in the same contract as the Medium ones (T-15). The fifth finding type, S- for security and privacy, is kept and traced to this decision (D-8).
 - Reason: the fixes are small and touch the same files; one contract and one re-verification cost less than two. Reading after the fixes means the read covers the text that passes the gate.
 - Consequences: T-15 fix contract; then the maintainer's read; then `auditor-mini` re-verifies G1.
-- Outcome:
+- Outcome: 2026-11-02, `auditor-mini` closed 14 of 14 findings and all 4 conditions; G1 ACCEPT (`audits/2026-11-02_reverify.md`).

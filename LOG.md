@@ -2,6 +2,19 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-02 (3) - G1 re-verification, phase 1 closed
+
+- `auditor-mini` (Opus, high) wrote `audits/2026-11-02_reverify.md`: 14 of 14 findings CLOSED, 4 of 4 verdict conditions met. Verdict: ACCEPT.
+  - Recount: 151 C-citations in `PLAYBOOK.md`, 0 missing; core 436 words without brackets; engine name 0 times in the tree; 31 tests passed; guard exit 0.
+- Three new Low candidates, not blocking:
+  - DEC-020 said the engine name was only in the first commit's history. It is also in a later one.
+  - The G1 report keeps a lesson count.
+  - DEC-020 said "six questions" while the audit asked five.
+  - The TL corrected the DEC-020 wording for the first and third. Audit reports are not edited after they are written, so the second stays (DEC-020).
+- Phase 1 closed 2026-11-02. Next: the CTO proposes phase 2 at the phase boundary, in a fresh session.
+- Metrics (G1 re-verification): review rounds 0, questions back 0, out-of-scope files 0, models Opus (auditor-mini), Haiku (scribe).
+- Outcome: not committed; awaiting the maintainer's go-ahead.
+
 ## 2026-11-02 (2) - T-15 G1 fixes
 
 - The maintainer chose the auditor's recommendation on all six audit questions (DEC-020). The read criterion stays; the maintainer reads `PLAYBOOK.md` after the fixes.
@@ -17,6 +30,7 @@ What is this file? A dated record of what was asked, decided, built and checked.
 - The maintainer read `PLAYBOOK.md` end to end after the fixes (2026-11-02). Corrections: none. This meets the G1 read criterion (P-1).
 - Maintainer approved T-14 and T-15 (2026-11-02).
 - Commit: "Add G1 audit and fixes (T-14, T-15)".
+- Pushed: e42b560.
 - Metrics (T-15): review rounds 2, questions back 3 (more "user" rows, "proposes" in Appendix C, length of the core sentence), out-of-scope files 0, models Sonnet (tech-writer), Haiku (scribe).
 
 ## 2026-11-02 (1) - T-14 gate G1 audit
