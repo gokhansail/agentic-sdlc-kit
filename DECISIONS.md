@@ -219,3 +219,11 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: Appendix F names the customer's test result as a per-task metric. The kit should record what its playbook says; b) would fit the method to the gap.
 - Consequences: the TL dictates the field to `scribe` in every metrics line from T-20 on; `scribe.md` already accepts an outcome value. Earlier lines count as "not recorded".
 - Outcome:
+
+## DEC-028 M1 counting rule
+- Date: 2026-11-02 · Question: open point M1 in the local format note (P-20)
+- Options: a) M1 counts version-level reverts (heading form) over all versions; item-level reverts are a separate count in the same metric b) a version counts as reverted when at least one of its items is reverted
+- Decision: a).
+- Reason: the metric is named reverted versions. b) puts a whole version taken back and one item taken back into the same number; two counts keep either from inflating the other.
+- Consequences: T-20 adds an `items` field next to the M1 rate. A revert word in the heading scope or in the work log never counts. Version-level revert headings carry no date; T-20 gives an undated heading the period of its two dated neighbours when both agree, otherwise `undated` with a warning.
+- Outcome:

@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-02
-Now: Phase 2 · T-20 contract next · repository private · guard code written, tests green
+Last updated: 2026-11-03
+Now: Phase 2 · T-20 done and committed · repository private · metrics core and guard code written, tests green
 
 ## Phase
 
@@ -28,10 +28,11 @@ Phase 2 Evidence is open. G2 criteria (TASKS.md, DEC-026): byte-identical rerun;
 - T-15 G1 fixes: all findings fixed; the maintainer read `PLAYBOOK.md` end to end (2026-11-02), no corrections.
 - Phase 2 plan: `cto/2026-11-02_phase2-plan.md`; decisions DEC-021 to DEC-027.
 - P-20 record format pass: local format note for the parsers; Project B has data for changelog, log and one audit only.
+- T-20 metrics core and text metrics: `tools/metrics/`, M1, M2, M5, M6; 128 tests green; M1 counting rule DEC-028. Committed 2026-11-03.
 
 ## Next
 
-- The TL writes the T-20 contract (metrics core and text metrics, `developer` Sonnet high).
+- The TL writes the T-21 contract (M3, M8, M9, M12, M13; table render); `developer` implements it after the maintainer's go-ahead.
 
 ## Repository
 

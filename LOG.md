@@ -2,6 +2,46 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-03 (1) - T-20 approved and committed
+
+- The maintainer checked T-20 and approved the commit.
+- The TL marked T-20 done in `TASKS.md` and updated NOW NEXT.
+- TL checks:
+  - `python -m pytest -q`: 128 passed.
+  - CHANGELOG line present.
+- Commit: "Add metrics core and text metrics (T-20)"; pushed through the pre-push guard.
+- Next: the T-21 contract.
+
+## 2026-11-02 (8) - T-20 metrics core and text metrics
+
+- The maintainer approved calling `developer` for T-20.
+- `developer` (Sonnet, effort high) wrote `tools/metrics/` (7 modules, standard library only), profiles for Project A, Project B and the kit, 97 tests in `tests/metrics/` with invented fixtures, and one CHANGELOG line. No question back, no file outside the contract.
+- Technical choices:
+  - A run without `--snapshot` reads and hash-checks the existing copy, so no source is needed for a rerun.
+  - `kit_commit`, HEAD and dirty flag are taken from the manifest, so a rerun after a later commit stays byte-identical.
+  - Record paths in a profile must be relative.
+  - Marker regexes live in the profiles only.
+- TL checks:
+  - `python -m pytest -q`: 128 passed.
+  - Kit run twice: byte-identical JSON.
+  - Kit M5 v2: n 14, distribution 0:5, 1:4, 2:5, 3+:0.
+  - Kit M6 v2: questions back 6 of 14, out-of-scope 0 of 14; both matched by a hand count of the 14 metrics lines.
+  - Kit M1 and M2: "no data".
+  - No marker literal in `tools/metrics/*.py`.
+  - New files ASCII only.
+  - Guard clean.
+  - `evidence/` removed after the check.
+- Limit noted for T-23: the kit counts every `- Metrics (` line as one task, including the CTO plan and audit entries.
+- Outcome: not committed; awaiting the maintainer's check.
+- Metrics (T-20): review rounds 0, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe), customer result not tested.
+
+## 2026-11-02 (7) - T-20 contract
+
+- The maintainer chose option a) for the M1 open point of the local format note. The TL recorded DEC-028: M1 counts version-level revert headings over all version headings; item-level reverts are a separate count; a revert word in the heading scope or in the work log never counts.
+- The TL wrote the T-20 contract in `TASKS.md` (13 lines): CLI with snapshot and manifest, folding, profiles for Project A, Project B and the kit, period rule incl. undated headings, M1, M2, M5, M6, deterministic JSON with a free-text refusal, path tests.
+- TL checks: contract within 15 lines; added lines ASCII except the middle dot of the DEC date line (existing format); guard clean over `TASKS.md` and `DECISIONS.md`.
+- Outcome: not committed; `developer` (Sonnet, effort high) implements T-20 after the maintainer's go-ahead.
+
 ## 2026-11-02 (6) - P-20 record format pass
 
 - The maintainer approved the commit and P-20.

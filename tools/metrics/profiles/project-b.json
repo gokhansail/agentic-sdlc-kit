@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "files": {
+    "changelog": "CHANGELOG.md",
+    "log": "LOG.md"
+  },
+  "metrics": {
+    "M1": {},
+    "M2": {},
+    "M5": {},
+    "M6": {}
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "files": {
+    "changelog": "CHANGELOG.md",
+    "log": "LOG.md"
+  },
+  "metrics": {
+    "M1": {
+      "file": "changelog",
+      "version_heading": "^##\\s+(?:\\([^)]*\\)\\s+)?v?\\d+\\.\\d+\\.\\d+",
+      "date": "^##\\s+\\S+\\s+\\u2014\\s+(?:\\d{4}-\\d{2}-\\d{2}\\s*[-\\u2013]\\s*)?(?P<date>\\d{4}-\\d{2}-\\d{2})",
+      "revert_version": "^##\\s+\\(geri alinan\\)",
+      "revert_item": "^\\s*(?:\\d+\\.|-)\\s+~~.+~~.*\\bgeri alindi\\b"
+    },
+    "M2": {
+      "file": "changelog",
+      "version_heading": "^##\\s+(?:\\([^)]*\\)\\s+)?v?\\d+\\.\\d+\\.\\d+",
+      "date": "^##\\s+\\S+\\s+\\u2014\\s+(?:\\d{4}-\\d{2}-\\d{2}\\s*[-\\u2013]\\s*)?(?P<date>\\d{4}-\\d{2}-\\d{2})",
+      "status": "^[^\\u2014]*\\u2014[^\\u2014]*\\u2014\\s*(?P<status>.*)$",
+      "to_be_tested": "\\btest edilecek\\b",
+      "no_change": "\\boyun (?:davranisi )?degismez\\b"
+    },
+    "M5": {
+      "file": "log",
+      "entry_heading": "^##\\s+(?P<date>\\d{4}-\\d{2}-\\d{2})",
+      "task_line": "^\\s*-\\s+olculer:",
+      "session_line": "^\\s*-\\s+oturum olculeri:",
+      "fields": {
+        "review_rounds": "\\binceleme turu\\s+(?P<n>\\d+)"
+      }
+    },
+    "M6": {
+      "file": "log",
+      "entry_heading": "^##\\s+(?P<date>\\d{4}-\\d{2}-\\d{2})",
+      "task_line": "^\\s*-\\s+olculer:",
+      "session_line": "^\\s*-\\s+oturum olculeri:",
+      "fields": {
+        "questions_back": "\\bsoruyla donus\\s+(?P<n>\\d+)",
+        "out_of_scope": "\\bsozlesme disi (?:[a-z]+ )?dosya\\s+(?P<n>\\d+)"
+      }
+    }
+  }
+}

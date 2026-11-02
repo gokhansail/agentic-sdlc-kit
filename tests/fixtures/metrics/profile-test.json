@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "files": {
+    "changelog": "CHANGELOG.md",
+    "log": "LOG.md"
+  },
+  "metrics": {
+    "M1": {
+      "file": "changelog",
+      "version_heading": "^##\\s+(?:\\([^)]*\\)\\s+)?v?\\d+\\.\\d+\\.\\d+",
+      "date": "^##\\s+\\S+\\s+\\u2014\\s+(?:\\d{4}-\\d{2}-\\d{2}\\s*[-\\u2013]\\s*)?(?P<date>\\d{4}-\\d{2}-\\d{2})",
+      "revert_version": "^##\\s+\\(reverted\\)",
+      "revert_item": "^\\s*(?:\\d+\\.|-)\\s+~~.+~~.*\\breverted\\b"
+    },
+    "M2": {
+      "file": "changelog",
+      "version_heading": "^##\\s+(?:\\([^)]*\\)\\s+)?v?\\d+\\.\\d+\\.\\d+",
+      "date": "^##\\s+\\S+\\s+\\u2014\\s+(?:\\d{4}-\\d{2}-\\d{2}\\s*[-\\u2013]\\s*)?(?P<date>\\d{4}-\\d{2}-\\d{2})",
+      "status": "^[^\\u2014]*\\u2014[^\\u2014]*\\u2014\\s*(?P<status>.*)$",
+      "to_be_tested": "\\bto be tested\\b",
+      "no_change": "\\bno gameplay change\\b"
+    },
+    "M5": {
+      "file": "log",
+      "entry_heading": "^##\\s+(?P<date>\\d{4}-\\d{2}-\\d{2})",
+      "task_line": "^\\s*-\\s+measures:",
+      "session_line": "^\\s*-\\s+session measures:",
+      "fields": {
+        "review_rounds": "\\breview rounds\\s+(?P<n>\\d+)"
+      }
+    },
+    "M6": {
+      "file": "log",
+      "entry_heading": "^##\\s+(?P<date>\\d{4}-\\d{2}-\\d{2})",
+      "task_line": "^\\s*-\\s+measures:",
+      "session_line": "^\\s*-\\s+session measures:",
+      "fields": {
+        "questions_back": "\\bquestions back\\s+(?P<n>\\d+)",
+        "out_of_scope": "\\bout-of-scope (?:[a-z]+ )?files\\s+(?P<n>\\d+)"
+      }
+    }
+  }
+}

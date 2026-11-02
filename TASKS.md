@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 2: the TL writes the T-20 contract from `.sdlc/local/record-formats.md` (P-20 done). Plan: `cto/2026-11-02_phase2-plan.md`, DEC-021 to DEC-027.
+Phase 2: T-20 done and committed. Next: the TL writes the T-21 contract (M3, M8, M9, M12, M13; table render). Plan: `cto/2026-11-02_phase2-plan.md`, DEC-021 to DEC-028.
 
 ## Phases
 
@@ -117,8 +117,20 @@ Plan: `cto/2026-11-02_phase2-plan.md`. Metrics M1, M2, M3, M5, M6, M8, M9, M12, 
 - Acceptance: every record type that a DEC-021 metric reads is covered for each source that has it; each example in the note is invented; nothing committed.
 - Tests: none; guard run over the tree stays clean.
 
-### [ ] T-20 [H] Metrics core and text metrics (M1, M2, M5, M6)
-- Contract written after P-20. Scope in the plan, section 1 table: CLI, folding, profiles, snapshot and manifest, deterministic JSON, `..` test, free-text refusal test. `developer`, Sonnet, effort high.
+### [x] T-20 [H] Metrics core and text metrics (M1, M2, M5, M6)
+- Result: `tools/metrics/` (7 modules), 3 profiles, 97 new tests (128 total green); kit rerun byte-identical; approved by the maintainer 2026-11-03. Limit for T-23: the kit counts every metrics line as a task, incl. CTO plan and audit entries.
+- Goal: a standard-library script that counts M1, M2, M5 and M6 from pinned record files, so every published number can be rerun (DEC-021, DEC-024). `developer`, Sonnet, effort high.
+- Reads: `cto/2026-11-02_phase2-plan.md` sections 2 and 4; DEC-021 to DEC-025 and DEC-028; `.sdlc/local/record-formats.md` sections "Folding", the changelog and work log of Project A and Project B, "This repository". Never the source folders (DEV_RULES 11).
+- Touch: `tools/metrics/{__main__,fold,profile,inputs,records,metrics_text,output}.py`, `tools/metrics/profiles/{project-a,project-b,kit}.json`, `tests/metrics/`, `tests/fixtures/metrics/`, `CHANGELOG.md` (one line). Do not touch: `tools/pre_push_guard.py`, `.gitignore`, `requirements-dev.txt`, the records; no `tools/__init__.py`.
+- CLI: `python -m tools.metrics --source <dir> --profile <file> --label <name> --out <file> [--snapshot]`. `--snapshot` copies the record files the profile names into `evidence/raw/<label>/` and writes `manifest.json` there (SHA-256 per file, source HEAD, dirty flag, profile SHA-256). Every run parses the copy only.
+- Folding: NFKD, combining marks dropped, dotless i to i, casefold, on every line before matching. Markers are regexes in the profile; no marker literal in code (DEC-022). A metric whose profile entry is empty or whose file is missing shows "no data", never 0.
+- Period: v1 before 2026-10-25, v2 from it, by the heading date. A date-range heading takes its end date. An undated heading takes the period of its two dated neighbours when both agree; otherwise it goes to `undated` with a warning.
+- M1 (DEC-028): version-level revert headings / all version headings; item-level reverts as a separate count `items`. A revert word in the heading scope or in the work log never counts.
+- M2: headings whose status (text after the second em dash) has the to-be-tested marker / all version headings; headings with the no-change marker counted apart as `no_change`.
+- M5, M6: per-task metric lines only. M5 is the distribution of review rounds 0, 1, 2, 3+. M6 is the share of tasks with questions back >= 1 and with out-of-scope files >= 1, each over the tasks that carry that field. Session lines, lines without a number and missing fields go to `warnings`, never guessed.
+- Output: the schema of plan section 4, plus `undated`; sorted keys, no timestamps. The writer refuses any string that is not a fixed status word, metric ID, warning name, label, ISO date or hex hash.
+- Acceptance: each metric matches a fixture with a known answer; one test per metric-line phrasing in the note, with invented English markers; one folding test whose letters are built with `chr()`; two runs give byte-identical JSON; the writer has a refuse test and a pass test (DEV_RULES 9); snapshot paths with `..` or absolute paths outside the root are refused (rule 10); no network, no new dependency; ASCII only; guard clean.
+- Tests: `python -m pytest -q` green, summary line pasted. Report to the TL in Turkish.
 
 ### [ ] T-21 [M] Git, audit and decision metrics; table render (M3, M8, M9, M12, M13)
 ### [ ] T-22 [M] Run on the three sources (`scout`, runs only; totals to `evidence/*.json`)
