@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-03
-Now: Phase 2 · T-21 committed · repository private · metrics code written, tests green
+Now: Phase 2 · T-22 contract written · repository private · metrics code written, tests green
 
 ## Phase
 
@@ -33,7 +33,7 @@ Phase 2 Evidence is open. G2 criteria (TASKS.md, DEC-026): byte-identical rerun;
 
 ## Next
 
-- The T-22 contract (run the metrics on the three sources).
+- The maintainer approves the T-22 contract; the TL commits it, then `scout` runs the metrics on the three sources.
 
 ## Repository
 

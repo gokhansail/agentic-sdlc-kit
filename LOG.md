@@ -2,6 +2,17 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-03 (5) - T-22 contract
+
+- The maintainer asked for the T-22 contract.
+- The TL wrote it in `TASKS.md` (9 lines): one snapshot run and one rerun per source with `scout`, byte-identical check, manifest fields, parse coverage per source for G2 check 6, guard over `evidence/*.json`. Source paths stay in the brief only.
+- Order set in the contract: the TL commits the contract before the run, so the kit snapshot is clean.
+- TL checks:
+  - Contract within 15 lines.
+  - Added lines ASCII.
+  - Guard over `TASKS.md`: exit 0.
+- Outcome: not committed; awaiting the maintainer's go-ahead.
+
 ## 2026-11-03 (4) - T-21 approved and committed
 
 - The maintainer approved the T-21 commit.

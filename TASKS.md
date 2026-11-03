@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 2: T-21 done and committed; next is the T-22 contract. Plan: `cto/2026-11-02_phase2-plan.md`, DEC-021 to DEC-028.
+Phase 2: T-22 contract written; awaiting the maintainer's go-ahead, then the TL commits the contract and `scout` runs it. Plan: `cto/2026-11-02_phase2-plan.md`, DEC-021 to DEC-028.
 
 ## Phases
 
@@ -147,6 +147,15 @@ Plan: `cto/2026-11-02_phase2-plan.md`. Metrics M1, M2, M3, M5, M6, M8, M9, M12, 
 - Acceptance: each metric matches a fixture with a known answer; git metrics from a repository built in a temp dir with fixed author and committer dates (pattern of `tests/test_pre_push.py`); one test per layout in the note (finding heading and severity line, re-verify table, decision heading and outcome layouts, task tag sets) with invented English markers; re-render gives no diff and leaves text outside the block unchanged; two runs byte-identical; no network, no new dependency; ASCII only; guard clean.
 - Tests: `python -m pytest -q` green, summary line pasted. Report to the TL in Turkish.
 ### [ ] T-22 [M] Run on the three sources (`scout`, runs only; totals to `evidence/*.json`)
+- Goal: one pinned run per source, so T-23 writes around fixed numbers and G2 can rerun them (DEC-023, DEC-024). `scout`, Haiku, effort low; runs commands, edits no file.
+- Order: the TL commits this contract first, so the kit snapshot has `dirty: false`. Source paths go in the brief only, never in a committed file.
+- Runs: `python -m tools.metrics --source <dir> --profile tools/metrics/profiles/<label>.json --label <label> --out evidence/<label>.json --snapshot` for `project-a`, `project-b`, `kit`; then the same three again without `--snapshot` and `--source`.
+- Touch: `evidence/{project-a,project-b,kit}.json` (new, committed); `evidence/raw/` (local, ignored). Do not touch: the sources, `tools/`, `tests/`, the records, `EVIDENCE.md` (T-23).
+- Acceptance: the second run gives byte-identical JSON per source (SHA-256 compare); each JSON has `input.head`, `input.dirty`, a SHA-256 per file and `profile_sha256`; `git status --porcelain` lists nothing under `evidence/raw/`.
+- Parse coverage (G2 check 6): per source, lines in the snapshot copy of the log that match the loose pattern the TL names in the brief (the profile's `task_line` marker word, no anchors), minus the lines the run counted (n plus that metric's line warnings).
+- Checks: `python tools/pre_push_guard.py --files evidence/*.json` exit 0; `python -m pytest -q` still green.
+- Report to the TL in Turkish: per source and metric, status, n per period, warning counts; manifest short head and dirty flag; the coverage numbers. Numbers only: no source file names, no quotes, no record text.
+- After: the TL checks the numbers against the T-21 kit hand counts, writes the DEC-010 outcome and the limits found for T-23; `scribe` writes LOG, STATUS, the metrics line and one CHANGELOG line.
 ### [ ] T-23 [M] `EVIDENCE.md` prose and limits (`tech-writer`)
 ### [ ] T-24 Gate G2 (`auditor-mini`)
 
