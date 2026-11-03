@@ -27,3 +27,4 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 - Session instructions (`CLAUDE.md`): the end-of-reply status line fields are defined.
 - Role files and developer rules (`.claude/agents/`, `DEV_RULES.md`): private details removed, each rule traced to the source map.
 - Playbook, source map, scout and writer roles, audit template and session instructions: fixes from the G1 audit.
+- Metrics profiles (`tools/metrics/profile.py`, `metrics_text.py`): M5 and M6 accept an ordered `task_lines` list; the Project A profile counts metric lines in the middle of a bullet and in a lead review line (DEC-030).

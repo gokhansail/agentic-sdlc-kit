@@ -1,0 +1,104 @@
+{
+  "cutoff": "2026-10-25",
+  "input": {
+    "dirty": true,
+    "files": {
+      "changelog": "c870438c74ddcd898765ff46f8b9902421164f32b7c765f6bf6a0a269a5c4a5a",
+      "git_log": "50f980c0e4f88d229df762b3003af73590082d646e8fc9ab778cc0adac058881",
+      "git_tests": "2f12829803b240aa1c89706cc9ea6487a8af1263fbf45337c1dbf16e861ee531",
+      "log": "c8ca286520a9b93219a3ed7d997f9fded120f2339fedc489b630c3e73a5f2eb6"
+    },
+    "folders": {
+      "audits": {
+        "files": 1,
+        "sha256": "5549cd709a9cd2f991d2a7a5715927efd2008f3896b6709de9cc0e2dce57e933",
+        "untracked": 1
+      }
+    },
+    "head": "7ffc827e89c24ba20bb1cfd250e87cf13e335d87",
+    "profile_sha256": "88481d6eec49eac7b4d790b708673037343bbd1f18d660cde12579eac1459701"
+  },
+  "kit_commit": "b6af8f8f30ec4432dd6927f04b34acf3a686e7c1",
+  "label": "project-b",
+  "metrics": {
+    "M1": {
+      "status": "no data"
+    },
+    "M12": {
+      "status": "ok",
+      "v1": {
+        "count": 103,
+        "n": 138,
+        "versions": 35,
+        "weeks": 51
+      },
+      "v2": {
+        "n": 0
+      }
+    },
+    "M13": {
+      "status": "no data"
+    },
+    "M2": {
+      "status": "no data"
+    },
+    "M3": {
+      "status": "ok",
+      "v1": {
+        "count": 0,
+        "n": 4,
+        "weeks": {
+          "2025-W44": 0,
+          "2026-W40": 0,
+          "2026-W41": 0,
+          "2026-W42": 0
+        }
+      },
+      "v2": {
+        "n": 0
+      }
+    },
+    "M5": {
+      "status": "no data"
+    },
+    "M6": {
+      "status": "no data"
+    },
+    "M8": {
+      "status": "ok",
+      "v1": {
+        "days_to_closed": {
+          "0": 0,
+          "1-3": 0,
+          "4-7": 0,
+          "8+": 0
+        },
+        "latest": {
+          "closed": 0,
+          "deferred": 0,
+          "none": 25,
+          "open": 0,
+          "partial": 0
+        },
+        "n": 25,
+        "severity": {
+          "critical": 0,
+          "high": 5,
+          "low": 8,
+          "medium": 9,
+          "unrated": 3
+        }
+      },
+      "v2": {
+        "n": 0
+      }
+    },
+    "M9": {
+      "status": "no data"
+    }
+  },
+  "schema": 1,
+  "warnings": {
+    "m8_unrated_finding": 3
+  }
+}

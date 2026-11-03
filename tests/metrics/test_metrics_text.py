@@ -250,3 +250,113 @@ def test_undated_takes_the_period_of_agreeing_neighbours_only() -> None:
 
 def test_strip_parentheses_handles_nesting() -> None:
     assert strip_parentheses("a 1 (x (y, z), w), b 2") == "a 1 , b 2"
+
+
+# --- ordered task_lines (T-22a) --------------------------------------------
+
+def listed_profile():
+    from conftest import FIXTURES
+
+    return load_profile(FIXTURES / "profile-listed.json")
+
+
+def listed_run(lines: list[str]):
+    return run(listed_profile(), log=log_with(lines))
+
+
+def test_listed_layout_1_label_at_the_start_of_a_bullet() -> None:
+    metrics, warnings = listed_run(
+        ["- measures: review rounds 1 (2 fixes), questions back 0, out-of-scope files 0."]
+    )
+    assert metrics["M5"]["v2"] == {"n": 1, "distribution": {"0": 0, "1": 1, "2": 0, "3+": 0}}
+    assert metrics["M6"]["v2"] == {
+        "questions_back": {"n": 1, "count": 0},
+        "out_of_scope": {"n": 1, "count": 0},
+    }
+    assert not warnings
+
+
+def test_listed_layout_2_label_in_the_middle_of_a_bullet() -> None:
+    metrics, warnings = listed_run(
+        ["- check: build clean; measures: review rounds 2, questions back 1, out-of-scope files 0."]
+    )
+    assert metrics["M5"]["v2"]["distribution"]["2"] == 1
+    assert metrics["M6"]["v2"]["questions_back"] == {"n": 1, "count": 1}
+    assert not warnings
+
+
+def test_listed_layout_3_lead_review_line_takes_the_round_as_written() -> None:
+    metrics, warnings = listed_run(
+        ["- lead review: round 1, no fix, questions back 0, out-of-scope files 2."]
+    )
+    assert metrics["M5"]["v2"] == {"n": 1, "distribution": {"0": 0, "1": 1, "2": 0, "3+": 0}}
+    assert metrics["M6"]["v2"] == {
+        "questions_back": {"n": 1, "count": 0},
+        "out_of_scope": {"n": 1, "count": 1},
+    }
+    assert not warnings
+
+
+def test_listed_layout_3_with_a_missing_field_is_reported_not_guessed() -> None:
+    metrics, warnings = listed_run(["- lead review: round 3, no fix."])
+    assert metrics["M5"]["v2"]["distribution"]["3+"] == 1
+    assert metrics["M6"] == {"status": "no data"}
+    assert dict(warnings) == {"m6_line_without_number": 1}
+
+
+def test_listed_round_label_cannot_be_confused_between_the_two_items() -> None:
+    # "review rounds 2" inside a lead review line is not "round 2": item 2 needs "round <n>".
+    metrics, warnings = listed_run(["- lead review: review rounds 2, questions back 0."])
+    assert metrics["M5"] == {"status": "no data"}
+    assert not warnings
+
+
+def test_listed_entry_with_both_items_takes_item_1_and_warns_once() -> None:
+    metrics, warnings = listed_run(
+        [
+            "- lead review: round 3, no fix, questions back 1.",
+            "- measures: review rounds 0, questions back 0, out-of-scope files 0.",
+        ]
+    )
+    assert metrics["M5"]["v2"] == {"n": 1, "distribution": {"0": 1, "1": 0, "2": 0, "3+": 0}}
+    assert metrics["M6"]["v2"]["questions_back"] == {"n": 1, "count": 0}
+    assert dict(warnings) == {"m5_extra_task_line": 1, "m6_extra_task_line": 1}
+
+
+def test_listed_entry_with_two_lines_of_one_item_counts_the_first() -> None:
+    metrics, warnings = listed_run(
+        [
+            "- lead review: round 1, questions back 0, out-of-scope files 0.",
+            "- lead review: round 2, questions back 0, out-of-scope files 0.",
+        ]
+    )
+    assert metrics["M5"]["v2"]["distribution"] == {"0": 0, "1": 1, "2": 0, "3+": 0}
+    assert dict(warnings) == {"m5_extra_task_line": 1, "m6_extra_task_line": 1}
+
+
+def test_listed_each_entry_gives_its_own_task_and_session_lines_stay_unparsed() -> None:
+    text = "\n".join(
+        [
+            "# Log",
+            "## 2026-11-02 (2) - second",
+            "- lead review: round 2, questions back 0, out-of-scope files 0.",
+            "## 2026-11-01 (1) - session close",
+            "- session measures: 2 versions (1.0.0, 1.1.0), review rounds 1/0.",
+            "## 2026-10-20 (1) - first",
+            "- check: ok; measures: review rounds 1, questions back 1, out-of-scope files 0.",
+            "",
+        ]
+    )
+    metrics, warnings = run(listed_profile(), log=text)
+    assert metrics["M5"]["v2"] == {"n": 1, "distribution": {"0": 0, "1": 0, "2": 1, "3+": 0}}
+    assert metrics["M5"]["v1"] == {"n": 1, "distribution": {"0": 0, "1": 1, "2": 0, "3+": 0}}
+    assert dict(warnings) == {"m5_session_line": 1, "m6_session_line": 1}
+
+
+def test_task_line_profile_still_counts_every_matching_line(test_profile) -> None:
+    metrics, warnings = run(
+        test_profile,
+        log=log_with(["- measures: review rounds 1.", "- measures: review rounds 2."]),
+    )
+    assert metrics["M5"]["v2"]["n"] == 2
+    assert "m5_extra_task_line" not in warnings

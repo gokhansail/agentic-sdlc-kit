@@ -2,6 +2,52 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-04 (1) - T-22 and T-22a approved and committed
+
+- The maintainer approved the commit of T-22a and the T-22 results.
+- The TL marked T-22 and T-22a done in `TASKS.md` with Result lines and updated NOW NEXT.
+- TL checks:
+  - `python -m pytest -q`: 271 passed, 1 skipped.
+  - CHANGELOG line present.
+  - Guard over `evidence/*.json`: exit 0.
+- Commit: "Add metrics results for three sources and Project A line layouts (T-22, T-22a)"; pushed through the pre-push guard.
+- Next: the T-23 contract.
+
+## 2026-11-03 (7) - T-22a Project A metric-line layouts
+
+- The maintainer approved calling `developer` for T-22a.
+- `developer` (Sonnet, effort medium) added an ordered `task_lines` list for M5 and M6. One task per log entry; the first item in list order wins; other matching lines are counted as `<tag>_extra_task_line`. Changed `profile.py`, `metrics_text.py` and the Project A profile. Added 12 tests and a fixture with invented English markers, and one CHANGELOG line. No question back, no file outside the contract.
+- Technical choices the contract did not fix:
+  - The new scanner sits in `metrics_text.py` and imports helpers from `records.py`, including the private `_HEADING`, because `records.py` was not in the touch list.
+  - A chosen line without any number gives no task and a `<tag>_line_without_number` warning. It does not fall back to the next item.
+- TL checks:
+  - Diff reviewed: `task_line` profiles go through the old scanner unchanged.
+  - `python -m pytest -q`: 271 passed, 1 skipped.
+  - Kit rerun from its snapshot: SHA-256 unchanged.
+  - `scout` reran Project A from its snapshot twice: byte-identical; input hashes equal to the manifest; guard exit 0.
+  - Project A M5 v2 n 10 to 18; M6 v2 n 17 per field. No v1 task added.
+  - Coverage: 19 of 20 v2 entries have task numbers parsed. The remaining one goes to the limits section.
+- The TL wrote the outcomes of DEC-010 and DEC-030.
+- Outcome: not committed; awaiting the maintainer's check.
+- Metrics (T-22a): review rounds 0, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scout), Haiku (scribe), customer result not tested.
+
+## 2026-11-03 (6) - T-22 run and coverage gap; T-22a contract
+
+- The maintainer approved the T-22 run.
+- The TL committed the T-22 contract first, so the kit snapshot was clean.
+- `scout` (Haiku, effort low) ran the metrics on the three snapshots, kit first, then reran without snapshot. No question back, no file edited.
+- Results:
+  - Rerun byte-identical for all three sources.
+  - Kit `dirty: false`; Project A and Project B `dirty: true`, recorded in the manifests (DEC-024).
+  - Nothing under `evidence/raw/` in `git status`. Guard over `evidence/*.json`: exit 0. `python -m pytest -q`: 252 passed, 1 skipped.
+  - Project B has v1 data for M3, M8 and M12 only. Kit: M1, M2 and M3 "no data" (no released version yet; no test attribute history).
+- Parse coverage (G2 check 6), checked by the TL on the snapshot copies:
+  - Kit: 20 loose matches, 16 metric lines counted; the other 4 are prose lines, not metric lines. Gap 0.
+  - Project A v2: 20 log entries carry task numbers; 11 counted. 9 not counted: 2 with the metrics label mid-line, 6 in a TL review line with a round number, 1 with two conflicting free-text round numbers.
+- The maintainer chose to fix the parser and to take the TL review round number as written. The TL recorded DEC-030, updated the local format note, and wrote the T-22a contract in `TASKS.md` (10 lines).
+- Outcome: `evidence/*.json` not committed. T-22 stays open until Project A is rerun after T-22a.
+- Metrics (T-22 run): review rounds 0, questions back 0, out-of-scope files 0, models Haiku (scout), Haiku (scribe), customer result not tested.
+
 ## 2026-11-03 (5) - T-22 contract
 
 - The maintainer asked for the T-22 contract.

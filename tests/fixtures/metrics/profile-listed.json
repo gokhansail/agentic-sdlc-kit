@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "files": {
+    "log": "LOG.md"
+  },
+  "metrics": {
+    "M5": {
+      "file": "log",
+      "entry_heading": "^##\\s+(?P<date>\\d{4}-\\d{2}-\\d{2})",
+      "task_lines": [
+        {
+          "line": "^\\s*-\\s+.*\\bmeasures:",
+          "fields": {
+            "review_rounds": "\\breview rounds\\s+(?P<n>\\d+)"
+          }
+        },
+        {
+          "line": "^\\s*-\\s+lead review:.*\\bround\\s+\\d",
+          "fields": {
+            "review_rounds": "\\bround\\s+(?P<n>\\d+)"
+          }
+        }
+      ],
+      "session_line": "^\\s*-\\s+session measures:"
+    },
+    "M6": {
+      "file": "log",
+      "entry_heading": "^##\\s+(?P<date>\\d{4}-\\d{2}-\\d{2})",
+      "task_lines": [
+        {
+          "line": "^\\s*-\\s+.*\\bmeasures:",
+          "fields": {
+            "questions_back": "\\bquestions back\\s+(?P<n>\\d+)",
+            "out_of_scope": "\\bout-of-scope (?:[a-z]+ )?files\\s+(?P<n>\\d+)"
+          }
+        },
+        {
+          "line": "^\\s*-\\s+lead review:.*\\bround\\s+\\d",
+          "fields": {
+            "questions_back": "\\bquestions back\\s+(?P<n>\\d+)",
+            "out_of_scope": "\\bout-of-scope (?:[a-z]+ )?files\\s+(?P<n>\\d+)"
+          }
+        }
+      ],
+      "session_line": "^\\s*-\\s+session measures:"
+    }
+  }
+}

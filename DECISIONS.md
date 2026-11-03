@@ -78,7 +78,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: Project B ran the first version of the process and Project A the second, so both are needed for a before/after view.
 - Consequences: results are descriptive. n = 1 maintainer, and the process and the maintainer changed at the same time; no causal claim.
-- Outcome:
+- Outcome: T-22 (2026-11-03): Project A has v1 and v2 data for M1, M2, M3, M8, M9 and M12; Project B adds v1 data for M3, M8 and M12 only. B is a second v1 source, not the only one. M5 and M6 have v2 data only (Project A and the kit).
 
 ## DEC-011 Claude Code only
 - Date: 2026-10-29 · Question: D-11 (raised during T-01)
@@ -235,3 +235,11 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: it is the only v1 audit data of Project B; the snapshot hash pins the text whether git tracks it or not.
 - Consequences: a) adds one limits item for T-23; b) leaves M8 with Project A and the kit only.
 - Outcome:
+
+## DEC-030 Project A metric lines in other layouts
+- Date: 2026-11-03 · Question: T-22 parse coverage; 9 of 20 Project A v2 log entries with task numbers were not counted
+- Options: a) extend the parser to the two layouts seen (metrics label mid-line; TL review line with `tur <n>`) and take `tur <n>` as written b) as a), but map "round 1, no fix" to 0, the kit's rule c) no parser change; a limits item only
+- Decision: a) (2026-11-03).
+- Reason: 9 of 20 is too large for a limits item. The script does not reinterpret a number in a source record; the source uses both meanings of the round number, and the limits section says so.
+- Consequences: reverses the P-20 format note, which treated the TL review line as free text. New task T-22a; Project A is rerun from its existing snapshot. One entry with two conflicting free-text round numbers stays unparsed and goes to the limits section.
+- Outcome: T-22a (2026-11-03): Project A M5 v2 n 10 to 18; 19 of 20 entries parsed, one of them without a round number; M6 n 17 per field; no v1 task added; kit result unchanged (same SHA-256).

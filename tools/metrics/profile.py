@@ -22,6 +22,12 @@ Metrics by kind:
   git+text  M12              commits from git, versions from a changelog file
   audit     M8               a folder of reports
   record    M9, M13          one record file, regexes per entry or heading
+
+M5 and M6 give the per-task line either as `task_line` plus `fields`, or as
+`task_lines`, an ordered list of {"line": <regex>, "fields": {...}} items. The two
+forms are exclusive. With a list, each entry yields one task: the first item in
+list order that matches a line of the entry decides; other matching lines of the
+entry are ignored and counted as a warning.
 """
 from __future__ import annotations
 
@@ -46,6 +52,8 @@ REQUIRED = {
     "M5": ("entry_heading", "task_line"),
     "M6": ("entry_heading", "task_line"),
 }
+# metrics whose per-task line may be given as the ordered list `task_lines` instead
+LISTED = {"M5": ("entry_heading",), "M6": ("entry_heading",)}
 OPTIONAL = {
     "M1": ("revert_item",),
     "M2": ("no_change",),
@@ -118,10 +126,17 @@ def _role(mid: str, key: str, entry: dict[str, Any], known: Any) -> str:
 def _compile_metric(mid: str, entry: Any) -> dict[str, Any]:
     if not isinstance(entry, dict):
         raise ProfileError(f"{mid}: expected an object")
+    listed = mid in LISTED and "task_lines" in entry
+    if listed and "task_line" in entry:
+        raise ProfileError(f"{mid}: 'task_line' and 'task_lines' cannot both be given")
     allowed = {"file", *REQUIRED[mid], *OPTIONAL[mid], *(("fields",) if mid in FIELDS else ())}
+    if mid in LISTED:
+        allowed.add("task_lines")
     unknown = sorted(set(entry) - allowed)
     if unknown:
         raise ProfileError(f"{mid}: unknown key '{unknown[0]}'")
+    if listed and "fields" in entry:
+        raise ProfileError(f"{mid}: with 'task_lines' the fields belong to each item")
     out: dict[str, Any] = {}
     role = entry.get("file")
     if not isinstance(role, str) or not ROLE_RE.fullmatch(role):
@@ -130,18 +145,37 @@ def _compile_metric(mid: str, entry: Any) -> dict[str, Any]:
     for key in (*REQUIRED[mid], *OPTIONAL[mid]):
         if key in entry:
             out[key] = _compile(f"{mid}.{key}", entry[key], GROUPS.get(key))
-        elif key in REQUIRED[mid]:
+        elif key in REQUIRED[mid] and not (listed and key == "task_line"):
             raise ProfileError(f"{mid}: missing '{key}'")
-    if mid in FIELDS:
-        fields = entry.get("fields")
-        if not isinstance(fields, dict) or not fields:
-            raise ProfileError(f"{mid}: missing 'fields'")
-        bad = sorted(set(fields) - set(FIELDS[mid]))
-        if bad:
-            raise ProfileError(f"{mid}.fields: unknown field '{bad[0]}'")
-        out["fields"] = {
-            name: _compile(f"{mid}.fields.{name}", rx, "n") for name, rx in fields.items()
-        }
+    if listed:
+        out["task_lines"] = _compile_task_lines(mid, entry["task_lines"])
+    elif mid in FIELDS:
+        out["fields"] = _compile_fields(mid, f"{mid}.fields", entry.get("fields"))
+    return out
+
+
+def _compile_fields(mid: str, where: str, fields: Any) -> dict[str, "re.Pattern[str]"]:
+    if not isinstance(fields, dict) or not fields:
+        raise ProfileError(f"{where}: expected a non-empty object")
+    bad = sorted(set(fields) - set(FIELDS[mid]))
+    if bad:
+        raise ProfileError(f"{where}: unknown field '{bad[0]}'")
+    return {name: _compile(f"{where}.{name}", rx, "n") for name, rx in fields.items()}
+
+
+def _compile_task_lines(mid: str, items: Any) -> list[dict[str, Any]]:
+    if not isinstance(items, list) or not items:
+        raise ProfileError(f"{mid}.task_lines: expected a non-empty list")
+    out: list[dict[str, Any]] = []
+    for i, item in enumerate(items):
+        where = f"{mid}.task_lines[{i}]"
+        if not isinstance(item, dict):
+            raise ProfileError(f"{where}: expected an object")
+        _check_keys(where, item, {"line", "fields"})
+        out.append({
+            "line": _compile(f"{where}.line", item.get("line"), None),
+            "fields": _compile_fields(mid, f"{where}.fields", item.get("fields")),
+        })
     return out
 
 

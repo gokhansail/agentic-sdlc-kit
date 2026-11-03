@@ -1,0 +1,234 @@
+{
+  "cutoff": "2026-10-25",
+  "input": {
+    "dirty": true,
+    "files": {
+      "changelog": "39d38626881edf56ef94b79e516e4d10ee69fc2b8080412094e0e8d514a7c802",
+      "decisions": "bbc6f80b9175d62ecc3378ec12d333b6f7586a87ee5caa43b17d990e97bd035e",
+      "git_log": "e4f23f609a9840cfaad25753e0f643e46063a1e3ded17c7606f76ffb5b7d3bb9",
+      "git_tests": "15aa60edf97cba5ab5fe409b7ad1aa4435f49f057a3a6a8162d460f5a399c300",
+      "log": "310b2ae195591e1a6e754a1c5994ba876deab21c3f238fd84797c8becb7e5a0b",
+      "tasks": "b053d2f3354abf0f8959e6414e26faabf2c3766efbd6a101f5afbb51a00e1bd2"
+    },
+    "folders": {
+      "audits": {
+        "files": 5,
+        "sha256": "07d9c6570d6d98f218bfee49910a259074bd73ac9672b155fa57f4cef2ac5335",
+        "untracked": 0
+      }
+    },
+    "head": "85e93d2297899d3b345f1db2a8791221c4977822",
+    "profile_sha256": "a46eaf550a2afc93c17ea90395dc4920da340664672458155c534aeddcb42efa"
+  },
+  "kit_commit": "b6af8f8f30ec4432dd6927f04b34acf3a686e7c1",
+  "label": "project-a",
+  "metrics": {
+    "M1": {
+      "status": "ok",
+      "undated": {
+        "n": 0
+      },
+      "v1": {
+        "count": 1,
+        "items": 1,
+        "n": 62
+      },
+      "v2": {
+        "count": 0,
+        "items": 0,
+        "n": 17
+      }
+    },
+    "M12": {
+      "status": "ok",
+      "v1": {
+        "count": 36,
+        "n": 97,
+        "versions": 61,
+        "weeks": 3
+      },
+      "v2": {
+        "count": 33,
+        "n": 50,
+        "versions": 17,
+        "weeks": 3
+      }
+    },
+    "M13": {
+      "status": "ok",
+      "undated": {
+        "distribution": {
+          "E": 10,
+          "H": 1,
+          "M": 5
+        },
+        "done": 15,
+        "n": 16
+      },
+      "v1": {
+        "n": 0
+      },
+      "v2": {
+        "n": 0
+      }
+    },
+    "M2": {
+      "status": "ok",
+      "undated": {
+        "n": 0
+      },
+      "v1": {
+        "count": 39,
+        "n": 62,
+        "no_change": 0
+      },
+      "v2": {
+        "count": 11,
+        "n": 17,
+        "no_change": 6
+      }
+    },
+    "M3": {
+      "status": "ok",
+      "v1": {
+        "count": 0,
+        "n": 2,
+        "weeks": {
+          "2026-W41": 0,
+          "2026-W42": 0
+        }
+      },
+      "v2": {
+        "count": 120,
+        "n": 3,
+        "weeks": {
+          "2026-W43": 32,
+          "2026-W44": 99,
+          "2026-W45": 120
+        }
+      }
+    },
+    "M5": {
+      "status": "ok",
+      "undated": {
+        "n": 0
+      },
+      "v1": {
+        "n": 0
+      },
+      "v2": {
+        "distribution": {
+          "0": 2,
+          "1": 11,
+          "2": 4,
+          "3+": 1
+        },
+        "n": 18
+      }
+    },
+    "M6": {
+      "status": "ok",
+      "undated": {
+        "out_of_scope": {
+          "n": 0
+        },
+        "questions_back": {
+          "n": 0
+        }
+      },
+      "v1": {
+        "out_of_scope": {
+          "n": 0
+        },
+        "questions_back": {
+          "n": 0
+        }
+      },
+      "v2": {
+        "out_of_scope": {
+          "count": 2,
+          "n": 17
+        },
+        "questions_back": {
+          "count": 0,
+          "n": 17
+        }
+      }
+    },
+    "M8": {
+      "status": "ok",
+      "v1": {
+        "days_to_closed": {
+          "0": 0,
+          "1-3": 0,
+          "4-7": 0,
+          "8+": 0
+        },
+        "latest": {
+          "closed": 0,
+          "deferred": 0,
+          "none": 30,
+          "open": 0,
+          "partial": 0
+        },
+        "n": 30,
+        "severity": {
+          "critical": 3,
+          "high": 8,
+          "low": 6,
+          "medium": 10,
+          "unrated": 3
+        }
+      },
+      "v2": {
+        "days_to_closed": {
+          "0": 0,
+          "1-3": 0,
+          "4-7": 0,
+          "8+": 0
+        },
+        "latest": {
+          "closed": 0,
+          "deferred": 0,
+          "none": 12,
+          "open": 0,
+          "partial": 0
+        },
+        "n": 12,
+        "severity": {
+          "critical": 0,
+          "high": 2,
+          "low": 3,
+          "medium": 6,
+          "unrated": 1
+        }
+      }
+    },
+    "M9": {
+      "status": "ok",
+      "undated": {
+        "n": 0
+      },
+      "v1": {
+        "count": 14,
+        "n": 34
+      },
+      "v2": {
+        "count": 2,
+        "n": 9
+      }
+    }
+  },
+  "schema": 1,
+  "warnings": {
+    "m12_undated_version": 1,
+    "m13_untagged_heading": 22,
+    "m5_line_without_number": 1,
+    "m5_session_line": 1,
+    "m6_missing_out_of_scope": 2,
+    "m6_missing_questions_back": 2,
+    "m6_session_line": 1,
+    "m8_unrated_finding": 4,
+    "m9_entry_without_outcome": 15
+  }
+}

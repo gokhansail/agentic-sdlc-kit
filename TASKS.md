@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 2: T-22 contract written; awaiting the maintainer's go-ahead, then the TL commits the contract and `scout` runs it. Plan: `cto/2026-11-02_phase2-plan.md`, DEC-021 to DEC-028.
+Phase 2: T-22 and T-22a done and committed; next is the T-23 contract (`EVIDENCE.md` prose and limits).
 
 ## Phases
 
@@ -146,7 +146,8 @@ Plan: `cto/2026-11-02_phase2-plan.md`. Metrics M1, M2, M3, M5, M6, M8, M9, M12, 
 - Output: the writer allowlist grows by these keys and by ISO week, severity, status and tag labels only; the refuse test still passes. Render: `python -m tools.metrics.render --doc <file> <json>...` validates each JSON, rewrites only the block between `<!-- metrics:begin -->` and `<!-- metrics:end -->`, refuses a missing or doubled marker; one table per metric, columns source and period; a cell under 5 items shows the count and no rate (DEC-025); "no data" stays "no data".
 - Acceptance: each metric matches a fixture with a known answer; git metrics from a repository built in a temp dir with fixed author and committer dates (pattern of `tests/test_pre_push.py`); one test per layout in the note (finding heading and severity line, re-verify table, decision heading and outcome layouts, task tag sets) with invented English markers; re-render gives no diff and leaves text outside the block unchanged; two runs byte-identical; no network, no new dependency; ASCII only; guard clean.
 - Tests: `python -m pytest -q` green, summary line pasted. Report to the TL in Turkish.
-### [ ] T-22 [M] Run on the three sources (`scout`, runs only; totals to `evidence/*.json`)
+### [x] T-22 [M] Run on the three sources (`scout`, runs only; totals to `evidence/*.json`)
+- Result: three snapshots, reruns byte-identical; kit clean, Project A and B dirty (recorded); coverage gap in Project A fixed by T-22a; approved by the maintainer 2026-11-04. Limits for T-23: one Project A entry unparsed; Project B v1 only for M3, M8, M12; kit has no version data.
 - Goal: one pinned run per source, so T-23 writes around fixed numbers and G2 can rerun them (DEC-023, DEC-024). `scout`, Haiku, effort low; runs commands, edits no file.
 - Order: the TL commits this contract first, so the kit snapshot has `dirty: false`. Source paths go in the brief only, never in a committed file.
 - Runs: `python -m tools.metrics --source <dir> --profile tools/metrics/profiles/<label>.json --label <label> --out evidence/<label>.json --snapshot` for `project-a`, `project-b`, `kit`; then the same three again without `--snapshot` and `--source`.
@@ -156,6 +157,17 @@ Plan: `cto/2026-11-02_phase2-plan.md`. Metrics M1, M2, M3, M5, M6, M8, M9, M12, 
 - Checks: `python tools/pre_push_guard.py --files evidence/*.json` exit 0; `python -m pytest -q` still green.
 - Report to the TL in Turkish: per source and metric, status, n per period, warning counts; manifest short head and dirty flag; the coverage numbers. Numbers only: no source file names, no quotes, no record text.
 - After: the TL checks the numbers against the T-21 kit hand counts, writes the DEC-010 outcome and the limits found for T-23; `scribe` writes LOG, STATUS, the metrics line and one CHANGELOG line.
+### [x] T-22a [M] Project A: two more metric-line layouts (M5, M6)
+- Result: `task_lines` in `profile.py` and `metrics_text.py`, 12 new tests (271 total green, 1 skipped); Project A M5 v2 n 10 to 18, 19 of 20 entries parsed; kit result unchanged; approved by the maintainer 2026-11-04.
+- Goal: count the Project A tasks whose numbers sit mid-line or in a TL review line, so M5 and M6 cover 19 of 20 v2 log entries with task numbers instead of 11 (DEC-030). `developer`, Sonnet, effort medium. Found by the T-22 coverage check.
+- Reads: DEC-030; `.sdlc/local/record-formats.md` sections "Folding" and Project A "Work log" (layouts 1 to 3); the T-20 code. Never the source folders or `evidence/raw/project-*` (DEV_RULES 11).
+- Rule: a profile may give `task_lines`, an ordered list, in place of `task_line`; each item has its own line regex and its own fields. Per entry, the first item in list order that matches a line of that entry gives the entry's one task; any other matching line in that entry is ignored and counted as warning `<tag>_extra_task_line`. Session lines keep their current handling.
+- Project A profile: item 1 the metrics label anywhere in a bullet (layouts 1, 2); item 2 a bullet starting with the TL review label that holds `tur <n>`, review rounds = n as written (layout 3). Questions back and out-of-scope fields as today in both.
+- Unchanged: a profile with `task_line` gives the same result as before; `evidence/kit.json` rerun from its snapshot keeps SHA-256 `4a5b2e99...`. Do not touch: `metrics_records.py`, `gitstats.py`, `render.py`, the kit and Project B profiles, the guard, `.gitignore`, `evidence/`.
+- Touch: `tools/metrics/{profile,metrics_text}.py`, `tools/metrics/profiles/project-a.json`, `tests/metrics/`, `tests/fixtures/metrics/`, `CHANGELOG.md` (one line).
+- Acceptance: one fixture test per layout with invented English markers; a test for an entry with lines of both items (item 1 wins, one warning); a test that `task_line` and `task_lines` together are refused; no network, no new dependency; ASCII only; guard clean.
+- Tests: `python -m pytest -q` green, summary line pasted. Report to the TL in Turkish.
+- After: `scout` reruns Project A from its existing snapshot (same input hashes); the TL repeats the coverage count and checks whether item 2 added v1 tasks.
 ### [ ] T-23 [M] `EVIDENCE.md` prose and limits (`tech-writer`)
 ### [ ] T-24 Gate G2 (`auditor-mini`)
 

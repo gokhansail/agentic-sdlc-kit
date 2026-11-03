@@ -144,3 +144,49 @@ def test_m12_with_commits_alone_is_valid_and_empty_is_not() -> None:
     data["metrics"]["M12"] = {"commits": False}
     with pytest.raises(ProfileError):
         parse_profile(json.dumps(data).encode("ascii"))
+
+
+def listed_doc() -> dict:
+    data = json.loads(doc())
+    m5 = data["metrics"]["M5"]
+    fields = m5.pop("fields")
+    line = m5.pop("task_line")
+    m5["task_lines"] = [{"line": line, "fields": fields}]
+    return data
+
+
+def test_task_lines_profile_compiles_in_list_order() -> None:
+    data = listed_doc()
+    data["metrics"]["M5"]["task_lines"].append(
+        {"line": "^- lead:", "fields": {"review_rounds": "round (?P<n>[0-9]+)"}}
+    )
+    cfg = parse_profile(json.dumps(data).encode("ascii")).metrics["M5"]
+    assert "task_line" not in cfg
+    assert [item["line"].pattern for item in cfg["task_lines"]] == ["^- measures:", "^- lead:"]
+
+
+def test_task_line_and_task_lines_together_are_refused() -> None:
+    data = listed_doc()
+    data["metrics"]["M5"]["task_line"] = "^- measures:"
+    with pytest.raises(ProfileError, match="cannot both be given"):
+        parse_profile(json.dumps(data).encode("ascii"))
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda m: m.update(task_lines=[]),
+        lambda m: m.update(task_lines="x"),
+        lambda m: m["task_lines"][0].pop("fields"),
+        lambda m: m["task_lines"][0].update(line="(unclosed"),
+        lambda m: m["task_lines"][0].update(extra="x"),
+        lambda m: m["task_lines"][0]["fields"].update(other="x (?P<n>1)"),
+        lambda m: m["task_lines"][0]["fields"].update(review_rounds="rounds [0-9]+"),
+        lambda m: m.update(fields={"review_rounds": "rounds (?P<n>[0-9]+)"}),
+    ],
+)
+def test_malformed_task_lines_are_refused(mutate) -> None:
+    data = listed_doc()
+    mutate(data["metrics"]["M5"])
+    with pytest.raises(ProfileError):
+        parse_profile(json.dumps(data).encode("ascii"))

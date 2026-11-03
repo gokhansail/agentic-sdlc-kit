@@ -32,21 +32,42 @@
     "M5": {
       "file": "log",
       "entry_heading": "^##\\s+(?P<date>\\d{4}-\\d{2}-\\d{2})",
-      "task_line": "^\\s*-\\s+olculer:",
-      "session_line": "^\\s*-\\s+oturum olculeri:",
-      "fields": {
-        "review_rounds": "\\binceleme turu\\s+(?P<n>\\d+)"
-      }
+      "task_lines": [
+        {
+          "line": "^\\s*-\\s+.*\\bolculer:",
+          "fields": {
+            "review_rounds": "\\binceleme turu\\s+(?P<n>\\d+)"
+          }
+        },
+        {
+          "line": "^\\s*-\\s+tl incelemesi:.*\\btur\\s+\\d",
+          "fields": {
+            "review_rounds": "\\btur\\s+(?P<n>\\d+)"
+          }
+        }
+      ],
+      "session_line": "^\\s*-\\s+oturum olculeri:"
     },
     "M6": {
       "file": "log",
       "entry_heading": "^##\\s+(?P<date>\\d{4}-\\d{2}-\\d{2})",
-      "task_line": "^\\s*-\\s+olculer:",
-      "session_line": "^\\s*-\\s+oturum olculeri:",
-      "fields": {
-        "questions_back": "\\bsoruyla donus\\s+(?P<n>\\d+)",
-        "out_of_scope": "\\bsozlesme disi (?:[a-z]+ )?dosya\\s+(?P<n>\\d+)"
-      }
+      "task_lines": [
+        {
+          "line": "^\\s*-\\s+.*\\bolculer:",
+          "fields": {
+            "questions_back": "\\bsoruyla donus\\s+(?P<n>\\d+)",
+            "out_of_scope": "\\bsozlesme disi (?:[a-z]+ )?dosya\\s+(?P<n>\\d+)"
+          }
+        },
+        {
+          "line": "^\\s*-\\s+tl incelemesi:.*\\btur\\s+\\d",
+          "fields": {
+            "questions_back": "\\bsoruyla donus\\s+(?P<n>\\d+)",
+            "out_of_scope": "\\bsozlesme disi (?:[a-z]+ )?dosya\\s+(?P<n>\\d+)"
+          }
+        }
+      ],
+      "session_line": "^\\s*-\\s+oturum olculeri:"
     },
     "M3": {
       "path_glob": "Assets/_Game/Tests/Editor/*.cs",
