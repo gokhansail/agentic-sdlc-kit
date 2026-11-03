@@ -33,22 +33,49 @@ WARNING_NAMES = frozenset(
         "m6_line_without_number",
         "m6_missing_questions_back",
         "m6_missing_out_of_scope",
+        "record_folder_missing",
+        "folder_file_skipped",
+        "m8_file_without_date",
+        "m8_duplicate_finding",
+        "m8_unrated_finding",
+        "m8_unknown_status",
+        "m8_unlinked_row",
+        "m9_entry_without_outcome",
+        "m9_undated_entry",
+        "m12_author_date_outside_span",
+        "m12_undated_version",
+        "m13_untagged_heading",
+        "m13_unknown_tag",
     }
 )
 RESULT_KEYS = frozenset(
     {"schema", "label", "cutoff", "kit_commit", "input", "metrics", "warnings"}
 )
-INPUT_KEYS = frozenset({"head", "dirty", "files", "profile_sha256"})
+INPUT_KEYS = frozenset({"head", "dirty", "files", "folders", "profile_sha256"})
 MANIFEST_KEYS = frozenset(
-    {"schema", "label", "kit_commit", "head", "dirty", "profile_sha256", "files", "warnings"}
+    {"schema", "label", "kit_commit", "head", "dirty", "profile_sha256", "files", "folders", "warnings"}
 )
 METRIC_KEYS = frozenset({"status", "v1", "v2", "undated"})
-CELL_KEYS = frozenset({"n", "count", "items", "no_change", "distribution"})
+CELL_KEYS = frozenset(
+    {
+        "n", "count", "items", "no_change", "distribution", "versions", "weeks", "done",
+        "severity", "latest", "days_to_closed",
+    }
+)
 FIELD_KEYS = frozenset({"questions_back", "out_of_scope"})
-DISTRIBUTION_KEYS = frozenset({"0", "1", "2", "3+"})
+# Keys of the small count tables inside a cell. The distribution keys depend on the metric.
+DISTRIBUTION_KEYS = {
+    "M5": frozenset({"0", "1", "2", "3+"}),
+    "M13": frozenset({"E", "M", "H"}),
+}
+SEVERITY_KEYS = frozenset({"critical", "high", "medium", "low", "unrated"})
+LATEST_KEYS = frozenset({"closed", "partial", "open", "deferred", "none"})
+DAY_KEYS = frozenset({"0", "1-3", "4-7", "8+"})
 
 LABEL_RE = re.compile(r"[a-z0-9-]+")
 ROLE_RE = re.compile(r"[a-z][a-z0-9_]{0,31}")
+NAME_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,79}")
+WEEK_RE = re.compile(r"[0-9]{4}-W[0-9]{2}")
 METRIC_ID_RE = re.compile(r"M[0-9]{1,2}")
 DATE_RE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
 GIT_HASH_RE = re.compile(r"(?:[0-9a-f]{40}|[0-9a-f]{64})")
@@ -87,18 +114,34 @@ def _check_keys(obj: dict, allowed: frozenset, where: str) -> None:
             raise _refuse(where, "key is not in the fixed schema")
 
 
-def _check_cell(cell: Any, where: str) -> None:
+def _count_table(value: Any, allowed: frozenset, where: str) -> None:
+    table = _object(value, where)
+    _check_keys(table, allowed, where)
+    for key, number in table.items():
+        _int(number, f"{where}.{key}")
+
+
+def _check_cell(cell: Any, where: str, mid: str) -> None:
     cell = _object(cell, where)
     _check_keys(cell, CELL_KEYS | FIELD_KEYS, where)
     for key, value in cell.items():
         here = f"{where}.{key}"
         if key == "distribution":
-            dist = _object(value, here)
-            _check_keys(dist, DISTRIBUTION_KEYS, here)
-            for bucket, number in dist.items():
-                _int(number, f"{here}.{bucket}")
+            _count_table(value, DISTRIBUTION_KEYS.get(mid, frozenset()), here)
+        elif key == "severity":
+            _count_table(value, SEVERITY_KEYS, here)
+        elif key == "latest":
+            _count_table(value, LATEST_KEYS, here)
+        elif key == "days_to_closed":
+            _count_table(value, DAY_KEYS, here)
+        elif key == "weeks" and isinstance(value, dict):
+            weeks = _object(value, here)
+            for week, number in weeks.items():
+                if not WEEK_RE.fullmatch(week):
+                    raise _refuse(here, "key is not an ISO week")
+                _int(number, f"{here}.{week}")
         elif key in FIELD_KEYS:
-            _check_cell(value, here)
+            _check_cell(value, here, mid)
         else:
             _int(value, here)
 
@@ -114,7 +157,7 @@ def _check_metrics(metrics: Any) -> None:
             raise _refuse(f"{where}.status", "not a fixed status word")
         for period in ("v1", "v2", "undated"):
             if period in entry:
-                _check_cell(entry[period], f"{where}.{period}")
+                _check_cell(entry[period], f"{where}.{period}", mid)
 
 
 def _check_warnings(warnings: Any) -> None:
@@ -131,6 +174,29 @@ def _check_files(files: Any, where: str) -> None:
         _string(digest, f"{where}.{role}", SHA256_RE, allow_null=True)
 
 
+def _check_folders(folders: Any, where: str, listing: bool) -> None:
+    """listing: manifest form {role: {name: {sha256, tracked}}}; else the summary form."""
+    for role, entry in _object(folders, where).items():
+        if not ROLE_RE.fullmatch(role):
+            raise _refuse(where, "key is not a role name")
+        here = f"{where}.{role}"
+        entry = _object(entry, here)
+        if listing:
+            for name, info in entry.items():
+                if not NAME_RE.fullmatch(name):
+                    raise _refuse(here, "key is not a safe file name")
+                info = _object(info, f"{here}.{name}")
+                _check_keys(info, frozenset({"sha256", "tracked"}), f"{here}.{name}")
+                _string(info.get("sha256"), f"{here}.{name}.sha256", SHA256_RE)
+                if not isinstance(info.get("tracked"), bool):
+                    raise _refuse(f"{here}.{name}.tracked", "expected a boolean")
+        else:
+            _check_keys(entry, frozenset({"files", "untracked", "sha256"}), here)
+            _int(entry.get("files"), f"{here}.files")
+            _int(entry.get("untracked"), f"{here}.untracked")
+            _string(entry.get("sha256"), f"{here}.sha256", SHA256_RE)
+
+
 def _check_common(obj: dict) -> None:
     if obj.get("schema") != SCHEMA:
         raise _refuse("schema", f"expected {SCHEMA}")
@@ -145,6 +211,8 @@ def _check_state(state: dict, where: str) -> None:
         raise _refuse(f"{where}dirty", "expected a boolean or null")
     _string(state.get("profile_sha256"), f"{where}profile_sha256", SHA256_RE)
     _check_files(state.get("files"), f"{where}files")
+    if "folders" in state:
+        _check_folders(state["folders"], f"{where}folders", listing=where == "")
 
 
 def validate_result(obj: Any) -> None:

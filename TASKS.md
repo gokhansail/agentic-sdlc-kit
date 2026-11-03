@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 2: T-20 done and committed. Next: the TL writes the T-21 contract (M3, M8, M9, M12, M13; table render). Plan: `cto/2026-11-02_phase2-plan.md`, DEC-021 to DEC-028.
+Phase 2: T-21 done and committed; next is the T-22 contract. Plan: `cto/2026-11-02_phase2-plan.md`, DEC-021 to DEC-028.
 
 ## Phases
 
@@ -132,7 +132,20 @@ Plan: `cto/2026-11-02_phase2-plan.md`. Metrics M1, M2, M3, M5, M6, M8, M9, M12, 
 - Acceptance: each metric matches a fixture with a known answer; one test per metric-line phrasing in the note, with invented English markers; one folding test whose letters are built with `chr()`; two runs give byte-identical JSON; the writer has a refuse test and a pass test (DEV_RULES 9); snapshot paths with `..` or absolute paths outside the root are refused (rule 10); no network, no new dependency; ASCII only; guard clean.
 - Tests: `python -m pytest -q` green, summary line pasted. Report to the TL in Turkish.
 
-### [ ] T-21 [M] Git, audit and decision metrics; table render (M3, M8, M9, M12, M13)
+### [x] T-21 [H] Git, audit, decision and task metrics; table render (M3, M8, M9, M12, M13)
+- Result: `gitstats.py`, `metrics_records.py`, `render.py` new, 124 new tests (252 total green, 1 skipped); kit rerun and re-render byte-identical; approved by the maintainer 2026-11-03. Limits for T-23: 12 of 15 kit tasks undated in M13; symlink escape untested on this machine; DEC-029 needs a limits item; full test run takes about 2 minutes.
+- Goal: count M3, M8, M9, M12, M13 on the T-20 core and render every result into a marked block, so T-22 only runs and T-23 writes around fixed tables (DEC-021, DEC-025). `developer`, Sonnet, effort high; tag raised from [M]: five metrics, git snapshot, schema change and render in one contract.
+- Reads: plan sections 2 and 4; DEC-021 to DEC-025, DEC-029; `.sdlc/local/record-formats.md` sections "Folding", decision log, task list, audit reports, tests (git), "This repository"; the T-20 code. Never the source folders (DEV_RULES 11).
+- Touch: `tools/metrics/{gitstats,metrics_records,render}.py` (new); `tools/metrics/{__main__,profile,inputs,output}.py` and the 3 profiles per the plan section 2 table (extend); `tests/metrics/`, `tests/fixtures/metrics/`, `CHANGELOG.md` (one line). Do not touch: `metrics_text.py` behaviour, `tools/pre_push_guard.py`, `.gitignore`, `requirements-dev.txt`, the records; no `EVIDENCE.md` (T-23).
+- Snapshot: also copies the files of a profile folder entry (directory plus file-name regex; skip regex), with `tracked` per file in the manifest (DEC-029); writes `git-log.txt` (hash, author date, committer date, up to HEAD) and `git-tests.txt` (ISO week, its last commit by author date, attribute count by `git grep` over the profile path glob). A run without `--snapshot` still reads the copies only.
+- M3: attribute count at the last commit of each ISO week, `weeks` {YYYY-Www: count}; the v1 and v2 cell is the count of the last week in that period.
+- M12: commits per ISO week by author date, versions per ISO week by changelog heading date; per period `count`, `versions`, `weeks` (ISO weeks from first to last item, empty weeks included). Author dates outside the committer-date span are counted and go to `warnings`.
+- M8: findings per report, period by report date; severity from the heading, else the first severity line of the finding; key = report date + ID; a re-verify row links to the latest audit report on or before its date that has that ID; status = first word of the cell. Per period: `severity` counts, `latest` status counts (`none` if never re-verified), `days_to_closed` distribution 0, 1-3, 4-7, 8+.
+- M9: entries from the first entry heading on; date from the heading or the entry's date line; filled = outcome not empty and not the profile's empty pattern; an entry without an outcome field goes to `warnings`, not to n.
+- M13: task headings with a size tag, mapped to E, M, H by the profile; `distribution` and `done`; period by the done date when present, else `undated`; untagged headings go to `warnings`.
+- Output: the writer allowlist grows by these keys and by ISO week, severity, status and tag labels only; the refuse test still passes. Render: `python -m tools.metrics.render --doc <file> <json>...` validates each JSON, rewrites only the block between `<!-- metrics:begin -->` and `<!-- metrics:end -->`, refuses a missing or doubled marker; one table per metric, columns source and period; a cell under 5 items shows the count and no rate (DEC-025); "no data" stays "no data".
+- Acceptance: each metric matches a fixture with a known answer; git metrics from a repository built in a temp dir with fixed author and committer dates (pattern of `tests/test_pre_push.py`); one test per layout in the note (finding heading and severity line, re-verify table, decision heading and outcome layouts, task tag sets) with invented English markers; re-render gives no diff and leaves text outside the block unchanged; two runs byte-identical; no network, no new dependency; ASCII only; guard clean.
+- Tests: `python -m pytest -q` green, summary line pasted. Report to the TL in Turkish.
 ### [ ] T-22 [M] Run on the three sources (`scout`, runs only; totals to `evidence/*.json`)
 ### [ ] T-23 [M] `EVIDENCE.md` prose and limits (`tech-writer`)
 ### [ ] T-24 Gate G2 (`auditor-mini`)

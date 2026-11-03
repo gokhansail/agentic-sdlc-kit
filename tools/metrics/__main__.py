@@ -14,7 +14,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Sequence
 
-from . import inputs, output
+from . import gitstats, inputs, metrics_records, output
 from .metrics_text import compute
 from .profile import ProfileError, load_profile
 from .records import CUTOFF
@@ -43,20 +43,31 @@ def run(args: argparse.Namespace, root: Path) -> None:
     else:
         manifest = inputs.read_manifest(root, label)
     texts = inputs.load_copies(root, label, profile, manifest)
+    folders = inputs.load_folders(root, label, profile, manifest)
+    git = inputs.load_git(root, label, manifest)
     metrics, found = compute(profile, texts)
     warnings = Counter(manifest["warnings"])
     warnings.update(found)
+    for more, found in (
+        metrics_records.compute(profile, texts, folders),
+        gitstats.compute(profile, texts, git),
+    ):
+        metrics.update(more)
+        warnings.update(found)
+    state: dict = {
+        "head": manifest["head"],
+        "dirty": manifest["dirty"],
+        "files": manifest["files"],
+        "profile_sha256": profile.sha256,
+    }
+    if profile.folders:
+        state["folders"] = inputs.folder_summary(manifest["folders"])
     result = {
         "schema": output.SCHEMA,
         "label": label,
         "cutoff": CUTOFF.isoformat(),
         "kit_commit": manifest["kit_commit"],
-        "input": {
-            "head": manifest["head"],
-            "dirty": manifest["dirty"],
-            "files": manifest["files"],
-            "profile_sha256": profile.sha256,
-        },
+        "input": state,
         "metrics": metrics,
         "warnings": dict(warnings),
     }
@@ -68,7 +79,7 @@ def main(argv: Sequence[str] | None = None, root: Path | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         run(args, (root or REPO_ROOT).resolve())
-    except (inputs.InputError, ProfileError, output.OutputError) as err:
+    except (inputs.InputError, ProfileError, output.OutputError, gitstats.GitError) as err:
         print(f"metrics: {err}", file=sys.stderr)
         return 2
     return 0

@@ -2,7 +2,15 @@
   "schema": 1,
   "files": {
     "changelog": "CHANGELOG.md",
-    "log": "LOG.md"
+    "log": "LOG.md",
+    "decisions": "DECISIONS.md",
+    "tasks": "TASKS.md"
+  },
+  "folders": {
+    "audits": {
+      "dir": "audits",
+      "name": "^(?P<date>\\d{4}-\\d{2}-\\d{2})_.+\\.md$"
+    }
   },
   "metrics": {
     "M1": {},
@@ -23,6 +31,33 @@
         "questions_back": "\\bquestions back\\s+(?P<n>\\d+)",
         "out_of_scope": "\\bout-of-scope files\\s+(?P<n>\\d+)"
       }
+    },
+    "M8": {
+      "folder": "audits",
+      "finding_heading": "^###\\s+(?P<id>[a-z]+-\\d+)\\b",
+      "severity_line": "^\\s*-\\s+severity:\\s*(?P<severity>[a-z]+)",
+      "table_row": "^\\|\\s*(?P<id>[a-z]+-\\d+)\\s*\\|(?:.*\\|)?\\s*(?P<status>closed|partial|open|deferred)\\b[^|]*\\|\\s*$"
+    },
+    "M9": {
+      "file": "decisions",
+      "entry_heading": "^##\\s+dec-\\d+",
+      "date_line": "^\\s*-\\s+date:\\s*(?P<date>\\d{4}-\\d{2}-\\d{2})",
+      "outcome": "^\\s*-\\s+outcome:\\s*(?P<value>.*)$",
+      "empty": "^$"
+    },
+    "M12": {
+      "commits": true
+    },
+    "M13": {
+      "file": "tasks",
+      "heading": "^###\\s+\\[(?P<done>[ x~])\\]\\s+[a-z]+-\\d+",
+      "tag": "^###\\s+\\[[ x~]\\]\\s+[a-z]+-\\d+\\s+\\[(?P<tag>[a-z])\\]",
+      "tags": {
+        "E": "e",
+        "M": "m",
+        "H": "h"
+      },
+      "done_date_body": "^-\\s+result:.*?(?P<date>\\d{4}-\\d{2}-\\d{2})"
     }
   }
 }

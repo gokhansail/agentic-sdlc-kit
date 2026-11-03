@@ -2,6 +2,49 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-03 (4) - T-21 approved and committed
+
+- The maintainer approved the T-21 commit.
+- The TL marked T-21 done in `TASKS.md` with a Result line and updated NOW NEXT.
+- TL checks:
+  - `python -m pytest -q`: 252 passed, 1 skipped (about 2 minutes).
+  - CHANGELOG line present.
+- Commit: "Add git, audit, decision and task metrics (T-21)"; pushed through the pre-push guard.
+- Next: the T-22 contract.
+
+## 2026-11-03 (3) - T-21 git, audit, decision and task metrics
+
+- The maintainer chose DEC-029 a) (count Project B's untracked audit folder in M8) and approved calling `developer` for T-21. The TL recorded DEC-029.
+- `developer` (Sonnet, effort high) wrote `tools/metrics/gitstats.py`, `tools/metrics/metrics_records.py` and `tools/metrics/render.py`, extended `profile.py`, `inputs.py`, `output.py` and `__main__.py` and the 3 profiles, added 124 tests and one CHANGELOG line. No question back, no file outside the contract. Four T-20 profile tests were updated for the new profile content; `metrics_text.py`, `records.py` and `fold.py` unchanged.
+- Technical choices the contract did not fix:
+  - M12: author dates outside the committer-date span are counted and warned, but do not widen the week span.
+  - M13: optional profile key `done_date_body` takes the done date from the first date in a done task's "Result:" line.
+  - M8: a re-verify row links to the latest other report dated on or before it; a finding without severity counts as `unrated`.
+  - The result JSON gives per folder only file count, untracked count and one digest; no file names.
+- TL checks:
+  - `python -m pytest -q`: 252 passed, 1 skipped (symlink test; no symlink privilege on this machine).
+  - Guard over the changed files: exit 0.
+  - No marker literal in `tools/metrics/*.py`; new and changed files ASCII only.
+  - Kit run twice: byte-identical JSON. Render twice into a test block: no diff.
+  - Kit hand counts matched: M9 1 of 29; M12 18 commits over 2 ISO weeks; M8 15 findings (high 1, medium 4, low 9, unrated 1); M13 15 tagged tasks (E 4, M 8, H 3), 12 done, 2 untagged.
+  - `evidence/` removed after the check.
+- Limits noted for T-23:
+  - Kit M13: 12 of 15 tasks undated (no date in their Result line).
+  - The symlink escape path is untested on this machine.
+  - DEC-029 needs a limits item.
+- Outcome: not committed; awaiting the maintainer's check.
+- Metrics (T-21): review rounds 0, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe), customer result not tested.
+
+## 2026-11-03 (2) - T-21 contract
+
+- The maintainer asked for the T-21 contract.
+- The TL wrote it in `TASKS.md` (13 lines): snapshot of audit folders and git extracts, M3, M8, M9, M12, M13, writer allowlist, render into a marked block with the DEC-025 small-cell rule. Tag raised from [M] to [H].
+- The TL recorded DEC-029 as open: whether Project B's untracked audit folder counts in M8. Recommendation a), count it.
+- TL checks:
+  - Contract within 15 lines.
+  - Added lines ASCII; the DEC date line follows the existing format.
+- Outcome: not committed. `developer` (Sonnet, effort high) implements T-21 after the maintainer answers DEC-029 and gives the go-ahead.
+
 ## 2026-11-03 (1) - T-20 approved and committed
 
 - The maintainer checked T-20 and approved the commit.

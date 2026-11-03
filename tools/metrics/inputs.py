@@ -19,13 +19,18 @@ import subprocess
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any, Mapping
 
-from . import output
+from . import gitstats, output
+from .fold import fold
 from .profile import Profile
 
 LABEL_RE = re.compile(r"[a-z0-9-]+")
 RAW_DIR = ("evidence", "raw")
 MANIFEST_NAME = "manifest.json"
 GIT_HASH_RE = re.compile(r"(?:[0-9a-f]{40}|[0-9a-f]{64})")
+NAME_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,79}")
+GIT_LOG_NAME = "git-log.txt"
+GIT_TESTS_NAME = "git-tests.txt"
+GIT_EXTRACTS = (("git_log", GIT_LOG_NAME), ("git_tests", GIT_TESTS_NAME))
 
 
 class InputError(ValueError):
@@ -108,10 +113,73 @@ def record_paths(source: Path, files: Mapping[str, str]) -> dict[str, tuple[str,
     return out
 
 
+def _tracked_names(source: Path, rel_dir: str, is_repo: bool) -> set[str]:
+    """Paths (relative to the source root) that git tracks under rel_dir."""
+    if not is_repo:
+        return set()
+    listing = _git(source, "-c", "core.quotepath=off", "ls-files", "--", rel_dir)
+    return set(listing.splitlines()) if listing else set()
+
+
+def _copy_folder(
+    source: Path, dest: Path, role: str, spec: Mapping[str, Any], is_repo: bool, warnings: dict[str, int]
+) -> dict[str, dict[str, Any]]:
+    """Copy the files of one folder entry; return {name: {"sha256", "tracked"}}."""
+    folder = resolve_inside(source, spec["dir"], f"folder '{role}'", allow_absolute=False)
+    if not folder.is_dir():
+        warnings["record_folder_missing"] = warnings.get("record_folder_missing", 0) + 1
+        return {}
+    rel_dir = folder.relative_to(source.resolve()).as_posix()
+    tracked = _tracked_names(source, rel_dir, is_repo)
+    found: dict[str, dict[str, Any]] = {}
+    for child in sorted(folder.iterdir(), key=lambda p: p.name):
+        folded = fold(child.name)
+        if not spec["name"].search(folded) or (spec["skip"] and spec["skip"].search(folded)):
+            continue
+        if not NAME_RE.fullmatch(child.name):
+            warnings["folder_file_skipped"] = warnings.get("folder_file_skipped", 0) + 1
+            continue
+        rel = f"{rel_dir}/{child.name}"
+        src = resolve_inside(source, rel, f"folder '{role}' file", allow_absolute=False)
+        if not src.is_file():
+            continue
+        data = src.read_bytes()
+        target = resolve_inside(dest, rel, f"snapshot of '{role}'", allow_absolute=False)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+        found[child.name] = {"sha256": sha256_bytes(data), "tracked": rel in tracked}
+    return found
+
+
+def _write_git_extracts(source: Path, dest: Path, head: str | None, profile: Profile) -> dict[str, str]:
+    """Write git-log.txt and git-tests.txt when the profile needs them; return their hashes."""
+    wanted = {
+        "git_log": bool(profile.metrics.get("M12", {}).get("commits")),
+        "git_tests": "M3" in profile.metrics,
+    }
+    produced: dict[str, str] = {}
+    for role, name in GIT_EXTRACTS:
+        target = dest / name
+        if not (wanted[role] and head):
+            target.unlink(missing_ok=True)
+            continue
+        if role == "git_log":
+            text = gitstats.collect_log(source, head)
+        else:
+            text = gitstats.collect_tests(source, head, profile.metrics["M3"])
+        data = text.encode("ascii")
+        dest.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+        produced[role] = sha256_bytes(data)
+    return produced
+
+
 def snapshot(root: Path, source: Path, profile: Profile, label: str) -> dict[str, Any]:
     if not source.is_dir():
         raise InputError("--source is not a directory")
     paths = record_paths(source, profile.files)  # validates every path before any copy
+    for role, spec in profile.folders.items():  # same check for the folder entries
+        resolve_inside(source, spec["dir"], f"folder '{role}'", allow_absolute=False)
     dest = raw_dir(root, label)
     head, dirty = git_state(source)
     warnings: dict[str, int] = {}
@@ -131,7 +199,12 @@ def snapshot(root: Path, source: Path, profile: Profile, label: str) -> dict[str
         hashes[role] = sha256_bytes(data)
     if missing:
         warnings["record_file_missing"] = missing
-    manifest = {
+    folders = {
+        role: _copy_folder(source, dest, role, spec, head is not None, warnings)
+        for role, spec in sorted(profile.folders.items())
+    }
+    hashes.update(_write_git_extracts(source, dest, head, profile))
+    manifest: dict[str, Any] = {
         "schema": output.SCHEMA,
         "label": label,
         "kit_commit": git_state(root)[0],
@@ -141,6 +214,8 @@ def snapshot(root: Path, source: Path, profile: Profile, label: str) -> dict[str
         "files": hashes,
         "warnings": warnings,
     }
+    if profile.folders:
+        manifest["folders"] = folders
     output.write_json(dest / MANIFEST_NAME, manifest, "manifest")
     return manifest
 
@@ -178,3 +253,62 @@ def load_copies(root: Path, label: str, profile: Profile, manifest: Mapping[str,
             raise InputError(f"snapshot copy of '{role}' does not match the manifest hash")
         texts[role] = data.decode("utf-8-sig", errors="replace")
     return texts
+
+
+def load_folders(
+    root: Path, label: str, profile: Profile, manifest: Mapping[str, Any]
+) -> dict[str, dict[str, str]]:
+    """Read the folder copies the manifest lists, checking each hash."""
+    dest = raw_dir(root, label)
+    out: dict[str, dict[str, str]] = {}
+    for role, spec in sorted(profile.folders.items()):
+        listed = manifest.get("folders", {}).get(role)
+        if listed is None:
+            raise InputError(f"folder '{role}' is not in the snapshot manifest")
+        texts: dict[str, str] = {}
+        for name, info in sorted(listed.items()):
+            path = resolve_inside(dest, f"{spec['dir']}/{name}", f"snapshot of '{role}'", allow_absolute=False)
+            try:
+                data = path.read_bytes()
+            except OSError:
+                raise InputError(f"snapshot copy of a '{role}' file is missing")
+            if sha256_bytes(data) != info["sha256"]:
+                raise InputError(f"snapshot copy of a '{role}' file does not match the manifest hash")
+            texts[name] = data.decode("utf-8-sig", errors="replace")
+        out[role] = texts
+    return out
+
+
+def load_git(root: Path, label: str, manifest: Mapping[str, Any]) -> dict[str, str | None]:
+    """git-log.txt and git-tests.txt by role; None when the snapshot has no such extract."""
+    dest = raw_dir(root, label)
+    out: dict[str, str | None] = {}
+    for role, name in GIT_EXTRACTS:
+        expected = manifest["files"].get(role)
+        if expected is None:
+            out[role] = None
+            continue
+        try:
+            data = (dest / name).read_bytes()
+        except OSError:
+            raise InputError(f"snapshot copy of '{role}' is missing")
+        if sha256_bytes(data) != expected:
+            raise InputError(f"snapshot copy of '{role}' does not match the manifest hash")
+        out[role] = data.decode("ascii", errors="replace")
+    return out
+
+
+def folder_summary(folders: Mapping[str, Mapping[str, Mapping[str, Any]]]) -> dict[str, dict[str, Any]]:
+    """Per folder: file count, untracked count and one digest over names and hashes.
+
+    The committed result carries this summary instead of file names.
+    """
+    out: dict[str, dict[str, Any]] = {}
+    for role, listed in sorted(folders.items()):
+        lines = "".join(f"{name} {info['sha256']}\n" for name, info in sorted(listed.items()))
+        out[role] = {
+            "files": len(listed),
+            "untracked": sum(1 for info in listed.values() if not info["tracked"]),
+            "sha256": sha256_bytes(lines.encode("ascii")),
+        }
+    return out

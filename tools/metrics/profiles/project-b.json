@@ -4,10 +4,34 @@
     "changelog": "CHANGELOG.md",
     "log": "LOG.md"
   },
+  "folders": {
+    "audits": {
+      "dir": "denetci",
+      "name": "^(?P<date>\\d{4}-\\d{2}-\\d{2})_.+\\.md$",
+      "skip": "traceability"
+    }
+  },
   "metrics": {
     "M1": {},
     "M2": {},
     "M5": {},
-    "M6": {}
+    "M6": {},
+    "M3": {
+      "path_glob": "**/*.cs",
+      "attribute": "^[[:space:]]*\\[(Test|UnityTest)[],(]"
+    },
+    "M8": {
+      "folder": "audits",
+      "finding_heading": "^###\\s+(?P<id>[a-z]+-\\d+)\\s+\u2014\\s+(?P<severity>[a-z]+)\\b",
+      "table_row": "^\\|\\s*(?P<id>[a-z]+-\\d+)\\s*\\|(?:.*\\|)?\\s*(?P<status>closed|partial|open|deferred)\\b[^|]*\\|\\s*$"
+    },
+    "M9": {},
+    "M13": {},
+    "M12": {
+      "commits": true,
+      "file": "changelog",
+      "version_heading": "^##\\s+(?:\\([^)]*\\)\\s+)?v?\\d+\\.\\d+\\.\\d+",
+      "date": "^##\\s+\\S+\\s+\u2014\\s+(?:\\d{4}-\\d{2}-\\d{2}\\s*[-\u2013]\\s*)?(?P<date>\\d{4}-\\d{2}-\\d{2})"
+    }
   }
 }

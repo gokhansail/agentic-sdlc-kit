@@ -2,7 +2,16 @@
   "schema": 1,
   "files": {
     "changelog": "CHANGELOG.md",
-    "log": "LOG.md"
+    "log": "LOG.md",
+    "tasks": "GOREVLER.md",
+    "decisions": "KARARLAR.md"
+  },
+  "folders": {
+    "audits": {
+      "dir": "denetci",
+      "name": "^(?P<date>\\d{4}-\\d{2}-\\d{2})_.+\\.md$",
+      "skip": "traceability"
+    }
   },
   "metrics": {
     "M1": {
@@ -38,6 +47,38 @@
         "questions_back": "\\bsoruyla donus\\s+(?P<n>\\d+)",
         "out_of_scope": "\\bsozlesme disi (?:[a-z]+ )?dosya\\s+(?P<n>\\d+)"
       }
+    },
+    "M3": {
+      "path_glob": "Assets/_Game/Tests/Editor/*.cs",
+      "attribute": "^[[:space:]]*\\[(Test|UnityTest)[],(]"
+    },
+    "M8": {
+      "folder": "audits",
+      "finding_heading": "^###\\s+(?P<id>[a-z]+-\\d+)\\s+\u2014\\s+(?P<severity>[a-z]+)\\b",
+      "table_row": "^\\|\\s*(?P<id>[a-z]+-\\d+)\\s*\\|(?:.*\\|)?\\s*(?P<status>closed|partial|open|deferred)\\b[^|]*\\|\\s*$"
+    },
+    "M9": {
+      "file": "decisions",
+      "entry_heading": "^\\*\\*k-\\d+(?:.*?\u2014\\s*(?P<date>\\d{4}-\\d{2}-\\d{2}))?",
+      "outcome": "^\\s*(?:-\\s+)?\\*{0,2}sonuc\\s*(?:\\([^)]*\\))?\\s*:\\s*\\*{0,2}\\s*(?P<value>.*)$",
+      "empty": "^\u2014$"
+    },
+    "M12": {
+      "commits": true,
+      "file": "changelog",
+      "version_heading": "^##\\s+(?:\\([^)]*\\)\\s+)?v?\\d+\\.\\d+\\.\\d+",
+      "date": "^##\\s+\\S+\\s+\u2014\\s+(?:\\d{4}-\\d{2}-\\d{2}\\s*[-\u2013]\\s*)?(?P<date>\\d{4}-\\d{2}-\\d{2})"
+    },
+    "M13": {
+      "file": "tasks",
+      "heading": "^###\\s+\\[(?P<done>[ x~])\\]\\s+[a-z]+-\\d+",
+      "tag": "^###\\s+\\[[ x~]\\]\\s+[a-z]+-\\d+\\s+\\[(?P<tag>[a-z])\\]",
+      "tags": {
+        "E": "k",
+        "M": "o",
+        "H": "z"
+      },
+      "done_date": "\\((?P<date>\\d{4}-\\d{2}-\\d{2})\\b[^)]*\\)\\s*$"
     }
   }
 }

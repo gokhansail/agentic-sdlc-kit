@@ -227,3 +227,11 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: the metric is named reverted versions. b) puts a whole version taken back and one item taken back into the same number; two counts keep either from inflating the other.
 - Consequences: T-20 adds an `items` field next to the M1 rate. A revert word in the heading scope or in the work log never counts. Version-level revert headings carry no date; T-20 gives an undated heading the period of its two dated neighbours when both agree, otherwise `undated` with a warning.
 - Outcome:
+
+## DEC-029 Project B audit folder in M8
+- Date: 2026-11-03 · Question: open point M8 in the local format note (P-20), raised in the T-21 contract
+- Options: a) count it; the manifest marks each file `tracked: false` and the limits section says its history cannot be checked in git b) leave it out; Project B shows "no data" for M8
+- Decision: a) (2026-11-03).
+- Reason: it is the only v1 audit data of Project B; the snapshot hash pins the text whether git tracks it or not.
+- Consequences: a) adds one limits item for T-23; b) leaves M8 with Project A and the kit only.
+- Outcome:

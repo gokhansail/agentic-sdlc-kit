@@ -141,13 +141,15 @@ def test_missing_record_file_shows_no_data_and_a_warning(project: Path, tmp_path
     assert result["warnings"]["record_file_missing"] == 1
 
 
-def test_project_b_style_profile_gives_no_data_for_all_four(project: Path, tmp_path: Path) -> None:
+def test_project_b_style_profile_gives_no_data_for_the_four_text_metrics(project: Path, tmp_path: Path) -> None:
     source = make_source(tmp_path / "src")
     out = project / "o.json"
     profile = ROOT / "tools" / "metrics" / "profiles" / "project-b.json"
     assert cli(project, source, out, "--snapshot", profile=profile) == 0
     metrics = json.loads(out.read_text(encoding="ascii"))["metrics"]
-    assert metrics == {m: {"status": "no data"} for m in ("M1", "M2", "M5", "M6")}
+    assert {m: metrics[m] for m in ("M1", "M2", "M5", "M6")} == {
+        m: {"status": "no data"} for m in ("M1", "M2", "M5", "M6")
+    }
 
 
 # --- path safety (DEV_RULES 10) --------------------------------------------
