@@ -2,6 +2,16 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-04 (10) - P-30 contract
+
+- The maintainer asked for the P-30 contract.
+- The TL wrote the contract in `TASKS.md` (15 lines):
+  - Scope: plugin facts probe, V items except V-7.
+  - A throwaway plugin outside `AppData` and outside any repository.
+  - At most 12 Haiku runs.
+  - Results in ignored local files.
+- Outcome: not committed; awaiting the maintainer's go-ahead.
+
 ## 2026-11-04 (9) - Phase 3 block and commit
 
 - The maintainer approved the `TASKS.md` phase 3 block, the local exception text and the commit.

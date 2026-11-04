@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 3 planned (DEC-033 to DEC-043); next is the P-30 contract, the plugin facts probe.
+Phase 3 planned (DEC-033 to DEC-043); P-30 contract written, awaiting the customer's go-ahead.
 
 ## Phases
 
@@ -223,6 +223,23 @@ Order:
 - [ ] P-33 [M] rehearsal in a throwaway clone, customer's terminal. Needs T-30a, T-32.
 - [ ] T-33 [M] one real task on Project A, customer's terminal. Needs P-33, T-33a. The customer picks the task.
 - [ ] T-34 gate G3: `auditor`, then `auditor-mini`.
+
+### [ ] P-30 [M] Plugin facts probe (`developer`, Sonnet, effort medium)
+- Size: medium.
+- Goal: V-1 to V-6, V-8, V-9 and V-12 of `cto/2026-11-04_phase3-plan.md` section 5 each end as confirmed, refuted or not settled, with the observation. V-7 falls away (DEC-039). No product code.
+- Method: one throwaway plugin: a copy of the 7 role files, a root shaped like this repository (`hooks/git/`, `tools/`, `tests/`, `.claude/`), one skill, a PreToolUse hook on `Write|Edit|NotebookEdit` that logs its stdin and the names of its `CLAUDE_*` variables.
+- Place: a throwaway folder in the home directory, outside `AppData` and outside any repository; the brief names it. Every run has it as working directory. Never this repository, Project A or Project B.
+- Limits: at most 12 `claude -p` runs, each `--model haiku`, `--max-turns 8`, `--permission-mode acceptEdits`. No permission bypass flag, no `claude plugin install`, no change to user settings.
+- Hook cases: exit 0, exit 2, exit 1, a crash, and a timeout of 2 s, each with one write; a write from the main session against one from a sub-agent; the `NotebookEdit` field name.
+- Files in: `.sdlc/local/p30-results.md` (ignored by git): one row per V item with status, command, observation and CLI version. `.sdlc/local/p30-capture/` (ignored by git): one JSON per hook case, paths replaced by invented ones, session IDs removed.
+- Files out: everything tracked in this repository, incl. `docs/toolchain.md` (the TL writes it), `.claude/` and `CHANGELOG.md`.
+- Acceptance: every V item has a row; a confirmed or refuted row names the run that shows it; the V-4 row states whether the hook fired in the sub-agent and which input field names the agent; `git status --porcelain` is empty afterwards.
+- Tests: no new test. `python -m pytest -q` stays green, summary line pasted.
+- Design reference: `cto/2026-11-04_phase3-plan.md` sections 2 and 5; DEC-037, DEC-040, DEC-041, DEC-043.
+- Flag: none.
+- Customer test: one load command given in the report, run in a terminal the customer opened; the result goes in the V-9 row. The desktop half of V-9 may stay not settled (DEC-043).
+- Report to the TL in Turkish, fixed format, one line per V item. A result that contradicts a decision is an OPEN QUESTION, not a change of plan.
+- After: the TL writes the results into `docs/toolchain.md` with one CHANGELOG line and removes the throwaway folder after the customer test; a refuted fact that changes a decision goes to the customer; `scribe` writes LOG, STATUS and the metrics line.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).

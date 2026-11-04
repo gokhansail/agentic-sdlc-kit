@@ -37,7 +37,7 @@ Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates
 
 ## Next
 
-- P-30 plugin facts probe.
+- P-30 plugin facts probe; contract written, awaiting the go-ahead.
 
 ## Repository
 
