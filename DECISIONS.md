@@ -251,3 +251,11 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: the inputs are pinned by hash, so these numbers do not drift. The Project A and B snapshots are private, so b) gives a stranger nothing more to rerun. Coverage counts are by hand under either option.
 - Consequences: narrows the T-23 acceptance line of the CTO plan. Metric results stay in the marked block only. Outside it, `EVIDENCE.md` holds method dates and thresholds, and limits numbers with a named source. One more item for G2 to check by hand.
 - Outcome:
+
+## DEC-032 Where the G2 rerun happens
+- Date: 2026-11-04 · Question: T-24 contract; G2 check 1 asks for a clean checkout, but `evidence/raw/` is ignored by git, so a clean checkout holds no snapshot
+- Options: a) a clean working tree of the gate commit in this folder, using the local snapshots b) a fresh clone with the snapshots copied into it
+- Decision: a) (2026-11-04).
+- Reason: b) makes a second copy of private record text for no gain; `git status --porcelain` shows whether the tree was clean and whether the rerun changed anything.
+- Consequences: narrows the G2 row in `TASKS.md` and check 1 of the CTO plan. The gate does not test a fresh clone; the stranger's route for the kit is the one `EVIDENCE.md` describes, tested once by the TL.
+- Outcome:

@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 2: T-23 done and committed; next is the T-24 contract (gate G2, `auditor-mini`).
+Phase 2: T-23 done and committed; T-24 contract written; next is the G2 run (`auditor-mini`).
 
 ## Phases
 
@@ -11,7 +11,7 @@ Phase 2: T-23 done and committed; next is the T-24 contract (gate G2, `auditor-m
 |---|---|---|---|
 | 0 Setup | decisions, records, guard, toolchain | G0: decisions recorded; guard rejects a planted secret (test); toolchain doc has no "not verified" line for phases 1-3; product `CLAUDE.md` committed (T-05) | TL list + maintainer |
 | 1 Playbook | the method in tool-neutral English, no code | G1: every claim maps to a source-map line; no private data; maintainer read it once end to end | `auditor`, then `auditor-mini` |
-| 2 Evidence | before/after numbers, reproducible | G2 (DEC-026): rerun from a clean checkout matches the manifest hashes and leaves `evidence/` and `EVIDENCE.md` unchanged; 3 hand counts (H1, H2, H3) match exactly; limits section of at least 9 items; tests green, a known-answer test per metric; guard clean and `evidence/*.json` holds only fixed keys, numbers, dates, hashes and labels; unparsed metric lines 0 or stated in the limits | `auditor-mini` |
+| 2 Evidence | before/after numbers, reproducible | G2 (DEC-026, DEC-032): rerun from a clean working tree of the gate commit matches the manifest hashes and leaves `evidence/` and `EVIDENCE.md` unchanged; 3 hand counts (H1, H2, H3) match exactly; limits section of at least 9 items; tests green, a known-answer test per metric; guard clean and `evidence/*.json` holds only fixed keys, numbers, dates, hashes and labels; unparsed metric lines 0 or stated in the limits | `auditor-mini` |
 | 3 Plugin | Claude Code plugin: roles, commands, hooks | G3: loads with `--plugin-dir`; scope guard blocks and allows (tests); one real task done with it on Project A | `auditor`, then `auditor-mini` |
 | 4 MCP server | file-based core | G4: tests green; root lock and `..` tests pass; no network; works in Claude Code (DEC-011); eval table from T-46 | `auditor`, then `auditor-mini` |
 | 5 Release | README, v0.1.0, marketplace, public | G5: publish-readiness audit incl. git history; every README number reproducible; maintainer says publish | `auditor` |
@@ -182,6 +182,19 @@ Plan: `cto/2026-11-02_phase2-plan.md`. Metrics M1, M2, M3, M5, M6, M8, M9, M12, 
 - After: the TL runs `python -m tools.metrics.render --doc EVIDENCE.md evidence/project-a.json evidence/project-b.json evidence/kit.json` twice (second run no diff), the guard over `EVIDENCE.md`, and `python -m pytest -q`; `scribe` writes LOG, STATUS and the metrics line.
 - Report to the TL in Turkish: sections, limits count, any number or claim the brief did not support.
 ### [ ] T-24 Gate G2 (`auditor-mini`)
+- Goal: the G2 verdict: the 6 checks of `cto/2026-11-02_phase2-plan.md` section 3 plus the hand-written numbers (DEC-026, DEC-031, DEC-032). `auditor-mini`, Opus, effort high. ACCEPT / CONDITIONAL / REJECT; fixes nothing.
+- Order: the TL commits this contract first; that commit is the gate commit. Phase 2 range: `e42b560..` the gate commit.
+- Check 1 reproduce (DEC-032): with `git status --porcelain` empty in this folder, rerun `python -m tools.metrics --profile tools/metrics/profiles/<label>.json --label <label> --out evidence/<label>.json` for `project-a`, `project-b`, `kit`, then `render` as in T-23. Pass: snapshot hashes equal `input` in each result file; `git status --porcelain evidence/ EVIDENCE.md` prints nothing. On a difference, leave the tree and report it.
+- Check 2 hand counts: H1, H2, H3 from the snapshot copies in `evidence/raw/`, without `tools/metrics`; exact equality with `EVIDENCE.md`. One may be replaced by a pick of the auditor's own, with the reason.
+- Check 3 limits: each item of section 3 check 3 is present in `EVIDENCE.md`; at least 9.
+- Check 4 tests: `python -m pytest -q` green; a known-answer test per metric; a determinism test; a test that the JSON writer refuses a free-text value.
+- Check 5 privacy: guard exit 0 over the tree and the phase 2 commits; `evidence/*.json` holds only fixed keys, numbers, dates, hashes and the 3 labels.
+- Check 6 parse coverage: per source, loose metric-line matches minus lines parsed, recounted on the snapshots; 0, or the count is in the limits.
+- Check 7 hand-written numbers (DEC-031): every number outside the marked block traces to its named source and equals it; no metric result sits outside the block.
+- Report: `audits/2026-11-04_gate2.md`, English, a table check | evidence | status, then the verdict. Totals only: no record text, no quotes, no marker words, no source paths. `python tools/pre_push_guard.py --files` on it: exit 0.
+- Touch: that report only. Source paths go in the brief, never in a committed file.
+- Return to the TL in Turkish, at most 15 lines.
+- After: the TL checks the report; `scribe` writes LOG, STATUS and the metrics line; the maintainer decides on closing phase 2.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 3: T-30 plugin skeleton and commands · T-31 scope guard hook · T-32 git hook installer command · T-33 dogfood on Project A · T-34 gate G3.

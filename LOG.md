@@ -2,6 +2,17 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-04 (4) - T-24 contract
+
+- The maintainer asked for the T-24 contract.
+- The TL wrote it in `TASKS.md` (14 lines): the 6 G2 checks plus check 7 for the numbers outside the rendered block (DEC-031). Report: `audits/2026-11-04_gate2.md`, totals only.
+- The TL recorded DEC-032: the G2 rerun uses a clean working tree of the gate commit and the local snapshots, since `evidence/raw/` is ignored by git. The G2 row in `TASKS.md` is narrowed to match.
+- Order set in the contract: the TL commits the contract first; that commit is the gate commit.
+- TL checks:
+  - Contract within 15 lines.
+  - Guard over `TASKS.md` and `DECISIONS.md`: exit 0.
+- Outcome: not committed; awaiting the maintainer's go-ahead.
+
 ## 2026-11-04 (3) - T-23 approved and committed
 
 - The maintainer approved the commit of T-23.
