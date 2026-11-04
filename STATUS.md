@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-04
-Now: Phase 2 · T-22 and T-22a committed · repository private · metrics code written, tests green
+Now: Phase 2 · T-23 committed · repository private · metrics code written, tests green
 
 ## Phase
 
@@ -31,10 +31,11 @@ Phase 2 Evidence is open. G2 criteria (TASKS.md, DEC-026): byte-identical rerun;
 - T-20 metrics core and text metrics: `tools/metrics/`, M1, M2, M5, M6; 128 tests green; M1 counting rule DEC-028. Committed 2026-11-03.
 - T-21 git, audit, decision and task metrics: M3, M8, M9, M12, M13 and the table render; 252 tests green; DEC-029. Committed 2026-11-03.
 - T-22 run and T-22a: three sources, reruns byte-identical; Project A parser extended for two more metric-line layouts (DEC-030), 19 of 20 v2 entries parsed; 271 tests green. Committed 2026-11-04.
+- T-23 `EVIDENCE.md`: 9 metrics, 18 limits items, tables rendered; DEC-031. Committed 2026-11-04.
 
 ## Next
 
-- The T-23 contract (`EVIDENCE.md` prose and limits, `tech-writer`).
+- The T-24 contract (gate G2, `auditor-mini`).
 
 ## Repository
 

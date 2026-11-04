@@ -243,3 +243,11 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: 9 of 20 is too large for a limits item. The script does not reinterpret a number in a source record; the source uses both meanings of the round number, and the limits section says so.
 - Consequences: reverses the P-20 format note, which treated the TL review line as free text. New task T-22a; Project A is rerun from its existing snapshot. One entry with two conflicting free-text round numbers stays unparsed and goes to the limits section.
 - Outcome: T-22a (2026-11-03): Project A M5 v2 n 10 to 18; 19 of 20 entries parsed, one of them without a round number; M6 n 17 per field; no v1 task added; kit result unchanged (same SHA-256).
+
+## DEC-031 Numbers outside the rendered block in `EVIDENCE.md`
+- Date: 2026-11-04 · Question: T-23 contract; `cto/2026-11-02_phase2-plan.md` asks that every number sit in the rendered block, but the limits section needs numbers the block does not hold (period lengths in days, warning counts, parse coverage)
+- Options: a) written by hand in the limits section only, each with its source named; `auditor-mini` checks them at G2 b) first extend `render` and the result schema and rerun; coverage counts stay by hand
+- Decision: a) (2026-11-04).
+- Reason: the inputs are pinned by hash, so these numbers do not drift. The Project A and B snapshots are private, so b) gives a stranger nothing more to rerun. Coverage counts are by hand under either option.
+- Consequences: narrows the T-23 acceptance line of the CTO plan. Metric results stay in the marked block only. Outside it, `EVIDENCE.md` holds method dates and thresholds, and limits numbers with a named source. One more item for G2 to check by hand.
+- Outcome:

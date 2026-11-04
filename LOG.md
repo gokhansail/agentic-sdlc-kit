@@ -2,6 +2,39 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-04 (3) - T-23 approved and committed
+
+- The maintainer approved the commit of T-23.
+- The TL marked T-23 done in `TASKS.md` with a Result line and updated NOW NEXT.
+- TL checks:
+  - `python -m pytest -q`: 271 passed, 1 skipped.
+  - CHANGELOG line present.
+  - Guard over the changed files: exit 0.
+- Commit: Add evidence report with limits (T-23); pushed through the pre-push guard.
+- Next: the T-24 contract.
+
+## 2026-11-04 (2) - T-23 `EVIDENCE.md` written
+
+- The maintainer chose to write the limits numbers by hand, with their source named, and approved going on (DEC-031). The CTO plan line that every number sits in the rendered block is narrowed: metric results stay in the marked block only.
+- The TL wrote the T-23 contract in `TASKS.md` (12 lines) and DEC-031.
+- `tech-writer` (Sonnet, effort medium) wrote `EVIDENCE.md` and one CHANGELOG line. No question back, no file outside the contract.
+- TL review: 9 fixes, 1 fix round.
+  - Reading section gaps: M3, M5, M6, M9 direction.
+  - Wrong wording of the 30% rule in M13.
+  - Limits items 3 and 13.
+  - New limits item 18.
+  - Rerun section.
+  - CHANGELOG line position.
+- Found in review: a rerun of the kit from a fresh clone at the commit in `input.head`, on two throwaway clones on one Windows machine. Metrics, warnings and head match `evidence/kit.json`. `kit_commit` differs. 5 of 7 snapshot files have other hashes, with the same text once line endings are normalized. The first draft implied a byte-identical result for a stranger. The rerun section and limits item 18 now state this.
+- TL checks:
+  - Render run twice, second run no change (SHA-256 equal).
+  - `python -m pytest -q`: 271 passed, 1 skipped.
+  - Guard over `EVIDENCE.md`, `CHANGELOG.md`, `TASKS.md`, `DECISIONS.md`: exit 0.
+  - `EVIDENCE.md` ASCII only; banned-word scan empty.
+  - 18 limits items.
+- Outcome: not committed; awaiting the maintainer's check.
+- Metrics (T-23): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (tech-writer), Haiku (scribe), customer result not tested.
+
 ## 2026-11-04 (1) - T-22 and T-22a approved and committed
 
 - The maintainer approved the commit of T-22a and the T-22 results.

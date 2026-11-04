@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 2: T-22 and T-22a done and committed; next is the T-23 contract (`EVIDENCE.md` prose and limits).
+Phase 2: T-23 done and committed; next is the T-24 contract (gate G2, `auditor-mini`).
 
 ## Phases
 
@@ -168,7 +168,19 @@ Plan: `cto/2026-11-02_phase2-plan.md`. Metrics M1, M2, M3, M5, M6, M8, M9, M12, 
 - Acceptance: one fixture test per layout with invented English markers; a test for an entry with lines of both items (item 1 wins, one warning); a test that `task_line` and `task_lines` together are refused; no network, no new dependency; ASCII only; guard clean.
 - Tests: `python -m pytest -q` green, summary line pasted. Report to the TL in Turkish.
 - After: `scout` reruns Project A from its existing snapshot (same input hashes); the TL repeats the coverage count and checks whether item 2 added v1 tasks.
-### [ ] T-23 [M] `EVIDENCE.md` prose and limits (`tech-writer`)
+### [x] T-23 [M] `EVIDENCE.md` prose and limits (`tech-writer`)
+- Result: `EVIDENCE.md` with 9 metrics and 18 limits items, tables rendered, second render no change; 271 tests green; 1 fix round, 9 fixes; approved by the maintainer 2026-11-04. For T-24: `evidence/raw/` is ignored by git, so a clean checkout holds no snapshot; the numbers outside the block are checked by hand (DEC-031).
+- Goal: a reader sees what was measured, how to rerun it, the results, and what they do not show (DEC-010, DEC-021, DEC-031). `tech-writer`, Sonnet, effort medium.
+- Input: the TL's brief holds the facts with their sources; the rendered tables come from a local file. The writer does not read `evidence/raw/` or `.sdlc/local/`.
+- Sections: what this is; sources and periods; metrics and counting rules (9 metrics, one line each); results (the two marker lines of `render`); how to read the results; limits; how to rerun.
+- Results rule: metric results sit only between the markers. Outside: method dates and thresholds, and limits numbers with a named source (DEC-031).
+- Reading section: covers all 9 metrics, including those that did not improve; repeats no number; no causal wording.
+- Limits: the 9 items of G2 check 3, plus: the Project B audit folder not tracked in git (DEC-029); parse coverage per source; two meanings of the review round number (DEC-030); the kit counts every metric line as a task; undated tasks in M13; M8 closure data exists for the kit only.
+- Privacy: Project A and Project B only; no engine, tool or source names; no record text.
+- Touch: `EVIDENCE.md` (new), `CHANGELOG.md` (one line). Do not touch: anything else.
+- Acceptance: limits section of at least 9 items; every number outside the markers traces to the brief; writing-style list holds; ASCII only; `what is this file` line on top.
+- After: the TL runs `python -m tools.metrics.render --doc EVIDENCE.md evidence/project-a.json evidence/project-b.json evidence/kit.json` twice (second run no diff), the guard over `EVIDENCE.md`, and `python -m pytest -q`; `scribe` writes LOG, STATUS and the metrics line.
+- Report to the TL in Turkish: sections, limits count, any number or claim the brief did not support.
 ### [ ] T-24 Gate G2 (`auditor-mini`)
 
 ## Later phases (headlines; contracts are written when the phase opens)
