@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 2 closed (G2 ACCEPT, 2026-11-04); next is the phase 3 plan (`cto`).
+Phase 3 planned (DEC-033 to DEC-043); next is the P-30 contract, the plugin facts probe.
 
 ## Phases
 
@@ -12,7 +12,7 @@ Phase 2 closed (G2 ACCEPT, 2026-11-04); next is the phase 3 plan (`cto`).
 | 0 Setup | decisions, records, guard, toolchain | G0: decisions recorded; guard rejects a planted secret (test); toolchain doc has no "not verified" line for phases 1-3; product `CLAUDE.md` committed (T-05) | TL list + maintainer |
 | 1 Playbook | the method in tool-neutral English, no code | G1: every claim maps to a source-map line; no private data; maintainer read it once end to end | `auditor`, then `auditor-mini` |
 | 2 Evidence | before/after numbers, reproducible | G2 (DEC-026, DEC-032): rerun from a clean working tree of the gate commit matches the manifest hashes and leaves `evidence/` and `EVIDENCE.md` unchanged; 3 hand counts (H1, H2, H3) match exactly; limits section of at least 9 items; tests green, a known-answer test per metric; guard clean and `evidence/*.json` holds only fixed keys, numbers, dates, hashes and labels; unparsed metric lines 0 or stated in the limits | `auditor-mini` |
-| 3 Plugin | Claude Code plugin: roles, commands, hooks | G3: loads with `--plugin-dir`; scope guard blocks and allows (tests); one real task done with it on Project A | `auditor`, then `auditor-mini` |
+| 3 Plugin | Claude Code plugin: roles, commands, hooks | G3 (DEC-043, 9 criteria, evidence in `cto/2026-11-04_phase3-plan.md` section 3): G3-1 plugin validates and loads; G3-2 scope guard tests per state on captured real hook input; G3-3 scope guard live: a sub-agent write denied and allowed in a real session; G3-4 git hook in a foreign repository, incl. existing hook kept and uninstall; G3-5 one real task on Project A (DEC-033); G3-6 footprint equals the agreed list, rollback rehearsed; G3-7 load, hook and push worked in the customer's own terminal; G3-8 `EVIDENCE.md`, `evidence/` and the Project A manifest unchanged; G3-9 guard clean, role sync test green, toolchain doc current, playbook states the hooks that exist | `auditor`, then `auditor-mini` |
 | 4 MCP server | file-based core | G4: tests green; root lock and `..` tests pass; no network; works in Claude Code (DEC-011); eval table from T-46 | `auditor`, then `auditor-mini` |
 | 5 Release | README, v0.1.0, marketplace, public | G5: publish-readiness audit incl. git history; every README number reproducible; maintainer says publish | `auditor` |
 | 6 Ongoing | dogfood and measurement | none | none |
@@ -209,8 +209,22 @@ Plan: `cto/2026-11-02_phase2-plan.md`. Metrics M1, M2, M3, M5, M6, M8, M9, M12, 
 - After: `auditor-mini` rechecks the changed lines and N-1 to N-4 and writes `audits/2026-11-04_reverify.md`; `scribe` writes LOG, STATUS and the metrics line.
 - N-5 is not in this task: it moves to G5 (Later phases), because the text is already in the git history.
 
+## Phase 3
+
+Plan: `cto/2026-11-04_phase3-plan.md`. T-33 runs in Project A's own repository under a written exception, after P-33 (DEC-033); output in `docs/dogfood-1.md`, `EVIDENCE.md` unchanged (DEC-034); `agents/` is the role source (DEC-035); aliases for models (DEC-036); guard states (DEC-037, DEC-038, DEC-039); Python launcher (DEC-040); 5 commands (DEC-041); installer target mode (DEC-042); split and terminal (DEC-043). Headlines only; each contract is written when its turn comes, after the customer's go-ahead. New contracts use `Files in` and `Files out` (DEC-037).
+
+Order:
+- [ ] P-30 [M] plugin facts probe: closes V-1 to V-9 and V-12. Results in `docs/toolchain.md`.
+- [ ] T-30 [M] skeleton and role files. Needs P-30.
+- [ ] T-31 [H] scope guard hook. Needs P-30.
+- [ ] T-32 [H] git hook installer, target mode. Needs T-30.
+- [ ] T-30a [M] the 5 commands. Needs T-31, T-32.
+- [ ] T-33a [E] `--snapshot` refuses over an existing manifest.
+- [ ] P-33 [M] rehearsal in a throwaway clone, customer's terminal. Needs T-30a, T-32.
+- [ ] T-33 [M] one real task on Project A, customer's terminal. Needs P-33, T-33a. The customer picks the task.
+- [ ] T-34 gate G3: `auditor`, then `auditor-mini`.
+
 ## Later phases (headlines; contracts are written when the phase opens)
-- Phase 3: T-30 plugin skeleton and commands · T-31 scope guard hook · T-32 git hook installer command · T-33 dogfood on Project A · T-34 gate G3.
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).
 - Phase 5: T-50 README · T-51 v0.1.0 and marketplace · T-52 gate G5, incl. G2 candidate N-5: engine-specific test attribute and folder layout in the profiles and in the git history; the maintainer decides before the repository goes public.
 

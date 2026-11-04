@@ -194,7 +194,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: it works while Project A has uncommitted record changes, and a rerun can prove it read the same input.
 - Consequences: a copy of private record text sits inside the kit folder. `.gitignore` and the guard cover `evidence/raw/`; `git add -f` is the remaining hole and is never used. The snapshot date ends Project A's v2 series before T-33 dogfoods the kit on it.
-- Outcome:
+- Outcome: T-33 cannot enter the series; see DEC-034.
 
 ## DEC-025 Small cells
 - Date: 2026-11-02 · Question: D-25
@@ -258,4 +258,96 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a) (2026-11-04).
 - Reason: b) makes a second copy of private record text for no gain; `git status --porcelain` shows whether the tree was clean and whether the rerun changed anything.
 - Consequences: narrows the G2 row in `TASKS.md` and check 1 of the CTO plan. The gate does not test a fresh clone; the stranger's route for the kit is the one `EVIDENCE.md` describes, tested once by the TL.
+- Outcome:
+
+## DEC-033 Where T-33 runs
+- Date: 2026-11-04 · Question: D-31; the local instructions keep the source projects read-only, and G3 demands a real task on Project A
+- Options: a) a written exception for T-33 only, in Project A's own repository, on a branch b) a full local clone, the result returned as a patch c) change G3 to another real repository d) this repository only
+- Decision: a).
+- Reason: the value of G3 is the mismatch with a project the kit was not built in. b), c) and d) each remove part of that mismatch. The read-only rule protected the measured data and the project from kit build sessions; the data is pinned (DEC-024, DEC-034), and the session is that project's own TL under its own permission rule.
+- Exception: T-33 only; session opened in the Project A folder; writes limited to the 4 items below; ends when T-33 closes or is abandoned; the read-only rule then returns unchanged. It does not start before P-33 passes (DEC-043).
+- Written in Project A: 1) `.sdlc/`, not tracked 2) one line for `.sdlc/` in `.git/info/exclude` 3) `.git/hooks/pre-push` as a chain wrapper, the old hook kept beside it, its hash noted first 4) the real task's own change on a branch, under that project's own rules. Not written: plugin files, its `CLAUDE.md`, `core.hooksPath`.
+- Approval: the customer names the task and gives the go-ahead in the Project A session. That session writes the contract and reviews the diff. The kit TL receives totals only. A merge needs the customer's "done".
+- Rollback: delete the branch, or revert the one commit after the customer's word; uninstall restores the old hook with the same hash; remove `.sdlc/` and the exclude line; `git status` equals the state noted before T-33.
+- Consequences: the hook, `.sdlc/` and state steps of the rollback are rehearsed in P-33. Which task runs is open; the customer picks it from Project A's own list before T-33. Filter proposed by `cto`: medium size, at least 2 files, an automatic test exists, not judged by feel only.
+- Outcome:
+
+## DEC-034 How T-33 output is recorded
+- Date: 2026-11-04 · Question: D-32
+- Options: a) `docs/dogfood-1.md` with fixed fields, plus T-33a b) the same note, a written rule instead of T-33a c) `LOG.md` line only
+- Decision: a).
+- Reason: Project A's v2 series ended at the 2026-11-03 snapshot, so T-33 cannot change a published number by itself. The one route is `--snapshot`: `snapshot()` writes over an existing copy with no check, and `evidence/raw/` is not in git. `PLAYBOOK.md` lesson 2: a rule is enforced or deleted.
+- Consequences: `EVIDENCE.md` and `evidence/` do not change in phase 3 (G3-8). T-33a adds a refusal to `--snapshot` when a manifest exists for the label. The note holds totals only, no file names and no before/after claim. A later Project A series takes a new label and belongs to phase 6.
+- Outcome:
+
+## DEC-035 Source of truth for the role files
+- Date: 2026-11-04 · Question: D-33
+- Options: a) `agents/` is the source, `.claude/agents/` a copy, a test fails on any difference after line endings are normalized b) generate `agents/` at release, not committed c) pointer stubs in `.claude/agents/` d) delete `.claude/agents/`, always run with `--plugin-dir .`
+- Decision: a).
+- Reason: a clone must load as a plugin, which rules out b). c) still doubles the frontmatter. d) depends on V-9. Symlinks are not available on this machine. The test enforces what "one place" cannot.
+- Consequences: a role edit touches two files. `CLAUDE.md` names the source folder after T-30.
+- Outcome:
+
+## DEC-036 Model names in plugin agents
+- Date: 2026-11-04 · Question: D-34
+- Options: a) keep the aliases (`opus`, `sonnet`, `haiku`, `fable`), no versions b) `inherit` everywhere c) full model IDs
+- Decision: a).
+- Reason: the alias is the tier in `PLAYBOOK.md` Appendix A. b) lets the auditor run on a small model. c) goes stale at each release; T-13 removed version numbers.
+- Consequences: P-30 checks that `fable` validates (V-1) and that `effort` and `tools` take effect (V-2). What happens on an account without an alias stays open until T-51 (V-11).
+- Outcome:
+
+## DEC-037 Scope guard states and who it binds
+- Date: 2026-11-04 · Question: D-35
+- Options: a) no `.sdlc/project.md`: allow, silent; opted in with no contract: deny, except the always-allowed list; active contract: allow `Files in` and the list, deny the rest, `Files out` wins; broken contract: deny b) opted in with no contract: allow with a warning c) block wherever the plugin is enabled
+- Decision: a).
+- Reason: work started before a contract is the common failure, and b) lets it pass. c) stops every other project of the user.
+- Consequences: `.sdlc/project.md` is the opt-in and the one config file, written by `/sdlc:init`. One event line per decision goes to `.sdlc/metrics.jsonl`, no path, not committed; this moves part of the schema from T-41 to T-31. If hook input does not name the sub-agent (V-4), a developer can widen its own scope by editing the contract; that becomes a stated limit, covered by the TL's diff review. TL contracts move to `Files in` and `Files out`.
+- Outcome:
+
+## DEC-038 Writes through Bash
+- Date: 2026-11-04 · Question: D-36
+- Options: a) hook on the 3 file tools; `/sdlc:review` compares `git status --porcelain` with the contract; the limit is written down b) a, plus a Bash deny list c) a, plus an automatic check on a stop event d) remove Bash from the developer
+- Decision: a).
+- Reason: the developer needs Bash for tests, which rules out d). A deny list gives false cover and false blocks. c) can wait until one real task shows whether a is enough.
+- Consequences: the scope guard is not a security boundary. It catches a developer leaving its contract by mistake; a Bash write is found at review, not stopped, and ignored files stay unseen. The documents say so, and `PLAYBOOK.md` Appendix H states what exists after T-31.
+- Outcome:
+
+## DEC-039 Scope guard bypass
+- Date: 2026-11-04 · Question: D-37
+- Options: a) no bypass flag b) an environment variable set at launch, each skip logged c) a flag file in `.sdlc/local/`
+- Decision: a).
+- Reason: a bypass an agent can reach is no guard. The normal path is a wider contract after the customer's word. The customer can also start a session without the plugin or remove `.sdlc/project.md`.
+- Consequences: a session run without the plugin leaves no log. V-7 needs no check.
+- Outcome:
+
+## DEC-040 Hook runtime
+- Date: 2026-11-04 · Question: D-38
+- Options: a) Python 3.10+, standard library only, started by a short `sh` launcher b) `python` directly c) `python3` directly d) Node
+- Decision: a).
+- Reason: the guard is already standard-library Python and phase 4 needs Python (DEC-004). `python3` is a store stub on this machine. Exit 2 blocks and other codes do not (V-6, not verified), so a crash must become a deny.
+- Consequences: Python becomes a stated requirement of the plugin, no pip step in phase 3. The launcher checks opt-in without Python, and any failure in an opted-in project is exit 2 with a reason. Windows without Git Bash is a stated limit. `cto` proposes a time budget of 1 s per call; T-31 measures it.
+- Outcome:
+
+## DEC-041 Commands in phase 3
+- Date: 2026-11-04 · Question: D-39
+- Options: a) 5 skills: `status`, `init`, `contract`, `review`, `install-hooks` b) 8 skills, 3 of them text-only guides c) 3 skills: `status`, `contract`, `install-hooks`
+- Decision: a).
+- Reason: G3 needs a contract, a review and an install, and DEC-038 needs `review`. `gate`, `decision` and `lesson` get real tools in T-42 and have no reason to exist before it.
+- Consequences: T-33 writes decision and lesson records by hand. `init` and `install-hooks` run only when called by name, if V-12 holds. `templates/task-contract.md` stays the source of the contract form.
+- Outcome:
+
+## DEC-042 Git hook and guard in another repository
+- Date: 2026-11-04 · Question: D-40
+- Options: a) a target mode in the one installer: copy the guard to `.sdlc/guard/`, chain wrapper in `.git/hooks/pre-push`, `core.hooksPath` left alone, `--uninstall` b) a hook that calls the plugin folder by absolute path c) `core.hooksPath` into a copied folder
+- Decision: a).
+- Reason: `core.hooksPath` would silently switch off a repository's existing local hook, as Project A's would be. A copy works offline, with no plugin, from any terminal. An absolute path breaks at every plugin update.
+- Consequences: T-32 is [H]. Kit mode and its 17 tests stay unchanged. The installer refuses if `core.hooksPath` is set and reports a stale copy. Patterns: a generic template without the language line; private patterns stay per project, created empty, never copied from the kit; project-specific forbidden paths move to the pattern file.
+- Outcome:
+
+## DEC-043 Phase 3 task split, G3 row and where it runs
+- Date: 2026-11-04 · Question: D-41, plus the terminal question in item 11 of the CTO report's customer questions
+- Options: a) 9 items (P-30, T-30, T-31, T-32, T-30a, T-33a, P-33, T-33, T-34) and 9 G3 criteria b) the 5 tasks as named, only the G3 row sharpened c) a without P-33
+- Decision: a). The customer runs P-33 and T-33 in a terminal they opened, not in the desktop app (G3-7).
+- Reason: T-31 today would rest on unverified plugin facts, and P-30 closes those. A unit test fed with our own stdin proves the script, not that Claude Code calls it, so G3-3 adds a live check. Without P-33 the first run of the hook chain and the uninstall is on Project A; DEC-033 depends on P-33.
+- Consequences: order of `cto/2026-11-04_phase3-plan.md` section 2, about 6 sessions (opinion). Hard share 2 of 8 tagged tasks, 25%, under the 30% rule. The G3 row in `TASKS.md` becomes the 9 criteria of section 3. G3-7 is a customer statement; the auditor checks only that it is recorded.
 - Outcome:

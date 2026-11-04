@@ -2,6 +2,34 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-04 (9) - Phase 3 block and commit
+
+- The maintainer approved the `TASKS.md` phase 3 block, the local exception text and the commit.
+- The TL wrote the `TASKS.md` phase 3 block (9 items, no contract), the G3 row with 9 criteria, and NOW NEXT.
+- The local exception text is in the private instructions (not committed).
+- Commit: Add phase 3 plan and decisions DEC-033 to DEC-043; pushed through the pre-push guard.
+- Next: the P-30 contract.
+
+## 2026-11-04 (8) - CTO phase 3 plan and decisions DEC-033 to DEC-043
+
+- The maintainer approved calling `cto` (Opus, effort high) for the phase 3 plan.
+- `cto` wrote `cto/2026-11-04_phase3-plan.md` (324 lines): 9 items, 9 G3 criteria, 11 decisions, 12 plugin facts not verified.
+- Objections raised in the report:
+  - G3 cannot pass under the read-only rule for source projects.
+  - The unit-level guard test does not prove that Claude Code calls the hook.
+  - T-32 is [H].
+  - The scope guard does not stop Bash writes.
+- The maintainer accepted all recommendations:
+  - DEC-033: written exception for T-33 only, on a branch in Project A's own repository, after P-33. The maintainer runs P-33 and T-33 in a terminal the maintainer opens.
+  - DEC-034 to DEC-043: accepted as recommended.
+- TL checks:
+  - Report read in full.
+  - 8 claims recounted against the repository and Project A, read only: snapshot overwrite, installer `core.hooksPath`, pattern line, 17 contract field lines, 19 role lines in 6 files, manifest head, existing hook, validate output.
+  - Guard over the report, `DECISIONS.md` and `CHANGELOG.md`: exit 0.
+  - `python -m pytest -q`: 271 passed, 1 skipped.
+- Outcome: not committed. Open: the Project A task is not picked; the `TASKS.md` phase 3 block, the G3 row and the local exception text wait for the maintainer's go-ahead.
+- Metrics (CTO phase 3 plan): review rounds 0, questions back 12, out-of-scope files 0, models Opus (cto), Haiku (scribe), customer result not tested.
+
 ## 2026-11-04 (7) - Phase 2 closed
 
 - The maintainer approved closing phase 2 and the commit of T-24, T-24a and both audit reports.
