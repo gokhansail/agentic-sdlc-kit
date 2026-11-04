@@ -2,6 +2,51 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-04 (7) - Phase 2 closed
+
+- The maintainer approved closing phase 2 and the commit of T-24, T-24a and both audit reports.
+- The TL marked T-24 and T-24a done in `TASKS.md` with Result lines and updated NOW NEXT.
+- TL checks:
+  - `python -m pytest -q`: 271 passed, 1 skipped.
+  - Guard over the changed files: exit 0.
+- Commit: Close phase 2: G2 ACCEPT, evidence limits fixed (T-24, T-24a); pushed through the pre-push guard.
+- Next: the phase 3 plan (`cto`).
+
+## 2026-11-04 (6) - T-24a candidates N-1 to N-4 closed
+
+- The maintainer chose to fix N-1 to N-4 before closing phase 2. N-5 moved to G5 (T-52 line in `TASKS.md`), because the text is already in the git history; the maintainer decides before the repository goes public.
+- The TL wrote the T-24a contract in `TASKS.md` and added a correction to the DEC-030 outcome (N-3).
+- `tech-writer` (Sonnet, effort medium) changed `EVIDENCE.md` only: M9 rule, limit 16, new limits 19, 20, 21, the `kit_commit` sentence in the rerun section. No question back, no file outside the contract.
+- `auditor-mini` (Opus, effort high), first pass: CONDITIONAL, N-4 partial; one sentence of limit 21 gave one cause for two fields. The TL gave the corrected sentences. Second pass: ACCEPT, 7 closed, 0 open, 0 partial. Report: `audits/2026-11-04_reverify.md`.
+- TL checks:
+  - Render run again: no change.
+  - `python -m pytest -q`: 271 passed, 1 skipped.
+  - Guard over the changed files and both audit reports: exit 0.
+  - `EVIDENCE.md` ASCII only; 21 limits items.
+- Outcome: not committed; awaiting the maintainer's check and the decision to close phase 2.
+- Metrics (T-24a): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (tech-writer), Opus (auditor-mini), Haiku (scribe), customer result not tested.
+
+## 2026-11-04 (5) - T-24 G2 audit: ACCEPT, 5 candidates
+
+- The maintainer approved the G2 run. The TL committed the contract first (2e3f0ee, the gate commit).
+- `auditor-mini` (Opus, effort high) ran 7 checks: 9 rows closed, 0 open, 0 partial. Verdict ACCEPT. Report: `audits/2026-11-04_gate2.md`.
+- 5 new finding candidates, none a failed criterion:
+  - N-1: M5 metric lines lower than a session line for 2 Project A tasks.
+  - N-2: M9 denominator leaves out 15 entries with no outcome field.
+  - N-3: loose reasons in limit 16 and DEC-030.
+  - N-4: the Project A result file records an older tools commit and manifest profile hash.
+  - N-5: the committed profiles hold an engine-specific test attribute and folder layout.
+- TL checks:
+  - The tree holds only the new report.
+  - Guard over the report: exit 0.
+  - H3 recounted: 103 commits, same 4 weeks.
+  - N-1 confirmed on the snapshot.
+  - N-2 from the result file warning.
+  - N-4 by comparing the hashes.
+  - N-5 by reading the profiles; the guard patterns hold no term for N-5.
+- Outcome: report not committed; phase 2 not closed; the maintainer decides what happens with the candidates.
+- Metrics (T-24): review rounds 0, questions back 0, out-of-scope files 0, models Opus (auditor-mini), Haiku (scribe), customer result not tested.
+
 ## 2026-11-04 (4) - T-24 contract
 
 - The maintainer asked for the T-24 contract.

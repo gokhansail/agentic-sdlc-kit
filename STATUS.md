@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-04
-Now: Phase 2 · T-24 contract written · repository private · metrics code written, tests green
+Now: Phase 3 not started · phase 2 closed · repository private · metrics code written, tests green
 
 ## Phase
 
@@ -11,7 +11,7 @@ Phase 0 Setup closed: G0 passed 2026-10-29 (maintainer check in a fresh session;
 
 Phase 1 Playbook closed: G1 passed 2026-11-02 (`auditor` CONDITIONAL ACCEPT, fixes in T-15, `auditor-mini` ACCEPT; `audits/`).
 
-Phase 2 Evidence is open. G2 criteria (TASKS.md, DEC-026): byte-identical rerun; 3 hand counts; limits section of at least 9 items; tests; privacy; parse coverage. Verdict by `auditor-mini`.
+Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates N-1 to N-4 fixed in T-24a, N-5 moved to G5; `audits/`).
 
 ## Done
 
@@ -31,11 +31,12 @@ Phase 2 Evidence is open. G2 criteria (TASKS.md, DEC-026): byte-identical rerun;
 - T-20 metrics core and text metrics: `tools/metrics/`, M1, M2, M5, M6; 128 tests green; M1 counting rule DEC-028. Committed 2026-11-03.
 - T-21 git, audit, decision and task metrics: M3, M8, M9, M12, M13 and the table render; 252 tests green; DEC-029. Committed 2026-11-03.
 - T-22 run and T-22a: three sources, reruns byte-identical; Project A parser extended for two more metric-line layouts (DEC-030), 19 of 20 v2 entries parsed; 271 tests green. Committed 2026-11-04.
-- T-23 `EVIDENCE.md`: 9 metrics, 18 limits items, tables rendered; DEC-031. Committed 2026-11-04.
+- T-23 `EVIDENCE.md`: 9 metrics, 21 limits items, tables rendered; DEC-031. Committed 2026-11-04.
+- T-24 G2 audit and T-24a (N-1 to N-4 closed): Committed 2026-11-04.
 
 ## Next
 
-- The G2 run (T-24, `auditor-mini`), after the maintainer's go-ahead.
+- The phase 3 plan (`cto`), best in a fresh session.
 
 ## Repository
 
@@ -46,4 +47,4 @@ Phase 2 Evidence is open. G2 criteria (TASKS.md, DEC-026): byte-identical rerun;
 
 ## Open questions
 
-- None.
+- None. N-5 waits for G5 (`TASKS.md`).

@@ -242,7 +242,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a) (2026-11-03).
 - Reason: 9 of 20 is too large for a limits item. The script does not reinterpret a number in a source record; the source uses both meanings of the round number, and the limits section says so.
 - Consequences: reverses the P-20 format note, which treated the TL review line as free text. New task T-22a; Project A is rerun from its existing snapshot. One entry with two conflicting free-text round numbers stays unparsed and goes to the limits section.
-- Outcome: T-22a (2026-11-03): Project A M5 v2 n 10 to 18; 19 of 20 entries parsed, one of them without a round number; M6 n 17 per field; no v1 task added; kit result unchanged (same SHA-256).
+- Outcome: T-22a (2026-11-03): Project A M5 v2 n 10 to 18; 19 of 20 entries parsed, one of them without a round number; M6 n 17 per field; no v1 task added; kit result unchanged (same SHA-256). Correction 2026-11-04 (G2 candidate N-3): the unparsed entry holds round numbers for two different tasks, not two conflicting numbers for one task; the entry without a round number holds a fix-round count under another label.
 
 ## DEC-031 Numbers outside the rendered block in `EVIDENCE.md`
 - Date: 2026-11-04 · Question: T-23 contract; `cto/2026-11-02_phase2-plan.md` asks that every number sit in the rendered block, but the limits section needs numbers the block does not hold (period lengths in days, warning counts, parse coverage)

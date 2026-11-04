@@ -32,7 +32,7 @@ Each metric is counted per source and per period. A metric with no record in a s
 - M5, review rounds per task: the share of tasks with 0, 1, 2 and 3 or more review rounds, from the per-task metric lines in the work log.
 - M6, questions back and out-of-scope files: the share of tasks with at least one question back, and the share with at least one file outside the contract. Each share is over the tasks that carry that field.
 - M8, audit findings: findings per report by severity, their latest status in a re-verify report, and the days until the first closed status.
-- M9, decisions with an outcome: decision entries whose outcome field is filled, over all entries.
+- M9, decisions with an outcome: decision entries that have an outcome field; the share of those whose field is filled.
 - M12, commits and versions per week: commits per ISO week by author date, and versions per ISO week by changelog heading date.
 - M13, tasks by size tag: tasks by the size tags E, M and H. The share of hard tasks tests the 30% rule in Appendix F of `PLAYBOOK.md`. A task is placed in a period by its done date.
 
@@ -143,9 +143,12 @@ The kit has no v1 data, so it is a third series and not a before/after pair. The
 13. M8 closure data exists for the kit only. In Project A and Project B every finding shows status "none". This means the reports carry no status the parser can follow. It does not show that findings stayed open. M9 for the kit is young: decisions are recent and outcomes are written later, and the data stops at the snapshot.
 14. M12 for Project B: the commit span is 350 days, while the dated changelog headings cover 13 days. Its per-week figures are spread over a long span.
 15. M2 is a state at snapshot time, not a history. It cannot tell "tested, marker left" from "never tested". M3 counts test attributes, not passing tests.
-16. Parse coverage (log 2026-11-03, entries 6 and 7). Project A: 20 v2 log entries carry task numbers and 19 were parsed. One was not parsed because it holds two conflicting free-text round numbers. One of the 19 has no round number, so the M5 n is 18. The M6 n is 17 per field, because 2 entries miss each field (result file warnings). Kit: 20 loose matches, 16 counted, and the other 4 are prose lines, not metric lines, so the gap is 0. Project B has no metric lines.
+16. Parse coverage (log 2026-11-03, entries 6 and 7). Project A: 20 v2 log entries carry task numbers and 19 were parsed. The entry that was not parsed holds round numbers for two different tasks in free text. One of the 19 has no round number, because it holds a fix-round count under another label, so the M5 n is 18. The M6 n is 17 per field, because 2 entries miss each field (result file warnings). Kit: 20 matches of the metrics label followed by its separator, 16 counted, and the other 4 are prose lines, not metric lines, so the gap is 0. Project B has no metric lines.
 17. The kit counts every metric line as a task, including the lead's plan and audit entries.
 18. File hashes are taken over raw bytes, so they depend on line endings. In a check by the technical lead on 2026-11-04, the kit was snapshotted again from a fresh clone at the commit in `input.head`, on one Windows machine. 5 of 7 snapshot files had different hashes and the same text once line endings were normalized. Metrics and warnings matched `evidence/kit.json` exactly.
+19. M5, Project A: the log has one session line with round numbers for 3 tasks. For 2 of these tasks the metric line of the task is 1 lower than the session line, because rounds added later in the entry are not in the metric line. The script reads the metric line. With the session values the distribution is 0: 2, 1: 10, 2: 4, 3+: 2 (gate 2 audit report, N-1).
+20. M9, Project A: 15 of 58 entries have no outcome field and are outside n (result file warning `m9_entry_without_outcome`).
+21. Project A result file: `evidence/project-a.json` was made after T-22a with the tools and profile of commit fcef81b. Its `kit_commit` field says b6af8f8, because a rerun copies that field from the snapshot manifest. The snapshot manifest keeps the older profile hash, because only `--snapshot` writes the manifest. `input.profile_sha256` in the result file comes from the profile loaded at run time, so it is the current profile (gate 2 audit report, N-4).
 
 ## How to rerun
 
@@ -157,7 +160,7 @@ A fresh clone holds no snapshot, because `evidence/raw/` is ignored by git. To r
 2. Make a second checkout at the commit in `input.head` of `evidence/kit.json`.
 3. From the first clone, run the snapshot command below with `--source` pointing at the second checkout.
 
-Expected result: `metrics`, `warnings` and `input.head` match `evidence/kit.json`. `kit_commit` differs, because it records the commit of the tools. File hashes can differ with line endings (limit 18). This was tested on one Windows machine on 2026-11-04.
+Expected result: `metrics`, `warnings` and `input.head` match `evidence/kit.json`. `kit_commit` differs, because it records the commit at snapshot time. File hashes can differ with line endings (limit 18). This was tested on one Windows machine on 2026-11-04.
 
 To take a snapshot and count, from the repository root:
 

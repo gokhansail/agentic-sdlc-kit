@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 2: T-23 done and committed; T-24 contract written; next is the G2 run (`auditor-mini`).
+Phase 2 closed (G2 ACCEPT, 2026-11-04); next is the phase 3 plan (`cto`).
 
 ## Phases
 
@@ -181,7 +181,8 @@ Plan: `cto/2026-11-02_phase2-plan.md`. Metrics M1, M2, M3, M5, M6, M8, M9, M12, 
 - Acceptance: limits section of at least 9 items; every number outside the markers traces to the brief; writing-style list holds; ASCII only; `what is this file` line on top.
 - After: the TL runs `python -m tools.metrics.render --doc EVIDENCE.md evidence/project-a.json evidence/project-b.json evidence/kit.json` twice (second run no diff), the guard over `EVIDENCE.md`, and `python -m pytest -q`; `scribe` writes LOG, STATUS and the metrics line.
 - Report to the TL in Turkish: sections, limits count, any number or claim the brief did not support.
-### [ ] T-24 Gate G2 (`auditor-mini`)
+### [x] T-24 Gate G2 (`auditor-mini`)
+- Result: `auditor-mini` ACCEPT (2026-11-04), 7 checks closed; 5 candidates: N-1 to N-4 closed in T-24a, N-5 moved to G5; reports `audits/2026-11-04_gate2.md`, `audits/2026-11-04_reverify.md`; phase 2 closed by the maintainer 2026-11-04.
 - Goal: the G2 verdict: the 6 checks of `cto/2026-11-02_phase2-plan.md` section 3 plus the hand-written numbers (DEC-026, DEC-031, DEC-032). `auditor-mini`, Opus, effort high. ACCEPT / CONDITIONAL / REJECT; fixes nothing.
 - Order: the TL commits this contract first; that commit is the gate commit. Phase 2 range: `e42b560..` the gate commit.
 - Check 1 reproduce (DEC-032): with `git status --porcelain` empty in this folder, rerun `python -m tools.metrics --profile tools/metrics/profiles/<label>.json --label <label> --out evidence/<label>.json` for `project-a`, `project-b`, `kit`, then `render` as in T-23. Pass: snapshot hashes equal `input` in each result file; `git status --porcelain evidence/ EVIDENCE.md` prints nothing. On a difference, leave the tree and report it.
@@ -196,10 +197,22 @@ Plan: `cto/2026-11-02_phase2-plan.md`. Metrics M1, M2, M3, M5, M6, M8, M9, M12, 
 - Return to the TL in Turkish, at most 15 lines.
 - After: the TL checks the report; `scribe` writes LOG, STATUS and the metrics line; the maintainer decides on closing phase 2.
 
+### [x] T-24a [M] G2 candidates N-1 to N-4 in `EVIDENCE.md` (`tech-writer`)
+- Result: `EVIDENCE.md` holds 21 limits items; first recheck CONDITIONAL on one sentence of limit 21, second ACCEPT; approved by the maintainer 2026-11-04.
+- Goal: close the four candidates of `audits/2026-11-04_gate2.md` that touch how the numbers read, before phase 2 closes. Text only. `tech-writer`, Sonnet, effort medium.
+- N-1: new limit: 2 Project A tasks count 1 lower in M5 than in the session line of the same log; the distribution with the session values is stated, with its source.
+- N-2: the M9 rule says entries with an outcome field; new limit: 15 of 58 Project A entries have no such field and are outside n.
+- N-3: limit 16 states the real reasons; the kit loose pattern is named. The TL corrects the DEC-030 outcome.
+- N-4: new limit on the Project A result file; the rerun section says `kit_commit` records the commit at snapshot time. No rerun, no tool change.
+- Touch: `EVIDENCE.md`. The tables stay as rendered. Limits 1 to 18 keep their numbers. No new CHANGELOG line; the [Unreleased] line covers it. Do not touch: `tools/`, `evidence/`, the audit report.
+- Acceptance: the same style list, ASCII only, every new number traces to the brief; second `render` no change; guard exit 0; `python -m pytest -q` green.
+- After: `auditor-mini` rechecks the changed lines and N-1 to N-4 and writes `audits/2026-11-04_reverify.md`; `scribe` writes LOG, STATUS and the metrics line.
+- N-5 is not in this task: it moves to G5 (Later phases), because the text is already in the git history.
+
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 3: T-30 plugin skeleton and commands · T-31 scope guard hook · T-32 git hook installer command · T-33 dogfood on Project A · T-34 gate G3.
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).
-- Phase 5: T-50 README · T-51 v0.1.0 and marketplace · T-52 gate G5.
+- Phase 5: T-50 README · T-51 v0.1.0 and marketplace · T-52 gate G5, incl. G2 candidate N-5: engine-specific test attribute and folder layout in the profiles and in the git history; the maintainer decides before the repository goes public.
 
 ## Not on the list
 Ideas that come up go here first and are not worked on until the maintainer moves them into a phase.
