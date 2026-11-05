@@ -1,0 +1,7 @@
+{
+  "name": "sdlc",
+  "version": "0.0.1",
+  "description": "Run software work with several AI agents: roles, contract-based delegation, a review gate and independent audits.",
+  "author": { "name": "gokhansail" },
+  "license": "MIT"
+}

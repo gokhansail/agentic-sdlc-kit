@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-05
-Now: Phase 3 in progress, P-30 closed, not committed · repository private · metrics code written, tests green
+Now: Phase 3 in progress, T-30 done, not committed · repository private · metrics code written, tests green
 
 ## Phase
 
@@ -35,10 +35,11 @@ Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates
 - T-24 G2 audit and T-24a (N-1 to N-4 closed): Committed 2026-11-04.
 - Phase 3 plan: `cto/2026-11-04_phase3-plan.md`; decisions DEC-033 to DEC-043.
 - P-30 plugin facts probe: 14 runs and 1 customer terminal run; results in `docs/toolchain.md`, no result contradicts a decision.
+- T-30 skeleton and role files: plugin `sdlc` loads with 7 agents, `agents/` is the role source, 280 tests green; DEC-044.
 
 ## Next
 
-- T-30 skeleton and role files; contract not written. Before it: the maintainer's approval to commit and push P-30.
+- T-31 scope guard hook; contract not written. Before it: the maintainer's approval to commit and push T-30.
 
 ## Repository
 

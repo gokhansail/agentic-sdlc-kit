@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-P-30 closed; results in `docs/toolchain.md`, awaiting the customer's commit approval. Next: T-30 skeleton and role files; contract not written.
+T-30 done, not committed; awaiting the customer's commit approval. Next: T-31 scope guard hook; contract not written.
 
 ## Phases
 
@@ -12,7 +12,7 @@ P-30 closed; results in `docs/toolchain.md`, awaiting the customer's commit appr
 | 0 Setup | decisions, records, guard, toolchain | G0: decisions recorded; guard rejects a planted secret (test); toolchain doc has no "not verified" line for phases 1-3; product `CLAUDE.md` committed (T-05) | TL list + maintainer |
 | 1 Playbook | the method in tool-neutral English, no code | G1: every claim maps to a source-map line; no private data; maintainer read it once end to end | `auditor`, then `auditor-mini` |
 | 2 Evidence | before/after numbers, reproducible | G2 (DEC-026, DEC-032): rerun from a clean working tree of the gate commit matches the manifest hashes and leaves `evidence/` and `EVIDENCE.md` unchanged; 3 hand counts (H1, H2, H3) match exactly; limits section of at least 9 items; tests green, a known-answer test per metric; guard clean and `evidence/*.json` holds only fixed keys, numbers, dates, hashes and labels; unparsed metric lines 0 or stated in the limits | `auditor-mini` |
-| 3 Plugin | Claude Code plugin: roles, commands, hooks | G3 (DEC-043, 9 criteria, evidence in `cto/2026-11-04_phase3-plan.md` section 3): G3-1 plugin validates and loads; G3-2 scope guard tests per state on captured real hook input; G3-3 scope guard live: a sub-agent write denied and allowed in a real session; G3-4 git hook in a foreign repository, incl. existing hook kept and uninstall; G3-5 one real task on Project A (DEC-033); G3-6 footprint equals the agreed list, rollback rehearsed; G3-7 load, hook and push worked in the customer's own terminal; G3-8 `EVIDENCE.md`, `evidence/` and the Project A manifest unchanged; G3-9 guard clean, role sync test green, toolchain doc current, playbook states the hooks that exist | `auditor`, then `auditor-mini` |
+| 3 Plugin | Claude Code plugin: roles, commands, hooks | G3 (DEC-043, 9 criteria, evidence in `cto/2026-11-04_phase3-plan.md` section 3): G3-1 plugin validates and loads, as amended by DEC-044; G3-2 scope guard tests per state on captured real hook input; G3-3 scope guard live: a sub-agent write denied and allowed in a real session; G3-4 git hook in a foreign repository, incl. existing hook kept and uninstall; G3-5 one real task on Project A (DEC-033); G3-6 footprint equals the agreed list, rollback rehearsed; G3-7 load, hook and push worked in the customer's own terminal; G3-8 `EVIDENCE.md`, `evidence/` and the Project A manifest unchanged; G3-9 guard clean, role sync test green, toolchain doc current, playbook states the hooks that exist | `auditor`, then `auditor-mini` |
 | 4 MCP server | file-based core | G4: tests green; root lock and `..` tests pass; no network; works in Claude Code (DEC-011); eval table from T-46 | `auditor`, then `auditor-mini` |
 | 5 Release | README, v0.1.0, marketplace, public | G5: publish-readiness audit incl. git history; every README number reproducible; maintainer says publish | `auditor` |
 | 6 Ongoing | dogfood and measurement | none | none |
@@ -215,7 +215,7 @@ Plan: `cto/2026-11-04_phase3-plan.md`. T-33 runs in Project A's own repository u
 
 Order:
 - [x] P-30 [M] plugin facts probe: closes V-1 to V-9 and V-12. Results in `docs/toolchain.md`.
-- [ ] T-30 [M] skeleton and role files. Needs P-30.
+- [x] T-30 [M] skeleton and role files. Needs P-30.
 - [ ] T-31 [H] scope guard hook. Needs P-30.
 - [ ] T-32 [H] git hook installer, target mode. Needs T-30.
 - [ ] T-30a [M] the 5 commands. Needs T-31, T-32.
@@ -241,6 +241,23 @@ Order:
 - Customer test: one load command given in the report, run in a terminal the customer opened; the result goes in the V-9 row. The desktop half of V-9 may stay not settled (DEC-043).
 - Report to the TL in Turkish, fixed format, one line per V item. A result that contradicts a decision is an OPEN QUESTION, not a change of plan.
 - After: the TL writes the results into `docs/toolchain.md` with one CHANGELOG line and removes the throwaway folder after the customer test; a refuted fact that changes a decision goes to the customer; `scribe` writes LOG, STATUS and the metrics line.
+
+### [x] T-30 [M] Skeleton and role files (`developer`, Sonnet, effort medium)
+- Result: plugin `sdlc` loads with 7 agents; 280 tests green, 1 skipped; strict validate as in DEC-044; about 837 tokens added to every session.
+- Size: medium.
+- Goal: the repository root loads as plugin `sdlc` with 7 agents; `agents/` is the role source and `.claude/agents/` a tested copy (DEC-035); role text no longer assumes this repository's record names. No commands and no hook: those are T-30a and T-31.
+- Manifest: `.claude-plugin/plugin.json` with `name` `sdlc`, `version` `0.0.1`, `description`, `author.name` `gokhansail`, `license` `MIT`. `author` is needed for `--strict` (P-30). No email, no URL.
+- Roles: copy the 7 files to `agents/`, frontmatter unchanged, aliases stay (DEC-036). In the 6 files that name records (all but `tech-writer.md`), in both folders, add after the opening paragraph: "Record names: this role uses the default names (`TASKS.md`, `DECISIONS.md`, `STATUS.md`, `LOG.md`, `CHANGELOG.md`, `DEV_RULES.md`). If `.sdlc/project.md` exists, its record map gives the real file for each." In `scout.md` replace the `python -m tools.metrics <path>` example with "run the project's measurement script on <path>". No other wording change.
+- Files in: `.claude-plugin/plugin.json`, `agents/*.md`, `.claude/agents/*.md`, `tests/test_role_sync.py`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `hooks/`, `skills/`, `tools/`, `DEV_RULES.md`, `CLAUDE.md`, `docs/`, `evidence/`, `EVIDENCE.md`.
+- Limits: at most 2 `claude -p` runs, each `--model haiku`, `--max-turns 3`, working directory a throwaway folder in the scratchpad, never Project A or Project B. No permission bypass flag, no `claude plugin install`, no change to user settings.
+- Acceptance: on a clean copy `claude plugin validate . --strict --json` holds the `CLAUDE.md` root warning and no other finding, and plain `validate` exits 0 (DEC-044); one `claude --plugin-dir <repository> -p` run lists the 7 `sdlc:` agents, with `.claude/` populated as it is here (closes the last "not verified" line of `docs/toolchain.md`); the `claude plugin details` token cost is in the report; no local path in a tracked file; guard exit 0 over the changed files.
+- Tests: `tests/test_role_sync.py`: the two folders hold the same 7 names and the same text after line endings are normalized; `model` is one of `opus`, `sonnet`, `haiku`, `fable` and `effort` one of `low`, `medium`, `high`, `xhigh` in every role, because validate does not check values (P-30). The comparison shows one test that fails on a planted difference and one that passes (DEV_RULES 9). `python -m pytest -q` green, summary line pasted.
+- Design reference: `cto/2026-11-04_phase3-plan.md` sections 2 and 5, debt list; DEC-035, DEC-036, DEC-037.
+- Flag: none.
+- Customer test: none; nothing changes in use yet. The first run in the customer's terminal is P-33.
+- Report to the TL in Turkish, fixed format. A result that contradicts a decision is an OPEN QUESTION.
+- After: the TL updates `docs/toolchain.md` and `CLAUDE.md` (role source folder); `scribe` writes LOG, STATUS and the metrics line.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).

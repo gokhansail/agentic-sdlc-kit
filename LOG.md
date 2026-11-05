@@ -2,6 +2,45 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-05 (4) - T-30 skeleton and role files
+
+- The maintainer gave the go-ahead for T-30.
+- `developer` (Sonnet, medium) added:
+  - `.claude-plugin/plugin.json`;
+  - `agents/` with the 7 roles;
+  - one record-name line in 6 role files;
+  - the scout example change;
+  - `tests/test_role_sync.py`;
+  - one CHANGELOG line.
+  - No file outside the contract changed.
+- `developer` used 1 of 2 allowed `claude -p` runs.
+- Open question to the TL: `claude plugin validate . --strict` exits 1 at the repository root. `--strict` treats warnings as errors, and `CLAUDE.md` at a plugin root raises a warning. `CLAUDE.local.md` raises the same warning in a working copy.
+- TL measurement on clean copies:
+  - `CLAUDE.md` at the root: exit 1.
+  - `.claude/CLAUDE.md`: exit 0.
+- Maintainer decision: keep `CLAUDE.md` at the root (DEC-044). G3-1 and the T-30 acceptance line are amended.
+- Review round 1: the test for an invalid model did not exercise the check. `developer` added one `value_errors` function, used by every value test.
+- TL checks:
+  - `python -m pytest -q`: 280 passed, 1 skipped.
+  - Clean copy, strict validate: shows the `CLAUDE.md` warning. Plain validate: exit 0.
+  - A planted bad model on a copy made the sync test fail.
+  - Guard over the changed files: exit 0.
+  - The load output lists the 7 `sdlc:` agents. `claude plugin details` reports about 837 tokens added to every session.
+- The TL updated `docs/toolchain.md` and `CLAUDE.md` (role source folder) and marked T-30 done.
+- Outcome: not committed; awaiting the maintainer's approval.
+- Next: T-31.
+- Metrics (T-30): review rounds 1, questions back 1, out-of-scope files 0, models Sonnet (developer), Haiku (scribe), customer result not tested.
+
+## 2026-11-05 (3) - P-30 pushed, T-30 contract
+
+- The maintainer approved the commit and push.
+- Commit `9094dd1` (P-30 closed) went through the pre-push guard together with `ee19916` (P-30 contract).
+- The maintainer asked for the T-30 contract. The TL wrote it in `TASKS.md`:
+  - Scope: plugin manifest, `agents/` as the role source, a sync test, one record-name line in 6 role files.
+  - At most 2 Haiku runs.
+- TL choice in the contract: one record-name line per role, instead of rewriting the 19 lines the CTO report counted. The default names stay readable and the record map overrides them.
+- Outcome: T-30 not committed; awaiting the maintainer's go-ahead.
+
 ## 2026-11-05 (2) - P-30 closed
 
 - The TL found that no run of the first 12 showed `model` taking effect, and none used `Edit`.

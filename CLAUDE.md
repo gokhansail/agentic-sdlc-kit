@@ -1,4 +1,4 @@
-> **What is this file?** Session instructions for Claude Code in this folder. It says how the project is run. Role files are in `.claude/agents/`, developer rules in `DEV_RULES.md`.
+> **What is this file?** Session instructions for Claude Code in this folder. It says how the project is run. Role files are in `agents/`, copied to `.claude/agents/`; a test keeps the two equal. Developer rules are in `DEV_RULES.md`.
 # agentic-sdlc-kit
 
 A kit for running software work with several AI agents: roles, contract-based delegation, a review gate, independent audits and metrics. It ships as a playbook, a Claude Code plugin, an MCP server and an evidence report.
@@ -70,9 +70,9 @@ No secrets, email addresses, local paths, personal data or raw logs in the repos
 ```
 CLAUDE.md DEV_RULES.md README.md PLAYBOOK.md EVIDENCE.md
 TASKS.md DECISIONS.md STATUS.md LOG.md CHANGELOG.md LESSONS.md LICENSE
-.claude/agents/        roles used to build the kit, same files as the product
+.claude/agents/        copy of agents/, used to build the kit
 .claude-plugin/        plugin manifest and marketplace entry
-agents/ skills/ hooks/ plugin components
+agents/ skills/ hooks/ plugin components; agents/ is the role source
 server/ tests/ tools/ evidence/   MCP server and tests; metric scripts and totals
 templates/ docs/       templates, source map, toolchain notes
 cto/ audits/           CTO reports, audit reports

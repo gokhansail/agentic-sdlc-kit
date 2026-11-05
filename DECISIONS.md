@@ -351,3 +351,11 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: T-31 today would rest on unverified plugin facts, and P-30 closes those. A unit test fed with our own stdin proves the script, not that Claude Code calls it, so G3-3 adds a live check. Without P-33 the first run of the hook chain and the uninstall is on Project A; DEC-033 depends on P-33.
 - Consequences: order of `cto/2026-11-04_phase3-plan.md` section 2, about 6 sessions (opinion). Hard share 2 of 8 tagged tasks, 25%, under the 30% rule. The G3 row in `TASKS.md` becomes the 9 criteria of section 3. G3-7 is a customer statement; the auditor checks only that it is recorded.
 - Outcome:
+
+## DEC-044 Strict validate at a repository root with `CLAUDE.md`
+- Date: 2026-11-05 · Question: T-30 open question
+- Options: a) keep `CLAUDE.md` at the root; on a clean copy `--strict --json` may hold that one warning and no other finding b) move it to `.claude/CLAUDE.md` c) move the plugin to a subfolder
+- Decision: a).
+- Reason: `--strict` treats warnings as errors, and this warning says the file is not loaded for plugin users, which is the wanted behaviour: the file serves work on the kit. Measured on clean copies: at the root, exit 1 with that warning; at `.claude/CLAUDE.md`, exit 0. b) touches 11 tracked files, and loading from there is not verified in this project. c) needs the guard tools and templates inside the subfolder.
+- Consequences: G3-1 reads: on a clean copy, `claude plugin validate . --strict --json` holds the `CLAUDE.md` root warning and no other finding, and plain `validate` exits 0. The inventory (7 agents, commands, hook) comes from `claude plugin details`, because validate lists only files with findings. `CLAUDE.local.md` raises the same warning in a working copy only. T-51 checks whether a marketplace needs strict to pass.
+- Outcome:
