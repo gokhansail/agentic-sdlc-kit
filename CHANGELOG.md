@@ -20,6 +20,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 - Playbook (`PLAYBOOK.md`): the method in tool-neutral English, every claim traced to the source map.
 - Phase 2 plan (`cto/2026-11-02_phase2-plan.md`) and decisions DEC-021 to DEC-027: metric set, input pinning and gate G2 checks.
 - Phase 3 plan (`cto/2026-11-04_phase3-plan.md`) and decisions DEC-033 to DEC-043: where the real task runs, scope guard design, commands and gate G3 criteria.
+- Plugin facts measured with a throwaway plugin (`docs/toolchain.md`): role frontmatter, hook input and exit codes, skill text, load in a terminal.
 - Metrics core (`tools/metrics/`, `python -m tools.metrics`): snapshot with SHA-256 manifest, source profiles, text metrics M1, M2, M5, M6 as deterministic JSON.
 - Git, audit, decision and task metrics M3, M8, M9, M12, M13 with folder snapshots and git extracts (`tools/metrics/gitstats.py`, `metrics_records.py`), and the table render into a marked block (`python -m tools.metrics.render`).
 - Evidence report (`EVIDENCE.md`): sources and periods, counting rules, result tables, how to read them, limits and rerun commands.

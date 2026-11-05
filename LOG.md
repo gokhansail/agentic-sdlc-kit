@@ -2,6 +2,40 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-05 (2) - P-30 closed
+
+- The TL found that no run of the first 12 showed `model` taking effect, and none used `Edit`.
+- The maintainer approved 2 more probe runs. The TL amended the run limit in the P-30 contract to 14.
+- `developer` (Sonnet) ran both, with no retry.
+  - An agent with `model: sonnet` ran on Sonnet under a Haiku main session.
+  - Real `Edit` hook input was captured.
+- TL check against the raw logs: both results held.
+- The TL:
+  - updated `docs/toolchain.md`;
+  - wrote the outcomes of DEC-036, DEC-037 and DEC-040;
+  - marked P-30 done and updated NOW NEXT.
+- The throwaway folder is removed. The captures stay in the ignored local folder for T-31.
+- Outcome: not committed; awaiting the maintainer's approval. Commit `ee19916` (P-30 contract) is also not pushed.
+- Next: T-30.
+- Metrics (P-30): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe), customer result passed (load in own terminal).
+
+## 2026-11-05 (1) - P-30 run, TL check and terminal test
+
+- The maintainer gave the go-ahead on 2026-11-04.
+- `developer` (Sonnet) ran the plugin facts probe the same day: 12 `claude -p` runs on Haiku. One run was lost to a script error and was repeated. The records were not updated that day, so `STATUS.md` still said awaiting the go-ahead.
+- 2026-11-05: a new session checked `.sdlc/local/p30-results.md` against the raw run logs. The main results held. No result contradicts a decision.
+- TL corrections:
+  - The V-2 claim about the model alias is withdrawn, because the main session was also Haiku.
+  - The V-5 row pointed at a run with no capture. It now points at r2 to r9.
+  - No run used `Edit`.
+- Customer terminal test: the skill ran with `--plugin-dir` and replied EXPLICIT-RAN. No hook ran in that terminal. The CLI warned that an API key takes precedence over the login.
+- The TL wrote the results into `docs/toolchain.md`, added one CHANGELOG line and updated NOW NEXT.
+- TL checks:
+  - Guard over `docs/toolchain.md` and `CHANGELOG.md`: exit 0.
+  - `python -m pytest -q`: 271 passed, 1 skipped.
+- Outcome: not committed. Commit `ee19916` (P-30 contract) is also not pushed.
+- Open: 2 more probe runs await the maintainer's word. The throwaway folder is kept until then.
+
 ## 2026-11-04 (10) - P-30 contract
 
 - The maintainer asked for the P-30 contract.

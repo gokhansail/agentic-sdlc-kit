@@ -50,6 +50,26 @@ Source: https://code.claude.com/docs/en/hooks.md
 - To block: exit 2 with the reason on stderr, or exit 0 with `hookSpecificOutput.permissionDecision = "deny"`. Exit 2 wins over any JSON.
 - On Windows a shell-form command runs in Git Bash, or PowerShell if Git Bash is missing. Default timeout 600 s.
 
+## Plugin facts measured (P-30)
+
+Measured 2026-11-04 and 2026-11-05 on Claude Code 2.1.296, Windows 10, Git Bash, with a throwaway plugin: 14 `claude -p` runs, plus one run in a terminal the maintainer opened. IDs are from `cto/2026-11-04_phase3-plan.md` section 5. V-7 fell away (DEC-039). V-10 and V-11 are checked in T-51.
+
+| ID | Result | Measured |
+|---|---|---|
+| V-1 | confirmed, with a limit | `claude plugin validate --strict` exits 0 on the 7 role files, incl. `effort`, `tools` as a comma string and `model: fable`; `color` is not needed. A missing manifest `author` fails `--strict`. Validate does not check values: `model: banana` and `effort: ludicrous` raised no value finding, so a passing validate proves the form only. |
+| V-2 | confirmed | An agent with `effort: low` wrote with `effort.level` low in the hook input; the main session had medium. An agent with `tools: Read` had only `Read` and could not write. An agent with `model: sonnet` under a main session on `--model haiku` ran on Sonnet: `modelUsage` lists both models. |
+| V-3 | confirmed, with a limit | `hooks/git/`, `tools/`, `tests/` and `.claude/` beside `hooks/hooks.json`: no validate finding, no load warning, and hook, skills and agents all loaded. `.claude/` held one empty settings file only. |
+| V-4 | confirmed | PreToolUse fires inside a sub-agent. The input then has `agent_id` and `agent_type`; `agent_type` is namespaced, as `<plugin>:<agent>`. Main-session input has neither field. `NotebookEdit` carries `notebook_path`, `cell_id`, `new_source`, `edit_mode`; `Write` carries `file_path`, `content`; `Edit` carries `file_path`, `old_string`, `new_string`, `replace_all`. Other input fields seen: `transcript_path`, `permission_mode`, `effort`, `tool_use_id`. |
+| V-5 | confirmed | The hook environment has `CLAUDE_PROJECT_DIR` and `CLAUDE_PLUGIN_ROOT` as a drive letter with forward slashes, also `CLAUDE_PLUGIN_DATA` and `CLAUDE_EFFORT`. `sh "${CLAUDE_PLUGIN_ROOT}/hooks/<script>"` ran. |
+| V-6 | confirmed, with a limit | Exit 2 blocks and its stderr reaches the model. Exit 1, exit 127 and a timeout (limit 2 s, sleep 6 s) let the write through. So the hook fails open on a timeout, and a launcher cannot turn a timeout into a deny. A true process crash was not reproduced: `kill -9` on the hook shell did not kill it under Git Bash. |
+| V-8 | confirmed for text, Bash environment not settled | `${CLAUDE_PLUGIN_ROOT}` in `SKILL.md` text is replaced with a forward-slash path, also inside a Bash command line written in the skill. The shell form `$CLAUDE_PLUGIN_ROOT` in a Bash command stopped at the permission check in `-p`, so whether the Bash tool has the variable is not settled. |
+| V-9 | confirmed for a terminal, desktop not settled | `--plugin-dir` loads in `claude -p` from a session nested in the desktop app and from a terminal the maintainer opened; a plugin skill ran in both. No hook ran in that terminal. A desktop app session was not tried. |
+| V-12 | confirmed | With `disable-model-invocation: true` the Skill tool refuses the skill and names the flag; a typed `/<plugin>:<skill>` runs it. |
+
+Not verified: a populated `.claude/` at the plugin root (T-30).
+
+Also seen: `claude -p` runs still load the user's own plugins. With `ANTHROPIC_API_KEY` set, the CLI warns that it takes precedence over the claude.ai login, and connectors are off.
+
 ## Headless runs and evaluation (phase 4, T-46)
 
 Sources: https://code.claude.com/docs/en/headless.md, https://code.claude.com/docs/en/cli-reference.md, https://code.claude.com/docs/en/plugin-evals.md

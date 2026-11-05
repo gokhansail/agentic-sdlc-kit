@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-Phase 3 planned (DEC-033 to DEC-043); P-30 contract written, awaiting the customer's go-ahead.
+P-30 closed; results in `docs/toolchain.md`, awaiting the customer's commit approval. Next: T-30 skeleton and role files; contract not written.
 
 ## Phases
 
@@ -214,7 +214,7 @@ Plan: `cto/2026-11-02_phase2-plan.md`. Metrics M1, M2, M3, M5, M6, M8, M9, M12, 
 Plan: `cto/2026-11-04_phase3-plan.md`. T-33 runs in Project A's own repository under a written exception, after P-33 (DEC-033); output in `docs/dogfood-1.md`, `EVIDENCE.md` unchanged (DEC-034); `agents/` is the role source (DEC-035); aliases for models (DEC-036); guard states (DEC-037, DEC-038, DEC-039); Python launcher (DEC-040); 5 commands (DEC-041); installer target mode (DEC-042); split and terminal (DEC-043). Headlines only; each contract is written when its turn comes, after the customer's go-ahead. New contracts use `Files in` and `Files out` (DEC-037).
 
 Order:
-- [ ] P-30 [M] plugin facts probe: closes V-1 to V-9 and V-12. Results in `docs/toolchain.md`.
+- [x] P-30 [M] plugin facts probe: closes V-1 to V-9 and V-12. Results in `docs/toolchain.md`.
 - [ ] T-30 [M] skeleton and role files. Needs P-30.
 - [ ] T-31 [H] scope guard hook. Needs P-30.
 - [ ] T-32 [H] git hook installer, target mode. Needs T-30.
@@ -224,12 +224,13 @@ Order:
 - [ ] T-33 [M] one real task on Project A, customer's terminal. Needs P-33, T-33a. The customer picks the task.
 - [ ] T-34 gate G3: `auditor`, then `auditor-mini`.
 
-### [ ] P-30 [M] Plugin facts probe (`developer`, Sonnet, effort medium)
+### [x] P-30 [M] Plugin facts probe (`developer`, Sonnet, effort medium)
+- Result: 14 runs and 1 customer terminal run. No result contradicts a decision. Still open: true process crash, `$CLAUDE_PLUGIN_ROOT` in the Bash tool, a desktop app session, a populated `.claude/` (`docs/toolchain.md`).
 - Size: medium.
 - Goal: V-1 to V-6, V-8, V-9 and V-12 of `cto/2026-11-04_phase3-plan.md` section 5 each end as confirmed, refuted or not settled, with the observation. V-7 falls away (DEC-039). No product code.
 - Method: one throwaway plugin: a copy of the 7 role files, a root shaped like this repository (`hooks/git/`, `tools/`, `tests/`, `.claude/`), one skill, a PreToolUse hook on `Write|Edit|NotebookEdit` that logs its stdin and the names of its `CLAUDE_*` variables.
 - Place: a throwaway folder in the home directory, outside `AppData` and outside any repository; the brief names it. Every run has it as working directory. Never this repository, Project A or Project B.
-- Limits: at most 12 `claude -p` runs, each `--model haiku`, `--max-turns 8`, `--permission-mode acceptEdits`. No permission bypass flag, no `claude plugin install`, no change to user settings.
+- Limits: at most 12 `claude -p` runs, each `--model haiku`, `--max-turns 8`, `--permission-mode acceptEdits`. No permission bypass flag, no `claude plugin install`, no change to user settings. Amended 2026-11-05 with the customer's word: 2 more runs, 14 in all, same flags: one sub-agent with `model: sonnet` (does `model` take effect), one `Edit` (real hook input).
 - Hook cases: exit 0, exit 2, exit 1, a crash, and a timeout of 2 s, each with one write; a write from the main session against one from a sub-agent; the `NotebookEdit` field name.
 - Files in: `.sdlc/local/p30-results.md` (ignored by git): one row per V item with status, command, observation and CLI version. `.sdlc/local/p30-capture/` (ignored by git): one JSON per hook case, paths replaced by invented ones, session IDs removed.
 - Files out: everything tracked in this repository, incl. `docs/toolchain.md` (the TL writes it), `.claude/` and `CHANGELOG.md`.
