@@ -68,6 +68,19 @@ Measured 2026-11-04 and 2026-11-05 on Claude Code 2.1.296, Windows 10, Git Bash,
 
 Also seen: `claude -p` runs still load the user's own plugins. `claude --plugin-dir <path> plugin details <name>` shows the inventory and token cost without an install; the option goes before `plugin`. For this plugin with 7 agents: about 837 tokens added to every session. With `ANTHROPIC_API_KEY` set, the CLI warns that it takes precedence over the claude.ai login, and connectors are off.
 
+## Scope guard, measured (T-31)
+
+Measured 2026-11-06 on the same machine and CLI version.
+
+- Time per call as the host starts it, 7 series of 20 calls: opted in, median 422 ms to 598 ms, the highest with other work running beside them; maximum 918 ms. Not opted in, one series: median 165 ms, maximum 221 ms. Budget 1 s (DEC-040).
+- One direct call took 24.4 s while other work ran on the machine. It did not return in 200 later calls, and its cause is not known. This is why the hook timeout is 30 s and not close to the budget.
+- The launcher starts Python twice: one version probe, one guard run.
+- `python -I` ignores `PYTHONUTF8`, so the launcher also passes `-X utf8`.
+- The `python3` store stub exits 49 on the version probe and is skipped.
+- Live runs on Haiku: a main-session write with no contract denied, one inside a contract allowed, a sub-agent write outside the contract denied.
+
+Limits: a hook timeout lets the write through (limit set to 30 s); without Git Bash on Windows the hook does not run; paths are compared as text, so a link, an 8.3 short name, a trailing dot or an alternate data stream can get past it; a write through Bash is not seen (DEC-038). In an opted-in project a path outside the root is denied for the main session too, which includes files the CLI keeps in the user's home folder.
+
 ## Headless runs and evaluation (phase 4, T-46)
 
 Sources: https://code.claude.com/docs/en/headless.md, https://code.claude.com/docs/en/cli-reference.md, https://code.claude.com/docs/en/plugin-evals.md

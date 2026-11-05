@@ -12,6 +12,6 @@ One numbered rule per line, specific to this project.
 2. <rule>
 
 ## Enforcement
-- Hooks: <which rules a hook also enforces, or "none">
+- Hooks: <which rules a hook also enforces, or "none">. Where `.sdlc/project.md` exists, the plugin's scope guard also enforces the files rule.
 
 Sources: [C-18, C-56]

@@ -2,6 +2,54 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-06 (2) - T-31 scope guard hook
+
+- The maintainer gave the go-ahead for T-31.
+- `developer` (Sonnet, high) added:
+  - `hooks/hooks.json`;
+  - `hooks/scope/launcher.sh`;
+  - `tools/scope_guard.py`;
+  - `tests/test_scope_guard.py`;
+  - `tests/fixtures/scope/`;
+  - 2 lines in `.gitignore`;
+  - one CHANGELOG line.
+  - No file outside the contract changed.
+- `developer` used 3 of 3 allowed `claude -p` runs. No retry.
+- Live runs on Haiku in a throwaway folder:
+  - a main-session write with no contract: denied;
+  - a write inside a contract: allowed;
+  - a write by `sdlc:scribe` outside the contract: denied.
+  - The event lines match and hold no path.
+- Review round 1: the TL planted 13 faults in a copy; 12 were caught. A fake Python that is too old did not reach the version check, so removing the check still passed. `developer` fixed that test and confirmed the fault is now caught.
+- TL timing check, host start: median 422 ms to 598 ms over 7 series of 20 calls; maximum 918 ms. One direct call took 24.4 s while other work ran. It did not return within the 200 later calls. Its cause is not known.
+- `tech-writer` (Sonnet, medium) updated `PLAYBOOK.md` Appendix H and the Enforcement field of `templates/dev-rules.md`. The TL removed one source tag from the new row.
+- The TL updated `docs/toolchain.md` and the outcomes of DEC-037 and DEC-040, and marked T-31 done.
+- Point to watch at P-33: a main-session write outside the root is denied in an opted-in project. This includes files the CLI keeps in the user's home folder.
+- TL checks:
+  - `python -m pytest -q`: 388 passed, 1 skipped;
+  - guard over the changed files: exit 0;
+  - `claude plugin details` lists 1 hook.
+- Outcome: not committed; awaiting the maintainer's approval to commit and push.
+- Next: T-32.
+- Metrics (T-31): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer, tech-writer), Haiku (scribe), customer result not tested.
+
+## 2026-11-06 (1) - T-30 pushed, T-31 contract
+
+- Commit `9c03aa3` (T-30 skeleton and role files) went through the pre-push guard on 2026-11-05.
+- The records inside that commit still said awaiting approval. This entry and the STATUS update correct that.
+- The maintainer asked for the T-31 contract. The TL wrote it in `TASKS.md` (15 lines). Scope:
+  - hook;
+  - launcher;
+  - guard script;
+  - grammar of the two `.sdlc/` files;
+  - tests;
+  - at most 3 Haiku runs.
+- TL additions beyond the CTO report:
+  - the main session may always write under `.sdlc/`, otherwise no contract can be placed;
+  - hook timeout 30 s, because a timeout lets the write through;
+  - fixtures use a placeholder for paths, because the pre-push guard rejects absolute user paths.
+- Outcome: not committed; awaiting the maintainer's go-ahead.
+
 ## 2026-11-05 (4) - T-30 skeleton and role files
 
 - The maintainer gave the go-ahead for T-30.

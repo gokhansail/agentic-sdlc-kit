@@ -1,0 +1,17 @@
+{
+ "cwd": "{ROOT}",
+ "effort": {
+  "level": "medium"
+ },
+ "hook_event_name": "PreToolUse",
+ "permission_mode": "acceptEdits",
+ "tool_input": {
+  "cell_id": "c1",
+  "edit_mode": "replace",
+  "new_source": "print(2)",
+  "notebook_path": "{ROOT}\\n.ipynb"
+ },
+ "tool_name": "NotebookEdit",
+ "tool_use_id": "toolu_X",
+ "transcript_path": "transcript.jsonl"
+}

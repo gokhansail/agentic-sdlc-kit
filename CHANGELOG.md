@@ -25,6 +25,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 - Git, audit, decision and task metrics M3, M8, M9, M12, M13 with folder snapshots and git extracts (`tools/metrics/gitstats.py`, `metrics_records.py`), and the table render into a marked block (`python -m tools.metrics.render`).
 - Evidence report (`EVIDENCE.md`): sources and periods, counting rules, result tables, how to read them, limits and rerun commands.
 - Plugin skeleton (`.claude-plugin/plugin.json`, `agents/`): the repository root loads as plugin `sdlc` with 7 agents; `.claude/agents/` is a copy checked by `tests/test_role_sync.py`; role files name the default record names and read `.sdlc/project.md` when it exists.
+- Scope guard (`hooks/hooks.json`, `hooks/scope/launcher.sh`, `tools/scope_guard.py`): in a project with `.sdlc/project.md`, each `Write`, `Edit` and `NotebookEdit` call is allowed or denied by `.sdlc/active-contract.md`; one event line per decision goes to `.sdlc/metrics.jsonl`. It catches a mistake and is not a security boundary.
 
 ### Changed
 

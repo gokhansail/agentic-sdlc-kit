@@ -1,0 +1,15 @@
+{
+ "cwd": "{ROOT}",
+ "effort": {
+  "level": "medium"
+ },
+ "hook_event_name": "PreToolUse",
+ "permission_mode": "acceptEdits",
+ "tool_input": {
+  "content": "TWO",
+  "file_path": "{ROOT}\\b.txt"
+ },
+ "tool_name": "Write",
+ "tool_use_id": "toolu_X",
+ "transcript_path": "transcript.jsonl"
+}

@@ -14,3 +14,7 @@ node_modules/
 # Raw measurement data stays local; only totals are committed
 evidence/raw/
 .sdlc/local/
+
+# Scope guard: event lines and the active contract stay local
+.sdlc/metrics.jsonl
+.sdlc/active-contract.md

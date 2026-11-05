@@ -1,0 +1,17 @@
+{
+ "cwd": "{ROOT}",
+ "effort": {
+  "level": "medium"
+ },
+ "hook_event_name": "PreToolUse",
+ "permission_mode": "acceptEdits",
+ "tool_input": {
+  "file_path": "{ROOT}\\a.txt",
+  "new_string": "UNO",
+  "old_string": "ONE",
+  "replace_all": false
+ },
+ "tool_name": "Edit",
+ "tool_use_id": "toolu_X",
+ "transcript_path": "transcript.jsonl"
+}

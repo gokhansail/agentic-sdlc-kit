@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-30 done, not committed; awaiting the customer's commit approval. Next: T-31 scope guard hook; contract not written.
+T-31 done and pushed. Next: T-32 git hook installer; contract not written.
 
 ## Phases
 
@@ -216,11 +216,11 @@ Plan: `cto/2026-11-04_phase3-plan.md`. T-33 runs in Project A's own repository u
 Order:
 - [x] P-30 [M] plugin facts probe: closes V-1 to V-9 and V-12. Results in `docs/toolchain.md`.
 - [x] T-30 [M] skeleton and role files. Needs P-30.
-- [ ] T-31 [H] scope guard hook. Needs P-30.
+- [x] T-31 [H] scope guard hook. Needs P-30.
 - [ ] T-32 [H] git hook installer, target mode. Needs T-30.
 - [ ] T-30a [M] the 5 commands. Needs T-31, T-32.
 - [ ] T-33a [E] `--snapshot` refuses over an existing manifest.
-- [ ] P-33 [M] rehearsal in a throwaway clone, customer's terminal. Needs T-30a, T-32.
+- [ ] P-33 [M] rehearsal in a throwaway clone, customer's terminal. Needs T-30a, T-32. Watch: main-session writes outside the root are denied (DEC-037 outcome); record whether that blocks useful work.
 - [ ] T-33 [M] one real task on Project A, customer's terminal. Needs P-33, T-33a. The customer picks the task.
 - [ ] T-34 gate G3: `auditor`, then `auditor-mini`.
 
@@ -258,6 +258,24 @@ Order:
 - Customer test: none; nothing changes in use yet. The first run in the customer's terminal is P-33.
 - Report to the TL in Turkish, fixed format. A result that contradicts a decision is an OPEN QUESTION.
 - After: the TL updates `docs/toolchain.md` and `CLAUDE.md` (role source folder); `scribe` writes LOG, STATUS and the metrics line.
+
+### [x] T-31 [H] Scope guard hook (`developer`, Sonnet, effort high)
+- Result: guard denies and allows in live runs, sub-agent included; 388 tests green, 1 skipped; 13 of 13 planted faults caught after one test fix; median 422 ms to 598 ms per call. Live check in a real terminal: P-33.
+- Size: hard.
+- Goal: with the plugin loaded, an opted-in project gets each `Write`, `Edit` and `NotebookEdit` call allowed or denied by the active contract, per the state table of D-35 in the CTO report (DEC-037). It catches a developer leaving its contract by mistake and is not a security boundary (DEC-038). No bypass (DEC-039). No commands: those are T-30a.
+- Parts: `hooks/hooks.json` (matcher `Write|Edit|NotebookEdit`, timeout 30 s, because a timeout lets the write through, P-30); `hooks/scope/launcher.sh`; `tools/scope_guard.py`, standard library only, with parser and decision as functions T-41 can import.
+- Launcher (DEC-040): no `.sdlc/project.md` under `CLAUDE_PROJECT_DIR`: exit 0 before Python starts. Otherwise find a Python of at least 3.10 (`python`, `python3`, `py -3`; the store stub must not count), run it with `-I` and `PYTHONUTF8=1`, and turn any result other than 0 or 2 into exit 2 with a reason.
+- Grammar: `.sdlc/project.md`: backticked globs in a `## Always allowed` section; no section means an empty list. `.sdlc/active-contract.md`: one heading holding the task ID, one `Files in` line and one `Files out` line as in `templates/task-contract.md`. Only backticked tokens count; braces expand; a trailing `/` is a folder; `*` and `**` work. No token in `Files in`, or a missing or repeated field, is a broken contract.
+- Rules beyond the table: the path comes from `file_path` or `notebook_path`; a missing field or bad JSON is a deny. Outside the root is a deny, `..` resolved, `/` and `\` unified, case-insensitive on Windows. A sub-agent (`agent_id` or `agent_type` in the input) never writes under `.sdlc/`, in any state. The main session may always write under `.sdlc/`, so the TL can place a contract. `Files out` wins over `Files in` and the always-allowed list. A deny is exit 2 with state, relative path and next step on stderr. One event line per decision in `.sdlc/metrics.jsonl`: date, task ID, state, decision, tool, agent if any, no path; a failed log write does not change the decision.
+- Files in: `hooks/hooks.json`, `hooks/scope/launcher.sh`, `tools/scope_guard.py`, `tests/test_scope_guard.py`, `tests/fixtures/scope/*`, `.gitignore` (`.sdlc/metrics.jsonl`, `.sdlc/active-contract.md`), one `CHANGELOG.md` line.
+- Files out: everything else, incl. `agents/`, `.claude/`, `hooks/git/`, `tools/pre_push_guard.py`, `tools/install_git_hooks.py`, `DEV_RULES.md`, `PLAYBOOK.md`, `docs/`, `evidence/`, `EVIDENCE.md`. No `.sdlc/project.md` in this repository.
+- Limits: at most 3 `claude -p` runs, each `--model haiku`, `--max-turns 8`, `--permission-mode acceptEdits`, in a throwaway folder in the scratchpad, never Project A or Project B. No permission bypass flag, no `claude plugin install`, no change to user settings.
+- Acceptance: live runs show a main-session write denied with no contract, one allowed inside a contract, and a write by `sdlc:scribe` outside the contract denied, each with its event line; `claude plugin details` lists 1 hook; strict validate on a clean copy holds no finding beyond DEC-044; median time per call over 20 calls reported against the 1 s budget, over budget is an OPEN QUESTION; guard exit 0 over the changed files.
+- Tests: `tests/test_scope_guard.py`: one block and one pass test per state; `..`, absolute outside the root, case and separator variants; `Files out` wins; backticks only and braces; broken contract; sub-agent and main session under `.sdlc/`; each of the 3 path fields of the captured tools; launcher with no Python, a too-old Python, a missing script and a crashing script all exit 2 in an opted-in project; not opted in passes with no Python on `PATH`; the event line holds no path. Fixtures: copies of `.sdlc/local/p30-capture/` with `{ROOT}` in place of paths, because the pre-push guard rejects absolute user paths. `python -m pytest -q` green, summary line pasted.
+- Design reference: `cto/2026-11-04_phase3-plan.md` D-35 to D-38; DEC-037 to DEC-040; `docs/toolchain.md` section "Plugin facts measured".
+- Flag: none. Removing `.sdlc/project.md` turns the guard off (DEC-039).
+- Customer test: none here; the live check in the customer's terminal is P-33 (G3-3).
+- Report to the TL in Turkish, fixed format; a result that contradicts a decision is an OPEN QUESTION. After: the TL updates `docs/toolchain.md` and the DEC-040 outcome (timeout limit); `tech-writer` updates `PLAYBOOK.md` Appendix H and the Enforcement field of `templates/dev-rules.md`; `scribe` writes LOG, STATUS and the metrics line.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).

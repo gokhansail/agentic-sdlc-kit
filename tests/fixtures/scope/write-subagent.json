@@ -1,0 +1,17 @@
+{
+ "agent_id": "agentX",
+ "agent_type": "p30probe:writer-probe",
+ "cwd": "{ROOT}",
+ "effort": {
+  "level": "low"
+ },
+ "hook_event_name": "PreToolUse",
+ "permission_mode": "acceptEdits",
+ "tool_input": {
+  "content": "SEVEN",
+  "file_path": "{ROOT}\\g.txt"
+ },
+ "tool_name": "Write",
+ "tool_use_id": "toolu_X",
+ "transcript_path": "transcript.jsonl"
+}

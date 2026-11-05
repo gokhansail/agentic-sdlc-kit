@@ -302,7 +302,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: work started before a contract is the common failure, and b) lets it pass. c) stops every other project of the user.
 - Consequences: `.sdlc/project.md` is the opt-in and the one config file, written by `/sdlc:init`. One event line per decision goes to `.sdlc/metrics.jsonl`, no path, not committed; this moves part of the schema from T-41 to T-31. If hook input does not name the sub-agent (V-4), a developer can widen its own scope by editing the contract; that becomes a stated limit, covered by the TL's diff review. TL contracts move to `Files in` and `Files out`.
-- Outcome: P-30: hook input names the sub-agent in `agent_type`, so the limit in the consequences falls away; T-31 can deny sub-agent writes to `.sdlc/`.
+- Outcome: P-30: hook input names the sub-agent in `agent_type`, so the limit in the consequences falls away; T-31 can deny sub-agent writes to `.sdlc/`. T-31: a main-session write outside the root is denied too; P-33 shows whether that blocks useful work.
 
 ## DEC-038 Writes through Bash
 - Date: 2026-11-04 · Question: D-36
@@ -326,7 +326,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: the guard is already standard-library Python and phase 4 needs Python (DEC-004). `python3` is a store stub on this machine. Exit 2 blocks and other codes do not (V-6, not verified), so a crash must become a deny.
 - Consequences: Python becomes a stated requirement of the plugin, no pip step in phase 3. The launcher checks opt-in without Python, and any failure in an opted-in project is exit 2 with a reason. Windows without Git Bash is a stated limit. `cto` proposes a time budget of 1 s per call; T-31 measures it.
-- Outcome: P-30: exit 1 and exit 127 let a write through, as assumed. A timeout does too, and a launcher cannot turn that into a deny; T-31 states it as a limit.
+- Outcome: P-30: exit 1 and exit 127 let a write through, as assumed. A timeout does too, and a launcher cannot turn that into a deny; T-31 states it as a limit. T-31: median 422 ms to 598 ms per call, under the 1 s budget; one outlier of 24.4 s, not repeated in 200 calls; hook timeout set to 30 s.
 
 ## DEC-041 Commands in phase 3
 - Date: 2026-11-04 · Question: D-39
