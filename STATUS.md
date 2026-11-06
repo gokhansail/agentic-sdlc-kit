@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-06
-Now: Phase 3 in progress, T-32 committed, not pushed · repository private · metrics code written, tests green
+Now: Phase 3 in progress, T-30a committed, not pushed · repository private · metrics code written, tests green
 
 ## Phase
 
@@ -38,10 +38,11 @@ Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates
 - T-30 skeleton and role files: plugin `sdlc` loads with 7 agents, `agents/` is the role source, 280 tests green; DEC-044. Committed 2026-11-05.
 - T-31 scope guard hook: denies and allows in live runs, sub-agent included; 388 tests green.
 - T-32 git hook installer: target mode, old hook kept, uninstall restores the hook folder; 437 tests green.
+- T-30a the 5 commands: skills, project template, 2 script modes; 498 tests green.
 
 ## Next
 
-- T-30a the 5 commands; contract not written.
+- T-33a snapshot guard; contract not written.
 
 ## Repository
 

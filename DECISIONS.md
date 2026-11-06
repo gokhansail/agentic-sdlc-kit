@@ -310,7 +310,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: the developer needs Bash for tests, which rules out d). A deny list gives false cover and false blocks. c) can wait until one real task shows whether a is enough.
 - Consequences: the scope guard is not a security boundary. It catches a developer leaving its contract by mistake; a Bash write is found at review, not stopped, and ignored files stay unseen. The documents say so, and `PLAYBOOK.md` Appendix H states what exists after T-31.
-- Outcome:
+- Outcome: T-30a added `--check-worktree`, which `/sdlc:review` runs. In a live run it named a file created outside the contract with no file tool. Ignored files stay unseen, as stated.
 
 ## DEC-039 Scope guard bypass
 - Date: 2026-11-04 · Question: D-37
@@ -334,7 +334,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: G3 needs a contract, a review and an install, and DEC-038 needs `review`. `gate`, `decision` and `lesson` get real tools in T-42 and have no reason to exist before it.
 - Consequences: T-33 writes decision and lesson records by hand. `init` and `install-hooks` run only when called by name, if V-12 holds. `templates/task-contract.md` stays the source of the contract form.
-- Outcome:
+- Outcome: built in T-30a, 5 skills. All 5 ran as typed commands in `claude -p` on Haiku, 9 runs. The model's call of `init` and `install-hooks` was refused. Added in the contract: `/sdlc:contract close`. Not yet run in the customer's terminal: P-33.
 
 ## DEC-042 Git hook and guard in another repository
 - Date: 2026-11-04 · Question: D-40

@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-32 committed, not pushed. Next: T-30a the 5 commands; contract not written.
+T-30a committed, not pushed. Next: T-33a `--snapshot` refuses over an existing manifest; contract not written.
 
 ## Phases
 
@@ -218,7 +218,7 @@ Order:
 - [x] T-30 [M] skeleton and role files. Needs P-30.
 - [x] T-31 [H] scope guard hook. Needs P-30.
 - [x] T-32 [H] git hook installer, target mode. Needs T-30.
-- [ ] T-30a [M] the 5 commands. Needs T-31, T-32.
+- [x] T-30a [M] the 5 commands. Needs T-31, T-32.
 - [ ] T-33a [E] `--snapshot` refuses over an existing manifest.
 - [ ] P-33 [M] rehearsal in a throwaway clone, customer's terminal. Needs T-30a, T-32. Watch: main-session writes outside the root are denied (DEC-037 outcome); record whether that blocks useful work. Prepare: a clone of this repository holds a tracked `.sdlc/guard-patterns.txt` with the language line, and the installer keeps it (checked in T-32 review), so remove that file in the clone before install or the planned non-English record line is rejected.
 - [ ] T-33 [M] one real task on Project A, customer's terminal. Needs P-33, T-33a. The customer picks the task.
@@ -294,6 +294,24 @@ Order:
 - Flag: none. `--uninstall` removes it.
 - Customer test: none here; the first real use is P-33 (G3-4).
 - Report to the TL in Turkish, fixed format; a result that contradicts a decision is an OPEN QUESTION. After: the TL updates `docs/toolchain.md` and the DEC-042 outcome; `tech-writer` updates `PLAYBOOK.md` Appendix H if the hooks it states changed; `scribe` writes LOG, STATUS and the metrics line.
+
+### [x] T-30a [M] The 5 commands (`developer`, Sonnet, effort medium)
+- Result: 5 skills, `templates/project.md`, 2 script modes; 498 tests green, 1 skipped; 28 of 28 planted faults caught after one fix round; every acceptance step seen in 9 Haiku runs. Live check in the customer's terminal: P-33.
+- Size: medium.
+- Goal: with the plugin loaded, a customer can run the whole loop in a project: `/sdlc:status`, `/sdlc:init`, `/sdlc:contract`, `/sdlc:review`, `/sdlc:install-hooks` (DEC-041). Each skill is thin: logic stays in scripts and templates.
+- Form: `skills/<name>/SKILL.md`, at most 40 lines each, English, ASCII, a one-line `description`. Plugin paths only as `${CLAUDE_PLUGIN_ROOT}` in the skill text, never `$CLAUDE_PLUGIN_ROOT` (V-8). Python as in `hooks/scope/launcher.sh`: `python`, then `python3`, then `py -3`. Record names come from the record map in `.sdlc/project.md`, default names when it is absent.
+- `status`: read only. Reports phase, open task, next step and open questions from the records. `init`: `disable-model-invocation: true`. Refuses if `.sdlc/project.md` exists. Finds the project's records and test folders, shows the proposed file from `templates/project.md`, writes it after the customer's word, and says that the scope guard is now on and that the `.sdlc/` exclude line comes from `/sdlc:install-hooks`.
+- `contract`: from `${CLAUDE_PLUGIN_ROOT}/templates/task-contract.md` it writes the contract to the tasks record and a copy to `.sdlc/active-contract.md`, then runs `--check-contract`. Refuses while an active contract exists. `/sdlc:contract close` removes the active file after the customer's word. `review`: read only. Runs `--check-worktree`, reads the diff and the project's test result, and reports files outside the contract and each acceptance line as met or not met. The customer decides; it approves nothing.
+- `install-hooks`: `disable-model-invocation: true`. Runs `tools/install_git_hooks.py --target <project root>`, passes `--refresh` or `--uninstall` when named, and shows the installer's output unchanged. Script modes in `tools/scope_guard.py`, read before stdin and with no event line: `--check-contract` (exit 0, or 1 with the reason) and `--check-worktree` (compares `git status --porcelain -z` with `Files in`, `Files out` and the always-allowed list using the existing parser and matcher, skips `.sdlc/`, prints the paths outside, exit 0 or 1; no contract is exit 1). The hook path stays unchanged.
+- Files in: `skills/{status,init,contract,review,install-hooks}/SKILL.md`, `templates/project.md` (record map, developer rules file, report language, `## Always allowed`), `tools/scope_guard.py`, `tests/test_skills.py`, `tests/test_scope_guard.py` (new cases only), `tests/fixtures/`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `hooks/`, `agents/`, `.claude/`, `.claude-plugin/`, `tools/install_git_hooks.py`, `tools/pre_push_guard.py`, `templates/task-contract.md`, `DEV_RULES.md`, `PLAYBOOK.md`, `docs/`, `evidence/`, `EVIDENCE.md`. No `.sdlc/project.md` in this repository.
+- Limits: at most 6 `claude -p` runs, each `--model haiku`, `--max-turns 8`, in a throwaway repository in the scratchpad, never Project A or Project B. Amended 2026-11-06 with the customer's word: 3 more runs, 9 in all, same flags, run by the TL: `status`, `install-hooks --uninstall`, `contract close`. No permission bypass flag, no `claude plugin install`, no change to user settings; `--allowedTools` may name the commands a skill runs. The first run settles whether `allowed-tools` in a plugin skill takes effect; the result goes in the report.
+- Acceptance: in one throwaway repository, typed commands run in order: `init` writes the opt-in file; a write with no contract is denied; `contract` makes a write inside it pass and one outside it fail; `review` names a file changed through Bash outside the contract; `install-hooks` installs and `--uninstall` restores; `status` answers. Asking the model to run `init` or `install-hooks` is refused. On a clean copy strict validate holds no finding beyond DEC-044; `claude plugin details` lists 5 skills, token cost in the report. Guard exit 0 over the changed files.
+- Tests: `tests/test_skills.py`: exactly the 5 folders; the flag on `init` and `install-hooks` and on no other; every plugin path named in a skill exists; no `$CLAUDE_PLUGIN_ROOT` form; the line limit; a filled `templates/project.md` gives the expected always-allowed list through the guard's parser. `tests/test_scope_guard.py`: one pass and one refuse for each mode (DEV_RULES 9), including the unfilled template as a broken contract, a rename, a path in `Files out`, and the hook path unchanged. `python -m pytest -q` green, summary line pasted.
+- Design reference: `cto/2026-11-04_phase3-plan.md` D-35, D-36, D-39; DEC-037, DEC-038, DEC-041; `docs/toolchain.md` V-8, V-12.
+- Flag: none. Removing `.sdlc/project.md` turns the guard off (DEC-039).
+- Customer test: none here; the first use in the customer's terminal is P-33.
+- Report to the TL in Turkish, fixed format; a result that contradicts a decision is an OPEN QUESTION. After: the TL updates `docs/toolchain.md`; `tech-writer` updates `PLAYBOOK.md` Appendix H with the commands and the target install; `scribe` writes LOG, STATUS and the metrics line.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).

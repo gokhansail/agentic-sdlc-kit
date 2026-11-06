@@ -93,6 +93,17 @@ Measured 2026-11-06 on Windows 10, Git Bash, git 2.35.1, Python 3.10.4, with `gi
 
 Limits: `git push --no-verify` skips the wrapper. A linked worktree of a target fails closed, because `.sdlc/guard/` is per worktree. A new branch with no remote-tracking branches scans its whole history. The copy goes stale after a kit update until `--refresh` runs. An existing `.sdlc/guard-patterns.txt` is never replaced, so a clone of this repository keeps the kit's language pattern. A `forbid-path` line in a project replaces the built-in list. Run on Windows only.
 
+## Plugin commands, measured (T-30a)
+
+Measured 2026-11-06 on Claude Code 2.1.296, Windows 10, Git Bash: 9 `claude -p` runs on Haiku in throwaway repositories.
+
+- All 5 skills ran as typed commands. `claude plugin details` lists 5 skills and 7 agents; about 1,031 tokens are added to every session, about 194 of them from the skills.
+- `allowed-tools` in a plugin skill takes effect: the skill's named `python` command ran with no CLI permission for it. A compound command falls outside the pattern, so `; echo` or `&&` needs its own approval. The skills say to run the command alone.
+- `disable-model-invocation: true` refused the model's call of `init` and `install-hooks`.
+- In `--check-worktree` the rule is `decide()` in `tools/scope_guard.py`, the same one the hook uses.
+
+Limits: one run could not show whether model-invoked `status` and `review` work: the Skill tool returned its normal start line and the model read that as a failure. The `close` run sent `yes` in the same input, so the question before the delete was not observed. A skill started with plain `python` has no `-X utf8`, so `tools/scope_guard.py` sets `backslashreplace` on its own output. `/sdlc:init` writes no exclude line. Ignored files are not seen by `/sdlc:review`. Not run in a terminal the customer opened yet: P-33.
+
 ## Headless runs and evaluation (phase 4, T-46)
 
 Sources: https://code.claude.com/docs/en/headless.md, https://code.claude.com/docs/en/cli-reference.md, https://code.claude.com/docs/en/plugin-evals.md

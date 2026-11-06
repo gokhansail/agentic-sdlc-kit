@@ -23,6 +23,12 @@ at the project root):
     .sdlc/active-contract.md  one heading holding the task ID, one "Files in:" line
                               and one "Files out:" line (see templates/task-contract.md)
 
+Two script modes serve the plugin commands. They run before stdin is read, write
+no event line and reuse the parser and the matcher above:
+    --check-contract   exit 0 when .sdlc/active-contract.md parses, else 1 with the reason
+    --check-worktree   compare `git status --porcelain -z` with the contract; print the paths
+                       outside it; exit 0 when none, else 1 (no contract is exit 1 too)
+
 The parser and the decision are plain functions so that the phase 4 server can
 import them. Standard library only; Python 3.10 or newer.
 """
@@ -34,6 +40,7 @@ import json
 import os
 import posixpath
 import re
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -336,6 +343,77 @@ def check(
     return decide(rel, state, contract, always, is_agent, casefold, broken)
 
 
+# --- script modes -----------------------------------------------------------------
+
+def check_contract(root: Path) -> tuple[int, str]:
+    """Exit code and message for `--check-contract`."""
+    contract_path = root / CONTRACT_FILE
+    if not contract_path.is_file():
+        return 1, f"no active contract: {CONTRACT_FILE} does not exist"
+    try:
+        contract = parse_contract(_read(contract_path))
+    except (ConfigError, OSError) as exc:
+        return 1, f"{CONTRACT_FILE}: {exc}"
+    project = root / PROJECT_FILE
+    if project.is_file():
+        try:
+            parse_always_allowed(_read(project))
+        except (ConfigError, OSError) as exc:
+            return 1, f"{PROJECT_FILE}: {exc}"
+    return 0, f"contract {contract.task_id}: {len(contract.files_in)} Files in, {len(contract.files_out)} Files out"
+
+
+def _git(root: Path, *args: str) -> bytes:
+    done = subprocess.run(["git", "-C", str(root), *args], capture_output=True, timeout=60)
+    if done.returncode != 0:
+        raise OSError(done.stderr.decode("utf-8", errors="replace").strip() or "git failed")
+    return done.stdout
+
+
+def porcelain_paths(raw: bytes) -> list[str]:
+    """Paths of `git status --porcelain -z`. A rename or copy gives both its paths."""
+    fields = raw.decode("utf-8", errors="replace").split("\0")
+    out: list[str] = []
+    i = 0
+    while i < len(fields):
+        entry = fields[i]
+        i += 1
+        if len(entry) < 4:
+            continue
+        out.append(entry[3:])
+        if entry[0] in "RC" or entry[1] in "RC":
+            if i < len(fields) and fields[i]:
+                out.append(fields[i])
+            i += 1
+    return out
+
+
+def check_worktree(root: Path, casefold: bool) -> tuple[int, list[str], str]:
+    """Exit code, paths outside the contract, and a message for `--check-worktree`."""
+    if not (root / CONTRACT_FILE).is_file():
+        return 1, [], f"no active contract: {CONTRACT_FILE} does not exist"
+    state, contract, always, broken = load_state(root)
+    if contract is None:
+        return 1, [], f"the contract cannot be used: {broken}"
+    try:
+        prefix = _git(root, "rev-parse", "--show-prefix").decode("utf-8", errors="replace").strip()
+        raw = _git(root, "status", "--porcelain", "-z", "--untracked-files=all", "--", ".")
+    except (OSError, subprocess.SubprocessError) as exc:
+        return 1, [], f"git status failed: {exc}"
+    outside: list[str] = []
+    checked = 0
+    for path in porcelain_paths(raw):
+        rel = path[len(prefix):] if prefix and path.startswith(prefix) else path
+        if _under_sdlc(rel, casefold):
+            continue
+        checked += 1
+        if not decide(rel, state, contract, always, False, casefold).allow and rel not in outside:
+            outside.append(rel)
+    if outside:
+        return 1, outside, f"{len(outside)} of {checked} changed paths are outside {contract.task_id}"
+    return 0, [], f"{checked} changed paths, all inside {contract.task_id}"
+
+
 # --- event line and entry point -------------------------------------------------
 
 def log_event(root: Path, decision: Decision, tool: str | None, agent: str | None, today: str) -> None:
@@ -374,16 +452,45 @@ def _denial_text(decision: Decision) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _script_mode(args: argparse.Namespace, stdout: TextIO | None, stderr: TextIO | None,
+                 casefold: bool | None) -> int:
+    out = stdout if stdout is not None else sys.stdout
+    err = stderr if stderr is not None else sys.stderr
+    for stream in (out, err):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if stream in (sys.stdout, sys.stderr) and callable(reconfigure):
+            reconfigure(errors="backslashreplace")
+    fold = (os.name == "nt") if casefold is None else casefold
+    root = Path(os.path.abspath(args.root or os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()))
+    if args.check_contract and args.check_worktree:
+        err.write("scope guard: use one of --check-contract and --check-worktree\n")
+        return 1
+    if args.check_contract:
+        code, message = check_contract(root)
+        (out if code == 0 else err).write(message + "\n")
+        return code
+    code, outside, message = check_worktree(root, fold)
+    for path in outside:
+        out.write(path + "\n")
+    (out if code == 0 else err).write(message + "\n")
+    return code
+
+
 def main(
     argv: Sequence[str] | None = None,
     stdin_bytes: bytes | None = None,
     stderr: TextIO | None = None,
     today: str | None = None,
     casefold: bool | None = None,
+    stdout: TextIO | None = None,
 ) -> int:
     parser = argparse.ArgumentParser(prog="scope_guard", add_help=False)
     parser.add_argument("--root", default=None)
+    parser.add_argument("--check-contract", action="store_true")
+    parser.add_argument("--check-worktree", action="store_true")
     args, _ = parser.parse_known_args(argv)
+    if args.check_contract or args.check_worktree:
+        return _script_mode(args, stdout, stderr, casefold)
     if stdin_bytes is None:
         stdin_bytes = sys.stdin.buffer.read()
     out = stderr if stderr is not None else sys.stderr

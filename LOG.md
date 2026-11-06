@@ -2,6 +2,57 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-06 (6) - T-30a the 5 commands
+
+- The maintainer gave the go-ahead to dispatch T-30a.
+- `developer` (Sonnet, medium) changed:
+  - `skills/{status,init,contract,review,install-hooks}/SKILL.md` (new);
+  - `templates/project.md` (new);
+  - `tests/test_skills.py` (new);
+  - `tools/scope_guard.py`: `--check-contract` and `--check-worktree` modes;
+  - `tests/test_scope_guard.py`: new cases;
+  - one CHANGELOG line.
+  - No file outside the contract changed.
+- `developer` used 6 of 6 allowed `claude -p` runs. `status`, `install-hooks --uninstall` and `contract close` were not seen live in those runs.
+- The maintainer approved 3 more runs, recorded in the contract. The TL ran them on Haiku:
+  - `status` answered;
+  - `install-hooks --uninstall` left the hook folder hash-equal to the original;
+  - `contract close` removed the active contract.
+- The `close` run sent `yes` in the same input, so the question before the delete was not observed. Cost of the 3 runs: about $0.024.
+- Review round 1: the TL planted 28 faults in copies; 26 were caught.
+  - The first fault run was invalid: the no-fault baseline failed because the copy had no `.gitignore`. It was fixed and rerun.
+  - `developer` added 2 tests, moved `check_worktree` onto `decide()`, added the reports line and fixed the source line in `templates/project.md`, and set `backslashreplace` on the script mode output.
+  - The rechecked faults are caught.
+- Measured:
+  - `allowed-tools` in a plugin skill takes effect;
+  - a compound command needs its own approval;
+  - `claude plugin details` lists 5 skills;
+  - about 1,031 tokens are added to every session.
+- Strict validate on a clean copy holds no finding beyond DEC-044.
+- `tech-writer` (Sonnet, medium) updated `PLAYBOOK.md` Appendix H. The TL updated `docs/toolchain.md`, the outcomes of DEC-038 and DEC-041, and marked T-30a done.
+- TL checks:
+  - `python -m pytest -q`: 498 passed, 1 skipped;
+  - guard over the changed files: exit 0.
+- Not committed. Awaiting the maintainer's approval to commit and push.
+- Next: T-33a.
+- Metrics (T-30a): review rounds 1, questions back 1, out-of-scope files 0, models Sonnet (developer, tech-writer), Haiku (scribe, live runs), customer result not tested.
+
+## 2026-11-06 (5) - T-30a contract
+
+- The maintainer asked for the T-30a contract. The TL wrote it in `TASKS.md`; it has 15 fields.
+- Scope:
+  - 5 skills under `skills/`;
+  - `templates/project.md`;
+  - `--check-contract` and `--check-worktree` modes in `tools/scope_guard.py`;
+  - `tests/test_skills.py`;
+  - new cases in `tests/test_scope_guard.py`.
+- Set in the contract:
+  - `/sdlc:contract close` removes the active contract after the customer's word;
+  - `/sdlc:init` does not write the exclude line; `/sdlc:install-hooks` does.
+- Status: not dispatched; awaiting the maintainer's go-ahead.
+- No code changed. No metrics line: no task ran.
+- Next: dispatch T-30a to `developer` after the go-ahead.
+
 ## 2026-11-06 (4) - T-32 git hook installer
 
 - The maintainer gave the go-ahead to dispatch T-32.
@@ -33,7 +84,7 @@ What is this file? A dated record of what was asked, decided, built and checked.
 - TL checks:
   - `python -m pytest -q`: 437 passed, 1 skipped;
   - guard over the changed files: exit 0.
-- The maintainer approved the commit. Not pushed yet.
+- The maintainer approved the commit and push: `7109c3a`.
 - Next: T-30a.
 - Metrics (T-32): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe), customer result not tested.
 

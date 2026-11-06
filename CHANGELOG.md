@@ -27,6 +27,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 - Plugin skeleton (`.claude-plugin/plugin.json`, `agents/`): the repository root loads as plugin `sdlc` with 7 agents; `.claude/agents/` is a copy checked by `tests/test_role_sync.py`; role files name the default record names and read `.sdlc/project.md` when it exists.
 - Scope guard (`hooks/hooks.json`, `hooks/scope/launcher.sh`, `tools/scope_guard.py`): in a project with `.sdlc/project.md`, each `Write`, `Edit` and `NotebookEdit` call is allowed or denied by `.sdlc/active-contract.md`; one event line per decision goes to `.sdlc/metrics.jsonl`. It catches a mistake and is not a security boundary.
 - Git hook installer, target mode (`python tools/install_git_hooks.py --target <repo>`, `templates/guard-patterns.txt`): puts the pre-push guard into another repository without `core.hooksPath`, runs the repository's own pre-push hook first, reports a stale copy (`--refresh`) and restores the hook folder byte for byte (`--uninstall`); pattern files accept `forbid-path` lines.
+- Plugin commands (`skills/{status,init,contract,review,install-hooks}/SKILL.md`, `templates/project.md`, `python tools/scope_guard.py --check-contract` and `--check-worktree`): `/sdlc:init` opts a project in, `/sdlc:contract` writes the active contract, `/sdlc:review` lists changed files outside it, `/sdlc:install-hooks` installs the pre-push guard in the project; `init` and `install-hooks` run only when typed.
 
 ### Changed
 
