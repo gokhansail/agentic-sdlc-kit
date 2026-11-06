@@ -2,6 +2,24 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-07 (1) - P-33 contract
+
+- The maintainer asked for the P-33 contract.
+- The TL wrote the contract in `TASKS.md`. It has 15 fields.
+- Scope: one rehearsal in a throwaway clone, in a terminal the customer opened, model Sonnet:
+  - the 5 commands;
+  - scope guard allow and deny, from the main session and from a sub-agent;
+  - pushes to a local bare repository;
+  - uninstall and the rollback steps.
+- Set in the contract:
+  - the TL writes the commands in a local runbook;
+  - rehearsal totals go in a new `docs/dogfood-1.md`;
+  - a fault found goes to a new contract, with no fix inside the task;
+  - the run stops at the first failed step.
+- Status: not started, awaiting the maintainer's go-ahead.
+- No code changed. No metrics line: no task ran.
+- Next: the TL writes the runbook after the go-ahead.
+
 ## 2026-11-06 (7) - T-33a snapshot guard
 
 - The maintainer gave the go-ahead to continue with T-33a.
@@ -21,7 +39,7 @@ What is this file? A dated record of what was asked, decided, built and checked.
   - guard over the changed files: exit 0;
   - `git status --porcelain evidence EVIDENCE.md`: empty.
 - No fault-planting round for this easy task.
-- The maintainer approved the commit. Not pushed yet.
+- The maintainer approved the commit and push: `a4e65b2`.
 - Next: P-33.
 - Metrics (T-33a): review rounds 1, questions back 1, out-of-scope files 0, models Haiku (developer, scribe), customer result not tested.
 

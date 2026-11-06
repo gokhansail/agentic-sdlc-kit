@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-33a committed, not pushed. Next: P-33 rehearsal in the customer's terminal; contract not written.
+P-33 contract written, awaiting the maintainer's go-ahead. Next: P-33 rehearsal in the customer's terminal.
 
 ## Phases
 
@@ -326,6 +326,23 @@ Order:
 - Flag: `--replace-snapshot`.
 - Customer test: none.
 - Report to the TL in Turkish, fixed format. After: `scribe` writes LOG, STATUS and the metrics line.
+
+### [ ] P-33 [M] Rehearsal in a throwaway clone (customer, in a terminal the customer opened; `scout`, Haiku, reads the result)
+- Size: medium.
+- Goal: the whole loop runs once in a repository shaped like Project A, in the customer's own terminal, before anything touches Project A. It gives the live part of G3-3 and G3-4, the rollback part of G3-6 and the load, block and push part of G3-7 (DEC-033, DEC-043). No product code.
+- Prepare: the TL writes the exact commands in `.sdlc/local/p33-runbook.md`. A fresh clone of this repository in a throwaway folder in the home directory, outside `AppData`. Origin removed, a local bare repository as the only remote. Records renamed. A non-English record line committed. An existing pre-push hook that writes a marker file. `.sdlc/guard-patterns.txt` removed before install (T-32 review). `git status` and the SHA-256 of the hook folder noted first.
+- Session: `claude --plugin-dir <kit>` in the clone, model Sonnet, in this order: `/sdlc:status` before opt-in; `/sdlc:init` (the question before the write is seen, record map follows the renamed records); a write with no contract denied; `/sdlc:contract` with one file in and one out; a write by `sdlc:scribe` inside allowed, outside denied, with no contract denied after close; a file made through Bash named by `/sdlc:review`; `/sdlc:contract close` (the question before the delete is seen).
+- Git and rollback: `/sdlc:install-hooks`, a second run says no change; a clean push passes and the marker shows the old hook ran; the non-English line passes; a planted fake key is rejected. `/sdlc:install-hooks --uninstall`, then rollback steps 4 and 5 of DEC-033 by hand: hook hash equal, `core.hooksPath` unset, `git status` equal to the noted state.
+- Watch: record whether a denied main-session write outside the root blocked useful work (DEC-037 outcome), and every deny the customer thinks was wrong.
+- Files in: `.sdlc/local/p33-runbook.md` and `.sdlc/local/p33-results.md` (ignored by git), `docs/dogfood-1.md` (new, TL: rehearsal totals in the fixed fields of DEC-034), `docs/toolchain.md`, `CLAUDE.md` (one Records row for `docs/dogfood-1.md`).
+- Files out: everything else, incl. `skills/`, `tools/`, `hooks/`, `agents/`, `templates/`, `evidence/`, `EVIDENCE.md`. Project A and Project B are not touched or read. A fault found here goes to a new contract; no fix inside this task.
+- Limits: stop at the first failed step and return it to the TL. No permission bypass flag, no `claude plugin install`, no change to user settings. `ANTHROPIC_API_KEY` removed in that window before `claude`. The clone is deleted only after the customer's word.
+- Acceptance: every step above seen in the customer's terminal; the event lines in the clone's `.sdlc/metrics.jsonl` show allow and deny by state and agent, read by `scout` as totals with no path; CLI version and date recorded; guard exit 0 over `docs/dogfood-1.md`.
+- Tests: no new test. `python -m pytest -q` stays green.
+- Design reference: `cto/2026-11-04_phase3-plan.md` section 3, D-31 rollback, D-32; DEC-033, DEC-034, DEC-037, DEC-043.
+- Flag: none.
+- Customer test: the customer runs this task. Their statement that load, block and push worked in their terminal is the G3-7 evidence.
+- After: `scribe` writes LOG, STATUS and the metrics line. T-33 starts only after this task passes (DEC-033), and the customer picks its task first.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).

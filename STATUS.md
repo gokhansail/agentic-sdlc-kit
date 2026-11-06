@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-06
-Now: Phase 3 in progress, T-33a committed, not pushed · repository private · metrics code written, tests green
+Last updated: 2026-11-07
+Now: Phase 3 in progress, P-33 contract written, not started · repository private · metrics code written, tests green
 
 ## Phase
 
@@ -43,7 +43,7 @@ Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates
 
 ## Next
 
-- P-33 rehearsal in the customer's terminal; contract not written.
+- P-33 rehearsal in the customer's terminal; contract written, awaiting the go-ahead.
 
 ## Repository
 
