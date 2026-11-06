@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-31 done and pushed. Next: T-32 git hook installer; contract not written.
+T-32 committed, not pushed. Next: T-30a the 5 commands; contract not written.
 
 ## Phases
 
@@ -217,10 +217,10 @@ Order:
 - [x] P-30 [M] plugin facts probe: closes V-1 to V-9 and V-12. Results in `docs/toolchain.md`.
 - [x] T-30 [M] skeleton and role files. Needs P-30.
 - [x] T-31 [H] scope guard hook. Needs P-30.
-- [ ] T-32 [H] git hook installer, target mode. Needs T-30.
+- [x] T-32 [H] git hook installer, target mode. Needs T-30.
 - [ ] T-30a [M] the 5 commands. Needs T-31, T-32.
 - [ ] T-33a [E] `--snapshot` refuses over an existing manifest.
-- [ ] P-33 [M] rehearsal in a throwaway clone, customer's terminal. Needs T-30a, T-32. Watch: main-session writes outside the root are denied (DEC-037 outcome); record whether that blocks useful work.
+- [ ] P-33 [M] rehearsal in a throwaway clone, customer's terminal. Needs T-30a, T-32. Watch: main-session writes outside the root are denied (DEC-037 outcome); record whether that blocks useful work. Prepare: a clone of this repository holds a tracked `.sdlc/guard-patterns.txt` with the language line, and the installer keeps it (checked in T-32 review), so remove that file in the clone before install or the planned non-English record line is rejected.
 - [ ] T-33 [M] one real task on Project A, customer's terminal. Needs P-33, T-33a. The customer picks the task.
 - [ ] T-34 gate G3: `auditor`, then `auditor-mini`.
 
@@ -276,6 +276,24 @@ Order:
 - Flag: none. Removing `.sdlc/project.md` turns the guard off (DEC-039).
 - Customer test: none here; the live check in the customer's terminal is P-33 (G3-3).
 - Report to the TL in Turkish, fixed format; a result that contradicts a decision is an OPEN QUESTION. After: the TL updates `docs/toolchain.md` and the DEC-040 outcome (timeout limit); `tech-writer` updates `PLAYBOOK.md` Appendix H and the Enforcement field of `templates/dev-rules.md`; `scribe` writes LOG, STATUS and the metrics line.
+
+### [x] T-32 [H] Git hook installer, target mode (`developer`, Sonnet, effort high)
+- Result: target mode built; 437 tests green, 1 skipped; 35 of 35 planted faults caught after one test fix round; the TL's own run in temp repositories passed. Live check in the customer's terminal: P-33.
+- Size: hard.
+- Goal: `python tools/install_git_hooks.py --target <repo>` gives a repository that is not this one the pre-push guard, keeps its existing pre-push hook running, and `--uninstall` returns its hook folder byte for byte (DEC-042). Kit mode behaves as today. No command: `/sdlc:install-hooks` is T-30a.
+- Install: paths come from `git rev-parse --git-path`, not from joining `.git`. Exit 1 with nothing written for: not a git repository, a bare repository, `core.hooksPath` set at any config scope, `.sdlc` being a file, a saved old hook beside a `pre-push` that is not our wrapper. `--force` with `--target`, and `--refresh` or `--uninstall` without it, are refused. Writes: `.sdlc/guard/pre_push_guard.py` (copy); `.sdlc/guard-patterns.txt` from the template and an empty `.sdlc/local/private-patterns.txt`, each only if absent; one `.sdlc/` line in `info/exclude`, only if absent; the old hook moved to `hooks/pre-push.sdlc-old`, bytes and mode kept; the wrapper at `hooks/pre-push` with LF endings.
+- Wrapper: `sh`, with a marker line. It reads stdin once, runs the saved hook first, if any, with the same arguments and the same stdin bytes, and a non-zero result stops the push with that code. It then runs the guard with the same input, under the Python search of `hooks/scope/launcher.sh` and `-I -X utf8`. No Python, or a missing guard or pattern file: exit 1 with a reason (fails closed, DEC-042).
+- Rerun and uninstall: copy and wrapper equal to the kit's: "no change", exit 0, and the wrapper is never saved as the old hook. Different: reports stale, exit 1, changes nothing; `--refresh` replaces the copy and the wrapper, never the patterns. `--target <repo> --uninstall` removes the wrapper, puts the saved hook back, removes `.sdlc/guard/`, and prints what stays for the manual rollback step: the patterns, `.sdlc/local/`, the exclude line (DEC-033). Not installed: "no change", exit 0. A `pre-push` without the marker: refused.
+- Guard and template: the public pattern file may hold `forbid-path <glob>` lines; a glob with no `/` matches the file name in any folder, otherwise the full path. Any such line replaces `FORBIDDEN_PATHS`; a file with none keeps that list. In the private file such a line is a broken pattern (fails closed). `CONTENT_EXEMPT` gains `templates/guard-patterns.txt`. That file has a "What is this file?" comment, every pattern of `.sdlc/guard-patterns.txt` except `non-english-char`, and `forbid-path` lines for the list without `PLAN.md` and `evidence/raw/*`.
+- Files in: `tools/install_git_hooks.py`, `tools/pre_push_guard.py`, `templates/guard-patterns.txt`, `tests/test_install_target.py`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `tests/test_pre_push.py`, `hooks/`, `.sdlc/guard-patterns.txt`, `agents/`, `.claude/`, `skills/`, `docs/`, `PLAYBOOK.md`, `evidence/`, `EVIDENCE.md`.
+- Limits: no `claude -p` run. Temp folders only, never Project A or Project B. This repository's git config is not changed. State in the report: a linked worktree of a target fails closed, because `.sdlc/guard/` is per worktree.
+- Acceptance: in a foreign repository built in a temp folder, with an existing pre-push hook, real `git push` runs to a local bare repository: a clean push passes and the old hook saw the same stdin; a planted secret is rejected; a failing old hook blocks. After uninstall the SHA-256 of every file in the hook folder equals the values before install and `core.hooksPath` is unset. `tests/test_pre_push.py` is unchanged and its 31 tests pass. Guard exit 0 over the changed files.
+- Tests: `tests/test_install_target.py`: one refuse and one pass per refusal (DEV_RULES 9); with and without an old hook; a rerun does not chain twice; stale and `--refresh`; two refs on stdin; a target path with a space and a non-ASCII letter built with `chr()`; `--target` with `..` segments (rule 10); patterns never overwritten; no kit term in the created private file; the exclude line once, also in a file with no final newline; only LF in the wrapper; no Python on `PATH` and a missing guard both block; `forbid-path` replaces the list and an absent one keeps it; the template equals the kit file without the language line. `python -m pytest -q` green, summary line pasted.
+- Design reference: `cto/2026-11-04_phase3-plan.md` D-40 and D-31 rollback; DEC-033, DEC-040, DEC-042; `docs/toolchain.md`.
+- Flag: none. `--uninstall` removes it.
+- Customer test: none here; the first real use is P-33 (G3-4).
+- Report to the TL in Turkish, fixed format; a result that contradicts a decision is an OPEN QUESTION. After: the TL updates `docs/toolchain.md` and the DEC-042 outcome; `tech-writer` updates `PLAYBOOK.md` Appendix H if the hooks it states changed; `scribe` writes LOG, STATUS and the metrics line.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).

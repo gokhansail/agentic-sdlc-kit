@@ -81,6 +81,18 @@ Measured 2026-11-06 on the same machine and CLI version.
 
 Limits: a hook timeout lets the write through (limit set to 30 s); without Git Bash on Windows the hook does not run; paths are compared as text, so a link, an 8.3 short name, a trailing dot or an alternate data stream can get past it; a write through Bash is not seen (DEC-038). In an opted-in project a path outside the root is denied for the main session too, which includes files the CLI keeps in the user's home folder.
 
+## Git hook in another repository, measured (T-32)
+
+Measured 2026-11-06 on Windows 10, Git Bash, git 2.35.1, Python 3.10.4, with `git push` to a local bare repository. No `claude -p` run.
+
+- `python tools/install_git_hooks.py --target <repo>` leaves `core.hooksPath` unset. `git status` in the target stays empty.
+- The old hook gets the same arguments and stdin bytes. A failing old hook stops the push with its own exit code, and the guard does not run.
+- After `--uninstall` the SHA-256 of every file in the hook folder equals the values before install.
+- The wrapper passes no arguments to the guard. A remote named `--files` would otherwise switch the guard to its manual mode and scan nothing.
+- `--target` must be the top folder of the working tree.
+
+Limits: `git push --no-verify` skips the wrapper. A linked worktree of a target fails closed, because `.sdlc/guard/` is per worktree. A new branch with no remote-tracking branches scans its whole history. The copy goes stale after a kit update until `--refresh` runs. An existing `.sdlc/guard-patterns.txt` is never replaced, so a clone of this repository keeps the kit's language pattern. A `forbid-path` line in a project replaces the built-in list. Run on Windows only.
+
 ## Headless runs and evaluation (phase 4, T-46)
 
 Sources: https://code.claude.com/docs/en/headless.md, https://code.claude.com/docs/en/cli-reference.md, https://code.claude.com/docs/en/plugin-evals.md

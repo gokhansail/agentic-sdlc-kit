@@ -2,6 +2,58 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-06 (4) - T-32 git hook installer
+
+- The maintainer gave the go-ahead to dispatch T-32.
+- `developer` (Sonnet, high) changed:
+  - `tools/install_git_hooks.py`;
+  - `tools/pre_push_guard.py`;
+  - `templates/guard-patterns.txt` (new);
+  - `tests/test_install_target.py` (new);
+  - one CHANGELOG line.
+  - No file outside the contract changed. No `claude -p` run.
+- Review round 1: the TL planted 35 faults in copies; 33 were caught. 2 tests were too weak:
+  - `--files` mode ignored `forbid-path` lines;
+  - `.sdlc` as a file was not tested.
+  - `developer` (Sonnet, medium) fixed both tests and one stale-message wording. All 3 rechecked faults are now caught.
+- TL end-to-end run in temp repositories, with a space in the path and an existing hook:
+  - a clean push passed;
+  - a planted secret was rejected;
+  - `PLAN.md` and a non-English line passed;
+  - stale was reported, and `--refresh` worked;
+  - after uninstall the hook folder was hash-equal to the original, and `core.hooksPath` was unset.
+- Found for P-33: a clone of this repository keeps its tracked `.sdlc/guard-patterns.txt` with the language line. The prepare step is in `TASKS.md`.
+- Accepted beyond the contract:
+  - the wrapper passes no arguments to the guard;
+  - `--target` must be the top folder;
+  - `--repo` with `--target` is refused;
+  - a `pre-push` without the marker is refused only when install traces remain.
+- `PLAYBOOK.md` not changed: the set of hooks it states is the same. The target install is stated when the command exists in T-30a.
+- The TL updated `docs/toolchain.md` and the DEC-042 outcome, and marked T-32 done.
+- TL checks:
+  - `python -m pytest -q`: 437 passed, 1 skipped;
+  - guard over the changed files: exit 0.
+- The maintainer approved the commit. Not pushed yet.
+- Next: T-30a.
+- Metrics (T-32): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe), customer result not tested.
+
+## 2026-11-06 (3) - T-32 contract
+
+- The maintainer asked for the T-32 contract. The TL wrote it in `TASKS.md` (15 fields).
+- Scope:
+  - target mode of `tools/install_git_hooks.py`;
+  - a chain wrapper at the target's pre-push hook;
+  - `--refresh` and `--uninstall`;
+  - a `forbid-path` line in the pattern file;
+  - `templates/guard-patterns.txt`;
+  - `tests/test_install_target.py`.
+- Two choices the plan left open are set in the contract:
+  - the installer writes the `.sdlc/` exclude line;
+  - uninstall removes the wrapper and `.sdlc/guard/`, and leaves the patterns, `.sdlc/local/` and the exclude line for the manual rollback step.
+- Count corrected in the contract: `tests/test_pre_push.py` holds 31 tests, not the 17 in DEC-042.
+- No code changed. Not dispatched; awaiting the maintainer's go-ahead.
+- Next: dispatch T-32 to `developer` after the go-ahead.
+
 ## 2026-11-06 (2) - T-31 scope guard hook
 
 - The maintainer gave the go-ahead for T-31.
@@ -29,7 +81,7 @@ What is this file? A dated record of what was asked, decided, built and checked.
   - `python -m pytest -q`: 388 passed, 1 skipped;
   - guard over the changed files: exit 0;
   - `claude plugin details` lists 1 hook.
-- Outcome: not committed; awaiting the maintainer's approval to commit and push.
+- The maintainer approved the commit and push: `04ed356`.
 - Next: T-32.
 - Metrics (T-31): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer, tech-writer), Haiku (scribe), customer result not tested.
 

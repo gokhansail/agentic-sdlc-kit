@@ -9,6 +9,11 @@ Manual mode (scan whole files, e.g. the working tree):
 
 Only what is new in the push is scanned: the added lines and the messages of
 the commits that the remote does not have yet. Standard library only.
+
+Pattern files: `<name> <regex>` lines. The public file may also hold
+`forbid-path <glob>` lines. A glob with no `/` matches the file name in any
+folder, otherwise the full path. When the public file has any such line, those
+lines replace the built-in list; when it has none, the built-in list stays.
 """
 from __future__ import annotations
 
@@ -22,7 +27,8 @@ ZERO_SHA = "0" * 40
 PUBLIC_PATTERNS = ".sdlc/guard-patterns.txt"
 PRIVATE_PATTERNS = ".sdlc/local/private-patterns.txt"
 # Files that may legitimately contain the patterns themselves.
-CONTENT_EXEMPT = {PUBLIC_PATTERNS}
+CONTENT_EXEMPT = {PUBLIC_PATTERNS, "templates/guard-patterns.txt"}
+FORBID_KEYWORD = "forbid-path"
 
 # (glob, any_directory). Globs match the full path, or the file name when any_directory.
 FORBIDDEN_PATHS: list[tuple[str, bool]] = [
@@ -37,6 +43,7 @@ FORBIDDEN_PATHS: list[tuple[str, bool]] = [
 ENV_TEMPLATE_SUFFIXES = (".example", ".sample", ".template")
 
 Pattern = tuple[str, "re.Pattern[str]", bool]  # name, regex, is_private
+PathRule = tuple[str, bool]  # glob, any_directory
 Hit = tuple[str, str, str, str]  # short sha or label, file, location, pattern name
 
 
@@ -65,7 +72,10 @@ def repo_root() -> Path:
     return Path(out.stdout.strip())
 
 
-def load_pattern_file(path: Path, private: bool) -> list[Pattern]:
+def load_pattern_file(
+    path: Path, private: bool, forbids: list[PathRule] | None = None
+) -> list[Pattern]:
+    """Parse a pattern file. `forbids` collects forbid-path rules; None means they are not allowed."""
     patterns: list[Pattern] = []
     for number, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         line = raw.strip()
@@ -75,6 +85,13 @@ def load_pattern_file(path: Path, private: bool) -> list[Pattern]:
         if len(parts) != 2:
             raise PatternError(f"{path.name}:{number}: expected '<name> <regex>'")
         name, regex = parts
+        if name == FORBID_KEYWORD:
+            if forbids is None:
+                # Do not echo the glob: in a private file it may be a private name.
+                raise PatternError(f"{path.name}:{number}: {FORBID_KEYWORD} is not allowed in this file")
+            glob = regex.strip()
+            forbids.append((glob, "/" not in glob))
+            continue
         try:
             patterns.append((name, re.compile(regex), private))
         except re.error:
@@ -83,21 +100,27 @@ def load_pattern_file(path: Path, private: bool) -> list[Pattern]:
     return patterns
 
 
-def load_patterns(root: Path) -> list[Pattern]:
+def load_rules(root: Path) -> tuple[list[Pattern], list[PathRule]]:
+    """Return the content patterns and the forbidden-path rules for a repository."""
     public = root / PUBLIC_PATTERNS
     if not public.is_file():
         raise PatternError(f"{PUBLIC_PATTERNS} not found")
-    patterns = load_pattern_file(public, private=False)
+    forbids: list[PathRule] = []
+    patterns = load_pattern_file(public, private=False, forbids=forbids)
     private = root / PRIVATE_PATTERNS
     if private.is_file():
         patterns += load_pattern_file(private, private=True)
-    return patterns
+    return patterns, forbids or FORBIDDEN_PATHS
 
 
-def forbidden_path(path: str) -> str | None:
+def load_patterns(root: Path) -> list[Pattern]:
+    return load_rules(root)[0]
+
+
+def forbidden_path(path: str, rules: list[PathRule] = FORBIDDEN_PATHS) -> str | None:
     norm = path.replace("\\", "/")
     name = PurePosixPath(norm).name
-    for glob, any_dir in FORBIDDEN_PATHS:
+    for glob, any_dir in rules:
         if any_dir:
             if fnmatch.fnmatchcase(name, glob):
                 if name.startswith(".env") and name.endswith(ENV_TEMPLATE_SUFFIXES):
@@ -153,7 +176,9 @@ def commits_to_scan(root: Path, local: str, remote: str) -> list[str]:
     return text(res.stdout).split()
 
 
-def scan_commit(root: Path, sha: str, patterns: list[Pattern]) -> list[Hit]:
+def scan_commit(
+    root: Path, sha: str, patterns: list[Pattern], rules: list[PathRule] = FORBIDDEN_PATHS
+) -> list[Hit]:
     short = sha[:7]
     hits: list[Hit] = []
     msg = git(root, "log", "-1", "--format=%B", sha)
@@ -165,7 +190,7 @@ def scan_commit(root: Path, sha: str, patterns: list[Pattern]) -> list[Hit]:
         "--name-only", "--diff-filter=ACMR", "-z", sha,
     )
     for path in sorted(set(text(paths.stdout).split("\0"))):
-        if path and (reason := forbidden_path(path)):
+        if path and (reason := forbidden_path(path, rules)):
             hits.append((short, path, "", reason))
 
     diff = git(
@@ -184,7 +209,9 @@ def scan_commit(root: Path, sha: str, patterns: list[Pattern]) -> list[Hit]:
     return hits
 
 
-def scan_files(root: Path, files: list[str], patterns: list[Pattern]) -> list[Hit]:
+def scan_files(
+    root: Path, files: list[str], patterns: list[Pattern], rules: list[PathRule] = FORBIDDEN_PATHS
+) -> list[Hit]:
     hits: list[Hit] = []
     for item in files:
         path = Path(item)
@@ -192,7 +219,7 @@ def scan_files(root: Path, files: list[str], patterns: list[Pattern]) -> list[Hi
             rel = path.resolve().relative_to(root.resolve()).as_posix()
         except ValueError:
             rel = path.as_posix()
-        if reason := forbidden_path(rel):
+        if reason := forbidden_path(rel, rules):
             hits.append(("worktree", rel, "", reason))
         if rel in CONTENT_EXEMPT or not path.is_file():
             continue
@@ -223,14 +250,14 @@ def main(argv: list[str]) -> int:
         stream.reconfigure(errors="backslashreplace")
     root = repo_root()
     try:
-        patterns = load_patterns(root)
+        patterns, rules = load_rules(root)
     except PatternError as err:
         print(f"pre-push guard: {err}", file=sys.stderr)
         return 1
 
     hits: list[Hit] = []
     if argv and argv[0] == "--files":
-        hits = scan_files(root, argv[1:], patterns)
+        hits = scan_files(root, argv[1:], patterns, rules)
     else:
         for raw in sys.stdin.read().splitlines():
             fields = raw.split()
@@ -240,7 +267,7 @@ def main(argv: list[str]) -> int:
             if local == ZERO_SHA:
                 continue
             for sha in commits_to_scan(root, local, remote):
-                hits += scan_commit(root, sha, patterns)
+                hits += scan_commit(root, sha, patterns, rules)
 
     if hits:
         report(hits, patterns)

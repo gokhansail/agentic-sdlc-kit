@@ -1,0 +1,32 @@
+# What is this file? The pre-push guard patterns for a project that installs the kit's
+# git hook (python tools/install_git_hooks.py --target <repo>). The installer copies it
+# to .sdlc/guard-patterns.txt once and never overwrites it, so edit the copy freely.
+# Format: one pattern per line, <name> <whitespace> <regex>. Lines starting with # are
+# comments. Python `re` syntax, matched per added line. The file is exempt from content
+# scanning (it has to contain the patterns).
+# No language pattern is included: allowed characters are a project choice. To block
+# non-English letters, add a pattern that matches the letters you want to reject.
+# Private patterns go in .sdlc/local/private-patterns.txt (same format, never committed,
+# created empty by the installer).
+# forbid-path <glob> lines name files that must not be pushed. A glob with no / matches
+# the file name in any folder, otherwise the full path. The lines below replace the
+# guard's built-in list, so keep them or write your own.
+
+aws-key          \bAKIA[0-9A-Z]{16}\b
+api-key-sk       (?<![A-Za-z0-9])sk-[A-Za-z0-9_-]{20,}
+github-token     \b(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{22,})
+slack-token      \bxox[abprs]-[A-Za-z0-9-]{10,}
+private-key      -----BEGIN [A-Z ]*PRIVATE KEY-----
+email-address    (?!noreply@anthropic\.com)(?<![\w.+-])[\w.+-]+@(?!users\.noreply\.github\.com\b)[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}
+abs-path-windows [A-Za-z]:[\\/]+Users[\\/]
+abs-path-msys    (?<![\w.])/[A-Za-z]/Users/
+abs-path-home    (?<![\w.])/home/[A-Za-z_][\w.-]*/
+abs-path-mac     (?<![\w.])/Users/[A-Za-z_][\w.-]*/
+google-url       \b(?:docs|drive|script)\.google\.com\b|\bscript\.googleusercontent\.com\b
+debug-flag-on    (?i)\bdebug\w*\s*[:=]\s*true\b
+
+forbid-path      .env
+forbid-path      .env.*
+forbid-path      CLAUDE.local.md
+forbid-path      PRIVATE.md
+forbid-path      .sdlc/local/*

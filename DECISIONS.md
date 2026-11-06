@@ -342,7 +342,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: `core.hooksPath` would silently switch off a repository's existing local hook, as Project A's would be. A copy works offline, with no plugin, from any terminal. An absolute path breaks at every plugin update.
 - Consequences: T-32 is [H]. Kit mode and its 17 tests stay unchanged. The installer refuses if `core.hooksPath` is set and reports a stale copy. Patterns: a generic template without the language line; private patterns stay per project, created empty, never copied from the kit; project-specific forbidden paths move to the pattern file.
-- Outcome:
+- Outcome: built in T-32. Real pushes to a local bare repository from a repository with an existing hook: clean push passes, planted secret rejected, uninstall leaves the hook folder hash-equal. The kit test file holds 31 tests, not 17, and is unchanged. Set in the contract: the installer writes the exclude line; uninstall leaves the patterns, `.sdlc/local/` and the exclude line for the manual rollback step; `forbid-path` lines replace the built-in list. Not yet run in the customer's terminal: P-33.
 
 ## DEC-043 Phase 3 task split, G3 row and where it runs
 - Date: 2026-11-04 · Question: D-41, plus the terminal question in item 11 of the CTO report's customer questions
