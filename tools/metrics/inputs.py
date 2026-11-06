@@ -174,13 +174,18 @@ def _write_git_extracts(source: Path, dest: Path, head: str | None, profile: Pro
     return produced
 
 
-def snapshot(root: Path, source: Path, profile: Profile, label: str) -> dict[str, Any]:
+def snapshot(root: Path, source: Path, profile: Profile, label: str, *, replace: bool = False) -> dict[str, Any]:
     if not source.is_dir():
         raise InputError("--source is not a directory")
     paths = record_paths(source, profile.files)  # validates every path before any copy
     for role, spec in profile.folders.items():  # same check for the folder entries
         resolve_inside(source, spec["dir"], f"folder '{role}'", allow_absolute=False)
     dest = raw_dir(root, label)
+    if (dest / MANIFEST_NAME).exists() and not replace:  # refused before anything is written
+        raise InputError(
+            f"a snapshot for label '{label}' already exists; "
+            "pass --replace-snapshot to replace it"
+        )
     head, dirty = git_state(source)
     warnings: dict[str, int] = {}
     if head is None:

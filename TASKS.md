@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-30a committed, not pushed. Next: T-33a `--snapshot` refuses over an existing manifest; contract not written.
+T-33a committed, not pushed. Next: P-33 rehearsal in the customer's terminal; contract not written.
 
 ## Phases
 
@@ -219,7 +219,7 @@ Order:
 - [x] T-31 [H] scope guard hook. Needs P-30.
 - [x] T-32 [H] git hook installer, target mode. Needs T-30.
 - [x] T-30a [M] the 5 commands. Needs T-31, T-32.
-- [ ] T-33a [E] `--snapshot` refuses over an existing manifest.
+- [x] T-33a [E] `--snapshot` refuses over an existing manifest.
 - [ ] P-33 [M] rehearsal in a throwaway clone, customer's terminal. Needs T-30a, T-32. Watch: main-session writes outside the root are denied (DEC-037 outcome); record whether that blocks useful work. Prepare: a clone of this repository holds a tracked `.sdlc/guard-patterns.txt` with the language line, and the installer keeps it (checked in T-32 review), so remove that file in the clone before install or the planned non-English record line is rejected.
 - [ ] T-33 [M] one real task on Project A, customer's terminal. Needs P-33, T-33a. The customer picks the task.
 - [ ] T-34 gate G3: `auditor`, then `auditor-mini`.
@@ -312,6 +312,20 @@ Order:
 - Flag: none. Removing `.sdlc/project.md` turns the guard off (DEC-039).
 - Customer test: none here; the first use in the customer's terminal is P-33.
 - Report to the TL in Turkish, fixed format; a result that contradicts a decision is an OPEN QUESTION. After: the TL updates `docs/toolchain.md`; `tech-writer` updates `PLAYBOOK.md` Appendix H with the commands and the target install; `scribe` writes LOG, STATUS and the metrics line.
+
+### [x] T-33a [E] `--snapshot` refuses over an existing manifest (`developer`, Haiku)
+- Result: refusal and `--replace-snapshot` in; 502 tests green, 1 skipped; `evidence/` and `EVIDENCE.md` unchanged. One question back: the contract missed `tests/metrics/test_cli_records.py`.
+- Size: easy.
+- Goal: a second `--snapshot` for a label cannot replace a pinned copy by accident, so T-33 cannot pull Project A into the v2 series (DEC-034). Refusal only: no rerun, no number changes.
+- Rule: `snapshot()` in `tools/metrics/inputs.py` raises `InputError` when `<raw dir>/manifest.json` exists, before anything is written. The new flag `--replace-snapshot` allows it. The flag without `--snapshot` is refused. The refusal names the label and the flag and exits 2.
+- Files in: `tools/metrics/inputs.py`, `tools/metrics/__main__.py`, `tests/metrics/test_cli.py`, `tests/metrics/test_cli_records.py` (added 2026-11-06 by the TL: the contract missed its 2 double-snapshot calls; DEV_RULES 1 leaves tests free), one `CHANGELOG.md` line.
+- Files out: everything else, incl. `evidence/`, `EVIDENCE.md`, the other files in `tools/metrics/`, `tools/metrics/profiles/`. Do not run `--snapshot` on the real labels. Tests use their temp project only.
+- Acceptance: a second snapshot for a label exits 2 and leaves the copy and its manifest byte-identical, even when the source changed; a first snapshot passes; `--replace-snapshot` replaces; the flag alone exits 2. A rerun without `--snapshot` works as before. `git status --porcelain evidence/ EVIDENCE.md` prints nothing. Guard exit 0 over the changed files.
+- Tests: `tests/metrics/test_cli.py`: one refuse and one pass (DEV_RULES 9), the flag alone, a copy unchanged after a refusal. Existing tests that snapshot twice on one label pass `--replace-snapshot`; change nothing else in them. `python -m pytest -q` green, summary line pasted.
+- Design reference: `cto/2026-11-04_phase3-plan.md` D-32; DEC-024, DEC-034.
+- Flag: `--replace-snapshot`.
+- Customer test: none.
+- Report to the TL in Turkish, fixed format. After: `scribe` writes LOG, STATUS and the metrics line.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).

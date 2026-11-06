@@ -2,6 +2,29 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-06 (7) - T-33a snapshot guard
+
+- The maintainer gave the go-ahead to continue with T-33a.
+- The TL wrote the contract in `TASKS.md`.
+- `developer` (Haiku) changed:
+  - `tools/metrics/inputs.py`;
+  - `tools/metrics/__main__.py`;
+  - `tests/metrics/test_cli.py`;
+  - one CHANGELOG line.
+- Question back 1: the contract missed `tests/metrics/test_cli_records.py`, which has 2 double-snapshot calls. `developer` stopped with the suite red.
+  - The TL added the file to the contract. The gap was in the contract, and DEV_RULES 1 leaves tests free.
+  - `developer` added the flag to the 2 calls. No other line changed.
+- TL mistake in review: the TL wrote a command that ran `--snapshot` on the real label `kit`, against its own contract, to check the refusal. The host's permission layer denied the whole command, so nothing ran. A failed refusal would have replaced a pinned snapshot. The refusal is proven by tests on a temp project only.
+- TL checks:
+  - diff reviewed; the check runs before any write;
+  - `python -m pytest -q`: 502 passed, 1 skipped;
+  - guard over the changed files: exit 0;
+  - `git status --porcelain evidence EVIDENCE.md`: empty.
+- No fault-planting round for this easy task.
+- The maintainer approved the commit. Not pushed yet.
+- Next: P-33.
+- Metrics (T-33a): review rounds 1, questions back 1, out-of-scope files 0, models Haiku (developer, scribe), customer result not tested.
+
 ## 2026-11-06 (6) - T-30a the 5 commands
 
 - The maintainer gave the go-ahead to dispatch T-30a.
@@ -33,7 +56,7 @@ What is this file? A dated record of what was asked, decided, built and checked.
 - TL checks:
   - `python -m pytest -q`: 498 passed, 1 skipped;
   - guard over the changed files: exit 0.
-- Not committed. Awaiting the maintainer's approval to commit and push.
+- The maintainer approved the commit and push: `fa4d27b`.
 - Next: T-33a.
 - Metrics (T-30a): review rounds 1, questions back 1, out-of-scope files 0, models Sonnet (developer, tech-writer), Haiku (scribe, live runs), customer result not tested.
 

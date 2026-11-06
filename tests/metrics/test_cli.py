@@ -75,7 +75,7 @@ def test_two_runs_give_byte_identical_json(project: Path, tmp_path: Path) -> Non
     source = make_source(tmp_path / "src")
     first, second, third = (project / f"{n}.json" for n in ("a", "b", "c"))
     assert cli(project, source, first, "--snapshot") == 0
-    assert cli(project, source, second, "--snapshot") == 0
+    assert cli(project, source, second, "--snapshot", "--replace-snapshot") == 0
     assert cli(project, None, third) == 0  # rerun on the copy, no source needed
     assert first.read_bytes() == second.read_bytes() == third.read_bytes()
 
@@ -115,7 +115,7 @@ def test_git_source_records_head_and_dirty_flag(project: Path, tmp_path: Path) -
     assert "source_not_git" not in result["warnings"]
 
     (source / "LOG.md").write_text("# Log\n\nchanged\n", encoding="utf-8")
-    assert cli(project, source, out, "--snapshot") == 0
+    assert cli(project, source, out, "--snapshot", "--replace-snapshot") == 0
     result = json.loads(out.read_text(encoding="ascii"))
     assert result["input"]["head"] == head and result["input"]["dirty"] is True
 
@@ -224,6 +224,59 @@ def test_good_label_passes(project: Path, tmp_path: Path) -> None:
 
 def test_snapshot_without_source_is_refused(project: Path) -> None:
     assert cli(project, None, project / "o.json", "--snapshot") == 2
+
+
+# --- snapshot replacement (T-33a) -------------------------------------------
+
+def copy_bytes(raw: Path) -> dict[str, bytes]:
+    return {p.relative_to(raw).as_posix(): p.read_bytes() for p in sorted(raw.rglob("*")) if p.is_file()}
+
+
+def test_second_snapshot_on_a_label_is_refused_and_leaves_the_copy_unchanged(
+    project: Path, tmp_path: Path, capsys
+) -> None:
+    source = make_source(tmp_path / "src")
+    first = project / "first.json"
+    assert cli(project, source, first, "--snapshot") == 0
+    raw = project / "evidence" / "raw" / "demo"
+    before = copy_bytes(raw)
+    (source / "LOG.md").write_text("# Log\n\nchanged after the snapshot\n", encoding="utf-8")
+    assert cli(project, source, project / "second.json", "--snapshot") == 2
+    err = capsys.readouterr().err
+    assert "'demo'" in err and "--replace-snapshot" in err
+    assert copy_bytes(raw) == before
+    assert not (project / "second.json").exists()
+    assert cli(project, None, project / "third.json") == 0  # the kept copy still runs
+    assert (project / "third.json").read_bytes() == first.read_bytes()
+
+
+def test_replace_snapshot_replaces_the_copy_and_manifest(project: Path, tmp_path: Path) -> None:
+    source = make_source(tmp_path / "src")
+    assert cli(project, source, project / "first.json", "--snapshot") == 0
+    (source / "LOG.md").write_text("# Log\n\nchanged\n", encoding="utf-8")
+    assert cli(project, source, project / "second.json", "--snapshot", "--replace-snapshot") == 0
+    raw = project / "evidence" / "raw" / "demo"
+    assert (raw / "LOG.md").read_bytes() == (source / "LOG.md").read_bytes()
+    manifest = json.loads((raw / "manifest.json").read_text(encoding="ascii"))
+    assert manifest["files"]["log"] == hashlib.sha256((source / "LOG.md").read_bytes()).hexdigest()
+
+
+def test_replace_snapshot_alone_is_refused_and_changes_nothing(project: Path, tmp_path: Path, capsys) -> None:
+    source = make_source(tmp_path / "src")
+    assert cli(project, source, project / "first.json", "--snapshot") == 0
+    raw = project / "evidence" / "raw" / "demo"
+    before = copy_bytes(raw)
+    assert cli(project, None, project / "second.json", "--replace-snapshot") == 2
+    assert "--snapshot" in capsys.readouterr().err
+    assert cli(project, source, project / "third.json", "--replace-snapshot") == 2
+    assert copy_bytes(raw) == before
+    assert not (project / "second.json").exists() and not (project / "third.json").exists()
+
+
+def test_replace_snapshot_on_a_new_label_passes(project: Path, tmp_path: Path) -> None:
+    source = make_source(tmp_path / "src")
+    assert cli(project, source, project / "o.json", "--snapshot", "--replace-snapshot", label="fresh") == 0
+    assert (project / "evidence" / "raw" / "fresh" / "manifest.json").is_file()
 
 
 # --- module entry point ------------------------------------------------------

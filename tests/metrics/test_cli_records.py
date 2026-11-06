@@ -138,7 +138,7 @@ def test_two_snapshot_runs_and_a_rerun_are_byte_identical(project: Path, tmp_pat
     source = make_source(tmp_path / "src")
     a, b, c = (project / f"{n}.json" for n in "abc")
     assert cli(project, source, a, "--snapshot") == 0
-    assert cli(project, source, b, "--snapshot") == 0
+    assert cli(project, source, b, "--snapshot", "--replace-snapshot") == 0
     assert cli(project, None, c) == 0
     assert a.read_bytes() == b.read_bytes() == c.read_bytes()
 
@@ -184,7 +184,7 @@ def test_stale_git_extract_is_removed_when_a_later_snapshot_cannot_make_one(proj
     plain.mkdir()
     for name in ("CHANGELOG.md", "DECISIONS.md", "TASKS.md"):
         (plain / name).write_text("# x\n", encoding="utf-8")
-    assert cli(project, plain, project / "o2.json", "--snapshot") == 0
+    assert cli(project, plain, project / "o2.json", "--snapshot", "--replace-snapshot") == 0
     assert not (project / "evidence" / "raw" / "demo" / "git-log.txt").exists()
 
 
