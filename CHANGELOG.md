@@ -36,3 +36,4 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 - Playbook, source map, scout and writer roles, audit template and session instructions: fixes from the G1 audit.
 - Metrics profiles (`tools/metrics/profile.py`, `metrics_text.py`): M5 and M6 accept an ordered `task_lines` list; the Project A profile counts metric lines in the middle of a bullet and in a lead review line (DEC-030).
 - Metrics snapshot (`tools/metrics/inputs.py`, `python -m tools.metrics --snapshot`): a second `--snapshot` for a label that already has a manifest exits 2 before anything is written, unless `--replace-snapshot` is given; `--replace-snapshot` without `--snapshot` exits 2.
+- Plugin commands `init` and `contract` write their files with the Write and Edit tools instead of a shell heredoc, so the scope guard sees the writes.

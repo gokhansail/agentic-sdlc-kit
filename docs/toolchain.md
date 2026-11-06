@@ -104,6 +104,16 @@ Measured 2026-11-06 on Claude Code 2.1.296, Windows 10, Git Bash: 9 `claude -p` 
 
 Limits: one run could not show whether model-invoked `status` and `review` work: the Skill tool returned its normal start line and the model read that as a failure. The `close` run sent `yes` in the same input, so the question before the delete was not observed. A skill started with plain `python` has no `-X utf8`, so `tools/scope_guard.py` sets `backslashreplace` on its own output. `/sdlc:init` writes no exclude line. Ignored files are not seen by `/sdlc:review`. Not run in a terminal the customer opened yet: P-33.
 
+## Rehearsal in the customer's terminal, measured (P-33)
+
+Measured 2026-11-07 in a PowerShell window the customer opened, Windows 10, CLI 2.1.296, then 2.1.319 after an update on restart. Totals are in `docs/dogfood-1.md`.
+
+- Load, the 5 commands, hook block and allow, a sub-agent deny and `git push` all worked there, which closes the terminal half of V-9. A desktop app session is still not tried.
+- `/sdlc:init` and `/sdlc:contract close` each asked before writing or deleting.
+- `/sdlc:init` and `/sdlc:contract` wrote through a Bash heredoc, which the scope guard does not see, because their `allowed-tools` did not name `Write`. T-30b added the tools: in 2 Sonnet runs on 2026-11-07 all 3 files went through `Write` or `Edit`, and no Bash command wrote them.
+
+Limits: auto mode was on, so default-mode permission prompts were not observed.
+
 ## Headless runs and evaluation (phase 4, T-46)
 
 Sources: https://code.claude.com/docs/en/headless.md, https://code.claude.com/docs/en/cli-reference.md, https://code.claude.com/docs/en/plugin-evals.md

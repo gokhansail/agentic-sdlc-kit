@@ -52,7 +52,7 @@ A sub-agent cannot ask the maintainer. It returns with the question. A sub-agent
 | `LESSONS.md` | problems, causes, fixes | TL |
 | `audits/` | audit reports | auditor |
 | `cto/` | CTO reports | cto |
-| `docs/toolchain.md` | tools and versions used | TL |
+| `docs/toolchain.md`, `docs/dogfood-1.md` | tools and versions used; dogfood totals | TL |
 
 ## Language
 Everything in the repository is English (DEC-003): code, documents, records, role files, commit messages. Records are engineering records: decision and reason, task and result, numbers. No conversation, no quotes. Repository text is plain: numbers over adjectives, limits stated.

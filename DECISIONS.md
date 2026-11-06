@@ -302,7 +302,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: work started before a contract is the common failure, and b) lets it pass. c) stops every other project of the user.
 - Consequences: `.sdlc/project.md` is the opt-in and the one config file, written by `/sdlc:init`. One event line per decision goes to `.sdlc/metrics.jsonl`, no path, not committed; this moves part of the schema from T-41 to T-31. If hook input does not name the sub-agent (V-4), a developer can widen its own scope by editing the contract; that becomes a stated limit, covered by the TL's diff review. TL contracts move to `Files in` and `Files out`.
-- Outcome: P-30: hook input names the sub-agent in `agent_type`, so the limit in the consequences falls away; T-31 can deny sub-agent writes to `.sdlc/`. T-31: a main-session write outside the root is denied too; P-33 shows whether that blocks useful work.
+- Outcome: P-30: hook input names the sub-agent in `agent_type`, so the limit in the consequences falls away; T-31 can deny sub-agent writes to `.sdlc/`. T-31: a main-session write outside the root is denied too; P-33 shows whether that blocks useful work. P-33: no such write was tried and the customer reported no wrong denial, so this stays open for T-33.
 
 ## DEC-038 Writes through Bash
 - Date: 2026-11-04 · Question: D-36

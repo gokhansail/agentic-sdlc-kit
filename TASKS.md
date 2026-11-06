@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-P-33 contract written, awaiting the maintainer's go-ahead. Next: P-33 rehearsal in the customer's terminal.
+P-33 and T-30b committed, not pushed. Next: T-33, the customer picks the task with the Project A TL session.
 
 ## Phases
 
@@ -220,8 +220,9 @@ Order:
 - [x] T-32 [H] git hook installer, target mode. Needs T-30.
 - [x] T-30a [M] the 5 commands. Needs T-31, T-32.
 - [x] T-33a [E] `--snapshot` refuses over an existing manifest.
-- [ ] P-33 [M] rehearsal in a throwaway clone, customer's terminal. Needs T-30a, T-32. Watch: main-session writes outside the root are denied (DEC-037 outcome); record whether that blocks useful work. Prepare: a clone of this repository holds a tracked `.sdlc/guard-patterns.txt` with the language line, and the installer keeps it (checked in T-32 review), so remove that file in the clone before install or the planned non-English record line is rejected.
-- [ ] T-33 [M] one real task on Project A, customer's terminal. Needs P-33, T-33a. The customer picks the task.
+- [x] P-33 [M] rehearsal in a throwaway clone, customer's terminal. Needs T-30a, T-32. Watch: main-session writes outside the root are denied (DEC-037 outcome); record whether that blocks useful work. Prepare: a clone of this repository holds a tracked `.sdlc/guard-patterns.txt` with the language line, and the installer keeps it (checked in T-32 review), so remove that file in the clone before install or the planned non-English record line is rejected.
+- [x] T-30b [E] `init` and `contract` write through the file tools. Found by P-33.
+- [ ] T-33 [M] one real task on Project A, customer's terminal. Needs P-33, T-33a, T-30b. The customer picks the task with that project's TL session.
 - [ ] T-34 gate G3: `auditor`, then `auditor-mini`.
 
 ### [x] P-30 [M] Plugin facts probe (`developer`, Sonnet, effort medium)
@@ -327,7 +328,8 @@ Order:
 - Customer test: none.
 - Report to the TL in Turkish, fixed format. After: `scribe` writes LOG, STATUS and the metrics line.
 
-### [ ] P-33 [M] Rehearsal in a throwaway clone (customer, in a terminal the customer opened; `scout`, Haiku, reads the result)
+### [x] P-33 [M] Rehearsal in a throwaway clone (customer, in a terminal the customer opened; `scout`, Haiku, reads the result)
+- Result: every step passed in the customer's terminal on 2026-11-07; 5 events, 1 allow, 4 deny, 4 of them from a sub-agent; rollback hash-equal. Totals in `docs/dogfood-1.md`. Finding: `init` and `contract` write through Bash, which the guard does not see.
 - Size: medium.
 - Goal: the whole loop runs once in a repository shaped like Project A, in the customer's own terminal, before anything touches Project A. It gives the live part of G3-3 and G3-4, the rollback part of G3-6 and the load, block and push part of G3-7 (DEC-033, DEC-043). No product code.
 - Prepare: the TL writes the exact commands in `.sdlc/local/p33-runbook.md`. A fresh clone of this repository in a throwaway folder in the home directory, outside `AppData`. Origin removed, a local bare repository as the only remote. Records renamed. A non-English record line committed. An existing pre-push hook that writes a marker file. `.sdlc/guard-patterns.txt` removed before install (T-32 review). `git status` and the SHA-256 of the hook folder noted first.
@@ -343,6 +345,21 @@ Order:
 - Flag: none.
 - Customer test: the customer runs this task. Their statement that load, block and push worked in their terminal is the G3-7 evidence.
 - After: `scribe` writes LOG, STATUS and the metrics line. T-33 starts only after this task passes (DEC-033), and the customer picks its task first.
+
+### [x] T-30b [E] `init` and `contract` write through the file tools (`developer`, Haiku)
+- Result: 2 skills and 3 tests changed; 505 tests green, 1 skipped; in 2 Sonnet runs all 3 files went through `Write` or `Edit`. The `close` step keeps its shell delete.
+- Size: easy.
+- Goal: the kit's own commands pass the scope guard's hook instead of writing through Bash, which P-33 found (DEC-038). Text only: no script changes.
+- Rule: `skills/init/SKILL.md` lists `Write` in `allowed-tools`; `skills/contract/SKILL.md` lists `Write` and `Edit`. Each write step says to use that tool and never a shell command. The `close` step of `contract` keeps its shell delete, because no file tool deletes. The question before a write or delete stays.
+- Files in: `skills/init/SKILL.md`, `skills/contract/SKILL.md`, `tests/test_skills.py`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `skills/status/`, `skills/review/`, `skills/install-hooks/`, `tools/`, `templates/`, `docs/`, `PLAYBOOK.md`, `evidence/`, `EVIDENCE.md`.
+- Limits: at most 2 `claude -p` runs, each `--model sonnet`, `--max-turns 8`, in a throwaway repository in the scratchpad, never Project A or Project B. No permission bypass flag, no `claude plugin install`, no change to user settings.
+- Acceptance: the run log shows `Write` for `.sdlc/project.md`, `Write` for `.sdlc/active-contract.md`, `Write` or `Edit` for the tasks record, and no Bash command writing any of them. `check-contract` still reports the contract. Guard exit 0 over the changed files.
+- Tests: `tests/test_skills.py`: `init` and `contract` name the tools; the 2 read-only skills still name none; neither skill text holds a heredoc or a redirect. `python -m pytest -q` green, summary line pasted.
+- Design reference: `docs/dogfood-1.md` limits; DEC-038, DEC-041.
+- Flag: none.
+- Customer test: none; T-33 is the next real use.
+- Report to the TL in Turkish, fixed format, with the tool name of each write in the live run. After: the TL updates `docs/toolchain.md`; `scribe` writes LOG, STATUS and the metrics line.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).

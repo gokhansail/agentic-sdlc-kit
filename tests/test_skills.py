@@ -105,6 +105,19 @@ def test_read_only_skills_name_no_write_tool() -> None:
         assert not re.search(r"\b(Write|Edit|NotebookEdit)\b", tools)
 
 
+def test_init_and_contract_name_the_file_tools_they_write_with() -> None:
+    assert re.search(r"\bWrite\b", frontmatter("init").get("allowed-tools", ""))
+    contract_tools = frontmatter("contract").get("allowed-tools", "")
+    assert re.search(r"\bWrite\b", contract_tools) and re.search(r"\bEdit\b", contract_tools)
+
+
+@pytest.mark.parametrize("name", ["init", "contract"])
+def test_init_and_contract_have_no_heredoc_or_redirect(name: str) -> None:
+    text = text_of(name)
+    assert "<<" not in text
+    assert re.search(r"(^|\s)\d?>{1,2}", text, re.MULTILINE) is None
+
+
 # --- templates/project.md ---------------------------------------------------------
 
 def filled_project() -> str:

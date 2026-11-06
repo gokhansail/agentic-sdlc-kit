@@ -2,6 +2,54 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-07 (3) - T-30b file tools in init and contract
+
+- The maintainer chose to fix the P-33 finding before T-33.
+- The maintainer said the Project A task is picked with that project's TL session.
+- `developer` (Haiku) changed:
+  - `skills/init/SKILL.md`: `Write` in the tool list; each write step names its tool;
+  - `skills/contract/SKILL.md`: `Write` and `Edit` in the tool list; each write step names its tool; the `close` step keeps its shell delete, because no file tool deletes;
+  - `tests/test_skills.py`;
+  - one CHANGELOG line.
+- Live runs: 2 of 2 allowed `claude -p` runs on Sonnet. The TL read the tool names from the logs:
+  - `Write` for `.sdlc/project.md`;
+  - `Edit` for the tasks record;
+  - `Write` for `.sdlc/active-contract.md`;
+  - Bash only for reads and `--check-contract`.
+- TL checks:
+  - diff reviewed;
+  - `python -m pytest -q`: 505 passed, 1 skipped;
+  - guard over the changed files: exit 0.
+- The TL updated `docs/toolchain.md` and `docs/dogfood-1.md`, and marked T-30b done.
+- The maintainer approved the commit. Not pushed yet.
+- Next: T-33; the maintainer picks the task with the Project A TL session.
+- Metrics (T-30b): review rounds 1, questions back 0, out-of-scope files 0, models Haiku (developer, scribe), Sonnet (live runs), customer result not tested.
+
+## 2026-11-07 (2) - P-33 rehearsal
+
+- The maintainer gave the go-ahead and ran P-33 in a PowerShell window the maintainer opened (G3-7).
+- Versions: CLI 2.1.296 for the session steps; CLI 2.1.319 after an update on restart, used for the uninstall.
+- The TL wrote `.sdlc/local/p33-runbook.md`. The TL dry-ran the preparation, git and rollback steps in a scratch folder first.
+- Result of the run:
+  - all 12 session steps, 2 pushes and the rollback matched the runbook;
+  - one step needed a repeat for one file, because the prompt said to stop at a denial;
+  - the window closed once by accident; no state was lost.
+- `/sdlc:init` and `/sdlc:contract close` each asked before writing or deleting. This closes the gap left in T-30a.
+- `scout` (Haiku) read the event lines: 5 events, all `Write`; 1 allow, 4 deny; sub-agent 4, main session 1; no path recorded.
+- Pushes:
+  - the clean push passed with a non-English line, and the old hook ran;
+  - a fake key was rejected, with file, line and pattern name reported.
+- Rollback: hook folder hash-equal to the original; `core.hooksPath` unset; `git status` empty.
+- Finding: `init` and `contract` wrote through a Bash heredoc, which the scope guard does not see. Their paths were allowed, so no result changed.
+- Limits:
+  - auto mode was on;
+  - no main-session write outside the root was tried, so the DEC-037 question stays open for T-33.
+- The TL wrote `docs/dogfood-1.md`, updated `docs/toolchain.md`, `CLAUDE.md` Records and the DEC-037 outcome, and marked P-33 done.
+- The rehearsal clone is still in the maintainer's home folder. Deletion waits for the maintainer's word.
+- The maintainer approved the commit. Not pushed yet.
+- Next: the maintainer picks the Project A task for T-33.
+- Metrics (P-33): review rounds 1, questions back 2, out-of-scope files 1, models Sonnet (rehearsal session), Haiku (scout, scribe), customer result passed.
+
 ## 2026-11-07 (1) - P-33 contract
 
 - The maintainer asked for the P-33 contract.

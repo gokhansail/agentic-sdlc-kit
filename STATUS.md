@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-07
-Now: Phase 3 in progress, P-33 contract written, not started · repository private · metrics code written, tests green
+Now: Phase 3 in progress, P-33 and T-30b committed, not pushed · repository private · metrics code written, tests green
 
 ## Phase
 
@@ -40,10 +40,12 @@ Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates
 - T-32 git hook installer: target mode, old hook kept, uninstall restores the hook folder; 437 tests green.
 - T-30a the 5 commands: skills, project template, 2 script modes; 498 tests green.
 - T-33a snapshot guard: a second `--snapshot` for a label is refused; 502 tests green.
+- P-33 rehearsal: passed in the maintainer's own terminal; totals in `docs/dogfood-1.md`.
+- T-30b: `init` and `contract` write through the file tools; 505 tests green.
 
 ## Next
 
-- P-33 rehearsal in the customer's terminal; contract written, awaiting the go-ahead.
+- T-33 one real task on Project A; the maintainer picks the task with that project's TL session.
 
 ## Repository
 
@@ -54,5 +56,5 @@ Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates
 
 ## Open questions
 
-- Which real task runs on Project A (DEC-033), picked by the maintainer before T-33.
+- Which real task runs on Project A (DEC-033); the maintainer picks the task with that project's TL session.
 - N-5 waits for G5 (`TASKS.md`).
