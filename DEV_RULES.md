@@ -1,4 +1,4 @@
-> **What is this file?** Project-specific rules for the `developer` and `tech-writer` sub-agents (and any third-party model profile) of agentic-sdlc-kit. Generic behaviour and report formats live in `.claude/agents/*.md`; this file holds only what is specific to this repository. Keep it under 40 lines. Written by the Technical Lead (first version 2026-10-29).
+> **What is this file?** Project-specific rules for the `developer` and `tech-writer` sub-agents (and any third-party model profile) of agentic-sdlc-kit. Generic behaviour and report formats live in `agents/*.md` (copied to `.claude/agents/`); this file holds only what is specific to this repository. Keep it under 40 lines. Written by the Technical Lead (first version 2026-10-29).
 
 # Developer rules (agentic-sdlc-kit)
 

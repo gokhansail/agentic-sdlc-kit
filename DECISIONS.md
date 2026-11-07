@@ -286,7 +286,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: a clone must load as a plugin, which rules out b). c) still doubles the frontmatter. d) depends on V-9. Symlinks are not available on this machine. The test enforces what "one place" cannot.
 - Consequences: a role edit touches two files. `CLAUDE.md` names the source folder after T-30.
-- Outcome:
+- Outcome: T-30: `agents/` is the source, `tests/test_role_sync.py` compares the copy; green at G3 (`audits/2026-11-07_gate3.md`). `DEV_RULES.md` points to `agents/` since T-34a.
 
 ## DEC-036 Model names in plugin agents
 - Date: 2026-11-04 · Question: D-34
@@ -318,7 +318,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: a bypass an agent can reach is no guard. The normal path is a wider contract after the customer's word. The customer can also start a session without the plugin or remove `.sdlc/project.md`.
 - Consequences: a session run without the plugin leaves no log. V-7 needs no check.
-- Outcome:
+- Outcome: no bypass flag was built. In P-33 and T-33 the guard was turned off only by removing `.sdlc/` at rollback.
 
 ## DEC-040 Hook runtime
 - Date: 2026-11-04 · Question: D-38
@@ -350,7 +350,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a). The customer runs P-33 and T-33 in a terminal they opened, not in the desktop app (G3-7).
 - Reason: T-31 today would rest on unverified plugin facts, and P-30 closes those. A unit test fed with our own stdin proves the script, not that Claude Code calls it, so G3-3 adds a live check. Without P-33 the first run of the hook chain and the uninstall is on Project A; DEC-033 depends on P-33.
 - Consequences: order of `cto/2026-11-04_phase3-plan.md` section 2, about 6 sessions (opinion). Hard share 2 of 8 tagged tasks, 25%, under the 30% rule. The G3 row in `TASKS.md` becomes the 9 criteria of section 3. G3-7 is a customer statement; the auditor checks only that it is recorded.
-- Outcome: P-33 and T-33 both ran in a PowerShell window the customer opened, on 2026-11-07. Load, scope guard and 4 pushes through the hook worked there; the customer reported no problem. The G3-7 statement itself is asked of the customer at T-34.
+- Outcome: P-33 and T-33 both ran in a PowerShell window the customer opened, on 2026-11-07. Load, scope guard and 4 pushes through the hook worked there; the customer reported no problem. G3-7: on 2026-11-07 the customer stated that both the rehearsal and the Project A task ran in a PowerShell window they opened, and that the plugin loaded, the guard worked and the push passed. CLI 2.1.296 and 2.1.319 for P-33, 2.1.319 for T-33.
 
 ## DEC-044 Strict validate at a repository root with `CLAUDE.md`
 - Date: 2026-11-05 · Question: T-30 open question
@@ -358,4 +358,12 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: `--strict` treats warnings as errors, and this warning says the file is not loaded for plugin users, which is the wanted behaviour: the file serves work on the kit. Measured on clean copies: at the root, exit 1 with that warning; at `.claude/CLAUDE.md`, exit 0. b) touches 11 tracked files, and loading from there is not verified in this project. c) needs the guard tools and templates inside the subfolder.
 - Consequences: G3-1 reads: on a clean copy, `claude plugin validate . --strict --json` holds the `CLAUDE.md` root warning and no other finding, and plain `validate` exits 0. The inventory (7 agents, commands, hook) comes from `claude plugin details`, because validate lists only files with findings. `CLAUDE.local.md` raises the same warning in a working copy only. T-51 checks whether a marketplace needs strict to pass.
-- Outcome:
+- Outcome: measured on 2.1.296. On 2.1.319 the G3 auditor saw strict validate add a plugin-directory item (`ICON_MISSING`, not blocking) and README advice besides the `CLAUDE.md` warning; plain validate exits 0. G3-1 passed on that basis (`audits/2026-11-07_gate3.md`). T-51 decides whether the icon and README items are fixed.
+
+## DEC-045 Triage of the T-33 findings before G3
+- Date: 2026-11-07 · Question: which of the 9 findings in `docs/dogfood-1.md` are fixed in phase 3
+- Options: a) fix finding 4 in phase 3 (T-33b), keep finding 1 open for the customer with the deny unchanged, carry the other 7 as stated limits into later phases b) fix findings 3, 4, 5 and 7 in phase 3 c) fix none before G3
+- Decision: a). The customer accepted the TL proposal on 2026-11-07.
+- Reason: finding 4 lets a sub-agent change its own rules, which the scope guard exists to stop. The other findings cost time and none lets a write leave its contract unseen beyond what DEC-038 already states. b) adds 3 tasks of medium size to a phase that has its real task done.
+- Consequences: finding 1 stays an open customer question; the deny outside the root is unchanged. Findings 3, 6, 7 and 9 go to the release phase work on install and first use. Findings 2, 5 and 8 are stated limits: engine-side writes are not seen, `--check-worktree` does not know files changed before the task, a role can miss a line of a project's own rules file.
+- Outcome: T-33b built the fix for finding 4; a glob in `Files in` that matches the rules file counts as naming it (G3 finding D-2, open for the customer). Findings 3, 6, 7 and 9 are on the phase 5 line of `TASKS.md`.

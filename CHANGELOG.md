@@ -32,6 +32,8 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 
 ### Changed
 
+- Line endings (`.gitattributes`, `DEV_RULES.md`): `*.md` and `*.txt` are checked out with LF, so the LF tests pass in a Windows clone; `DEV_RULES.md` names `agents/` as the role source.
+- Scope guard (`tools/scope_guard.py`, `skills/init/SKILL.md`): the developer rules file named in `.sdlc/project.md` is never covered by the always-allowed list; a sub-agent may write it only when the active contract's Files in names it.
 - Session instructions (`CLAUDE.md`): the end-of-reply status line fields are defined.
 - Role files and developer rules (`.claude/agents/`, `DEV_RULES.md`): private details removed, each rule traced to the source map.
 - Playbook, source map, scout and writer roles, audit template and session instructions: fixes from the G1 audit.

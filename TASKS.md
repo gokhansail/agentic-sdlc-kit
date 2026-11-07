@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. Next: T-34 gate G3. The 9 T-33 findings in `docs/dogfood-1.md` wait for triage with the customer.
+T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). Next: phase 4 opens with the CTO plan; first the customer's 3 open questions (DEC-037 memory folder, G3 D-1, G3 D-2).
 
 ## Phases
 
@@ -223,7 +223,9 @@ Order:
 - [x] P-33 [M] rehearsal in a throwaway clone, customer's terminal. Needs T-30a, T-32. Watch: main-session writes outside the root are denied (DEC-037 outcome); record whether that blocks useful work. Prepare: a clone of this repository holds a tracked `.sdlc/guard-patterns.txt` with the language line, and the installer keeps it (checked in T-32 review), so remove that file in the clone before install or the planned non-English record line is rejected.
 - [x] T-30b [E] `init` and `contract` write through the file tools. Found by P-33.
 - [x] T-33 [M] one real task on Project A, customer's terminal. Needs P-33, T-33a, T-30b. The customer picks the task with that project's TL session. Result 2026-11-07: a medium task, 10-line contract, 39 guard events (38 allow, 1 deny outside the root), 0 out-of-scope files, 155 of 158 tests pass and 0 fail, 4 pushes through the chained hook, fast-forward merge; developer review rounds 3, over the 2-round rule. Totals and 9 findings in `docs/dogfood-1.md`.
-- [ ] T-34 gate G3: `auditor`, then `auditor-mini`.
+- [x] T-33b [M] sub-agents cannot change the developer rules file without a contract line. Found by T-33 (finding 4, DEC-045).
+- [x] T-34 gate G3: `auditor`, then `auditor-mini`. `auditor` 2026-11-07: CONDITIONAL ACCEPT (`audits/2026-11-07_gate3.md`); fix round T-34a; `auditor-mini` 2026-11-07: ACCEPT, 9 of 9 closed (`audits/2026-11-07_gate3_reverify.md`). G3 passed.
+- [x] T-34a [E] G3 fix round: line endings for `.md` and `.txt` (C-1), `DEV_RULES.md` pointer (D-3); the TL closes P-1, P-2, D-3 and the G3-7 record.
 
 ### [x] P-30 [M] Plugin facts probe (`developer`, Sonnet, effort medium)
 - Result: 14 runs and 1 customer terminal run. No result contradicts a decision. Still open: true process crash, `$CLAUDE_PLUGIN_ROOT` in the Bash tool, a desktop app session, a populated `.claude/` (`docs/toolchain.md`).
@@ -361,9 +363,35 @@ Order:
 - Customer test: none; T-33 is the next real use.
 - Report to the TL in Turkish, fixed format, with the tool name of each write in the live run. After: the TL updates `docs/toolchain.md`; `scribe` writes LOG, STATUS and the metrics line.
 
+### [x] T-33b [M] Developer rules file outside the always-allowed list (`developer`, Sonnet)
+- Result: 4 files and 1 CHANGELOG line; 10 new tests, 515 green, 1 skipped; a hand run denied a sub-agent write to the rules file in the always-allowed list and allowed the main session. A broad glob in `Files in` that matches the file counts as naming it. `PLAYBOOK.md` Appendix H updated by `tech-writer`.
+- Size: medium.
+- Goal: a sub-agent cannot change the rules it works under unless the contract names the file. In T-33 the `init` brief put that file in the always-allowed list (DEC-045).
+- Rule: `tools/scope_guard.py` reads the backticked path on the `Developer rules:` line of `.sdlc/project.md`. A sub-agent write to that path is denied unless the active contract's `Files in` names it; the always-allowed list does not cover it, in any state. `Files out` still wins. The main session is not affected. No `Developer rules:` line: no change in behaviour. `--check-worktree` is not changed. `skills/init/SKILL.md` step 3 says the developer rules file never goes in the always-allowed list, even when the arguments name it, and says so to the customer.
+- Files in: `tools/scope_guard.py`, `tests/test_scope_guard.py`, `skills/init/SKILL.md`, `tests/test_skills.py`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `hooks/`, `templates/`, `agents/`, `.claude/`, `docs/`, `PLAYBOOK.md`, `evidence/`, `EVIDENCE.md`.
+- Acceptance: with the file in the always-allowed list, a sub-agent write to it is denied in the no-contract and active states with a reason that names the developer rules; the main session is allowed; a contract whose `Files in` names it allows the sub-agent. Existing tests unchanged and green. Guard exit 0 over the changed files.
+- Tests: new cases in `tests/test_scope_guard.py` for each acceptance line, incl. a case-folded path on Windows; `tests/test_skills.py` checks the `init` sentence. `python -m pytest -q` green, summary line pasted.
+- Design reference: `docs/dogfood-1.md` finding 4; DEC-037, DEC-045.
+- Flag: none. Customer test: none; next real use is a later project.
+- Report to the TL in Turkish, fixed format. No live `claude -p` run. After: `scribe` writes LOG, STATUS and the metrics line.
+
+### [x] T-34a [E] Line endings and rules pointer (`developer`, Sonnet)
+- Result: 2 lines in `.gitattributes`, `DEV_RULES.md` line 1, 1 CHANGELOG line; renormalize staged no line-ending change. Fresh clone with `core.autocrlf` true: the 6 files `w/lf`, 515 passed, 1 skipped; this folder the same.
+- Size: easy.
+- Goal: `python -m pytest -q` is green in a fresh Windows clone (G3 finding C-1), and `DEV_RULES.md` names the role source (D-3).
+- Rule: `.gitattributes` adds `*.md text eol=lf` and `*.txt text eol=lf`; nothing else changes there. Run `git add --renormalize .` and report what it staged. `DEV_RULES.md` line 1: "`.claude/agents/*.md`" becomes "`agents/*.md` (copied to `.claude/agents/`)"; no other line.
+- Files in: `.gitattributes`, `DEV_RULES.md`, files that `--renormalize` stages (expected: none, the index is LF), one `CHANGELOG.md` line.
+- Files out: everything else, incl. `tests/`, `tools/`, `skills/`, `templates/`, `evidence/`, `EVIDENCE.md`.
+- Acceptance: in a fresh `git clone` of a scratch commit of this tree, in the scratchpad, `git ls-files --eol` shows `w/lf` for the 5 `SKILL.md` files and `templates/guard-patterns.txt`, and `python -m pytest -q` is green; the same in this folder. Guard exit 0 over the changed files.
+- Tests: none new; the 6 LF tests named in C-1 are the check. Summary lines of both runs pasted.
+- Design reference: `audits/2026-11-07_gate3.md` C-1, D-3.
+- Flag: none. Customer test: none.
+- Report to the TL in Turkish, fixed format. No commit in this folder. After: `scribe` writes LOG and STATUS; `auditor-mini` re-verifies.
+
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).
-- Phase 5: T-50 README · T-51 v0.1.0 and marketplace · T-52 gate G5, incl. G2 candidate N-5: engine-specific test attribute and folder layout in the profiles and in the git history; the maintainer decides before the repository goes public.
+- Phase 5: T-50 README · T-51 v0.1.0 and marketplace, with the T-33 findings routed by DEC-045 (`docs/dogfood-1.md`): 3 the kit introduces itself to a session, 6 contract fields and placement in another project's tasks file, 7 a tools section in `.sdlc/project.md` and a narrow allow list, 9 a plan budget · T-52 gate G5, incl. G2 candidate N-5: engine-specific test attribute and folder layout in the profiles and in the git history; the maintainer decides before the repository goes public.
 
 ## Not on the list
 Ideas that come up go here first and are not worked on until the maintainer moves them into a phase.

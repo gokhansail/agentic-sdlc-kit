@@ -13,7 +13,7 @@ Checked by running each command.
 | git | 2.35.1 (Git for Windows) | hooks, history scans; `claude plugin eval` needs 2.31+ |
 | GitHub CLI | 2.95.0 | repository and release work |
 | Node / npm | 24.18.0 / 11.16.0 | not used yet |
-| Claude Code | 2.1.296 | plugin, hooks, headless runs; `claude plugin eval` needs 2.1.269+ |
+| Claude Code | 2.1.319 (2026-11-07; 2.1.296 before) | plugin, hooks, headless runs; `claude plugin eval` needs 2.1.269+ |
 
 Python dependencies are listed in `requirements-dev.txt`.
 
@@ -113,6 +113,19 @@ Measured 2026-11-07 in a PowerShell window the customer opened, Windows 10, CLI 
 - `/sdlc:init` and `/sdlc:contract` wrote through a Bash heredoc, which the scope guard does not see, because their `allowed-tools` did not name `Write`. T-30b added the tools: in 2 Sonnet runs on 2026-11-07 all 3 files went through `Write` or `Edit`, and no Bash command wrote them.
 
 Limits: auto mode was on, so default-mode permission prompts were not observed.
+
+## Real task on Project A, measured (T-33)
+
+Measured 2026-11-07 in a PowerShell window the customer opened, Windows 10, CLI 2.1.319, Windows PowerShell 5.1, Python on `PATH`, Git Bash `sh` for the hooks. Totals are in `docs/dogfood-1.md`.
+
+- `--plugin-dir` loaded the plugin in a session opened in another repository. `/sdlc:status`, `/sdlc:init`, `/sdlc:contract`, `/sdlc:review`, `/sdlc:contract close` and `/sdlc:install-hooks` with and without `--uninstall` ran there.
+- `/sdlc:install-hooks` run by the model was refused, because the skill has `disable-model-invocation`; typed by the customer it ran. `/sdlc:contract` run by the model worked.
+- The scope guard saw `Write` and `Edit` from the main session, `sdlc:developer` and `sdlc:scribe`. Files the game engine wrote itself (generated metadata in batch mode, a settings file re-saved by the editor) were not seen.
+- 4 pushes went through the chained hook, which runs the repository's own pre-push hook first and then the guard; 0 were rejected. Whether the old hook ran was not checked on its own: it prints nothing on a pass.
+- Default permission mode asked once for each new command shape, for example `Start-Process` of the engine in batch mode and `Get-ChildItem` over program folders.
+- The Windows console select mode, entered by a click in the window, paused the running session until Esc. `Get-CimInstance Win32_Process` looked hung for this reason.
+
+Limits: one task, one project. The permission mode changed near the end, from default to accept-edits to auto.
 
 ## Headless runs and evaluation (phase 4, T-46)
 

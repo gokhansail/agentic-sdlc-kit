@@ -14,7 +14,9 @@ States, in the order they are decided:
     broken         the contract does not parse        -> deny everything
 
 Beyond the table: a path outside the project root is denied; a sub-agent never
-writes under .sdlc/; the main session always may.
+writes under .sdlc/; the main session always may. The developer rules file (the
+backticked path on the `Developer rules:` line of .sdlc/project.md) is never covered by
+the always-allowed list: a sub-agent may write it only when Files in names it.
 
 Grammar (only backticked tokens count; `{a,b}` expands; a trailing `/` is a
 folder; `*` stays inside one folder, `**` crosses folders; patterns are anchored
@@ -87,6 +89,9 @@ _TASK_ID = re.compile(r"(?<![\w-])[A-Z][A-Z0-9]{0,9}-\d+[a-z]?(?![\w-])")
 _FIELD = re.compile(r"^\s*(?:[-*+]\s+)?(Files in|Files out)\s*:(.*)$", re.IGNORECASE)
 
 
+_RULES_FIELD = re.compile(r"^\s*(?:[-*+]\s+)?Developer rules\s*:(.*)$", re.IGNORECASE)
+
+
 def backticked(line: str) -> list[str]:
     """The non-empty backticked tokens of one line."""
     return [t.strip() for t in _TICKED.findall(line) if t.strip()]
@@ -151,6 +156,16 @@ def parse_always_allowed(text: str) -> list[str]:
         if inside:
             out.extend(patterns_from_line(line))
     return out
+
+
+def parse_developer_rules(text: str) -> str | None:
+    """The first backticked path on the `Developer rules:` line of the project file, or None."""
+    for line in text.splitlines():
+        field = _RULES_FIELD.match(line)
+        if field:
+            tokens = backticked(field.group(1))
+            return normalize_pattern(tokens[0]) if tokens else None
+    return None
 
 
 def parse_contract(text: str) -> Contract:
@@ -261,6 +276,7 @@ def decide(
     is_agent: bool,
     casefold: bool,
     broken_reason: str = "",
+    developer_rules: str | None = None,
 ) -> Decision:
     """Decide for a path already known to be inside the root."""
     task = contract.task_id if contract else None
@@ -276,6 +292,11 @@ def decide(
     if state == BROKEN:
         return result(False, f"the contract cannot be used: {broken_reason}",
                       "Ask the technical lead to fix .sdlc/active-contract.md.")
+    rules_file = bool(is_agent and developer_rules and matches(rel, [developer_rules], casefold))
+    if rules_file and state == NO_CONTRACT:
+        return result(False, f"the path is the developer rules file ({developer_rules}); "
+                      "the always-allowed list does not cover it and there is no active contract",
+                      "Return an OPEN QUESTION; only a contract whose Files in names this file lets a sub-agent change it.")
     if state == NO_CONTRACT:
         if matches(rel, always_allowed, casefold):
             return result(True, "in the always-allowed list")
@@ -286,6 +307,12 @@ def decide(
     if matches(rel, contract.files_out, casefold):
         return result(False, f"the path is in Files out of {contract.task_id}",
                       "Return an OPEN QUESTION; do not work around the contract.")
+    if rules_file:
+        if matches(rel, contract.files_in, casefold):
+            return result(True, f"in scope of {contract.task_id} (Files in names the developer rules file)")
+        return result(False, f"the path is the developer rules file ({developer_rules}) and Files in of "
+                      f"{contract.task_id} does not name it; the always-allowed list does not cover it",
+                      "Return an OPEN QUESTION naming the developer rules file, or ask the technical lead to widen the contract.")
     if matches(rel, contract.files_in, casefold) or matches(rel, always_allowed, casefold):
         return result(True, f"in scope of {contract.task_id}")
     return result(False, f"the path is not in Files in of {contract.task_id}",
@@ -321,6 +348,14 @@ def load_state(root: Path) -> tuple[str, Contract | None, list[str], str]:
     return ACTIVE, contract, always, ""
 
 
+def load_developer_rules(root: Path) -> str | None:
+    """The developer rules path named in .sdlc/project.md; None when absent or unreadable."""
+    try:
+        return parse_developer_rules(_read(root / PROJECT_FILE))
+    except OSError:
+        return None
+
+
 def check(
     root: Path,
     raw_path: str | None,
@@ -340,7 +375,7 @@ def check(
     if rel is None:
         return Decision(False, state, "the path is outside the project root",
                         "Write only inside the project folder.", task, raw_path.replace("\\", "/"))
-    return decide(rel, state, contract, always, is_agent, casefold, broken)
+    return decide(rel, state, contract, always, is_agent, casefold, broken, load_developer_rules(root))
 
 
 # --- script modes -----------------------------------------------------------------

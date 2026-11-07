@@ -60,7 +60,7 @@ Limits:
 | Rollback of the kit | hook folder hash-equal, `core.hooksPath` unset, exclude file and `git status` equal to the state noted before the task. The task's change stays in Project A by the customer's choice. |
 | Customer result | passed; the customer tested the change and reported no problem |
 
-Findings, for triage with the customer:
+Findings, triaged in DEC-045 (finding 4 fixed in T-33b; 3, 6, 7 and 9 on the phase 5 line of `TASKS.md`; 2, 5 and 8 stated limits; 1 open for the customer):
 1. The outside-root deny also covers the session's own memory folder. This answers the open DEC-037 question: the deny hits ordinary work, though not this task.
 2. Writes made by the game engine are not seen by the guard: generated metadata files in batch mode, and a settings file the editor saved again after the customer's test. That re-saved file stopped the branch switch until it was committed.
 3. Project A's TL session did not know the kit. It planned to write the contract by hand, which leaves the guard in the no-contract state. The kit TL corrected this and 3 other steps from outside; the kit does not yet introduce itself to a session.

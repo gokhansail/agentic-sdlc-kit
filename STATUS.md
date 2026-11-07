@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-07
-Now: Phase 3 in progress, T-33 done; next T-34 gate G3 · repository private · metrics code written, tests green
+Now: Phase 3 closed: G3 passed 2026-11-07; phase 4 next · repository private · metrics code written, tests green
 
 ## Phase
 
@@ -13,13 +13,10 @@ Phase 1 Playbook closed: G1 passed 2026-11-02 (`auditor` CONDITIONAL ACCEPT, fix
 
 Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates N-1 to N-4 fixed in T-24a, N-5 moved to G5; `audits/`).
 
+Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix round T-34a, `auditor-mini` ACCEPT; `audits/`).
+
 ## Done
 
-- T-02 Record skeleton (0.0.1).
-- T-03 Pre-push guard (0.0.1): installed, every push goes through it.
-- T-04 Toolchain check: `docs/toolchain.md`, `requirements-dev.txt`; MCP SDK 2.x (DEC-013).
-- T-05 Product `CLAUDE.md`: process rules in English, at most 80 lines. Personal rules are kept outside the repository, each rule in one place (DEC-014, DEC-015).
-- T-10 Source map: `docs/source-map.md`, 9 sources, 64 concepts; private sources by ID (DEC-016); all 6 process lessons included (DEC-017).
 - T-11 Playbook: `PLAYBOOK.md`, core and appendices A to I, every claim traced to the source map. The maintainer's end-to-end read is still open (G1).
 - T-12 Templates: 7 files in `templates/`, each field traced to the source map; C-26 moved to T-44.
 - T-13 Role files: 7 role files and `DEV_RULES.md` revised, each traced to the source map; `docs/portability.md` dropped (DEC-018); one term "customer" (DEC-019). Approved 2026-11-01.
@@ -42,10 +39,12 @@ Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates
 - P-33 rehearsal: passed in the maintainer's own terminal; totals in `docs/dogfood-1.md`.
 - T-30b: `init` and `contract` write through the file tools; 505 tests green.
 - T-33 real task on Project A: medium task merged by the customer; 39 guard events, 1 deny outside the root, 0 out-of-scope files; kit removed, rollback equal; 9 findings in `docs/dogfood-1.md`.
+- DEC-045 triage and T-33b: sub-agents cannot change the developer rules file without a Files in line; 515 tests green.
+- T-34 G3 audit: CONDITIONAL ACCEPT (`audits/2026-11-07_gate3.md`); fix round T-34a: line endings, records, G3-7 statement.
 
 ## Next
 
-- T-34 gate G3: `auditor`, then `auditor-mini`. Before it, triage of the 9 T-33 findings with the maintainer.
+- Phase 4 MCP server: first the 3 open questions, then the CTO phase 4 plan.
 
 ## Repository
 
@@ -57,4 +56,5 @@ Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates
 ## Open questions
 
 - Whether the scope guard allows the session's memory folder outside the root (DEC-037, finding 1).
+- Kit opting in to its own scope guard in phase 4 (G3 D-1); exact name or glob for the rules file (G3 D-2).
 - N-5 waits for G5 (`TASKS.md`).

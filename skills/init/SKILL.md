@@ -13,6 +13,8 @@ Opt the current project in. Typed by the customer only. Arguments: `$ARGUMENTS`.
    Use the template's default name when a file does not exist.
 3. Read `${CLAUDE_PLUGIN_ROOT}/templates/project.md`. Fill every angle-bracket part and each record
    name that differs. Keep the `## Always allowed` section to backticked globs, one list item each.
+   The developer rules file never goes in the always-allowed list, even when the arguments name it:
+   a sub-agent may change it only when a contract's Files in names it. Tell the customer so.
    Report language: the language the customer writes in, unless the customer names another.
 4. Show the whole proposed file. Ask: "Write it?" Write nothing before the customer's yes. If the
    arguments above already hold the customer's yes, that is the answer.

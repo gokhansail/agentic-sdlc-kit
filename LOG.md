@@ -2,6 +2,46 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-07 (6) - G3 passed
+
+- `auditor-mini` (Opus) re-verified the G3 fix round: ACCEPT, 9 of 9 items closed, 0 open (`audits/2026-11-07_gate3_reverify.md`).
+- Fresh clone with autocrlf true: 515 passed, 1 skipped. Guard exit 0 over 15 files.
+- `EVIDENCE.md` and `evidence/` unchanged since `2bd234e`; Project A manifest hash unchanged.
+- Note from the re-verification: 17 files still check out CRLF in a fresh clone (14 `.json`, `LICENSE`, `.gitignore`, `.gitattributes`); no test checks them.
+- Low findings still open for the maintainer: P-3, P-4, D-1, D-2, R-1; and DEC-037 finding 1.
+- The maintainer approved the gate commit and push.
+- Next: phase 4; first the maintainer's 3 open questions (memory folder, kit opting in to its own guard, exact name or glob for the rules file), then the CTO phase 4 plan.
+
+## 2026-11-07 (5) - Triage, T-33b, G3 audit and fix round T-34a
+
+- The maintainer accepted the TL's triage proposal and asked for 4 steps: triage, the rules-file fix, the toolchain note, the clone cleanup.
+- Triage (DEC-045):
+  - finding 4 fixed in phase 3;
+  - finding 1 open for the maintainer; deny unchanged;
+  - findings 3, 6, 7, 9 moved to the phase 5 line;
+  - findings 2, 5, 8 stated as limits.
+- T-33b (`developer`, Sonnet):
+  - files: `tools/scope_guard.py`, `skills/init/SKILL.md`, 2 test files, 1 CHANGELOG line;
+  - 10 new tests; 515 passed, 1 skipped.
+  - TL hand check: a sub-agent write to the rules file, which is in the always-allowed list, was denied (exit 2); the main session was allowed.
+  - A glob in Files in that matches the rules file counts as naming it.
+- `tech-writer` (Sonnet) changed 1 row of `PLAYBOOK.md` Appendix H on a TL brief outside the T-33b contract: 2 sentences and the DEC-045 tag; 1 round. The T-33b contract did not name this step (G3 finding P-2).
+- The TL added the T-33 section to `docs/toolchain.md`.
+- The P-33 rehearsal clone was already gone from the maintainer's home folder when the TL looked; the TL deleted nothing.
+- `auditor` (Fable) G3 audit: CONDITIONAL ACCEPT, `audits/2026-11-07_gate3.md`.
+  - 8 of 9 criteria pass; G3-7 partial.
+  - Findings: 0 Critical, 0 High, 2 Medium (P-1 records behind the work; C-1 tests red on a fresh Windows clone, 6 failed), 7 Low (P-2, P-3, P-4, D-1, D-2, D-3, R-1).
+  - Conditions: the maintainer's G3-7 statement recorded; P-1 closed.
+- The maintainer gave the G3-7 statement on 2026-11-07 (recorded in the DEC-043 outcome) and approved the fix round.
+- T-34a (`developer`, Sonnet):
+  - `.gitattributes`: `*.md` and `*.txt` set to `eol=lf`; `DEV_RULES.md` line 1 points to `agents/`; 1 CHANGELOG line.
+  - Fresh clone with autocrlf true: 515 passed, 1 skipped; this folder: the same.
+- The TL closed P-1 and D-3: DEC-035, DEC-039, DEC-043, DEC-044, DEC-045 outcomes; the 4 routed findings on the phase 5 line of `TASKS.md`; the dogfood note points to DEC-045; toolchain table CLI 2.1.319.
+- Left open, for the maintainer: DEC-037 memory folder (finding 1); D-1 kit opting in to its own guard; D-2 exact name or glob; P-4 lessons; P-3 contract line length.
+- Next: `auditor-mini` re-verifies the 2 conditions and C-1; then the gate commit after the maintainer's word.
+- Metrics (T-33b): review rounds 1, questions back 0, out-of-scope files 0 (1 doc changed outside the contract by tech-writer, P-2), models Sonnet (developer, tech-writer).
+- Metrics (T-34a): review rounds 1, questions back 0, out-of-scope files 0, model Sonnet.
+
 ## 2026-11-07 (4) - T-33 real task on Project A
 
 - The maintainer gave the go-ahead and ran T-33 in a PowerShell window the maintainer opened (G3-7). CLI 2.1.319.

@@ -111,6 +111,12 @@ def test_init_and_contract_name_the_file_tools_they_write_with() -> None:
     assert re.search(r"\bWrite\b", contract_tools) and re.search(r"\bEdit\b", contract_tools)
 
 
+def test_init_keeps_the_developer_rules_file_out_of_the_always_allowed_list() -> None:
+    text = " ".join(text_of("init").split())
+    assert "The developer rules file never goes in the always-allowed list, even when the arguments name it" in text
+    assert "Tell the customer so." in text
+
+
 @pytest.mark.parametrize("name", ["init", "contract"])
 def test_init_and_contract_have_no_heredoc_or_redirect(name: str) -> None:
     text = text_of(name)

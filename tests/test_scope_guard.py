@@ -944,3 +944,65 @@ def test_check_worktree_prints_a_non_ascii_name_escaped_on_an_ascii_stream(tmp_p
     assert res.returncode == 1
     assert b"Traceback" not in res.stderr and b"internal error" not in res.stderr
     assert b"caf\\xe9.txt" in res.stdout
+
+
+# --- developer rules file (T-33b) -------------------------------------------------
+
+RULES_PROJECT = PROJECT.replace(
+    "## Always allowed", "## Records\n- Developer rules: `DEV_RULES.md`\n\n## Always allowed"
+).replace("`reports/`", "`reports/`, `DEV_RULES.md`")
+RULES_CONTRACT = CONTRACT.replace("`src/a.py`", "`DEV_RULES.md`, `src/a.py`")
+
+
+def agent_write(root: Path, rel: str, **kw) -> tuple[int, str]:
+    return run(root, payload("write-subagent", root, str(root / rel)), **kw)
+
+
+def test_rules_file_is_denied_to_a_sub_agent_without_a_contract_even_if_always_allowed(tmp_path: Path) -> None:
+    root = make_project(tmp_path, contract=None, project=RULES_PROJECT)
+    code, err = agent_write(root, "DEV_RULES.md")
+    assert code == 2 and "developer rules" in err and "Next:" in err
+    assert agent_write(root, "LOG.md")[0] == 0
+
+
+def test_rules_file_is_denied_to_a_sub_agent_when_files_in_does_not_name_it(tmp_path: Path) -> None:
+    root = make_project(tmp_path, project=RULES_PROJECT)
+    code, err = agent_write(root, "DEV_RULES.md")
+    assert code == 2 and "developer rules" in err and "Next:" in err
+
+
+def test_rules_file_is_allowed_to_a_sub_agent_when_files_in_names_it(tmp_path: Path) -> None:
+    root = make_project(tmp_path, contract=RULES_CONTRACT, project=RULES_PROJECT)
+    assert agent_write(root, "DEV_RULES.md")[0] == 0
+
+
+def test_files_out_still_wins_over_files_in_for_the_rules_file(tmp_path: Path) -> None:
+    contract = RULES_CONTRACT.replace("`src/secret.py`", "`DEV_RULES.md`, `src/secret.py`")
+    root = make_project(tmp_path, contract=contract, project=RULES_PROJECT)
+    assert agent_write(root, "DEV_RULES.md")[0] == 2
+
+
+@pytest.mark.parametrize("contract", [None, CONTRACT])
+def test_main_session_may_write_the_rules_file(tmp_path: Path, contract: str | None) -> None:
+    root = make_project(tmp_path, contract=contract, project=RULES_PROJECT)
+    assert write_in(root, "DEV_RULES.md") == (0, "")
+
+
+def test_without_a_developer_rules_line_the_always_allowed_list_still_works(tmp_path: Path) -> None:
+    project = PROJECT.replace("`reports/`", "`reports/`, `DEV_RULES.md`")
+    root = make_project(tmp_path, contract=None, project=project)
+    assert agent_write(root, "DEV_RULES.md")[0] == 0
+
+
+def test_rules_path_is_parsed_from_its_line() -> None:
+    assert sg.parse_developer_rules("- Developer rules: `docs\\RULES.md`\n") == "docs/RULES.md"
+    assert sg.parse_developer_rules("- Status: `STATUS.md`\n") is None
+    assert sg.parse_developer_rules("- Developer rules: none\n") is None
+
+
+def test_rules_file_match_is_case_folded_when_casefold_is_on(tmp_path: Path) -> None:
+    project = RULES_PROJECT.replace("`DEV_RULES.md`", "`docs/Rules.md`")
+    root = make_project(tmp_path, contract=None, project=project)
+    assert agent_write(root, "DOCS/RULES.MD", casefold=True)[0] == 2
+    root_b = make_project(tmp_path / "b", contract=None, project=project.replace("`reports/`", "`reports/`, `DOCS/RULES.MD`"))
+    assert agent_write(root_b, "DOCS/RULES.MD", casefold=False)[0] == 0
