@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). Next: phase 4 opens with the CTO plan; first the customer's 3 open questions (DEC-037 memory folder, G3 D-1, G3 D-2).
+T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Next: phase 4 opens with the CTO plan in a new session; it includes the two guard changes and the kit's opt-in.
 
 ## Phases
 
@@ -390,7 +390,7 @@ Order:
 - Report to the TL in Turkish, fixed format. No commit in this folder. After: `scribe` writes LOG and STATUS; `auditor-mini` re-verifies.
 
 ## Later phases (headlines; contracts are written when the phase opens)
-- Phase 4: T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).
+- Phase 4: T-39 scope guard: memory folder for the main session (DEC-046) and exact path for the rules file (DEC-048) · T-39a the kit opts in to its own guard (DEC-047) · T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).
 - Phase 5: T-50 README · T-51 v0.1.0 and marketplace, with the T-33 findings routed by DEC-045 (`docs/dogfood-1.md`): 3 the kit introduces itself to a session, 6 contract fields and placement in another project's tasks file, 7 a tools section in `.sdlc/project.md` and a narrow allow list, 9 a plan budget · T-52 gate G5, incl. G2 candidate N-5: engine-specific test attribute and folder layout in the profiles and in the git history; the maintainer decides before the repository goes public.
 
 ## Not on the list

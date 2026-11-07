@@ -44,7 +44,7 @@ Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix r
 
 ## Next
 
-- Phase 4 MCP server: first the 3 open questions, then the CTO phase 4 plan.
+- Phase 4 MCP server: CTO phase 4 plan in a new session; first tasks T-39 (guard: memory folder, exact rules path) and T-39a (kit opts in to its own guard), DEC-046 to DEC-048.
 
 ## Repository
 
@@ -55,6 +55,4 @@ Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix r
 
 ## Open questions
 
-- Whether the scope guard allows the session's memory folder outside the root (DEC-037, finding 1).
-- Kit opting in to its own scope guard in phase 4 (G3 D-1); exact name or glob for the rules file (G3 D-2).
 - N-5 waits for G5 (`TASKS.md`).

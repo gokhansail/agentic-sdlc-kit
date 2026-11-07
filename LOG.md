@@ -2,6 +2,16 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-07 (7) - Three open questions decided
+
+- The TL explained the 3 open questions in plain terms; the maintainer took the TL recommendation on all 3.
+- DEC-046: the main session may write in the CLI's per-project memory folder; every other path outside the root stays denied; sub-agents stay denied.
+- DEC-047: the kit opts in to its own scope guard in phase 4.
+- DEC-048: a sub-agent may change the developer rules file only when Files in holds its exact path, no glob.
+- The TL added T-39 (guard changes for DEC-046 and DEC-048) and T-39a (kit opt-in) to the phase 4 line of `TASKS.md`.
+- The maintainer will continue in a new session.
+- Next: phase 4 opens with the CTO plan in a new session.
+
 ## 2026-11-07 (6) - G3 passed
 
 - `auditor-mini` (Opus) re-verified the G3 fix round: ACCEPT, 9 of 9 items closed, 0 open (`audits/2026-11-07_gate3_reverify.md`).

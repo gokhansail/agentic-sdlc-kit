@@ -302,7 +302,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: work started before a contract is the common failure, and b) lets it pass. c) stops every other project of the user.
 - Consequences: `.sdlc/project.md` is the opt-in and the one config file, written by `/sdlc:init`. One event line per decision goes to `.sdlc/metrics.jsonl`, no path, not committed; this moves part of the schema from T-41 to T-31. If hook input does not name the sub-agent (V-4), a developer can widen its own scope by editing the contract; that becomes a stated limit, covered by the TL's diff review. TL contracts move to `Files in` and `Files out`.
-- Outcome: P-30: hook input names the sub-agent in `agent_type`, so the limit in the consequences falls away; T-31 can deny sub-agent writes to `.sdlc/`. T-31: a main-session write outside the root is denied too; P-33 shows whether that blocks useful work. P-33: no such write was tried and the customer reported no wrong denial, so this stays open for T-33. T-33: one main-session write outside the root, a note to the session's own memory folder, was denied; the task was not blocked. Whether to allow that folder is open for the customer (`docs/dogfood-1.md` finding 1).
+- Outcome: P-30: hook input names the sub-agent in `agent_type`, so the limit in the consequences falls away; T-31 can deny sub-agent writes to `.sdlc/`. T-31: a main-session write outside the root is denied too; P-33 shows whether that blocks useful work. P-33: no such write was tried and the customer reported no wrong denial, so this stays open for T-33. T-33: one main-session write outside the root, a note to the session's own memory folder, was denied; the task was not blocked. Whether to allow that folder is open for the customer (`docs/dogfood-1.md` finding 1). Decided in DEC-046: allow the memory folder for the main session only.
 
 ## DEC-038 Writes through Bash
 - Date: 2026-11-04 · Question: D-36
@@ -367,3 +367,27 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: finding 4 lets a sub-agent change its own rules, which the scope guard exists to stop. The other findings cost time and none lets a write leave its contract unseen beyond what DEC-038 already states. b) adds 3 tasks of medium size to a phase that has its real task done.
 - Consequences: finding 1 stays an open customer question; the deny outside the root is unchanged. Findings 3, 6, 7 and 9 go to the release phase work on install and first use. Findings 2, 5 and 8 are stated limits: engine-side writes are not seen, `--check-worktree` does not know files changed before the task, a role can miss a line of a project's own rules file.
 - Outcome: T-33b built the fix for finding 4; a glob in `Files in` that matches the rules file counts as naming it (G3 finding D-2, open for the customer). Findings 3, 6, 7 and 9 are on the phase 5 line of `TASKS.md`.
+
+## DEC-046 Main-session notes outside the project root
+- Date: 2026-11-07 · Question: DEC-037 open point, `docs/dogfood-1.md` finding 1, G3 customer question 2
+- Options: a) the main session may write in the CLI's per-project memory folder under the user's Claude configuration folder; every other path outside the root stays denied; sub-agents stay denied b) keep the deny for every path outside the root
+- Decision: a). The customer accepted the TL recommendation.
+- Reason: in T-33 the deny stopped a memory note and nothing else. The notes are not project code, and a session that cannot keep notes loses them at the end of the conversation.
+- Consequences: a phase 4 task in `tools/scope_guard.py` and its tests. The folder is found from the hook input or the CLI's known layout, never from a pattern the project file sets. `PLAYBOOK.md` Appendix H names the exception.
+- Outcome:
+
+## DEC-047 The kit runs its own scope guard
+- Date: 2026-11-07 · Question: G3 finding D-1, customer question 3
+- Options: a) opt this repository in during phase 4: `.sdlc/project.md`, contracts opened with `/sdlc:contract` b) stay out and state in the README that the kit's own sessions run without the guard
+- Decision: a). The customer accepted the TL recommendation.
+- Reason: the README says the kit is built with its own process; G3 found a document edited outside an open contract that the guard would have flagged.
+- Consequences: `tests/test_scope_guard.py` `test_this_repository_has_not_opted_in` flips. The always-allowed list covers the records, `audits/`, `cto/` and `docs/`; the developer rules file stays out (DEC-045). Sessions here load the plugin with `--plugin-dir .`; whether a desktop app session can (V-9) is checked first, and if it cannot, that limit is written down. A TL brief to `tech-writer` gets its own contract line.
+- Outcome:
+
+## DEC-048 The developer rules file needs its exact name in Files in
+- Date: 2026-11-07 · Question: G3 finding D-2, customer question 4
+- Options: a) a sub-agent may change the developer rules file only when `Files in` holds its exact path as a token with no `*`, `?` or `{` b) any matching glob counts, and the limit is written down
+- Decision: a). The customer accepted the TL recommendation.
+- Reason: with b) a broad contract such as `**` re-opens the hole T-33b closed. The cost of a) is one explicit token in the rare task that edits the rules.
+- Consequences: a phase 4 change in `tools/scope_guard.py` and its tests, in the same task as DEC-046. `skills/init/SKILL.md` and `PLAYBOOK.md` Appendix H say "exact path".
+- Outcome:
