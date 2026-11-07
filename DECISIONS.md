@@ -270,7 +270,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Approval: the customer names the task and gives the go-ahead in the Project A session. That session writes the contract and reviews the diff. The kit TL receives totals only. A merge needs the customer's "done".
 - Rollback: delete the branch, or revert the one commit after the customer's word; uninstall restores the old hook with the same hash; remove `.sdlc/` and the exclude line; `git status` equals the state noted before T-33.
 - Consequences: the hook, `.sdlc/` and state steps of the rollback are rehearsed in P-33. Which task runs is open; the customer picks it from Project A's own list before T-33. Filter proposed by `cto`: medium size, at least 2 files, an automatic test exists, not judged by feel only.
-- Outcome:
+- Outcome: T-33 ran 2026-11-07 under this exception. Writes stayed in the 4 items. The task ran on a branch and was merged fast-forward after the customer's word. Kit rollback: hook folder hash-equal, exclude file and `git status` equal to the state noted before. The exception ended at close.
 
 ## DEC-034 How T-33 output is recorded
 - Date: 2026-11-04 · Question: D-32
@@ -278,7 +278,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: Project A's v2 series ended at the 2026-11-03 snapshot, so T-33 cannot change a published number by itself. The one route is `--snapshot`: `snapshot()` writes over an existing copy with no check, and `evidence/raw/` is not in git. `PLAYBOOK.md` lesson 2: a rule is enforced or deleted.
 - Consequences: `EVIDENCE.md` and `evidence/` do not change in phase 3 (G3-8). T-33a adds a refusal to `--snapshot` when a manifest exists for the label. The note holds totals only, no file names and no before/after claim. A later Project A series takes a new label and belongs to phase 6.
-- Outcome:
+- Outcome: T-33 totals are in `docs/dogfood-1.md`. After T-33, `EVIDENCE.md` and `evidence/` have no change since `2bd234e`, and the Project A manifest hash equals the value noted before T-33.
 
 ## DEC-035 Source of truth for the role files
 - Date: 2026-11-04 · Question: D-33
@@ -302,7 +302,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a).
 - Reason: work started before a contract is the common failure, and b) lets it pass. c) stops every other project of the user.
 - Consequences: `.sdlc/project.md` is the opt-in and the one config file, written by `/sdlc:init`. One event line per decision goes to `.sdlc/metrics.jsonl`, no path, not committed; this moves part of the schema from T-41 to T-31. If hook input does not name the sub-agent (V-4), a developer can widen its own scope by editing the contract; that becomes a stated limit, covered by the TL's diff review. TL contracts move to `Files in` and `Files out`.
-- Outcome: P-30: hook input names the sub-agent in `agent_type`, so the limit in the consequences falls away; T-31 can deny sub-agent writes to `.sdlc/`. T-31: a main-session write outside the root is denied too; P-33 shows whether that blocks useful work. P-33: no such write was tried and the customer reported no wrong denial, so this stays open for T-33.
+- Outcome: P-30: hook input names the sub-agent in `agent_type`, so the limit in the consequences falls away; T-31 can deny sub-agent writes to `.sdlc/`. T-31: a main-session write outside the root is denied too; P-33 shows whether that blocks useful work. P-33: no such write was tried and the customer reported no wrong denial, so this stays open for T-33. T-33: one main-session write outside the root, a note to the session's own memory folder, was denied; the task was not blocked. Whether to allow that folder is open for the customer (`docs/dogfood-1.md` finding 1).
 
 ## DEC-038 Writes through Bash
 - Date: 2026-11-04 · Question: D-36
@@ -350,7 +350,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a). The customer runs P-33 and T-33 in a terminal they opened, not in the desktop app (G3-7).
 - Reason: T-31 today would rest on unverified plugin facts, and P-30 closes those. A unit test fed with our own stdin proves the script, not that Claude Code calls it, so G3-3 adds a live check. Without P-33 the first run of the hook chain and the uninstall is on Project A; DEC-033 depends on P-33.
 - Consequences: order of `cto/2026-11-04_phase3-plan.md` section 2, about 6 sessions (opinion). Hard share 2 of 8 tagged tasks, 25%, under the 30% rule. The G3 row in `TASKS.md` becomes the 9 criteria of section 3. G3-7 is a customer statement; the auditor checks only that it is recorded.
-- Outcome:
+- Outcome: P-33 and T-33 both ran in a PowerShell window the customer opened, on 2026-11-07. Load, scope guard and 4 pushes through the hook worked there; the customer reported no problem. The G3-7 statement itself is asked of the customer at T-34.
 
 ## DEC-044 Strict validate at a repository root with `CLAUDE.md`
 - Date: 2026-11-05 · Question: T-30 open question

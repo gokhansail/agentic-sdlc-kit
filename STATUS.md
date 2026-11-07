@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-07
-Now: Phase 3 in progress, P-33 and T-30b committed, not pushed · repository private · metrics code written, tests green
+Now: Phase 3 in progress, T-33 done; next T-34 gate G3 · repository private · metrics code written, tests green
 
 ## Phase
 
@@ -15,7 +15,6 @@ Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates
 
 ## Done
 
-- T-01 Decisions: DEC-001 to DEC-012.
 - T-02 Record skeleton (0.0.1).
 - T-03 Pre-push guard (0.0.1): installed, every push goes through it.
 - T-04 Toolchain check: `docs/toolchain.md`, `requirements-dev.txt`; MCP SDK 2.x (DEC-013).
@@ -42,10 +41,11 @@ Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates
 - T-33a snapshot guard: a second `--snapshot` for a label is refused; 502 tests green.
 - P-33 rehearsal: passed in the maintainer's own terminal; totals in `docs/dogfood-1.md`.
 - T-30b: `init` and `contract` write through the file tools; 505 tests green.
+- T-33 real task on Project A: medium task merged by the customer; 39 guard events, 1 deny outside the root, 0 out-of-scope files; kit removed, rollback equal; 9 findings in `docs/dogfood-1.md`.
 
 ## Next
 
-- T-33 one real task on Project A; the maintainer picks the task with that project's TL session.
+- T-34 gate G3: `auditor`, then `auditor-mini`. Before it, triage of the 9 T-33 findings with the maintainer.
 
 ## Repository
 
@@ -56,5 +56,5 @@ Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates
 
 ## Open questions
 
-- Which real task runs on Project A (DEC-033); the maintainer picks the task with that project's TL session.
+- Whether the scope guard allows the session's memory folder outside the root (DEC-037, finding 1).
 - N-5 waits for G5 (`TASKS.md`).

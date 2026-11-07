@@ -2,6 +2,48 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-07 (4) - T-33 real task on Project A
+
+- The maintainer gave the go-ahead and ran T-33 in a PowerShell window the maintainer opened (G3-7). CLI 2.1.319.
+- Project A's own TL session ran on Opus, effort high, with the plugin loaded by `--plugin-dir`. Permission mode was default; it changed near the end to accept-edits, then to auto.
+- Before the task:
+  - Project A's 2 pending changes were tested and pushed by the maintainer in Project A's normal flow.
+  - The start state (HEAD, hook hashes, `git status`, exclude file) was noted outside the repository.
+  - Kit baseline: HEAD `2bd234e`. The Project A manifest hash was noted outside the repository.
+- Setup:
+  - `/sdlc:status`, `/sdlc:init` with the record map and report language, `/sdlc:install-hooks`.
+  - 1 deny during setup: the main session wrote a note to its own memory folder, outside the root. The task was not blocked.
+- Task:
+  - The maintainer picked 1 of 3 candidates, a medium task.
+  - Project A's TL wrote a 10-line contract; `/sdlc:contract` wrote it. `--check-contract`: 15 Files in, 5 Files out.
+  - Branch, then `developer` (Sonnet): 3 rounds. Round 1 was the first version; round 2 was 1 fix for a gap the TL review found; round 3 was 1 change the maintainer asked for. This exceeds the 2-round rule.
+  - `scribe` (Haiku) wrote Project A's records in 2 rounds; the TL review found 2 wrong statements in round 1.
+- Checks:
+  - `/sdlc:review`: 1 of 14 changed paths outside the contract. That file was changed before the task and kept out by name.
+  - Tests: 158 run, 155 pass, 0 fail, 3 skipped.
+  - The maintainer tested the change and reported no problem.
+- Git:
+  - 4 commits, 4 pushes through the chained hook (branch 2, main 2), 0 rejected.
+  - Fast-forward merge to main after the maintainer's word.
+  - A settings file re-saved by the game editor stopped the first branch switch until it was committed.
+- Close:
+  - `/sdlc:contract close`, `/sdlc:install-hooks --uninstall`; `.sdlc/` removed; exclude file restored.
+  - Hook folder hash-equal; `core.hooksPath` unset; `git status` equal to the noted state.
+  - The DEC-033 exception ended.
+- Scope guard events: 39; allow 38, deny 1; no contract 4, active 35; main session 6, developer 15, scribe 18; Write 4, Edit 35; with a path 0.
+- The kit TL corrected Project A's session 4 times from outside:
+  - the developer rules file was removed from the always-allowed list;
+  - the contract is written by `/sdlc:contract`, not by hand;
+  - test output is kept outside the repository;
+  - the TL session runs the contract command instead of a pasted line.
+- The TL wrote:
+  - `docs/dogfood-1.md` (T-33 section, 9 findings);
+  - the DEC-033, DEC-034, DEC-037 and DEC-043 outcomes;
+  - one CHANGELOG line;
+  - and marked T-33 done.
+- Next: T-34 gate G3; triage of the 9 findings with the maintainer.
+- Metrics (T-33): review rounds 3 (developer), questions back 0, out-of-scope files 0, models Opus (Project A TL), Sonnet (developer), Haiku (scribe), customer result passed.
+
 ## 2026-11-07 (3) - T-30b file tools in init and contract
 
 - The maintainer chose to fix the P-33 finding before T-33.
@@ -21,7 +63,8 @@ What is this file? A dated record of what was asked, decided, built and checked.
   - `python -m pytest -q`: 505 passed, 1 skipped;
   - guard over the changed files: exit 0.
 - The TL updated `docs/toolchain.md` and `docs/dogfood-1.md`, and marked T-30b done.
-- The maintainer approved the commit. Not pushed yet.
+- The maintainer approved the commit and push: `2bd234e`.
+- Commit `e087e10` "Add the rehearsal note" reached the remote at 00:31 on 2026-11-07, not through the TL. It holds 3 record files, no rehearsal file and no key; the guard passed it. Likely cause: the runbook git block ran in this folder, because the block had no folder check. History left as it is. The TL found it in this push.
 - Next: T-33; the maintainer picks the task with the Project A TL session.
 - Metrics (T-30b): review rounds 1, questions back 0, out-of-scope files 0, models Haiku (developer, scribe), Sonnet (live runs), customer result not tested.
 
@@ -46,7 +89,7 @@ What is this file? A dated record of what was asked, decided, built and checked.
   - no main-session write outside the root was tried, so the DEC-037 question stays open for T-33.
 - The TL wrote `docs/dogfood-1.md`, updated `docs/toolchain.md`, `CLAUDE.md` Records and the DEC-037 outcome, and marked P-33 done.
 - The rehearsal clone is still in the maintainer's home folder. Deletion waits for the maintainer's word.
-- The maintainer approved the commit. Not pushed yet.
+- Committed in `2bd234e` with T-30b.
 - Next: the maintainer picks the Project A task for T-33.
 - Metrics (P-33): review rounds 1, questions back 2, out-of-scope files 1, models Sonnet (rehearsal session), Haiku (scout, scribe), customer result passed.
 

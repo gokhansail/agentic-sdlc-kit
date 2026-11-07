@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-P-33 and T-30b committed, not pushed. Next: T-33, the customer picks the task with the Project A TL session.
+T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. Next: T-34 gate G3. The 9 T-33 findings in `docs/dogfood-1.md` wait for triage with the customer.
 
 ## Phases
 
@@ -222,7 +222,7 @@ Order:
 - [x] T-33a [E] `--snapshot` refuses over an existing manifest.
 - [x] P-33 [M] rehearsal in a throwaway clone, customer's terminal. Needs T-30a, T-32. Watch: main-session writes outside the root are denied (DEC-037 outcome); record whether that blocks useful work. Prepare: a clone of this repository holds a tracked `.sdlc/guard-patterns.txt` with the language line, and the installer keeps it (checked in T-32 review), so remove that file in the clone before install or the planned non-English record line is rejected.
 - [x] T-30b [E] `init` and `contract` write through the file tools. Found by P-33.
-- [ ] T-33 [M] one real task on Project A, customer's terminal. Needs P-33, T-33a, T-30b. The customer picks the task with that project's TL session.
+- [x] T-33 [M] one real task on Project A, customer's terminal. Needs P-33, T-33a, T-30b. The customer picks the task with that project's TL session. Result 2026-11-07: a medium task, 10-line contract, 39 guard events (38 allow, 1 deny outside the root), 0 out-of-scope files, 155 of 158 tests pass and 0 fail, 4 pushes through the chained hook, fast-forward merge; developer review rounds 3, over the 2-round rule. Totals and 9 findings in `docs/dogfood-1.md`.
 - [ ] T-34 gate G3: `auditor`, then `auditor-mini`.
 
 ### [x] P-30 [M] Plugin facts probe (`developer`, Sonnet, effort medium)
