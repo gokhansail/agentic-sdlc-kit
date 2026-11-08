@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-08
-Now: Phase 4 MCP server open; T-39 and T-39a done, the kit runs under its own guard · repository private · code written, tests green
+Now: Phase 4 MCP server open; T-40 server skeleton done · repository private · code written, tests green
 
 ## Phase
 
@@ -19,7 +19,6 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 ## Done
 
-- T-14 G1 audit: CONDITIONAL ACCEPT (2026-11-02); 6 questions answered (DEC-020).
 - T-15 G1 fixes: all findings fixed; the maintainer read `PLAYBOOK.md` end to end (2026-11-02), no corrections.
 - Phase 2 plan: `cto/2026-11-02_phase2-plan.md`; decisions DEC-021 to DEC-027.
 - P-20 record format pass: local format note for the parsers; Project B has data for changelog, log and one audit only.
@@ -43,10 +42,11 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - Phase 4 plan: `cto/2026-11-07_phase4-plan.md`; decisions DEC-046 to DEC-048.
 - T-39 guard: main-session memory folder, exact rules path; 536 tests green.
 - T-39a the kit opts in: .sdlc/project.md and .claude/settings.json (DEC-047, DEC-049); 540 tests green; checked live and in a desktop app session.
+- T-40 server skeleton: read-only stdio server, status tool, root lock, plugin config; 604 tests green; live call works.
 
 ## Next
 
-- T-40 server skeleton in a new session: read only (DEC-050), the user installs `mcp` (DEC-051), `.mcp.json` in T-40. Each task now needs .sdlc/active-contract.md.
+- Decide the developer rule on Bash writes and git state commands (T-40 finding); then T-41 scope_check and metrics tools.
 
 ## Repository
 

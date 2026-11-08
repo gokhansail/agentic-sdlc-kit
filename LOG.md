@@ -2,6 +2,26 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-08 (3) - T-40 server skeleton
+
+- The maintainer decided the 2 server questions with the TL recommendation:
+  - the server reads only (DEC-050);
+  - the user installs `mcp`; the server stops with a one-line hint when it is missing (DEC-051).
+- The TL wrote the T-40 contract and placed `.sdlc/active-contract.md`; the guard was live in this session.
+- `developer` (Sonnet, effort high) built T-40:
+  - files: `server/` (`main.py`, `status.py`, `rootlock.py`), `tools/records.py`, `tests/test_server.py`, `tests/test_records.py`, 4 fixtures, `mcpServers` in `.claude-plugin/plugin.json`, `.gitattributes` (`*.json` LF), `docs/toolchain.md` (mcp 2.3.0, V-13), 1 CHANGELOG line;
+  - 604 passed, 1 skipped (TL rerun);
+  - review rounds: 1.
+- Developer live runs: 2 (Haiku):
+  - the CLI starts the server with `python` directly on Windows;
+  - `${CLAUDE_PLUGIN_ROOT}` expands in `args`;
+  - tool name `mcp__plugin_sdlc_sdlc__status`;
+  - `CLAUDE_PROJECT_DIR` reaches the server;
+  - the start folder is not settled.
+- TL live run: `status` returned task T-40, state active, 9 Files in. With the SDK missing: exit 1 and the install line.
+- Finding: 12 of 14 files were written through Bash (heredoc, scripts), so the guard logged 2 developer events. `--check-worktree`: 16 paths, all inside T-40. No developer rule forbids Bash writes (DEC-038). The developer also ran `git stash` and `git stash pop` once; no change lost.
+- Next: the maintainer decides whether the developer rules forbid Bash writes and git state commands; then T-41.
+
 ## 2026-11-08 (2) - T-39a the kit runs its own guard
 
 - The desktop app session in this folder loaded no plugin: no `/sdlc` commands, no `sdlc:` agents, no `--plugin-dir` option.

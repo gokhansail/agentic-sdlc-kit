@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. The 2 server questions are decided (DEC-050 read only, DEC-051 the user installs `mcp`). Next: T-40 server skeleton, with `.mcp.json` moved in from T-42, in a new session.
+T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. The 2 server questions are decided (DEC-050 read only, DEC-051 the user installs `mcp`). T-40 done 2026-11-08. Open: whether the developer rules forbid Bash writes and git state commands (T-40 finding). Next: T-41 `scope_check` and metrics tools.
 
 ## Phases
 
@@ -395,6 +395,21 @@ Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-4
 
 - [x] T-39 [M] scope guard: memory folder for the main session, exact path for the rules file. DEC-046, DEC-048.
 - [x] T-39a [E] the kit opts in to its own guard, run from project settings. DEC-047, DEC-049.
+- [x] T-40 [M] server skeleton: stdio, root lock, one `status` tool, plugin config. DEC-011, DEC-013, DEC-050, DEC-051.
+
+### [x] T-40 [M] Server skeleton (`developer`, Sonnet, effort high)
+- Result: `server/` (4 files), `tools/records.py`, 64 new tests, 604 passed, 1 skipped; `mcp` 2.3.0; review rounds 1. 2 developer live runs settled 3 of 4 points (V-13; start folder not settled). TL live run: `status` returned T-40, active, 9 Files in. `--check-worktree`: 16 paths, all inside. Finding: 12 of 14 files written through Bash, so 2 guard events; no rule forbids it (DEC-038). One `git stash` and `pop` by the developer, no loss.
+- Goal: the plugin starts a read-only stdio MCP server that answers one `status` tool from the project's records, with the test harness later tools reuse.
+- Step 0: install `mcp` (range in `requirements-dev.txt`) into the Python the guard launcher finds, not `--user`; write the exact version in `docs/toolchain.md`. Then at most 2 live `claude --plugin-dir . -p` runs, Haiku, to settle how the CLI starts a plugin stdio server on Windows, whether `${CLAUDE_PLUGIN_ROOT}` expands, the start folder, the tool name shown.
+- Config: in `.claude-plugin/plugin.json` (`mcpServers`), not a root `.mcp.json`, which this folder's sessions would also read as project config.
+- Server: `server/`, `MCPServer`, stdio only. Root fixed at start from `CLAUDE_PROJECT_DIR` or the start folder, never from a tool argument. A start check: `mcp` missing or outside the range prints one install line to stderr and exits 1 (DEC-051). Plugin root added to `sys.path` by the entry, since the launcher may use `-I`.
+- `status` returns: opted in or not, guard state, task ID, Files in and Files out, and the record names from `## Records` of `.sdlc/project.md` (template defaults when absent). State comes from `tools.scope_guard.load_state`; the records parse is a new stdlib function in `tools/records.py`.
+- Harness: a root-lock helper for later path arguments (`..`, absolute outside, mixed separators, case, a link pointing outside) on top of `relative_to_root` and `resolve()`; no glob or path rule of its own in `server/`.
+- Files in: `server/`, `tools/records.py`, `tests/test_server.py`, `tests/test_records.py`, `tests/fixtures/server/`, `.claude-plugin/plugin.json`, `.gitattributes`, `docs/toolchain.md`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `tools/scope_guard.py`, `tools/metrics/`, `hooks/`, `agents/`, `.claude/`, `skills/`, `templates/`, `requirements-dev.txt`, `CLAUDE.md`, `PLAYBOOK.md`, `DEV_RULES.md`.
+- Acceptance: `status` gives the right answer on 3 fixture repositories (not opted in, no contract, active); the root-lock cases are denied; an AST test finds no network module imported in `server/`; every tool runs with socket creation blocked; one stdio round trip through the SDK client (`list_tools`, `call_tool`); `tools/` imports neither `server/` nor `mcp`; a missing `mcp` gives exit 1 and the hint.
+- Tests: `python -m pytest -q` summary pasted; live runs counted in the report.
+- Report in Turkish, fixed format, no commit. After: TL live check, `scribe` LOG and STATUS.
 
 ### [x] T-39a [E] The kit opts in to its own guard (`developer`, Sonnet, effort medium)
 - Result: 2 new files, `CLAUDE.md` 2 lines, 5 new tests, 540 passed, 1 skipped; review rounds 1. Live `claude -p`: `PLAYBOOK.md` denied, `LOG.md` allowed, memory folder allowed, `memory/..` denied, event lines without paths. New desktop app session (customer): `PLAYBOOK.md` denied.

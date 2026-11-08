@@ -30,6 +30,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 - Plugin commands (`skills/{status,init,contract,review,install-hooks}/SKILL.md`, `templates/project.md`, `python tools/scope_guard.py --check-contract` and `--check-worktree`): `/sdlc:init` opts a project in, `/sdlc:contract` writes the active contract, `/sdlc:review` lists changed files outside it, `/sdlc:install-hooks` installs the pre-push guard in the project; `init` and `install-hooks` run only when typed.
 - Own scope guard (`.sdlc/project.md`, `.claude/settings.json`): sessions in this repository, desktop app included, run the scope guard from the project settings (DEC-047, DEC-049).
 - Dogfood note (`docs/dogfood-1.md`): totals of the rehearsal in a throwaway clone and of one real task on Project A, with 9 findings for triage.
+- MCP server skeleton (`server/`, `tools/records.py`, `mcpServers` in `.claude-plugin/plugin.json`): the plugin starts a read-only stdio server with one `status` tool (guard state, active task, Files in and out, record names from `.sdlc/project.md`); the root is fixed at start, a root-lock helper checks path arguments, and a missing or out-of-range `mcp` package stops it with one install line. Needs `python -m pip install "mcp>=2.3,<3"`.
 
 ### Changed
 

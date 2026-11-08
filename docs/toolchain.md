@@ -14,6 +14,7 @@ Checked by running each command.
 | GitHub CLI | 2.95.0 | repository and release work |
 | Node / npm | 24.18.0 / 11.16.0 | not used yet |
 | Claude Code | 2.1.319 (2026-11-07; 2.1.296 before) | plugin, hooks, headless runs; `claude plugin eval` needs 2.1.269+ |
+| mcp (Python SDK) | 2.3.0 (installed 2026-11-08, T-40) | server tests and the server itself; see the SDK section |
 
 Python dependencies are listed in `requirements-dev.txt`.
 
@@ -27,6 +28,8 @@ Checked with `pip index versions mcp`, the wheel metadata, and a smoke test in a
 | 1.30.0 (last 1.x) | >=3.10 | `FastMCP` (`mcp.server.fastmcp`) | passed |
 
 Both ran with pydantic 2.14.2 and anyio 4.15.1. Which major version the server uses is decision DEC-013. Migration notes: https://py.sdk.modelcontextprotocol.io/v2/migration/
+
+Installed for the server on 2026-11-08 (T-40): `python -m pip install "mcp>=2.3,<3"` into the interpreter that `python` resolves to (not `--user`) gave mcp 2.3.0 with pydantic 2.14.3 and anyio 4.16.0. This is the tested version; the range in `requirements-dev.txt` is the pin. The server checks package and version at start (DEC-051) and exits 1 with one install line when the package is missing or outside `>=2.3,<3`. The version is read from the package metadata, and the SDK is imported only after that check. Tests that need the SDK skip when it is missing.
 
 ## Claude Code plugin (phase 3)
 
@@ -65,6 +68,7 @@ Measured 2026-11-04 and 2026-11-05 on Claude Code 2.1.296, Windows 10, Git Bash,
 | V-8 | confirmed for text, Bash environment not settled | `${CLAUDE_PLUGIN_ROOT}` in `SKILL.md` text is replaced with a forward-slash path, also inside a Bash command line written in the skill. The shell form `$CLAUDE_PLUGIN_ROOT` in a Bash command stopped at the permission check in `-p`, so whether the Bash tool has the variable is not settled. |
 | V-9 | confirmed; desktop app loads no plugin, the settings hook runs there | `--plugin-dir` loads in `claude -p` from a session nested in the desktop app and from a terminal the maintainer opened; a plugin skill ran in both. A desktop app session in this folder (2026-11-08) showed no `/sdlc` commands and no `sdlc:` agents, and the app has no `--plugin-dir` option. DEC-049: this repository registers the guard in `.claude/settings.json`. Live `claude -p` check 2026-11-08 with that file: `PLAYBOOK.md` denied and `LOG.md` allowed with no contract; a main-session write in the memory folder allowed, `memory/..` denied; 4 event lines, no path. A new desktop app session with the settings hook (customer, 2026-11-08): an Edit to `PLAYBOOK.md` with no contract was denied with `[no-contract]`, the file unchanged. |
 | V-12 | confirmed | With `disable-model-invocation: true` the Skill tool refuses the skill and names the flag; a typed `/<plugin>:<skill>` runs it. |
+| V-13 | confirmed, with a limit | Measured 2026-11-08 on Claude Code 2.1.319, Windows 10, with 2 `claude --plugin-dir . -p` runs on Haiku in this repository. `mcpServers` in `.claude-plugin/plugin.json` with `command: python` and `args: ["${CLAUDE_PLUGIN_ROOT}/server/main.py"]`: the CLI started the stdio server on Windows with no shell launcher, and the init event lists it as `plugin:sdlc:sdlc`, connected, source plugin. `${CLAUDE_PLUGIN_ROOT}` expanded in `args`. The tool is named `mcp__plugin_sdlc_sdlc__status` (`mcp__plugin_<plugin>_<server>__<tool>`); the model reached it through a `ToolSearch` select. In `-p` the first call was refused ("requested permissions ... haven't granted it yet") and listed under `permission_denials`; with `--allowedTools mcp__plugin_sdlc_sdlc__status` it ran and returned the structured result. `--allowedTools` takes a list, so a prompt placed after it is swallowed and the CLI exits with "Input must be provided". The server's environment had `CLAUDE_PROJECT_DIR`: the result's `root_source` was that variable. Not settled: the server's start folder. Both runs began in the project root, so it was not told apart from the variable. The server does not depend on it while the variable is set. |
 
 Also seen: `claude -p` runs still load the user's own plugins. `claude --plugin-dir <path> plugin details <name>` shows the inventory and token cost without an install; the option goes before `plugin`. For this plugin with 7 agents: about 837 tokens added to every session. With `ANTHROPIC_API_KEY` set, the CLI warns that it takes precedence over the claude.ai login, and connectors are off.
 
