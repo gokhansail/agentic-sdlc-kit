@@ -423,3 +423,20 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: in T-40 the guard saw 2 of 14 writes and `git stash` briefly removed the TL's uncommitted record change. The review check found no file outside the contract, but the event lines, which G4-7 counts, stayed nearly empty.
 - Consequences: T-40a. The rule is a convention; DEC-038 is unchanged and `--check-worktree` stays the check. `DEV_RULES.md` rule 7 is narrowed to the read-only server (DEC-050).
 - Outcome: T-40a 2026-11-08: rule in `DEV_RULES.md` (rule 5) and the developer role; the next developer task logged 4 of 4 writes.
+
+## DEC-053 How the eval runs (T-46b)
+- Date: 2026-11-08 · Question: T-46b, 3 questions to the customer
+- Options: isolation a) `claude -p --bare` with the API key b) the subscription login without `--bare`; models a) Haiku and Sonnet b) Haiku, Sonnet and Opus c) Haiku only; budget a) a pilot first b) the full matrix at once.
+- Decision: `--bare` with the API key; Haiku and Sonnet; a pilot of 20 runs (5 questions x 2 models x 2 conditions x 1 run, cap 3 USD), then the full matrix of 360 runs with a cap set from the pilot cost. The customer accepted the TL recommendation on all 3.
+- Reason: without `--bare` every run loads the user's own plugins, global instructions and memory, so the two conditions would differ in more than the server. Two models meet "several models" in DEC-012 at the lowest cost. The cost per run is not measured yet; the pilot measures it before the larger spend.
+- Consequences: the runs bill the API account, so the per-window key reminder does not apply to them. Each run works in a copy of `eval/repo/` outside the kit, so the model cannot read the answer key. Both conditions get the same base tools (Read, Grep, Glob, ToolSearch); the server condition adds the server through `--mcp-config`. Totals go to `eval/results/`, raw output stays outside the repository; `EVIDENCE.md` and `evidence/` stay unchanged (G4-10).
+- Outcome:
+
+## DEC-054 Eval runs on the subscription login; Read as the only base tool
+- Date: 2026-11-08 · Question: T-46b step 0 (V-16)
+- Facts: 11 calls with `ANTHROPIC_API_KEY` were refused with "Credit balance is too low" (0 tokens, 0 USD). On 2026-11-09 the customer's console showed 98.50 USD organization credit; the cause of the refusal is not known. Under `--bare`, Claude Code 2.1.319 offers no Grep, Glob or ToolSearch; `--tools Read,Grep,Glob,ToolSearch` leaves Read only.
+- Options: credit a) load API credit and keep `--bare` b) the subscription login without `--bare`; tools a) Read only in both conditions, the prompt lists the files of the copy b) Bash in both conditions.
+- Decision: credit b), against the TL recommendation a); tools a), the TL recommendation. Supersedes the isolation part of DEC-053.
+- Reason: no extra spend. Read with a file list keeps both conditions equal and keeps the model inside the copy; Bash could reach the kit and the answer key.
+- Consequences: the runner drops `--bare` and removes `ANTHROPIC_API_KEY` from the child environment so the login is used; it narrows what loads (`--strict-mcp-config`, `--setting-sources`, `--tools Read`) as far as the CLI allows, and the eval limits section states what still loads. `total_cost_usd` is a list-price estimate, not a bill; the runs count against the subscription's usage limits.
+- Outcome:

@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-08
-Now: Phase 4 MCP server open; T-44a done, T-46b next · repository private · code written, tests green
+Last updated: 2026-11-09
+Now: Phase 4 MCP server open; T-46b runner built, pilot next · repository private · code written, tests green
 
 ## Phase
 
@@ -19,7 +19,6 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 ## Done
 
-- T-23 `EVIDENCE.md`: 9 metrics, 21 limits items, tables rendered; DEC-031. Committed 2026-11-04.
 - T-24 G2 audit and T-24a (N-1 to N-4 closed): Committed 2026-11-04.
 - Phase 3 plan: `cto/2026-11-04_phase3-plan.md`; decisions DEC-033 to DEC-043.
 - P-30 plugin facts probe: 14 runs and 1 customer terminal run; results in `docs/toolchain.md`, no result contradicts a decision.
@@ -43,10 +42,11 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - T-42 decision, lesson, finding, task and log tools; 10 tools in all; 868 tests green; live run works.
 - T-44 security pass: 17 findings, 3 High fixed, 0 High open, 2 Medium open in the guard (S-7, S-8); `docs/security.md`; 980 tests green.
 - T-44a guard match in bounded time: S-6, S-7, S-8 fixed, 0 security findings open; 992 tests green.
+- T-46b runner and runbook: `tools/eval_run.py`, 36 tests, subscription login (DEC-054); 1028 tests green; pilot not run.
 
 ## Next
 
-- T-46b eval runs in the maintainer's terminal, under a cost cap.
+- T-46b pilot (20 runs) in the maintainer's terminal with `docs/eval-runbook.md`; the full matrix after the weekly usage limit resets.
 
 ## Repository
 

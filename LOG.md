@@ -2,6 +2,29 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-09 (1) - T-46b pilot stopped; API credit check
+
+- The TL started the pilot (20 runs, budget 3 USD) in this session on the customer's word. The customer stopped everything before the first run ended. No totals file was written; no run process was left.
+- The customer asked whether the TL session had used the API credit. Checked: the key is not set in the session's process environment, only as a user-level variable. The only calls with the key were the 11 step-0 calls, all refused at 0 USD.
+- The customer's console showed 98.50 USD organization credit and 1.51 of a 20 USD monthly limit spent. Why the step-0 key was refused with "Credit balance is too low" is not known. The records that said "no credit" were corrected (DEC-054, V-16, TASKS).
+- Next: the pilot in the customer's terminal with `docs/eval-runbook.md`, then the full matrix after the weekly usage limit resets.
+
+## 2026-11-08 (9) - T-46b eval runner and runbook
+
+- T-44a committed and pushed (bcaae50).
+- The customer decided the eval set-up (DEC-053): `--bare` with the API key, Haiku and Sonnet, a 20-run pilot before the 360-run matrix.
+- `developer` (Sonnet, effort high) built:
+  - `tools/eval_run.py` (stdlib);
+  - 36 tests; `docs/eval-runbook.md`; `eval/results/`;
+  - V-16 in `docs/toolchain.md`; 1 CHANGELOG line.
+- Step 0, round 1: 11 `--bare` calls on Haiku refused with "Credit balance is too low", 0 USD. The init event showed `--bare` accepts `--mcp-config`, the 10 tools as `mcp__sdlc__<tool>`, and no Grep, Glob or ToolSearch under `--bare`.
+- The customer decided round 2 (DEC-054): the subscription login without `--bare`, against the TL recommendation; Read only in both conditions, with the file list in the prompt.
+- Step 0, round 2: 3 subscription runs on Haiku. The server condition answered a real question correctly with `Read` and `mcp__sdlc__decisions`. None of the user's agents, plugins, skills, MCP servers or global `CLAUDE.md` loaded. The CLI's bundled listings and the account e-mail stay in context (runbook Limits). Weekly usage was at 79 %.
+- The runner drops `ANTHROPIC_API_KEY` from the child environment and stops all runs if a run reports an API key.
+- Tests: 1028 passed, 6 skipped. Guard: 2 denies, both temporary files outside the root; `--check-worktree`: 8 paths, all inside T-46b.
+- Metrics (T-46b runner): review rounds 2 (round 2 from DEC-054), questions back 3, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- Next: pilot run, then the full matrix. Both are in the 2026-11-09 (1) entry above.
+
 ## 2026-11-08 (8) - T-44a guard match in bounded time
 
 - T-44 committed and pushed (1fc790f).
