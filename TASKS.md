@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. The 2 server questions are decided (DEC-050 read only, DEC-051 the user installs `mcp`). T-40 done 2026-11-08. T-40a done 2026-11-08 (DEC-052). T-46a eval set frozen and T-41 scope and event tools done 2026-11-08. Next: T-42 decision, lesson, gate and log read tools.
+T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. The 2 server questions are decided (DEC-050 read only, DEC-051 the user installs `mcp`). T-40 done 2026-11-08. T-40a done 2026-11-08 (DEC-052). T-46a eval set frozen and T-41 scope and event tools done 2026-11-08. T-42 record read tools done 2026-11-08. Next: T-44 security pass.
 
 ## Phases
 
@@ -470,6 +470,23 @@ Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-4
 - Files out: everything else, incl. `eval/` (frozen; do not read it), `tools/scope_guard.py`, `tools/metrics/`, `hooks/`, `agents/`, `.claude/`, `DEV_RULES.md`.
 - Acceptance: parity tests (each tool equals the `tools/` function on the same fixtures); root-lock and `..` cases per path argument; 51 paths refused; socket-blocked run covers every tool; stdio round trip lists 5 tools; one live `claude --plugin-dir . -p` run (Haiku) calls each new tool once.
 - Tests: `python -m pytest -q` summary pasted. Files written with Write or Edit only (DEV_RULES rule 5).
+- Report in Turkish, fixed format, no commit.
+
+- [x] T-42 [M] decision, lesson, finding, task and log read tools. DEC-011, DEC-050.
+
+### [x] T-42 [M] Decision, lesson, finding, task and log tools (`developer`, Sonnet, effort high)
+- Result: `tools/lookup.py` (694 lines), 5 tools (10 in all), 126 new tests, 868 passed, 2 skipped (TL rerun); review rounds 1. This repository: 52 decisions, 1 lesson, 38 tasks, 61 log entries, 6 reports, 0 unreadable. Live run (Haiku): 5 calls, no error, 0.0093 USD (V-15). Guard: 37 writes, 37 allow. The acceptance line made the developer read records `DEV_RULES.md` rule 3 forbids; the contract did not name the exception.
+- Goal: the read-only server answers decision, lesson, audit finding, task and log questions from the records the record map names (DEC-050), one stdlib reader per record.
+- Tools: `decisions(id, query)`: one entry by ID, or a list (ID, title, date, outcome filled or empty) filtered by a text query; each entry lists the later decisions whose text names its ID. `lessons(query)`: entries with title, date and fields.
+- `findings(status, report)`: per report in the audits folder, findings (ID, title, severity), re-verify rows, latest status per finding (OPEN, CLOSED, PARTIAL, or none) and the verdict line. `tasks(id)`: ID, size tag, done or open, title, result line; plus NOW NEXT. `log(count)`: newest 1 to 20 entries.
+- Readers: a new stdlib module `tools/lookup.py` with a CLI mode; the server wraps it, as `status` wraps `tools/records.py`. Read `##` and `###` headings and the field lines the templates name; an entry the reader cannot parse is counted, never dropped silently.
+- Record map: `tools/records.py` gets `lessons` (`LESSONS.md`) and `audits` (`audits/`) defaults; `templates/project.md` gets the 2 lines. Every path from the map goes through the root lock; a map entry outside the root gives an error answer, not a read.
+- Limits: IDs at most 40 characters, a query at most 100, at most 100 items per answer with a `truncated` flag; argument errors as `ToolError` text, as in T-41.
+- Files in: `server/`, `tools/lookup.py`, `tools/records.py`, `templates/project.md`, `tests/test_server.py`, `tests/test_lookup.py`, `tests/test_records.py`, `tests/test_skills.py`, `tests/fixtures/server/`, `docs/toolchain.md`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `eval/` (frozen; do not read it), `tools/scope_guard.py`, `tools/metrics/`, `hooks/`, `agents/`, `.claude/`, `.sdlc/`, `DEV_RULES.md`, the kit's own records.
+- Acceptance: parity tests (each tool equals its `tools/lookup.py` function on the same fixtures); a fixture per record in the template format; this repository's `DECISIONS.md`, `LESSONS.md`, `TASKS.md`, `LOG.md`, `audits/` parse with 0 unreadable entries.
+- Acceptance: a map entry with `..` or an absolute path outside is refused; the socket-blocked run and the AST test cover the new modules; the stdio round trip lists 10 tools; one live `claude --plugin-dir . -p` run (Haiku) calls each new tool once.
+- Tests: `python -m pytest -q` summary pasted. Files written with Write or Edit only (DEV_RULES rule 5); no git command that changes state.
 - Report in Turkish, fixed format, no commit.
 
 ## Later phases (headlines; contracts are written when the phase opens)

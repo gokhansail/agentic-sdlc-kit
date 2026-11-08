@@ -28,6 +28,8 @@ DEFAULTS: dict[str, str] = {
     "tasks": "TASKS.md",
     "log": "LOG.md",
     "decisions": "DECISIONS.md",
+    "lessons": "LESSONS.md",
+    "audits": "audits/",
     "changelog": "CHANGELOG.md",
     "developer_rules": "DEV_RULES.md",
     "report_language": "English",

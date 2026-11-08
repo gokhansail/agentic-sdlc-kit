@@ -29,20 +29,45 @@ from server.rootlock import RootLock, RootLockError  # noqa: E402
 from server.scope import changed_outside, contract, scope_check  # noqa: E402
 from server.status import status  # noqa: E402
 from tools import events as event_totals  # noqa: E402
+from tools import lookup  # noqa: E402
 from tools import scope_guard  # noqa: E402
 from tools.records import read_records  # noqa: E402
 
 FIXTURES = ROOT / "tests" / "fixtures" / "server"
+RECORDS = FIXTURES / "lookup"
 SERVER_DIR = ROOT / "server"
 ENTRY = SERVER_DIR / "main.py"
-TOOL_NAMES = ["status", "scope_check", "contract", "changed_outside", "guard_events"]
+TOOL_NAMES = ["status", "scope_check", "contract", "changed_outside", "guard_events",
+              "decisions", "lessons", "findings", "tasks", "log"]
 TOOL_ARGS: dict[str, dict[str, Any]] = {  # a tool with arguments adds its entry here
     "status": {},
     "scope_check": {"paths": ["src/a.py", "src/secret.py", "../outside.txt", "STATUS.md"], "actor": "sub-agent"},
     "contract": {},
     "changed_outside": {},
     "guard_events": {},
+    "decisions": {"id": "DEC-002"},
+    "lessons": {"query": "cache"},
+    "findings": {"status": "closed"},
+    "tasks": {"id": "T-2"},
+    "log": {"count": 3},
 }
+
+
+def lookup_answers(root: Path, casefold: bool | None = None) -> dict[str, dict[str, Any]]:
+    """What `tools/lookup.py` answers for the arguments in TOOL_ARGS."""
+    return {
+        "decisions": lookup.decisions(root, TOOL_ARGS["decisions"]["id"], None, casefold),
+        "lessons": lookup.lessons(root, TOOL_ARGS["lessons"]["query"], casefold),
+        "findings": lookup.findings(root, TOOL_ARGS["findings"]["status"], None, casefold),
+        "tasks": lookup.tasks(root, TOOL_ARGS["tasks"]["id"], casefold),
+        "log": lookup.log(root, TOOL_ARGS["log"]["count"], casefold),
+    }
+
+
+def add_records(root: Path) -> Path:
+    """Copy the record fixtures (DECISIONS.md, LESSONS.md, TASKS.md, LOG.md, audits/) into a project."""
+    shutil.copytree(RECORDS, root, dirs_exist_ok=True)
+    return root
 
 
 def make_project(base: Path, project: str | None, contract_fixture: str | None, events: str | None = None) -> Path:
@@ -421,7 +446,15 @@ def test_tool_errors_carry_the_reason(tmp_path: Path) -> None:
         for tool, args in (("scope_check", {"paths": ["a.py"] * 51, "actor": "main"}),
                            ("scope_check", {"paths": ["a.py"], "actor": "root"}),
                            ("scope_check", {"paths": ["a.py"]}),
-                           ("guard_events", {"task": "T-" + "1" * 60})):
+                           ("guard_events", {"task": "T-" + "1" * 60}),
+                           ("decisions", {"id": "D" * 41}),
+                           ("decisions", {"query": "q" * 101}),
+                           ("lessons", {"query": "q" * 101}),
+                           ("findings", {"status": "done"}),
+                           ("findings", {"report": "r" * 101}),
+                           ("tasks", {"id": "forty two"}),
+                           ("log", {"count": 21}),
+                           ("log", {"count": 0})):
             with pytest.raises(ToolError) as err:
                 await server.call_tool(tool, args)
             out.append(str(err.value))
@@ -429,6 +462,9 @@ def test_tool_errors_carry_the_reason(tmp_path: Path) -> None:
 
     texts = asyncio.run(run())
     assert "at most 50" in texts[0] and "actor" in texts[1] and "actor" in texts[2] and "task" in texts[3]
+    assert "id: at most 40" in texts[4] and "query: at most 100" in texts[5] and "query: at most 100" in texts[6]
+    assert "status: must be one of" in texts[7] and "report: at most 100" in texts[8]
+    assert "id: must look like" in texts[9] and "count: must be" in texts[10] and "count: must be" in texts[11]
 
 
 def test_tool_descriptions_are_one_plain_sentence_each(tmp_path: Path) -> None:
@@ -445,6 +481,13 @@ def test_tool_descriptions_are_one_plain_sentence_each(tmp_path: Path) -> None:
     assert tools["contract"].input_schema.get("properties", {}) == {}
     assert tools["changed_outside"].input_schema.get("properties", {}) == {}
     assert set(tools["guard_events"].input_schema["properties"]) == {"task"}
+    assert set(tools["decisions"].input_schema["properties"]) == {"id", "query"}
+    assert set(tools["lessons"].input_schema["properties"]) == {"query"}
+    assert set(tools["findings"].input_schema["properties"]) == {"status", "report"}
+    assert set(tools["tasks"].input_schema["properties"]) == {"id"}
+    assert set(tools["log"].input_schema["properties"]) == {"count"}
+    for name in ("decisions", "lessons", "findings", "tasks"):
+        assert tools[name].input_schema.get("required", []) == [], name  # every argument is optional
 
 
 def test_the_scope_module_calls_the_guard_for_every_decision() -> None:
@@ -619,10 +662,13 @@ NETWORK = {"socket", "ssl", "http", "urllib", "urllib3", "ftplib", "smtplib", "p
            "sse_starlette", "selectors", "asyncio"}
 
 
+LOOKUP = ROOT / "tools" / "lookup.py"
+
+
 def test_server_modules_import_no_network_module() -> None:
     files = sorted(SERVER_DIR.glob("*.py"))
     assert len(files) >= 4
-    for path in files:
+    for path in [*files, LOOKUP]:
         assert not (_imports(path) & NETWORK), path.name
 
 
@@ -639,7 +685,7 @@ WRITE_NAMES = {"write_text", "write_bytes", "mkdir", "unlink", "rmdir", "rename"
 
 
 def test_server_has_no_write_call() -> None:
-    for path in SERVER_DIR.glob("*.py"):
+    for path in [*SERVER_DIR.glob("*.py"), LOOKUP]:
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.Attribute):
                 assert node.attr not in WRITE_NAMES, (path.name, node.attr)
@@ -660,6 +706,15 @@ def test_server_defines_no_glob_or_path_matching_rule() -> None:
 
 def test_root_lock_uses_the_guard_function() -> None:
     assert "relative_to_root" in (SERVER_DIR / "rootlock.py").read_text(encoding="utf-8")
+    assert "relative_to_root" in LOOKUP.read_text(encoding="utf-8")  # the record paths use the same text rule
+
+
+def test_the_server_entry_only_wraps_the_lookup_functions() -> None:
+    text = ENTRY.read_text(encoding="utf-8")
+    for name in ("decisions", "lessons", "findings", "tasks", "log"):
+        assert f"lookup_tools.{name}(lock.root" in text, name
+    for word in ("read_bytes", "read_text", "iterdir", "open(", "splitlines", "json.loads"):
+        assert word not in text, word  # no reading or parsing of its own
 
 
 def test_tools_import_neither_server_nor_mcp() -> None:
@@ -708,7 +763,7 @@ def _block_sockets(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_every_tool_runs_with_socket_creation_blocked(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     pytest.importorskip("mcp")
-    root = make_project(tmp_path, "project.md", "contract.md", "events.jsonl")
+    root = add_records(make_project(tmp_path, "project.md", "contract.md", "events.jsonl"))
     lock = RootLock(root)
     server = server_main.build_server(lock, "CLAUDE_PROJECT_DIR")
 
@@ -735,6 +790,59 @@ def test_every_tool_runs_with_socket_creation_blocked(monkeypatch: pytest.Monkey
     assert seen["changed_outside"] == changed_outside(lock.root, lock.casefold)
     assert seen["guard_events"] == guard_events(lock.root)
     assert seen["guard_events"]["allow"] == 4 and seen["contract"]["task_id"] == "T-77"
+    for name, want in lookup_answers(lock.root, lock.casefold).items():
+        assert seen[name] == want, name
+    assert seen["decisions"]["items"][0]["id"] == "DEC-002" and seen["log"]["items"][0]["n"] == 2
+    assert seen["findings"]["total"] == 3 and seen["tasks"]["items"][0]["id"] == "T-2"
+
+
+def test_each_lookup_tool_equals_its_function(tmp_path: Path) -> None:
+    pytest.importorskip("mcp")
+    root = add_records(make_project(tmp_path, "project.md", None))
+    lock = RootLock(root)
+    server = server_main.build_server(lock, "x")
+    calls = [
+        ("decisions", {}, lambda: lookup.decisions(lock.root, None, None, lock.casefold)),
+        ("decisions", {"query": "plain files"}, lambda: lookup.decisions(lock.root, None, "plain files", lock.casefold)),
+        ("decisions", {"id": "dec-1", "query": None}, lambda: lookup.decisions(lock.root, "dec-1", None, lock.casefold)),
+        ("lessons", {}, lambda: lookup.lessons(lock.root, None, lock.casefold)),
+        ("findings", {}, lambda: lookup.findings(lock.root, None, None, lock.casefold)),
+        ("findings", {"report": "gate1", "status": "OPEN"}, lambda: lookup.findings(lock.root, "OPEN", "gate1", lock.casefold)),
+        ("tasks", {}, lambda: lookup.tasks(lock.root, None, lock.casefold)),
+        ("tasks", {"id": "T-5a"}, lambda: lookup.tasks(lock.root, "T-5a", lock.casefold)),
+        ("log", {}, lambda: lookup.log(lock.root, 5, lock.casefold)),
+        ("log", {"count": 20}, lambda: lookup.log(lock.root, 20, lock.casefold)),
+    ]
+
+    async def run() -> list[Any]:
+        return [(await server.call_tool(tool, args)).structured_content for tool, args, _want in calls]
+
+    for got, (tool, args, want) in zip(asyncio.run(run()), calls):
+        assert got == want(), (tool, args)
+
+
+@pytest.mark.parametrize("entry", ["../outside.md", "..", "/etc/passwd", "C:\\Windows\\win.ini", "sub/../../outside.md"])
+def test_a_record_map_entry_outside_the_root_gives_an_error_answer_not_a_read(tmp_path: Path, entry: str) -> None:
+    pytest.importorskip("mcp")
+    (tmp_path / "outside.md").write_text("## DEC-001 Secret\n- Date: 2026-01-01\n", encoding="utf-8")
+    root = add_records(tmp_path / "p")
+    (root / ".sdlc").mkdir()
+    lines = "".join(f"- {label}: `{entry}`\n" for label in ("Decisions", "Lessons", "Tasks", "Log", "Audits"))
+    (root / ".sdlc" / "project.md").write_text("# Project file\n\n## Records\n" + lines, encoding="utf-8")
+    server = server_main.build_server(RootLock(root), "x")
+
+    async def run() -> dict[str, Any]:
+        out = {}
+        for tool in ("decisions", "lessons", "findings", "tasks", "log"):
+            res = await server.call_tool(tool, {})
+            assert not res.is_error, tool
+            out[tool] = res.structured_content
+        return out
+
+    got = asyncio.run(run())
+    for tool, answer in got.items():
+        assert answer["error"] != "" and answer["total"] == 0, tool
+        assert "Secret" not in json.dumps(answer) and str(tmp_path) not in json.dumps(answer), tool
 
 
 async def _round_trip(env: dict[str, str] | None, cwd: Path | None) -> tuple[list[str], Any, dict[str, Any]]:
@@ -762,10 +870,12 @@ async def _round_trip(env: dict[str, str] | None, cwd: Path | None) -> tuple[lis
 
 def test_stdio_round_trip_with_the_project_variable(tmp_path: Path) -> None:
     pytest.importorskip("mcp")
-    project = make_project(tmp_path / "p", "project-custom.md", "contract.md", "events.jsonl")
+    project = add_records(make_project(tmp_path / "p", "project-custom.md", "contract.md", "events.jsonl"))
+    (project / "plan").mkdir()  # the custom project file maps Tasks to plan/TASKS.md
+    shutil.copyfile(project / "TASKS.md", project / "plan" / "TASKS.md")
     names, got, extra = asyncio.run(asyncio.wait_for(
         _round_trip({"CLAUDE_PROJECT_DIR": str(project)}, tmp_path), 90))
-    assert sorted(names) == sorted(TOOL_NAMES) and len(names) == 5
+    assert sorted(names) == sorted(TOOL_NAMES) and len(names) == 10
     assert got == status(project, "CLAUDE_PROJECT_DIR")
     assert got["task_id"] == "T-77" and got["records"]["tasks"] == "plan/TASKS.md"
     args = TOOL_ARGS["scope_check"]
@@ -773,6 +883,10 @@ def test_stdio_round_trip_with_the_project_variable(tmp_path: Path) -> None:
     assert extra["contract"] == contract(project)
     assert extra["guard_events"] == guard_events(project)
     assert extra["changed_outside"] == changed_outside(project)
+    for name, want in lookup_answers(project).items():
+        assert extra[name] == want, name
+    assert extra["decisions"]["items"][0]["id"] == "DEC-002" and extra["tasks"]["items"][0]["done"] is True
+    assert extra["tasks"]["source"] == "plan/TASKS.md"
     assert extra["too_many"][0] is True and "at most 50" in extra["too_many"][1]
     assert extra["bad_actor"][0] is True and "actor" in extra["bad_actor"][1]
     assert str(tmp_path) not in json.dumps(extra)
@@ -787,11 +901,15 @@ def test_stdio_round_trip_from_the_start_folder(tmp_path: Path) -> None:
     assert got["guard_state"] == "not-opted-in"
     assert extra["scope_check"]["guard_state"] == "not-opted-in"
     assert extra["guard_events"]["tasks"] == {}
+    assert extra["decisions"]["error"] == "the decisions file does not exist" and extra["log"]["items"] == []
 
 
 @pytest.mark.skipif(shutil.which("git") is None, reason="no git on PATH")
 def test_server_files_are_not_ignored_by_git() -> None:
     paths = ["server/main.py", "server/status.py", "server/rootlock.py", "server/scope.py", "server/events.py",
-             "tools/events.py", "tests/fixtures/server/events.jsonl"]
+             "tools/events.py", "tools/lookup.py", "tests/fixtures/server/events.jsonl",
+             "tests/fixtures/server/lookup/DECISIONS.md", "tests/fixtures/server/lookup/LESSONS.md",
+             "tests/fixtures/server/lookup/TASKS.md", "tests/fixtures/server/lookup/LOG.md",
+             "tests/fixtures/server/lookup/audits/2026-01-10_gate1.md"]
     res = subprocess.run(["git", "check-ignore", *paths], cwd=ROOT, capture_output=True, timeout=60)
     assert res.returncode == 1 and res.stdout == b""  # 1 = none of the paths is ignored

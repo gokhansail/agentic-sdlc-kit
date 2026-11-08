@@ -19,6 +19,7 @@ from server.events import guard_events  # noqa: E402
 from server.rootlock import RootLock  # noqa: E402
 from server.scope import changed_outside, contract, scope_check  # noqa: E402
 from server.status import status  # noqa: E402
+from tools import lookup as lookup_tools  # noqa: E402
 
 SDK_PACKAGE = "mcp"
 SDK_MIN = (2, 3)
@@ -106,6 +107,56 @@ def build_server(lock: RootLock, root_source: str = "") -> Any:
     def guard_events_tool(task: str | None = None) -> dict[str, Any]:
         try:
             return guard_events(lock.root, task)
+        except ValueError as exc:
+            raise ToolError(str(exc)) from None
+
+    @server.tool(
+        name="decisions",
+        description="Reads decisions: one entry by ID with all its fields, or a list (ID, title, date, whether the "
+        "outcome is filled, later decisions that name it) filtered by the words of a query.",
+    )
+    def decisions_tool(id: str | None = None, query: str | None = None) -> dict[str, Any]:
+        try:
+            return lookup_tools.decisions(lock.root, id, query, lock.casefold)
+        except ValueError as exc:
+            raise ToolError(str(exc)) from None
+
+    @server.tool(
+        name="lessons",
+        description="Lists the entries of the lessons log with title, date and fields, filtered by the words of a query.",
+    )
+    def lessons_tool(query: str | None = None) -> dict[str, Any]:
+        try:
+            return lookup_tools.lessons(lock.root, query, lock.casefold)
+        except ValueError as exc:
+            raise ToolError(str(exc)) from None
+
+    @server.tool(
+        name="findings",
+        description="Lists audit findings per report with severity, re-verify rows, the latest status of each finding "
+        "(OPEN, CLOSED, PARTIAL or none) and the verdict line, filtered by status or by report name.",
+    )
+    def findings_tool(status: str | None = None, report: str | None = None) -> dict[str, Any]:
+        try:
+            return lookup_tools.findings(lock.root, status, report, lock.casefold)
+        except ValueError as exc:
+            raise ToolError(str(exc)) from None
+
+    @server.tool(
+        name="tasks",
+        description="Reads the task list: ID, size tag, done or open, title and result line of one task by ID or of "
+        "all tasks, plus the NOW NEXT text.",
+    )
+    def tasks_tool(id: str | None = None) -> dict[str, Any]:
+        try:
+            return lookup_tools.tasks(lock.root, id, lock.casefold)
+        except ValueError as exc:
+            raise ToolError(str(exc)) from None
+
+    @server.tool(name="log", description="Reads the newest 1 to 20 entries of the project log, newest first.")
+    def log_tool(count: int = 5) -> dict[str, Any]:
+        try:
+            return lookup_tools.log(lock.root, count, lock.casefold)
         except ValueError as exc:
             raise ToolError(str(exc)) from None
 

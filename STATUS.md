@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-08
-Now: Phase 4 MCP server open; eval set frozen, T-41 done, T-42 next · repository private · code written, tests green
+Now: Phase 4 MCP server open; T-42 done, T-44 next · repository private · code written, tests green
 
 ## Phase
 
@@ -19,7 +19,6 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 ## Done
 
-- T-20 metrics core and text metrics: `tools/metrics/`, M1, M2, M5, M6; 128 tests green; M1 counting rule DEC-028. Committed 2026-11-03.
 - T-21 git, audit, decision and task metrics: M3, M8, M9, M12, M13 and the table render; 252 tests green; DEC-029. Committed 2026-11-03.
 - T-22 run and T-22a: three sources, reruns byte-identical; Project A parser extended for two more metric-line layouts (DEC-030), 19 of 20 v2 entries parsed; 271 tests green. Committed 2026-11-04.
 - T-23 `EVIDENCE.md`: 9 metrics, 21 limits items, tables rendered; DEC-031. Committed 2026-11-04.
@@ -43,10 +42,11 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - T-40a developers write with the file tools only (DEC-052); the guard logged 4 of 4 writes.
 - T-46a eval set: fictional repository, 30 questions, scorer; frozen.
 - T-41 scope_check, contract, changed_outside, guard_events tools; 742 tests green; live run works.
+- T-42 decision, lesson, finding, task and log tools; 10 tools in all; 868 tests green; live run works.
 
 ## Next
 
-- T-42 decision, lesson, gate and log read tools.
+- T-44 security pass: root lock, no network, input limits, dependency pin, tool descriptions.
 
 ## Repository
 

@@ -155,7 +155,8 @@ def test_the_unfilled_template_has_one_placeholder_for_the_tests_and_none_in_oth
 
 def test_the_template_has_the_record_map_and_the_section_name() -> None:
     text = (ROOT / "templates" / "project.md").read_text(encoding="utf-8")
-    for label in ("Status", "Tasks", "Log", "Decisions", "Changelog", "Developer rules", "Report language"):
+    for label in ("Status", "Tasks", "Log", "Decisions", "Lessons", "Audits", "Changelog", "Developer rules",
+                  "Report language"):
         assert f"- {label}:" in text
     assert "\n## Always allowed\n" in text
     assert text.startswith("# Project file\n\nWhat is this file?")

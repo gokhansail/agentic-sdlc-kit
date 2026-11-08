@@ -35,6 +35,22 @@ def test_defaults_match_the_template() -> None:
             assert parsed[key] == value
 
 
+def test_defaults_name_the_lessons_and_audits_records(tmp_path: Path) -> None:
+    assert records.DEFAULTS["lessons"] == "LESSONS.md" and records.DEFAULTS["audits"] == "audits/"
+    got = records.read_records(tmp_path)  # no project file
+    assert got["lessons"] == "LESSONS.md" and got["audits"] == "audits/"
+    text = (ROOT / "templates" / "project.md").read_text(encoding="utf-8")
+    assert "- Lessons: `LESSONS.md`\n- Audits: `audits/`\n" in text
+
+
+def test_a_project_file_can_move_the_lessons_and_audits_records(tmp_path: Path) -> None:
+    (tmp_path / ".sdlc").mkdir()
+    (tmp_path / ".sdlc" / "project.md").write_text(
+        "## Records\n- Lessons: `docs/lessons.md`\n- Audits: `reports/`\n", encoding="utf-8")
+    got = records.read_records(tmp_path)
+    assert got["lessons"] == "docs/lessons.md" and got["audits"] == "reports/"
+
+
 def test_template_placeholder_falls_back_to_the_default() -> None:
     text = (ROOT / "templates" / "project.md").read_text(encoding="utf-8")
     assert records.parse_records(text)["report_language"] == records.DEFAULTS["report_language"]

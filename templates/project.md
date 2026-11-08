@@ -7,6 +7,8 @@ What is this file? The opt-in and the one config file of the sdlc plugin for thi
 - Tasks: `TASKS.md`
 - Log: `LOG.md`
 - Decisions: `DECISIONS.md`
+- Lessons: `LESSONS.md`
+- Audits: `audits/`
 - Changelog: `CHANGELOG.md`
 - Developer rules: `DEV_RULES.md`
 - Report language: <language of the reports, for example English>

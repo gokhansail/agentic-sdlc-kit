@@ -2,6 +2,23 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-08 (6) - T-42 record read tools
+
+- T-41 and T-46a committed and pushed (2070d74).
+- The maintainer gave the go-ahead for T-42. The TL wrote the contract and placed `.sdlc/active-contract.md` (11 Files in, 7 Files out).
+- `developer` (Sonnet, effort high) built T-42:
+  - `tools/lookup.py` (694 lines, stdlib, CLI mode) with readers for decisions, lessons, audit findings, tasks and log;
+  - 5 server tools `decisions`, `lessons`, `findings`, `tasks`, `log` (10 tools in all);
+  - record map defaults `lessons` and `audits` in `tools/records.py` and `templates/project.md`;
+  - fixtures under `tests/fixtures/server/lookup/`; `docs/toolchain.md` V-15; 1 CHANGELOG line.
+- Tests: 126 new; 868 passed, 2 skipped (TL rerun). The second skip is a link test this machine cannot run.
+- This repository read by the tools: 52 decisions, 1 lesson, 38 tasks, 61 log entries, 6 audit reports, 0 unreadable. Largest answer: `log` with 20 entries, 32,464 characters.
+- Live run (Haiku): each of the 5 tools called once, no error, 0.0093 USD.
+- Guard: 37 writes, 37 allow, 0 deny; `--check-worktree`: 18 paths, all inside T-42.
+- Finding: the T-42 acceptance line asked the tools to parse this repository's `DECISIONS.md`, `LOG.md` and `audits/`, which `DEV_RULES.md` rule 3 forbids a developer to read. The contract did not name the exception; the developer reported it. Cause: the TL contract.
+- Metrics (T-42): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- Next: T-44 security pass.
+
 ## 2026-11-08 (5) - T-46a eval set, T-41 scope and event tools
 
 - T-40a committed and pushed (311c2b0).
