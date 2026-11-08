@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. Next: T-40 after the customer's 2 server answers (server writes, SDK install).
+T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. The 2 server questions are decided (DEC-050 read only, DEC-051 the user installs `mcp`). Next: T-40 server skeleton, with `.mcp.json` moved in from T-42, in a new session.
 
 ## Phases
 

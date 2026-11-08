@@ -46,7 +46,7 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 ## Next
 
-- T-40 server skeleton; waits for 2 customer answers (server writes, SDK install). Each task now needs .sdlc/active-contract.md.
+- T-40 server skeleton in a new session: read only (DEC-050), the user installs `mcp` (DEC-051), `.mcp.json` in T-40. Each task now needs .sdlc/active-contract.md.
 
 ## Repository
 

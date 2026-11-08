@@ -399,3 +399,19 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: a desktop app session in this folder loads no plugin: no `/sdlc` commands and no `sdlc:` agents, and the app has no `--plugin-dir` option. With d) the opt-in protects nothing in daily work. b) runs a cached copy, so each guard change needs an update. c) changes how the customer works.
 - Consequences: T-39a adds `.claude/settings.json`; a session that also loads the plugin with `--plugin-dir .` runs the guard twice, and `CLAUDE.md` says not to. Other projects still use the plugin. `docs/toolchain.md` V-9 row records the desktop result.
 - Outcome: T-39a 2026-11-08: the settings hook denied a `PLAYBOOK.md` edit with no contract in `claude -p` and in a new desktop app session.
+
+## DEC-050 The phase 4 server reads only
+- Date: 2026-11-08 · Question: `cto/2026-11-07_phase4-plan.md` question 1
+- Options: a) the server only reads records in phase 4 b) write tools, with the hook matcher widened to the server's tools c) write tools, sub-agents kept away only by role tool lists
+- Decision: a). The customer accepted the TL recommendation.
+- Reason: the scope guard does not see MCP tool calls, and the developer role has all tools. Writes stay on the file tools the guard sees.
+- Consequences: T-42 is [M], read tools only. A write tool is a later decision with its own guard change.
+- Outcome:
+
+## DEC-051 The user installs the `mcp` SDK
+- Date: 2026-11-08 · Question: `cto/2026-11-07_phase4-plan.md` question 2
+- Options: a) the user installs it; the server checks package and version at start and stops with a one-line install hint b) start the server with `uv run` c) a command builds a virtual environment once in the plugin data folder
+- Decision: a). The customer accepted the TL recommendation.
+- Reason: no new tool for the user in phase 4; the user-facing install path is chosen in phase 5 with the release.
+- Consequences: T-40 adds the start check and its test. b) and c) stay open for T-51.
+- Outcome:
