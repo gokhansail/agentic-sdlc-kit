@@ -12,6 +12,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +22,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools import lookup  # noqa: E402
+from tools import lookup, records  # noqa: E402
 
 FIXTURES = ROOT / "tests" / "fixtures" / "server" / "lookup"
 
@@ -514,6 +515,176 @@ def test_cli_refuses_a_bad_argument_and_reports_an_error_answer(tmp_path: Path) 
     assert bad.returncode == 2 and "count" in bad.stderr and bad.stdout == ""
     empty = _cli("--root", str(bare(tmp_path / "e")), "tasks")
     assert empty.returncode == 1 and json.loads(empty.stdout)["error"] == "the tasks file does not exist"
+
+
+# --- limits and hostile input (T-44; findings in docs/security.md) -------------------------
+
+RECORD_FILES = {"decisions": "DECISIONS.md", "lessons": "LESSONS.md", "tasks": "TASKS.md", "log": "LOG.md"}
+
+
+def test_the_limits_are_the_documented_numbers() -> None:
+    assert (lookup.MAX_BYTES, lookup.AUDIT_ENTRIES, lookup.ITEM_LIMIT) == (2_000_000, 200, 100)
+    assert (lookup.TITLE_LIMIT, lookup.FIELD_LIMIT, lookup.ANSWER_LIMIT) == (200, 30, 150_000)
+
+
+@pytest.mark.parametrize("kind", list(RECORD_FILES))
+def test_a_record_file_over_2_mb_is_an_error_answer_and_one_of_2_mb_is_read(tmp_path: Path, kind: str) -> None:
+    root = bare(tmp_path)
+    path = root / RECORD_FILES[kind]
+    path.write_bytes(b"x" * lookup.MAX_BYTES)
+    assert _call(root, kind)["error"] == ""
+    path.write_bytes(b"x" * (lookup.MAX_BYTES + 1))
+    got = _call(root, kind)
+    assert got["error"] == f"the {kind} file is larger than 2000000 bytes" and got["items"] == [] and got["total"] == 0
+
+
+def _audit_folder(base: Path, count: int, suffix: str = ".md") -> Path:
+    return bare(base, **{f"audits/2026-01-01_n{i:03d}{suffix}": "" for i in range(count)})
+
+
+def test_an_audits_folder_with_200_entries_is_read_and_one_with_201_is_an_error_answer(tmp_path: Path) -> None:
+    ok = lookup.findings(_audit_folder(tmp_path / "a", 200))
+    assert ok["error"] == "" and ok["total"] == 200
+    got = lookup.findings(_audit_folder(tmp_path / "b", 201))
+    assert got["error"] == "the audits folder holds more than 200 entries" and got["reports"] == [] and got["total"] == 0
+    mixed = bare(tmp_path / "c", **{**{f"audits/2026-01-01_n{i:03d}.md": "" for i in range(199)},
+                                   "audits/a.txt": "x", "audits/b.txt": "x"})  # every kind of entry counts
+    assert "more than 200 entries" in lookup.findings(mixed)["error"]
+
+
+def test_a_report_over_2_mb_is_counted_unreadable_and_not_read(tmp_path: Path) -> None:
+    root = bare(tmp_path, **{"audits/2026-01-01_small.md": "### P-1 One\n- Severity: Low\n"})
+    (root / "audits" / "2026-01-02_big.md").write_bytes(b"x" * (lookup.MAX_BYTES + 1))
+    got = lookup.findings(root)
+    assert got["error"] == "" and got["total"] == 1 and got["unreadable_headings"] == ["2026-01-02_big.md"]
+
+
+def test_one_call_reads_at_most_the_byte_budget_of_reports(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(lookup, "AUDIT_TOTAL_BYTES", 1000)
+    root = bare(tmp_path, **{f"audits/2026-01-0{i}_x.md": "x" * 400 for i in (1, 2, 3)})
+    got = lookup.findings(root)
+    assert got["total"] == 2 and got["unreadable_headings"] == ["2026-01-03_x.md"]
+    assert lookup.AUDIT_TOTAL_BYTES == 1000 and lookup.MAX_BYTES == 2_000_000
+
+
+def test_a_report_with_too_many_findings_or_rows_is_unreadable(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(lookup, "REPORT_FINDINGS", 5)
+    five = "".join(f"### P-{i} T\n- Severity: Low\n" for i in range(1, 6))
+    six = five + "### P-6 T\n- Severity: Low\n"
+    rows = "".join(f"| P-{i} | c | e | OPEN |\n" for i in range(1, 7))
+    root = bare(tmp_path, **{"audits/2026-01-01_five.md": five, "audits/2026-01-02_six.md": six,
+                             "audits/2026-01-03_rows.md": rows})
+    got = lookup.findings(root)
+    assert got["total"] == 1 and got["unreadable_headings"] == ["2026-01-02_six.md", "2026-01-03_rows.md"]
+
+
+def test_an_answer_is_cut_to_the_answer_limit(tmp_path: Path) -> None:
+    body = "".join(f"### 2026-01-01 - Lesson {i}\n- Problem: {'p' * 3900}\n- Cause: {'c' * 3900}\n- Fix: {'f' * 3900}\n\n"
+                   for i in range(60))
+    got = lookup.lessons(bare(tmp_path, **{"LESSONS.md": body}))
+    assert got["matched"] == 60 and got["truncated"] is True and 0 < len(got["items"]) < 60
+    assert len(json.dumps(got)) <= lookup.ANSWER_LIMIT
+    small = lookup.lessons(project(tmp_path / "s"))
+    assert small["truncated"] is False  # an ordinary answer is not touched
+
+
+def test_an_entry_has_at_most_30_fields_in_an_answer(tmp_path: Path) -> None:
+    text = "## DEC-1 Many\n- Date: 2026-01-01\n" + "".join(f"- F{i}: v\n" for i in range(50))
+    item = lookup.decisions(bare(tmp_path, **{"DECISIONS.md": text}), "DEC-1")["items"][0]
+    assert len(item["fields"]) == 30 and item["cut"] is True
+
+
+@pytest.mark.parametrize("kind,text", [
+    ("decisions", "## DEC-1 {t}\n- Date: 2026-01-01\n"),
+    ("lessons", "### 2026-01-01 - {t}\n- Problem: p\n"),
+    ("tasks", "### [ ] T-1 [M] {t}\n- Result: r\n"),
+    ("log", "## 2026-01-01 (1) - {t}\nbody\n"),
+])
+def test_a_long_title_is_cut_to_200_characters(tmp_path: Path, kind: str, text: str) -> None:
+    got = _call(bare(tmp_path, **{RECORD_FILES[kind]: text.format(t="t" * 1000)}), kind)
+    (item,) = got["items"]
+    assert len(item["title"]) == 200 and item["title"].endswith("...")
+
+
+def test_a_long_finding_title_is_cut_to_200_characters(tmp_path: Path) -> None:
+    root = bare(tmp_path, **{"audits/2026-01-01_a.md": "### P-1 " + "t" * 1000 + "\n- Severity: Low\n"})
+    (finding,) = lookup.findings(root)["reports"][0]["findings"]
+    assert len(finding["title"]) == 200
+
+
+def test_an_id_longer_than_the_id_shape_is_an_unreadable_heading_not_a_key(tmp_path: Path) -> None:
+    root = bare(tmp_path, **{"DECISIONS.md": "## " + "A" * 25 + "-1 t\n- Date: 2026-01-01\n## DEC-1234567890 t\n- Date: 2026-01-01\n"})
+    got = lookup.decisions(root)
+    assert got["total"] == 0 and got["unreadable"] == 2
+
+
+def test_naming_decisions_is_fast_and_capped_for_a_file_of_30000_entries(tmp_path: Path) -> None:
+    # The first version compared every entry with every later one: 3.4 s for 10,000 entries, about 31 s for this file.
+    text = "".join(f"## DEC-{i} t\n- Date: 2026-01-01\n- Outcome: see DEC-1\n" for i in range(1, 30_001))
+    assert len(text) < lookup.MAX_BYTES
+    root = bare(tmp_path, **{"DECISIONS.md": text})
+    started = time.perf_counter()
+    got = lookup.decisions(root, "DEC-1")
+    assert time.perf_counter() - started < 10
+    assert got["total"] == 30_000 and len(got["items"][0]["named_by"]) == lookup.ITEM_LIMIT
+    assert got["items"][0]["named_by"][0] == "DEC-2"
+
+
+@pytest.mark.parametrize("line", ["# a" + " " * 60_000 + "x", "## DEC-1 t" + " " * 60_000, "### " + " " * 60_000,
+                                  "## 2026-01-01 (1) - t" + "\t" * 60_000])
+def test_a_heading_with_a_very_long_blank_run_is_read_in_linear_time(tmp_path: Path, line: str) -> None:
+    root = bare(tmp_path, **{"LOG.md": line + "\n", "DECISIONS.md": line + "\n- Date: 2026-01-01\n"})
+    started = time.perf_counter()
+    lookup.log(root)
+    lookup.decisions(root)
+    assert time.perf_counter() - started < 5  # the old heading pattern took 1.8 s for 20,000 blanks, about 16 s for 60,000
+
+
+def test_the_record_map_parses_long_blank_runs_in_linear_time() -> None:
+    blanks = " " * 100_000
+    text = f"## Records\n- a{blanks}\n- Status: `S.md`{blanks}y\n# h{blanks}x\n- Log: `L.md`\n"
+    started = time.perf_counter()
+    got = records.parse_records(text)
+    assert time.perf_counter() - started < 3
+    assert got["status"] == "S.md" and got["log"] == "LOG.md"  # the heading line "# h..." ended the section
+
+
+def test_the_record_map_ends_its_section_at_the_next_heading() -> None:
+    text = "## Records\n- Status: `S.md`\n# Other\n- Log: `NOT.md`\n"
+    assert records.parse_records(text)["status"] == "S.md" and records.parse_records(text)["log"] == "LOG.md"
+    assert records.parse_records("##\t Records ##\n- Status: `S.md`\n")["status"] == "S.md"  # closing # and a tab
+    assert records.parse_records("####### Records\n- Status: `S.md`\n")["status"] == "STATUS.md"  # 7 hashes: no heading
+    assert records.parse_records("    ## Records\n- Status: `S.md`\n")["status"] == "STATUS.md"  # 4 spaces: code
+
+
+@pytest.mark.parametrize("entry", ["NUL", "CON", "COM1", "aux.md", "nul.txt", "sub/NUL"])
+@pytest.mark.parametrize("kind", ["decisions", "lessons", "tasks", "log", "audits"])
+def test_a_device_name_in_the_map_is_an_error_answer_and_does_not_hang(tmp_path: Path, kind: str, entry: str) -> None:
+    root = project(tmp_path, f"- {kind.capitalize()}: `{entry}`\n")
+    started = time.perf_counter()
+    got = _call(root, kind)
+    assert time.perf_counter() - started < 5
+    assert got["items" if kind != "audits" else "reports"] == [] and got["total"] == 0
+
+
+def test_a_record_file_that_is_a_link_pointing_outside_is_refused(tmp_path: Path) -> None:
+    outside = tmp_path / "secret.md"
+    outside.write_text("## DEC-9 Secret\n- Date: 2026-01-01\n", encoding="utf-8")
+    root = project(tmp_path / "x")
+    (root / "DECISIONS.md").unlink()
+    try:
+        os.symlink(outside, root / "DECISIONS.md")
+    except (OSError, NotImplementedError):
+        pytest.skip("cannot create a symlink here")
+    got = lookup.decisions(root)
+    assert got["items"] == [] and got["error"] == "the decisions file could not be read"
+    assert "Secret" not in json.dumps(got)
+
+
+def test_a_record_file_that_is_a_folder_is_an_error_answer(tmp_path: Path) -> None:
+    root = bare(tmp_path)
+    (root / "TASKS.md").mkdir()
+    assert lookup.tasks(root)["error"] == "the tasks file could not be read"
 
 
 # --- module hygiene --------------------------------------------------------------------

@@ -20,8 +20,10 @@ from typing import Any, Iterable, Sequence
 if __package__ in (None, ""):  # started as a script: make `tools` importable
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from tools.records import read_inside  # noqa: E402
 from tools.scope_guard import EVENT_FILE  # noqa: E402
 
+MAX_BYTES = 8_000_000  # about 50,000 event lines
 NO_TASK = "none"
 NO_AGENT = "main"
 NO_TOOL = "unknown"
@@ -29,9 +31,13 @@ DECISIONS = ("allow", "deny")
 
 
 def read_events(root: Path) -> list[dict[str, Any] | None]:
-    """Parsed lines of the event file; None marks an unusable line. A missing file gives []."""
+    """Parsed lines of the event file; None marks an unusable line. A missing file gives [].
+
+    An OSError (UnsafeFile for a link out of the root, a device or a file over MAX_BYTES) means the file
+    was not read.
+    """
     try:
-        data = (Path(root) / EVENT_FILE).read_bytes()
+        data = read_inside(Path(root), EVENT_FILE, MAX_BYTES)
     except FileNotFoundError:
         return []
     events: list[dict[str, Any] | None] = []

@@ -10,6 +10,12 @@ Record paths come from the map and are checked here: the path must sit inside th
 the path is resolved on disk (a link pointing outside is refused). A refused or missing path gives
 an answer with an `error` text and no items.
 
+Limits (T-44). A record file or report is read in full only up to MAX_BYTES (2 MB); a larger or
+non-regular file gives an `error` answer. An audits folder with more than AUDIT_ENTRIES (200)
+entries gives an `error` answer; one call reads at most AUDIT_TOTAL_BYTES of reports and counts the
+rest as unreadable. A report with more than REPORT_FINDINGS findings or rows is unreadable. An
+answer is cut to ANSWER_LIMIT characters of JSON by dropping trailing entries (`truncated` is true).
+
 Entry shapes. Headings of level 2 and 3 open an entry; a heading of level 1 to 3 ends one. A
 field is a line at the start of the line that reads `- Label: value`; indented lines after it
 belong to the value.
@@ -32,6 +38,7 @@ in its name) is counted in `unreadable` and named in `unreadable_headings`, neve
 from __future__ import annotations
 
 import argparse
+import bisect
 import json
 import os
 import re
@@ -43,7 +50,7 @@ from typing import Any, Iterator, NamedTuple, Sequence
 if __package__ in (None, ""):  # started as a script: make `tools` importable
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from tools.records import read_records  # noqa: E402
+from tools.records import TooLarge, read_inside, read_records  # noqa: E402
 from tools.scope_guard import relative_to_root  # noqa: E402
 
 ID_LIMIT = 40
@@ -52,7 +59,13 @@ ITEM_LIMIT = 100
 LOG_MIN, LOG_MAX = 1, 20
 TEXT_LIMIT = 4000  # one field or one log entry
 SHORT_LIMIT = 160  # a result line in a task list
-MAX_BYTES = 5_000_000
+TITLE_LIMIT = 200
+FIELD_LIMIT = 30  # fields of one entry in an answer
+ANSWER_LIMIT = 150_000  # characters of JSON text in one answer; trailing entries are dropped past it
+MAX_BYTES = 2_000_000  # one record file, one report
+AUDIT_ENTRIES = 200  # entries in the audits folder
+AUDIT_TOTAL_BYTES = 10_000_000  # all reports of one call
+REPORT_FINDINGS = 1000  # findings, and again re-verify rows, in one report
 NAMED_HEADINGS = 10
 STATUSES = ("open", "closed", "partial", "deferred")
 SEVERITIES = ("critical", "high", "medium", "low")
@@ -149,18 +162,19 @@ def _read_file(root: Path, key: str, casefold: bool | None) -> tuple[str, str, s
     if path is None:
         return "", "", error
     try:
-        if path.stat().st_size > MAX_BYTES:
-            return name, "", f"the {key} file is larger than {MAX_BYTES} bytes"
-        return name, path.read_bytes().decode("utf-8-sig", errors="replace"), ""
+        data = read_inside(Path(root).resolve(), name, MAX_BYTES)
     except FileNotFoundError:
         return name, "", f"the {key} file does not exist"
-    except OSError:
+    except TooLarge:
+        return name, "", f"the {key} file is larger than {MAX_BYTES} bytes"
+    except OSError:  # a folder, a device name, a link out of the root, no permission
         return name, "", f"the {key} file could not be read"
+    return name, data.decode("utf-8-sig", errors="replace"), ""
 
 
 # --- parsing helpers ----------------------------------------------------------------------
 
-_HEADING = re.compile(r"^(#{1,3})[ \t]+(.+?)[ \t]*$")
+_HEADING = re.compile(r"^(#{1,3})[ \t]+(.+)$")  # the title is stripped by the caller; a lazy trailing-blank pattern is quadratic
 _FENCE = re.compile(r"^ {0,3}(```|~~~)")
 _FIELD = re.compile(r"^[-*][ \t]+([A-Za-z][A-Za-z0-9 _/'-]{0,40}?):(?:[ \t]+(.*)|[ \t]*)$")
 _DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
@@ -274,6 +288,37 @@ def _cap(items: list[Any]) -> tuple[list[Any], bool]:
     return items[:ITEM_LIMIT], len(items) > ITEM_LIMIT
 
 
+def _title(text: str) -> str:
+    return _clip(text.strip(), TITLE_LIMIT)[0]
+
+
+def _clipped_fields(fields: dict[str, str]) -> tuple[dict[str, str], bool]:
+    """At most FIELD_LIMIT fields, each cut to TEXT_LIMIT; True when anything was cut or dropped."""
+    pairs = list(fields.items())
+    cut = len(pairs) > FIELD_LIMIT
+    out: dict[str, str] = {}
+    for label, value in pairs[:FIELD_LIMIT]:
+        out[label], was_cut = _clip(value)
+        cut = cut or was_cut
+    return out, cut
+
+
+def _fit(out: dict[str, Any], key: str) -> dict[str, Any]:
+    """Drop trailing entries of `out[key]` until the answer is at most ANSWER_LIMIT characters of JSON."""
+    rows = out[key]
+    total = len(json.dumps(out)) - len(json.dumps(rows))
+    keep = 0
+    for row in rows:
+        total += len(json.dumps(row)) + 2
+        if total > ANSWER_LIMIT:
+            break
+        keep += 1
+    if keep < len(rows):
+        out[key] = rows[:keep]
+        out["truncated"] = True
+    return out
+
+
 def _bad(headings: list[str]) -> dict[str, Any]:
     return {"unreadable": len(headings),
             "unreadable_headings": [_clip(h, 80)[0] for h in headings[:NAMED_HEADINGS]]}
@@ -292,7 +337,7 @@ def _empty(source: str, error: str, **extra: Any) -> dict[str, Any]:
 
 # --- decisions ---------------------------------------------------------------------------
 
-_DEC_HEAD = re.compile(r"^([A-Za-z]+-\d+)(?:[ \t]+(.*))?$")
+_DEC_HEAD = re.compile(r"^([A-Za-z]{1,20}-\d{1,9})(?:[ \t]+(.*))?$")
 
 
 def parse_decisions(text: str) -> tuple[list[dict[str, Any]], list[str]]:
@@ -313,13 +358,19 @@ def parse_decisions(text: str) -> tuple[list[dict[str, Any]], list[str]]:
         outcome = _get(fields, "outcome")
         full = _text_of(sec)
         entries.append({
-            "id": head.group(1), "key": _id_key(head.group(1)), "title": (head.group(2) or "").strip(),
+            "id": head.group(1), "key": _id_key(head.group(1)), "title": _title(head.group(2) or ""),
             "date": day, "outcome_filled": bool(outcome) and not _PLACEHOLDER.match(outcome),
             "fields": fields, "text": full,
             "mentions": {(p.upper(), int(n), "") for p, n in _ID_TOKEN.findall(full)},
         })
-    for i, entry in enumerate(entries):
-        entry["named_by"] = [later["id"] for later in entries[i + 1:] if entry["key"] in later["mentions"]]
+    named: dict[Any, list[int]] = {}  # ID key -> positions of the entries that mention it, ascending
+    for position, entry in enumerate(entries):
+        for key in entry["mentions"]:
+            named.setdefault(key, []).append(position)
+    for position, entry in enumerate(entries):
+        later = named.get(entry["key"], [])
+        first = bisect.bisect_right(later, position)
+        entry["named_by"] = [entries[i]["id"] for i in later[first:first + ITEM_LIMIT]]
     return entries, bad
 
 
@@ -329,9 +380,7 @@ def _decision_item(entry: dict[str, Any], detail: bool) -> dict[str, Any]:
         "outcome_filled": entry["outcome_filled"], "named_by": entry["named_by"],
     }
     if detail:
-        clipped = {label: _clip(value) for label, value in entry["fields"].items()}
-        item["fields"] = {label: value for label, (value, _cut) in clipped.items()}
-        item["cut"] = any(cut for _value, cut in clipped.values())
+        item["fields"], item["cut"] = _clipped_fields(entry["fields"])
     return item
 
 
@@ -350,7 +399,7 @@ def decisions(root: Path, id: object = None, query: object = None, casefold: boo
     out.update(extra)
     out.update({"total": len(entries), **_bad(bad), "matched": len(hits), "truncated": truncated,
                 "items": [_decision_item(e, key is not None) for e in shown]})
-    return out
+    return _fit(out, "items")
 
 
 # --- lessons -----------------------------------------------------------------------------
@@ -376,7 +425,7 @@ def parse_lessons(text: str) -> tuple[list[dict[str, Any]], list[str], int]:
         if day is None:
             bad.append(sec.title)
             continue
-        entries.append({"title": head.group(2).strip() if head else sec.title, "date": day,
+        entries.append({"title": _title(head.group(2) if head else sec.title), "date": day,
                         "fields": fields, "text": _text_of(sec)})
     return entries, bad, templates
 
@@ -392,20 +441,18 @@ def lessons(root: Path, query: object = None, casefold: bool | None = None) -> d
     shown, truncated = _cap(hits)
     items = []
     for entry in shown:
-        clipped = {label: _clip(value) for label, value in entry["fields"].items()}
-        items.append({"title": entry["title"], "date": entry["date"],
-                      "fields": {label: value for label, (value, _cut) in clipped.items()},
-                      "cut": any(cut for _value, cut in clipped.values())})
+        fields, cut = _clipped_fields(entry["fields"])
+        items.append({"title": entry["title"], "date": entry["date"], "fields": fields, "cut": cut})
     out = _head(name, "")
     out.update({"query": words, "template_entries": templates, "total": len(entries), **_bad(bad),
                 "matched": len(hits), "truncated": truncated, "items": items})
-    return out
+    return _fit(out, "items")
 
 
 # --- tasks -------------------------------------------------------------------------------
 
 _BOX = re.compile(r"^\[([ xX])\][ \t]+(.*)$")
-_TASK_REST = re.compile(r"^([A-Za-z]+-\d+[A-Za-z]*)(?![A-Za-z0-9])[ \t]*(?:\[([A-Za-z])\])?[ \t]*(.*)$")
+_TASK_REST = re.compile(r"^([A-Za-z]{1,20}-\d{1,9}[A-Za-z]{0,5})(?![A-Za-z0-9])[ \t]*(?:\[([A-Za-z])\])?[ \t]*(.*)$")
 _LIST_LINE = re.compile(r"^[-*][ \t]+(\[[ xX]\][ \t]+.*)$")
 
 
@@ -414,7 +461,7 @@ def _task_item(box: re.Match[str], line: int, result: str, kind: str) -> dict[st
     if rest is None:
         return None
     return {"id": rest.group(1), "key": _id_key(rest.group(1)), "size": (rest.group(2) or "").upper(),
-            "done": box.group(1) in "xX", "title": rest.group(3).strip(), "result": result,
+            "done": box.group(1) in "xX", "title": _title(rest.group(3)), "result": result,
             "kind": kind, "line": line}
 
 
@@ -473,12 +520,12 @@ def tasks(root: Path, id: object = None, casefold: bool | None = None) -> dict[s
     out.update(extra)
     out.update({"now_next": note, "now_next_cut": note_cut, "total": len(found), **_bad(bad),
                 "matched": len(hits), "truncated": truncated, "items": items})
-    return out
+    return _fit(out, "items")
 
 
 # --- log ---------------------------------------------------------------------------------
 
-_LOG_HEAD = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:[ \t]*\((\d+)\))?[ \t]*[-–—][ \t]*(.+)$")
+_LOG_HEAD = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:[ \t]*\((\d{1,9})\))?[ \t]*[-–—][ \t]*(.+)$")
 
 
 def parse_log(text: str) -> tuple[list[dict[str, Any]], list[str]]:
@@ -491,7 +538,7 @@ def parse_log(text: str) -> tuple[list[dict[str, Any]], list[str]]:
         if head is None or day is None:
             bad.append(sec.title)
             continue
-        entries.append({"date": day, "n": int(head.group(2) or 0), "title": head.group(3).strip(),
+        entries.append({"date": day, "n": int(head.group(2) or 0), "title": _title(head.group(3)),
                         "text": "\n".join(sec.body).strip()})
     return entries, bad
 
@@ -511,13 +558,13 @@ def log(root: Path, count: object = 5, casefold: bool | None = None) -> dict[str
     out = _head(name, "")
     out.update({"count": wanted, "total": len(entries), **_bad(bad), "matched": len(entries),
                 "truncated": len(entries) > wanted, "items": items})
-    return out
+    return _fit(out, "items")
 
 
 # --- audit findings ----------------------------------------------------------------------
 
-_FINDING_HEAD = re.compile(r"^([A-Za-z]+-\d+)[ \t]+(.+)$")
-_ROW_ID = re.compile(r"^([A-Za-z]+-\d+)(?![A-Za-z0-9])")
+_FINDING_HEAD = re.compile(r"^([A-Za-z]{1,20}-\d{1,9})[ \t]+(.+)$")
+_ROW_ID = re.compile(r"^([A-Za-z]{1,20}-\d{1,9})(?![A-Za-z0-9])")
 _CELL_SPLIT = re.compile(r"(?<!\\)\|")
 _VERDICT_HEAD = re.compile(r"^(?:\d+\.\s*)?verdict(?:\s+line)?$", re.IGNORECASE)
 _GATE_VERDICT = re.compile(r"^gate verdict:\s*(.*)$", re.IGNORECASE)
@@ -541,7 +588,8 @@ def _row(line: str) -> tuple[str, str, str] | None:
 
 
 def parse_report(name: str, text: str) -> dict[str, Any] | None:
-    """One audit or re-verify report; None when the file name has no valid date."""
+    """One audit or re-verify report; None when the file name has no valid date or the report has more
+    than REPORT_FINDINGS findings or rows."""
     stamp = _FILE_DATE.match(name)
     day = _valid_date(stamp.group(0)) if stamp else None
     if day is None:
@@ -556,7 +604,7 @@ def parse_report(name: str, text: str) -> dict[str, Any] | None:
         fields = parse_fields(sec.body)
         if head:
             word = (_get(fields, "severity").split() or [""])[0].strip("*`.,;:").lower()
-            found.append({"id": head.group(1), "key": _id_key(head.group(1)), "title": head.group(2).strip(),
+            found.append({"id": head.group(1), "key": _id_key(head.group(1)), "title": _title(head.group(2)),
                           "severity": word if word in SEVERITIES else "unrated"})
         elif _has(fields, "severity"):
             bad.append(sec.title)
@@ -567,6 +615,8 @@ def parse_report(name: str, text: str) -> dict[str, Any] | None:
             rows.append({"id": got[0], "key": _id_key(got[0]), "claim": got[1], "status": got[2]})
         elif not verdict and not fenced and _GATE_VERDICT.match(line.strip()):
             verdict = line.strip()
+    if len(found) > REPORT_FINDINGS or len(rows) > REPORT_FINDINGS:
+        return None
     return {"name": name, "date": day, "verdict": _clip(verdict, 300)[0], "findings": found, "rows": rows, "bad": bad}
 
 
@@ -580,19 +630,27 @@ def findings(root: Path, status: object = None, report: object = None, casefold:
     if folder is None:
         return _empty(name, error, **extra, reports=[], unlinked_rows=0)
     try:
-        files = sorted(p for p in folder.iterdir() if p.suffix.lower() == ".md" and p.is_file())
+        files = _report_files(folder)
     except FileNotFoundError:
         return _empty(name, "the audits folder does not exist", **extra, reports=[], unlinked_rows=0)
     except OSError:
         return _empty(name, "the audits folder could not be read", **extra, reports=[], unlinked_rows=0)
+    if files is None:
+        return _empty(name, f"the audits folder holds more than {AUDIT_ENTRIES} entries", **extra,
+                      reports=[], unlinked_rows=0)
     reports: list[dict[str, Any]] = []
     bad: list[str] = []
+    spent = 0
     for path in files:
-        try:
-            path.resolve().relative_to(base)
-            raw = path.read_bytes().decode("utf-8-sig", errors="replace") if path.stat().st_size <= MAX_BYTES else None
-        except (OSError, ValueError):
-            raw = None
+        raw = None
+        room = min(MAX_BYTES, AUDIT_TOTAL_BYTES - spent)
+        if room > 0:
+            try:
+                data = read_inside(base, f"{name}/{path.name}", room)
+                spent += len(data)
+                raw = data.decode("utf-8-sig", errors="replace")
+            except OSError:  # a link out of the root, a folder, too large, or the call's byte budget is used up
+                raw = None
         parsed = parse_report(path.name, raw) if raw is not None else None
         if parsed is None:
             bad.append(path.name)
@@ -626,15 +684,29 @@ def findings(root: Path, status: object = None, report: object = None, casefold:
     out.update({"total": len(reports), **_bad(bad), "unlinked_rows": unlinked, "matched": matched,
                 "truncated": matched > sum(len(s["findings"]) + len(s["rows"]) for s in shown),
                 "reports": shown})
-    return out
+    return _fit(out, "reports")
+
+
+def _report_files(folder: Path) -> list[Path] | None:
+    """The `.md` files of the folder in name order; None when the folder holds more than AUDIT_ENTRIES entries."""
+    files: list[Path] = []
+    seen = 0
+    with os.scandir(folder) as entries:
+        for entry in entries:
+            seen += 1
+            if seen > AUDIT_ENTRIES:
+                return None
+            if entry.name.lower().endswith(".md") and entry.is_file():
+                files.append(Path(entry.path))
+    return sorted(files)
 
 
 def _link_rows(reports: list[dict[str, Any]]) -> tuple[dict[tuple[str, Any], str], int]:
     """Latest status per (report name, finding key), and how many rows found no finding."""
-    where: dict[Any, list[tuple[str, str]]] = {}
+    where: dict[Any, set[tuple[str, str]]] = {}  # a set: many findings with one ID in one report count once
     for rep in reports:
         for f in rep["findings"]:
-            where.setdefault(f["key"], []).append((rep["date"], rep["name"]))
+            where.setdefault(f["key"], set()).add((rep["date"], rep["name"]))
     events: dict[tuple[str, Any], list[tuple[str, str, int, str]]] = {}
     unlinked = 0
     seq = 0

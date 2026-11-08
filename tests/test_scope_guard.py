@@ -1000,6 +1000,34 @@ def test_the_hook_path_is_unchanged_by_the_new_modes(tmp_path: Path) -> None:
     assert len(events(root)) == 2
 
 
+def test_git_is_started_with_the_file_system_monitor_off(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    seen: list[list[str]] = []
+
+    def fake_run(args: list[str], **kwargs: object) -> subprocess.CompletedProcess:
+        seen.append(list(args))
+        return subprocess.CompletedProcess(args, 0, b"", b"")
+
+    monkeypatch.setattr(sg.subprocess, "run", fake_run)
+    sg._git(tmp_path, "status", "--porcelain", "-z")
+    assert seen == [["git", "-C", str(tmp_path), "-c", "core.fsmonitor=false", "status", "--porcelain", "-z"]]
+
+
+@needs_git
+def test_a_repository_config_cannot_start_a_program_through_core_fsmonitor(tmp_path: Path) -> None:
+    root = git_project(tmp_path)
+    marker = tmp_path / "fsmonitor-ran"
+    script = tmp_path / "fsmonitor.sh"  # outside the repository, so it is not a change itself
+    script.write_text(f'#!/bin/sh\n: > "{posix(marker)}"\nexit 1\n', encoding="utf-8", newline="\n")
+    sh_git(root, "config", "core.fsmonitor", posix(script))
+    touch(root, "src/a.py")
+    sh_git(root, "status", "--porcelain")  # control run: plain git does start the program
+    if not marker.exists():
+        pytest.skip("this git does not start core.fsmonitor here")
+    marker.unlink()
+    assert sg.check_worktree(root, False)[0] in (0, 1)  # the real check ran git
+    assert not marker.exists()
+
+
 def test_check_worktree_outside_a_git_repository_is_exit_1(tmp_path: Path) -> None:
     root = make_project(tmp_path)
     code, out, err = mode(root, "--check-worktree")

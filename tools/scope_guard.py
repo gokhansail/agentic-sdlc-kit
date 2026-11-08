@@ -448,7 +448,7 @@ def check_contract(root: Path) -> tuple[int, str]:
 
 
 def _git(root: Path, *args: str) -> bytes:
-    done = subprocess.run(["git", "-C", str(root), *args], capture_output=True, timeout=60)
+    done = subprocess.run(["git", "-C", str(root), "-c", "core.fsmonitor=false", *args], capture_output=True, timeout=60)
     if done.returncode != 0:
         raise OSError(done.stderr.decode("utf-8", errors="replace").strip() or "git failed")
     return done.stdout

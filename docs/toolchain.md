@@ -31,6 +31,15 @@ Both ran with pydantic 2.14.2 and anyio 4.15.1. Which major version the server u
 
 Installed for the server on 2026-11-08 (T-40): `python -m pip install "mcp>=2.3,<3"` into the interpreter that `python` resolves to (not `--user`) gave mcp 2.3.0 with pydantic 2.14.3 and anyio 4.16.0. This is the tested version; the range in `requirements-dev.txt` is the pin. The server checks package and version at start (DEC-051) and exits 1 with one install line when the package is missing or outside `>=2.3,<3`. The version is read from the package metadata, and the SDK is imported only after that check. Tests that need the SDK skip when it is missing.
 
+### Dependency pin and installed set (T-44)
+
+Checked 2026-11-08 on the build machine (Python 3.10.4, Windows 10) from the installed package metadata, with each requirement marker evaluated for this machine.
+
+- Range: `mcp>=2.3,<3` in `requirements-dev.txt`; the server's start check uses the same range (`SDK_MIN` 2.3, `SDK_BELOW` 3). Exact version tested: `mcp` 2.3.0.
+- Installed with it, 29 packages: annotated-types 0.8.0, anyio 4.16.0, attrs 26.1.0, cffi 2.1.1, click 8.5.1, cryptography 50.0.2, exceptiongroup 1.3.1, h11 0.16.0, httpcore2 2.14.0, httpx2 2.14.0, idna 3.20, jsonschema 4.26.0, jsonschema-specifications 2025.9.1, mcp-types 2.3.0, opentelemetry-api 1.45.2, pycparser 3.11, pydantic 2.14.3, pydantic-core 2.50.4, pyjwt 2.15.1, python-multipart 0.0.32, pywin32 312, referencing 0.37.0, rpds-py 0.30.0, sse-starlette 3.5.1, starlette 1.7.0, truststore 0.10.5, typing-extensions 4.16.0, typing-inspection 0.4.5, uvicorn 0.54.0. Direct requirements of `mcp` 2.3.0: anyio, httpx2, jsonschema, mcp-types, opentelemetry-api, pydantic, pyjwt (with its `crypto` extra), python-multipart, pywin32 (Windows only), sse-starlette, starlette, typing-extensions, typing-inspection, uvicorn.
+- Importing `mcp.server.mcpserver` loads `httpx2`, `starlette`, `uvicorn`, `sse_starlette` and `ssl`. The server uses the stdio transport only and opens no socket (`tests/test_server.py`, socket-blocked run of all 10 tools).
+- Limit: no vulnerability scan was run, because no network call is allowed here. The versions above are not compared with any advisory list. See `docs/security.md`, S-17.
+
 ## Claude Code plugin (phase 3)
 
 Source: https://code.claude.com/docs/en/plugins/manifest-reference.md unless noted.

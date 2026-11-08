@@ -2,6 +2,27 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-08 (7) - T-44 security pass
+
+- T-42 committed and pushed (9643651).
+- The maintainer gave the go-ahead for T-44. The TL wrote the contract and placed `.sdlc/active-contract.md` (12 Files in, 8 Files out). The contract named the files the developer may read, after the T-42 finding.
+- `developer` (Sonnet, effort high) ran T-44:
+  - `docs/security.md` (61 lines, 17 findings, input table; C-26 items a to i not applicable while the server is stdio only; limits);
+  - new `server/inputs.py`;
+  - read limits in `tools/records.py`, `tools/lookup.py` and `tools/events.py`;
+  - `_git` in `tools/scope_guard.py` passes `-c core.fsmonitor=false`;
+  - `docs/toolchain.md` dependency list; 1 CHANGELOG line.
+- Findings:
+  - High: 3 fixed, 0 open (G4-9 met). S-1 control files read through a link out of the root; S-2 `core.fsmonitor` and S-3 a clean filter in `.git/config` ran a program on `git status` (both measured).
+  - Medium: 7 fixed, 2 open (9 in all; 17 findings: 3 High, 9 Medium, 5 Low). Open: S-7 the guard heading pattern; S-8 the guard glob matcher, slow input makes the hook time out, and a timeout lets the write through (V-6).
+  - Low: 3 fixed, 2 accepted (S-4, S-17: no vulnerability scan without network).
+- Cost of S-3: `changed_outside` refuses a repository whose git config has a filter or include section, so Git LFS repositories get no answer from that tool.
+- C-26 in the source map has 9 items, not 10, as the report states.
+- Tests: 112 new; 980 passed, 6 skipped (TL rerun). The skips are file symlink tests this machine cannot run; the junction tests ran.
+- Guard: 92 writes, 92 allow, 0 deny, all Write or Edit; `--check-worktree`: 16 paths, all inside T-44.
+- Metrics (T-44): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- Next: the maintainer decides S-7 and S-8; then T-46b eval runs.
+
 ## 2026-11-08 (6) - T-42 record read tools
 
 - T-41 and T-46a committed and pushed (2070d74).

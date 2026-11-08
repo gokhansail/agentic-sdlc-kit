@@ -13,6 +13,7 @@ import shutil
 import socket
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +24,9 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from server import main as server_main  # noqa: E402
+from server import inputs as server_inputs  # noqa: E402
 from server import scope as server_scope  # noqa: E402
+from server import status as server_status  # noqa: E402
 from server.events import guard_events  # noqa: E402
 from server.rootlock import RootLock, RootLockError  # noqa: E402
 from server.scope import changed_outside, contract, scope_check  # noqa: E402
@@ -415,7 +418,7 @@ def test_guard_events_without_a_file_or_with_an_unreadable_one(tmp_path: Path) -
     assert (got["allow"], got["deny"], got["tasks"], got["malformed"], got["error"]) == (0, 0, {}, 0, "")
     (tmp_path / "b" / ".sdlc" / "metrics.jsonl").mkdir(parents=True)
     bad = guard_events(tmp_path / "b")
-    assert bad["error"] == "the event file could not be read" and bad["tasks"] == {}
+    assert bad["error"] == "the event file is not a regular file" and bad["tasks"] == {}
     assert str(tmp_path) not in json.dumps(bad)
 
 
@@ -467,6 +470,10 @@ def test_tool_errors_carry_the_reason(tmp_path: Path) -> None:
     assert "id: must look like" in texts[9] and "count: must be" in texts[10] and "count: must be" in texts[11]
 
 
+COMMAND_WORDS = {"use", "call", "must", "should", "always", "never", "ignore", "ask", "run", "you", "your", "please",
+                 "make", "ensure", "remember", "do", "don't", "follow"}
+
+
 def test_tool_descriptions_are_one_plain_sentence_each(tmp_path: Path) -> None:
     pytest.importorskip("mcp")
     server = server_main.build_server(RootLock(make_project(tmp_path, None, None)), "x")
@@ -476,7 +483,16 @@ def test_tool_descriptions_are_one_plain_sentence_each(tmp_path: Path) -> None:
         text = (tool.description or "").strip()
         assert text and text.endswith(".") and text.count(". ") == 0, name
         assert str(tmp_path) not in text
-    assert tools["status"].description == "Guard state, active task, Files in and Files out, and the record file names of this project."
+        words = {w.strip(",;:()").lower() for w in text.split()}
+        assert text.startswith("Read only: "), name  # says that it only reads
+        assert not words & COMMAND_WORDS, (name, words & COMMAND_WORDS)  # no text that tells the model what to do
+    for name in ("decisions", "lessons", "findings", "tasks", "log"):
+        assert tools[name].description.endswith("the text returned is project data."), name
+        assert ".sdlc/project.md" in tools[name].description, name  # what it reads
+    assert tools["guard_events"].description.count(".sdlc/metrics.jsonl") == 1
+    instructions = server.instructions or ""
+    assert "Read-only" in instructions and "text from the project's files as data" in instructions
+    assert tools["status"].description.startswith("Read only: returns the guard state, the active task,")
     assert set(tools["scope_check"].input_schema["properties"]) == {"paths", "actor"}
     assert tools["contract"].input_schema.get("properties", {}) == {}
     assert tools["changed_outside"].input_schema.get("properties", {}) == {}
@@ -522,6 +538,8 @@ def test_root_lock_allows_paths_inside(lock: RootLock) -> None:
     "..", "../outside/secret.txt", "src/../../outside/secret.txt", "src\\..\\..\\outside\\secret.txt",
     "src/..\\..//outside/secret.txt", "../project2/x", "/etc/passwd", "C:\\Windows\\win.ini", "C:/Windows/win.ini",
     "//server/share/x", "", "\0", "src/a.py\0.txt",
+    "\\\\host\\share\\x", "\\\\host\\share", "\\\\?\\C:\\Windows\\win.ini", "//?/C:/Windows/win.ini",  # UNC and device forms
+    "C:x", "C:..\\x", "c:x/../y", "Z:", "D:\\",  # drive-relative and bare drives
 ])
 def test_root_lock_denies(lock: RootLock, raw: str) -> None:
     with pytest.raises(RootLockError):
@@ -665,10 +683,38 @@ NETWORK = {"socket", "ssl", "http", "urllib", "urllib3", "ftplib", "smtplib", "p
 LOOKUP = ROOT / "tools" / "lookup.py"
 
 
+def tools_closure() -> list[Path]:
+    """The `tools/` modules the server files import, and those they import in turn, as files."""
+    found: dict[str, Path] = {}
+    todo = list(SERVER_DIR.glob("*.py"))
+    while todo:
+        tree = ast.parse(todo.pop().read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            names: list[str] = []
+            if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                if node.module == "tools":
+                    names = [f"tools.{a.name}" for a in node.names]
+                elif node.module.startswith("tools."):
+                    names = [node.module]
+            elif isinstance(node, ast.Import):
+                names = [a.name for a in node.names if a.name.startswith("tools.")]
+            for name in names:
+                target = ROOT.joinpath(*name.split(".")).with_suffix(".py")
+                if name not in found and target.is_file():
+                    found[name] = target
+                    todo.append(target)
+    return sorted(found.values())
+
+
+def test_the_server_imports_exactly_these_tools_modules() -> None:
+    # A new import here has to be read for network and write calls first: add it to this set on purpose.
+    assert {p.name for p in tools_closure()} == {"events.py", "lookup.py", "records.py", "scope_guard.py"}
+
+
 def test_server_modules_import_no_network_module() -> None:
     files = sorted(SERVER_DIR.glob("*.py"))
     assert len(files) >= 4
-    for path in [*files, LOOKUP]:
+    for path in [*files, *tools_closure()]:
         assert not (_imports(path) & NETWORK), path.name
 
 
@@ -684,8 +730,16 @@ WRITE_NAMES = {"write_text", "write_bytes", "mkdir", "unlink", "rmdir", "rename"
                "makedirs", "rmtree", "copy", "copyfile", "copytree", "move", "symlink_to", "chmod"}
 
 
+def test_the_server_never_reaches_the_guard_event_writer() -> None:
+    for path in SERVER_DIR.glob("*.py"):
+        text = path.read_text(encoding="utf-8")
+        assert "log_event" not in text and "scope_guard.main" not in text, path.name
+
+
 def test_server_has_no_write_call() -> None:
-    for path in [*SERVER_DIR.glob("*.py"), LOOKUP]:
+    # tools/scope_guard.py is left out: its `log_event` appends the hook's event line, and the test above
+    # shows that the server never calls it.
+    for path in [*SERVER_DIR.glob("*.py"), *(p for p in tools_closure() if p.name != "scope_guard.py")]:
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.Attribute):
                 assert node.attr not in WRITE_NAMES, (path.name, node.attr)
@@ -783,6 +837,8 @@ def test_every_tool_runs_with_socket_creation_blocked(monkeypatch: pytest.Monkey
 
     seen = asyncio.run(run())
     assert set(seen) == set(TOOL_ARGS) == set(TOOL_NAMES)
+    for path in tools_closure():  # every tools/ module the server imports ran inside the socket-blocked calls
+        assert f"tools.{path.stem}" in sys.modules, path.name
     assert seen["status"] == status(root, "CLAUDE_PROJECT_DIR")
     args = TOOL_ARGS["scope_check"]
     assert seen["scope_check"] == scope_check(lock.root, args["paths"], args["actor"], lock.casefold)
@@ -821,7 +877,8 @@ def test_each_lookup_tool_equals_its_function(tmp_path: Path) -> None:
         assert got == want(), (tool, args)
 
 
-@pytest.mark.parametrize("entry", ["../outside.md", "..", "/etc/passwd", "C:\\Windows\\win.ini", "sub/../../outside.md"])
+@pytest.mark.parametrize("entry", ["../outside.md", "..", "/etc/passwd", "C:\\Windows\\win.ini", "sub/../../outside.md",
+                                   "\\\\host\\share\\outside.md", "//host/share/outside.md", "C:outside.md", "a\0b.md"])
 def test_a_record_map_entry_outside_the_root_gives_an_error_answer_not_a_read(tmp_path: Path, entry: str) -> None:
     pytest.importorskip("mcp")
     (tmp_path / "outside.md").write_text("## DEC-001 Secret\n- Date: 2026-01-01\n", encoding="utf-8")
@@ -907,9 +964,437 @@ def test_stdio_round_trip_from_the_start_folder(tmp_path: Path) -> None:
 @pytest.mark.skipif(shutil.which("git") is None, reason="no git on PATH")
 def test_server_files_are_not_ignored_by_git() -> None:
     paths = ["server/main.py", "server/status.py", "server/rootlock.py", "server/scope.py", "server/events.py",
-             "tools/events.py", "tools/lookup.py", "tests/fixtures/server/events.jsonl",
+             "server/inputs.py", "tools/events.py", "tools/lookup.py", "tools/records.py",
+             "docs/security.md", "tests/fixtures/server/events.jsonl",
              "tests/fixtures/server/lookup/DECISIONS.md", "tests/fixtures/server/lookup/LESSONS.md",
              "tests/fixtures/server/lookup/TASKS.md", "tests/fixtures/server/lookup/LOG.md",
              "tests/fixtures/server/lookup/audits/2026-01-10_gate1.md"]
     res = subprocess.run(["git", "check-ignore", *paths], cwd=ROOT, capture_output=True, timeout=60)
     assert res.returncode == 1 and res.stdout == b""  # 1 = none of the paths is ignored
+
+
+# =====================================================================================
+# Security pass (T-44). Findings are in docs/security.md; the test names there point here.
+# =====================================================================================
+
+OUTSIDE_PROJECT = "# P\n\n## Records\n- Status: `OUTSIDE-MARKER.md`\n- Decisions: `OUTSIDE-MARKER.md`\n"
+OUTSIDE_CONTRACT = "### T-5 outside\n- Files in: `OUTSIDE-MARKER/*`\n- Files out: `none`\n"
+OUTSIDE_EVENT = '{"event": "scope", "decision": "allow", "task": "OUTSIDE-MARKER", "tool": "Write"}\n'
+
+
+def _file_link(link: Path, target: Path) -> bool:
+    try:
+        os.symlink(target, link)
+        return True
+    except (OSError, NotImplementedError):
+        return False
+
+
+def test_the_sdlc_folder_as_a_link_pointing_outside_is_never_read(tmp_path: Path) -> None:
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    (elsewhere / "project.md").write_text(OUTSIDE_PROJECT, encoding="utf-8")
+    (elsewhere / "active-contract.md").write_text(OUTSIDE_CONTRACT, encoding="utf-8")
+    (elsewhere / "metrics.jsonl").write_text(OUTSIDE_EVENT, encoding="utf-8")
+    root = tmp_path / "p"
+    root.mkdir()
+    if not _make_link(root / ".sdlc", elsewhere):
+        pytest.skip("cannot create a symlink or junction here")
+    answers = {"status": status(root), "contract": contract(root), "changed_outside": changed_outside(root),
+               "guard_events": guard_events(root), "records": read_records(root)}
+    with pytest.raises(ValueError, match="resolves outside the project root"):
+        scope_check(root, ["a.py"], "main")
+    for name, got in answers.items():
+        assert "OUTSIDE-MARKER" not in json.dumps(got), name
+        assert str(tmp_path) not in json.dumps(got), name
+    assert answers["status"]["guard_state"] == "broken" and "resolves outside" in answers["status"]["broken_reason"]
+    assert answers["records"] == read_records(tmp_path / "nothing-here")  # the template defaults
+    assert answers["contract"]["valid"] is False and "resolves outside" in answers["contract"]["message"]
+    assert answers["guard_events"]["error"] == "the event file resolves outside the project root"
+    assert answers["changed_outside"]["ok"] is False and "git status was not run" in answers["changed_outside"]["message"]
+
+
+@pytest.mark.parametrize("rel,fixture", [(".sdlc/project.md", "project.md"), (".sdlc/active-contract.md", "contract.md"),
+                                         (".sdlc/metrics.jsonl", "events.jsonl")])
+def test_a_control_file_that_is_a_link_pointing_outside_is_refused(tmp_path: Path, rel: str, fixture: str) -> None:
+    root = make_project(tmp_path / "p", "project.md", "contract.md", "events.jsonl")
+    secret = tmp_path / "secret.txt"
+    secret.write_bytes((FIXTURES / fixture).read_bytes())  # a valid file: followed, it would be read as one
+    (root / rel).unlink()
+    if not _file_link(root / rel, secret):
+        pytest.skip("cannot create a file symlink here")
+    if rel.endswith(".jsonl"):
+        assert guard_events(root)["error"] == "the event file resolves outside the project root"
+        assert guard_events(root)["allow"] == 0
+    else:
+        assert status(root)["guard_state"] == "broken"
+        assert "resolves outside the project root" in status(root)["broken_reason"]
+        assert contract(root)["valid"] is False
+        with pytest.raises(ValueError, match="cannot be used"):
+            scope_check(root, ["a.py"], "main")
+        if rel.endswith("project.md"):
+            assert read_records(root)["status"] == "STATUS.md" and read_records(root) == read_records(tmp_path / "none")
+
+
+def test_a_control_file_over_the_size_limit_is_refused_and_one_at_the_limit_is_read(tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+    path = root / ".sdlc" / "project.md"
+    base = path.read_bytes()
+    path.write_bytes(base + b"\n" + b"x" * (server_inputs.CONTROL_LIMIT - len(base) - 1))
+    assert path.stat().st_size == server_inputs.CONTROL_LIMIT
+    assert status(root)["guard_state"] == "active" and server_inputs.control_problem(root) == ""
+    path.write_bytes(path.read_bytes() + b"x")
+    got = status(root)
+    assert got["guard_state"] == "broken" and "larger than 256000 bytes" in got["broken_reason"]
+    assert contract(root)["valid"] is False and changed_outside(root)["ok"] is False
+    with pytest.raises(ValueError, match="larger than"):
+        scope_check(root, ["a.py"], "main")
+
+
+@pytest.mark.parametrize("line", ["# a" + " " * 17 + "x", "## " + "\t" * 17 + "x", "### a" + "#" * 17 + "x",
+                                  "   # a" + " \t" * 9 + "x", "# a" + " " * 3000 + "x"])
+@pytest.mark.parametrize("name", ["project.md", "active-contract.md"])
+def test_a_heading_with_a_long_run_is_refused_before_the_slow_guard_pattern_runs(tmp_path: Path, line: str, name: str) -> None:
+    # tools.scope_guard._HEADING needs about 13 s for a 2,000-space run (S-3); the server never lets it run.
+    root = make_project(tmp_path, "project.md", "contract.md")
+    path = root / ".sdlc" / name
+    path.write_bytes(path.read_bytes() + ("\n" + line + "\n").encode("utf-8"))
+    started = time.perf_counter()
+    got = status(root)
+    assert got["guard_state"] == "broken" and "run of more than 16" in got["broken_reason"]
+    assert contract(root)["valid"] is False and changed_outside(root)["ok"] is False
+    with pytest.raises(ValueError, match="run of more than 16"):
+        scope_check(root, ["a.py"], "sub-agent")
+    assert time.perf_counter() - started < 5
+
+
+def test_a_heading_with_a_short_run_is_read_as_usual(tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+    path = root / ".sdlc" / "project.md"
+    path.write_bytes(path.read_bytes() + ("\n## Notes" + " " * 16 + "x\n\n#" + "#" * 5 + " six\n").encode("utf-8"))
+    assert status(root)["guard_state"] == "active" and server_inputs.control_problem(root) == ""
+
+
+def test_the_missing_control_files_are_not_a_problem(tmp_path: Path) -> None:
+    assert server_inputs.control_problem(tmp_path) == ""
+    assert server_inputs.control_problem(make_project(tmp_path / "a", "project.md", None)) == ""
+    (tmp_path / "b" / ".sdlc").mkdir(parents=True)
+    (tmp_path / "b" / ".sdlc" / "project.md").mkdir()  # a folder in place of the file
+    assert "not a regular file" in server_inputs.control_problem(tmp_path / "b")
+
+
+# --- leaks ---------------------------------------------------------------------------
+
+def test_scrub_removes_the_root_and_the_home_folder_in_every_form(tmp_path: Path) -> None:
+    root = tmp_path / "project"
+    home = Path.home()
+    text = (f"a {root} b {root.as_posix()} c {repr(str(root))[1:-1]} d {home} e {home.as_posix()}/.gitconfig "
+            f"f {repr(str(home))[1:-1]}")
+    got = server_inputs.scrub(text, root)
+    for form in (str(root), root.as_posix(), repr(str(root))[1:-1], str(home), home.as_posix(), repr(str(home))[1:-1]):
+        assert form not in got, form
+    assert got.count("<root>") == 3 and got.count("<home>") >= 3
+
+
+def test_an_error_text_from_the_guard_carries_no_root_path(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    root = make_project(tmp_path / "p", "project.md", None)
+    (root / ".sdlc" / "active-contract.md").mkdir()  # the guard's read fails with an OS message that names the file
+    monkeypatch.setattr(server_status, "control_problem", lambda r: "")  # let the guard see it, to test the scrub
+    monkeypatch.setattr(server_scope, "control_problem", lambda r: "")
+    got = status(root)
+    assert got["guard_state"] == "broken" and got["broken_reason"] != ""
+    rows = scope_check(root, ["src/a.py", "../x"], "sub-agent")["results"]
+    texts = [json.dumps(got), json.dumps(rows), json.dumps(contract(root))]
+    for text in texts:
+        for form in (str(root), root.as_posix(), repr(str(root))[1:-1], str(Path.home()), Path.home().as_posix()):
+            assert form not in text, form
+
+
+def test_a_contract_that_is_a_folder_is_refused_with_no_path(tmp_path: Path) -> None:
+    root = make_project(tmp_path / "p", "project.md", None)
+    (root / ".sdlc" / "active-contract.md").mkdir()
+    got = status(root)
+    assert got["guard_state"] == "broken" and "not a regular file" in got["broken_reason"]
+    assert str(tmp_path) not in json.dumps([got, contract(root), changed_outside(root)])
+    with pytest.raises(ValueError) as err:
+        scope_check(root, ["a.py"], "main")
+    assert str(tmp_path) not in str(err.value)
+
+
+def test_no_tool_answer_holds_the_root_or_a_home_path(tmp_path: Path) -> None:
+    pytest.importorskip("mcp")
+    from mcp.server.mcpserver.exceptions import ToolError
+
+    good = add_records(git_project(tmp_path / "good"))
+    (good / ".sdlc" / "metrics.jsonl").write_bytes((FIXTURES / "events.jsonl").read_bytes())
+    hostile = add_records(make_project(tmp_path / "hostile", None, None))
+    (hostile / ".sdlc").mkdir(exist_ok=True)
+    # `status` repeats the map as written, so an absolute entry would show up there; the file's own text is not a leak
+    entries = "".join(f"- {label}: `../outside.md`\n" for label in ("Decisions", "Lessons", "Tasks", "Log", "Audits"))
+    (hostile / ".sdlc" / "project.md").write_text("# P\n\n## Records\n" + entries, encoding="utf-8")
+    (hostile / ".sdlc" / "active-contract.md").mkdir()
+    (hostile / ".sdlc" / "metrics.jsonl").mkdir()
+    args = dict(TOOL_ARGS)
+    args["scope_check"] = {"paths": ["src/a.py", "../outside.txt", str(good / "src" / "a.py"), "x" * 600], "actor": "main"}
+
+    async def run(root: Path) -> dict[str, str]:
+        server = server_main.build_server(RootLock(root), "CLAUDE_PROJECT_DIR")
+        out: dict[str, str] = {}
+        for name in TOOL_NAMES:
+            try:
+                result = await server.call_tool(name, args[name])
+                out[name] = json.dumps(result.structured_content)
+            except ToolError as exc:
+                out[name] = str(exc)
+        return out
+
+    home = Path.home()
+    for root in (good, hostile):
+        answers = asyncio.run(run(root))
+        assert set(answers) == set(TOOL_NAMES)
+        for name, text in answers.items():
+            for form in (str(root), root.as_posix(), repr(str(root))[1:-1], str(tmp_path), tmp_path.as_posix(),
+                         str(home), home.as_posix(), repr(str(home))[1:-1]):
+                assert form not in text, (root.name, name, form)
+    good_rows = json.loads(asyncio.run(run(good))["scope_check"])["results"]
+    assert good_rows[2]["path"] == "src/a.py" and good_rows[0]["path"] == "src/a.py"
+
+
+def test_status_and_contract_answers_are_bounded(tmp_path: Path) -> None:
+    root = tmp_path / "p"
+    (root / ".sdlc").mkdir(parents=True)
+    extras = "".join(f"- Extra{i}: `{'v' * 500}`\n" for i in range(100))
+    allowed = ", ".join(f"`p{i}`" for i in range(2000))
+    (root / ".sdlc" / "project.md").write_text(f"# P\n\n## Records\n{extras}\n## Always allowed\n- {allowed}\n", encoding="utf-8")
+    (root / ".sdlc" / "active-contract.md").write_text(
+        f"### T-1 x\n- Files in: {allowed}\n- Files out: {allowed}\n", encoding="utf-8")
+    got = status(root)
+    assert len(got["records"]) == server_inputs.MAX_RECORD_NAMES == 40
+    assert max(len(v) for v in got["records"].values()) == server_inputs.MAX_RECORD_VALUE == 200
+    assert len(got["files_in"]) == len(got["files_out"]) == server_inputs.MAX_PATTERNS == 500 and got["cut"] is True
+    sure = contract(root)
+    assert sure["valid"] is True and sure["cut"] is True
+    assert len(sure["always_allowed"]) == len(sure["files_in"]) == len(sure["files_out"]) == 500
+    normal = make_project(tmp_path / "n", "project.md", "contract.md")
+    assert "cut" not in status(normal) and "cut" not in contract(normal)  # an ordinary answer is not touched
+
+
+# --- git -----------------------------------------------------------------------------
+
+def git_commit(root: Path, *paths: str) -> None:
+    identity = ["-c", "user.name=T", "-c", "user.email=t@users.noreply.github.com"]
+    for args in (["add", *paths], [*identity, "commit", "-q", "-m", "i"]):
+        subprocess.run(["git", *args], cwd=root, check=True, capture_output=True, timeout=60)
+
+
+def _no_git_run(monkeypatch: pytest.MonkeyPatch) -> None:
+    def refuse(*args: object, **kwargs: object) -> None:
+        raise AssertionError("git was started")
+
+    monkeypatch.setattr(scope_guard.subprocess, "run", refuse)
+
+
+@pytest.mark.parametrize("config", [
+    '[filter "x"]\n\tclean = sh -c evil\n', '[ filter "x" ]\n\tclean = evil\n', '[FILTER "x"]\n', '  [filter]\n',
+    '[include]\n\tpath = ../evil\n', '[includeIf "gitdir:/"]\n\tpath = x\n',
+    '[remote "origin"]\n\turl = x\n[filter "lfs"]\n\tclean = git-lfs clean\n',
+])
+def test_changed_outside_does_not_start_git_for_a_config_with_a_filter_or_include(
+        monkeypatch: pytest.MonkeyPatch, tmp_path: Path, config: str) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+    (root / ".git").mkdir()
+    (root / ".git" / "config").write_text("[core]\n\tbare = false\n" + config, encoding="utf-8")
+    _no_git_run(monkeypatch)
+    got = changed_outside(root)
+    assert got["ok"] is False and got["outside"] == [] and "git status was not run" in got["message"]
+    assert "filter or an include" in got["message"] and str(tmp_path) not in got["message"]
+
+
+def test_changed_outside_looks_at_the_config_of_a_repository_above_the_root(monkeypatch: pytest.MonkeyPatch,
+                                                                            tmp_path: Path) -> None:
+    (tmp_path / ".git").mkdir()
+    (tmp_path / ".git" / "config").write_text('[filter "x"]\n\tclean = evil\n', encoding="utf-8")
+    root = make_project(tmp_path / "app", "project.md", "contract.md")
+    _no_git_run(monkeypatch)
+    assert "filter or an include" in changed_outside(root)["message"]
+
+
+def test_changed_outside_does_not_start_git_for_a_dot_git_file_or_link(monkeypatch: pytest.MonkeyPatch,
+                                                                       tmp_path: Path) -> None:
+    root = make_project(tmp_path / "a", "project.md", "contract.md")
+    (root / ".git").write_text("gitdir: ../elsewhere\n", encoding="utf-8")
+    other = make_project(tmp_path / "b", "project.md", "contract.md")
+    gitdir = tmp_path / "gitdir"
+    gitdir.mkdir()
+    (gitdir / "config").write_text("[core]\n\tbare = false\n", encoding="utf-8")
+    linked = _make_link(other / ".git", gitdir)  # before the patch: the junction helper starts a process
+    _no_git_run(monkeypatch)
+    assert "linked worktree or a submodule" in changed_outside(root)["message"]
+    if not linked:
+        pytest.skip("cannot create a symlink or junction here")
+    message = changed_outside(other)["message"]
+    assert "git status was not run" in message and ("link" in message or "outside" in message)
+
+
+def test_a_plain_repository_config_is_not_a_git_problem(tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+    if any((p / ".git").exists() for p in (root.resolve(), *root.resolve().parents)):
+        pytest.skip("the temp folder is inside a repository")
+    assert server_inputs.git_problem(root) == ""  # no repository: git itself will say so
+    (root / ".git").mkdir()
+    assert server_inputs.git_problem(root) == ""  # a repository with no config file
+    (root / ".git" / "config").write_text('[core]\n\tbare = false\n[remote "origin"]\n\turl = x\n'
+                                          '[branch "main"]\n\tremote = origin\n# [filter "x"] in a comment\n', encoding="utf-8")
+    assert server_inputs.git_problem(root) == ""
+
+
+@pytest.mark.skipif(not _git_available(), reason="no git on PATH")
+def test_a_clean_filter_in_the_repository_config_is_not_run_by_changed_outside(tmp_path: Path) -> None:
+    root = git_project(tmp_path / "r")
+    git_commit(root, "src/a.py")
+    marker = tmp_path / "filter-ran"
+    script = tmp_path / "clean.sh"
+    script.write_text(f'#!/bin/sh\n: > "{marker.as_posix()}"\ncat\n', encoding="utf-8", newline="\n")
+    (root / ".gitattributes").write_text("* filter=probe\n", encoding="utf-8", newline="\n")
+    subprocess.run(["git", "config", "filter.probe.clean", f"sh {script.as_posix()}"], cwd=root, check=True, timeout=60)
+    later = time.time() + 30  # only the time changed: git compares the content through the filter
+    os.utime(root / "src" / "a.py", (later, later))
+    scope_guard.check_worktree(root, False)  # control run: the guard's own call does start the program
+    if not marker.exists():
+        pytest.skip("this git does not run a clean filter on status here")
+    marker.unlink()
+    got = changed_outside(root, False)
+    assert not marker.exists()
+    assert got["ok"] is False and "filter or an include" in got["message"]
+
+
+@pytest.mark.skipif(not _git_available(), reason="no git on PATH")
+def test_changed_outside_runs_git_for_a_repository_without_a_filter(tmp_path: Path) -> None:
+    root = git_project(tmp_path)
+    assert server_inputs.git_problem(root) == ""
+    assert sorted(changed_outside(root, False)["outside"]) == ["notes.txt", "src/secret.py"]
+
+
+def test_changed_outside_asks_git_not_to_take_optional_locks(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+    seen: list[str | None] = []
+
+    def fake_run(args: list[str], **kwargs: object) -> subprocess.CompletedProcess:
+        seen.append(os.environ.get("GIT_OPTIONAL_LOCKS"))
+        return subprocess.CompletedProcess(args, 0, b"", b"")
+
+    monkeypatch.setattr(scope_guard.subprocess, "run", fake_run)
+    monkeypatch.delenv("GIT_OPTIONAL_LOCKS", raising=False)
+    assert changed_outside(root)["ok"] is True
+    assert seen == ["0", "0"] and "GIT_OPTIONAL_LOCKS" not in os.environ  # rev-parse and status; the variable is put back
+    monkeypatch.setenv("GIT_OPTIONAL_LOCKS", "1")
+    changed_outside(root)
+    assert os.environ["GIT_OPTIONAL_LOCKS"] == "1"
+
+
+@pytest.mark.skipif(not _git_available(), reason="no git on PATH")
+def test_changed_outside_leaves_the_git_index_alone(tmp_path: Path) -> None:
+    root = git_project(tmp_path)
+    git_commit(root, "src/a.py")
+    later = time.time() + 30
+    os.utime(root / "src" / "a.py", (later, later))  # a stale stat entry: plain `git status` would refresh the index
+    index = root / ".git" / "index"
+    before = index.read_bytes()
+    assert sorted(changed_outside(root, False)["outside"]) == ["notes.txt", "src/secret.py"]
+    assert index.read_bytes() == before
+    subprocess.run(["git", "status", "--porcelain"], cwd=root, check=True, capture_output=True, timeout=60)
+    if index.read_bytes() == before:
+        pytest.skip("this git did not rewrite the index in the control run, so the test could not tell")
+
+
+# --- argument limits -----------------------------------------------------------------
+
+# Every argument of every tool, with the call that must be refused. A new argument without a row fails the first test.
+REFUSED_ARGUMENTS: dict[tuple[str, str], tuple[dict[str, Any], str]] = {
+    ("scope_check", "paths"): ({"paths": ["a.py"] * 51, "actor": "main"}, "at most 50"),
+    ("scope_check", "actor"): ({"paths": ["a.py"], "actor": "root"}, "actor"),
+    ("guard_events", "task"): ({"task": "T-" + "1" * 60}, "at most 40"),
+    ("decisions", "id"): ({"id": "D" * 41}, "id: at most 40"),
+    ("decisions", "query"): ({"query": "q" * 101}, "query: at most 100"),
+    ("lessons", "query"): ({"query": "q" * 101}, "query: at most 100"),
+    ("findings", "status"): ({"status": "done"}, "status: must be one of"),
+    ("findings", "report"): ({"report": "r" * 101}, "report: at most 100"),
+    ("tasks", "id"): ({"id": "x" * 41}, "id: at most 40"),
+    ("log", "count"): ({"count": 21}, "count: must be"),
+}
+
+
+def test_every_argument_of_every_tool_has_a_limit_that_refuses(tmp_path: Path) -> None:
+    pytest.importorskip("mcp")
+    from mcp.server.mcpserver.exceptions import ToolError
+
+    root = add_records(make_project(tmp_path, "project.md", "contract.md", "events.jsonl"))
+    server = server_main.build_server(RootLock(root), "x")
+    tools = {t.name: t for t in asyncio.run(server.list_tools())}
+    declared = {(name, arg) for name, tool in tools.items() for arg in tool.input_schema.get("properties", {})}
+    assert declared == set(REFUSED_ARGUMENTS)
+
+    async def run() -> dict[tuple[str, str], str]:
+        out: dict[tuple[str, str], str] = {}
+        for (tool, arg), (args, _word) in REFUSED_ARGUMENTS.items():
+            with pytest.raises(ToolError) as err:
+                await server.call_tool(tool, args)
+            out[(tool, arg)] = str(err.value)
+        return out
+
+    for key, text in asyncio.run(run()).items():
+        assert REFUSED_ARGUMENTS[key][1] in text, key
+        assert str(tmp_path) not in text and "q" * 20 not in text and "D" * 20 not in text  # the value is not echoed
+
+
+def test_each_argument_accepts_its_limit(tmp_path: Path) -> None:
+    root = add_records(make_project(tmp_path, "project.md", "contract.md", "events.jsonl"))
+    assert len(scope_check(root, ["a.py"] * 50, "main")["results"]) == 50
+    assert guard_events(root, "T-" + "1" * 38)["error"] == ""
+    assert lookup.decisions(root, "D" * 38 + "-1", "q" * 100)["error"] == ""
+    assert lookup.lessons(root, "q" * 100)["error"] == "" and lookup.findings(root, "closed", "r" * 100)["error"] == ""
+    assert lookup.tasks(root, "T" * 38 + "-1")["error"] == "" and lookup.log(root, 20)["error"] == ""
+
+
+@pytest.mark.parametrize("opted_in", [True, False])
+def test_scope_check_limits_one_path_to_500_characters(tmp_path: Path, opted_in: bool) -> None:
+    root = make_project(tmp_path, "project.md" if opted_in else None, "contract.md" if opted_in else None)
+    ok, long = "src/" + "a" * 496, "src/" + "a" * 497
+    assert len(ok) == server_scope.PATH_LIMIT and len(long) == server_scope.PATH_LIMIT + 1
+    first, second = scope_check(root, [ok, long], "main")["results"]
+    assert "longer than" not in first["reason"]
+    assert second["allow"] is False and second["reason"] == "the path is longer than 500 characters"
+    assert long not in json.dumps(second)
+
+
+# --- sizes of the control files and the event file --------------------------------------
+
+def test_an_event_file_over_the_limit_is_an_error_answer_and_one_at_the_limit_is_read(tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+    path = root / ".sdlc" / "metrics.jsonl"
+    path.write_bytes(b"\n" * event_totals.MAX_BYTES)
+    assert guard_events(root)["error"] == "" and guard_events(root)["tasks"] == {}
+    path.write_bytes(b"\n" * (event_totals.MAX_BYTES + 1))
+    got = guard_events(root)
+    assert got["error"] == f"the event file is larger than {event_totals.MAX_BYTES} bytes" and got["tasks"] == {}
+
+
+def test_a_project_file_over_2_mb_gives_the_template_defaults(tmp_path: Path) -> None:
+    root = tmp_path / "p"
+    (root / ".sdlc").mkdir(parents=True)
+    head = b"# P\n\n## Records\n- Status: `CUSTOM.md`\n"
+    (root / ".sdlc" / "project.md").write_bytes(head + b"x" * (2_000_000 - len(head)))
+    assert read_records(root)["status"] == "CUSTOM.md"
+    (root / ".sdlc" / "project.md").write_bytes(head + b"x" * (2_000_001 - len(head)))
+    assert read_records(root)["status"] == "STATUS.md"
+
+
+def test_the_event_file_and_the_project_file_may_be_folders_without_a_hang(tmp_path: Path) -> None:
+    root = tmp_path / "p"
+    (root / ".sdlc").mkdir(parents=True)
+    (root / ".sdlc" / "metrics.jsonl").mkdir()
+    (root / ".sdlc" / "project.md").mkdir()
+    started = time.perf_counter()
+    assert guard_events(root)["error"] == "the event file is not a regular file"
+    assert read_records(root)["status"] == "STATUS.md"
+    assert time.perf_counter() - started < 5

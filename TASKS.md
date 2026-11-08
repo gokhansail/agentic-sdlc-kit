@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. The 2 server questions are decided (DEC-050 read only, DEC-051 the user installs `mcp`). T-40 done 2026-11-08. T-40a done 2026-11-08 (DEC-052). T-46a eval set frozen and T-41 scope and event tools done 2026-11-08. T-42 record read tools done 2026-11-08. Next: T-44 security pass.
+T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. The 2 server questions are decided (DEC-050 read only, DEC-051 the user installs `mcp`). T-40 done 2026-11-08. T-40a done 2026-11-08 (DEC-052). T-46a eval set frozen and T-41 scope and event tools done 2026-11-08. T-42 record read tools done 2026-11-08. T-44 security pass done 2026-11-08: 0 High open, 2 Medium open in the guard (S-7, S-8). Next: the maintainer decides S-7 and S-8, then T-46b eval runs.
 
 ## Phases
 
@@ -487,6 +487,26 @@ Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-4
 - Acceptance: parity tests (each tool equals its `tools/lookup.py` function on the same fixtures); a fixture per record in the template format; this repository's `DECISIONS.md`, `LESSONS.md`, `TASKS.md`, `LOG.md`, `audits/` parse with 0 unreadable entries.
 - Acceptance: a map entry with `..` or an absolute path outside is refused; the socket-blocked run and the AST test cover the new modules; the stdio round trip lists 10 tools; one live `claude --plugin-dir . -p` run (Haiku) calls each new tool once.
 - Tests: `python -m pytest -q` summary pasted. Files written with Write or Edit only (DEV_RULES rule 5); no git command that changes state.
+- Report in Turkish, fixed format, no commit.
+
+- [x] T-44 [M] security pass on the read-only server. G4-3, G4-9.
+
+### [x] T-44 [M] Security pass (`developer`, Sonnet, effort high)
+- Result: `docs/security.md` (61 lines), `server/inputs.py`, 17 findings: 3 High fixed (control files read through a link; `core.fsmonitor` and a clean filter in `.git/config` ran a program on `git status`), 0 High open; 2 Medium open in `tools/scope_guard.py` (S-7 heading pattern, S-8 glob matcher; slow input makes the hook time out, which lets the write through, V-6). 112 new tests, 980 passed, 6 skipped (TL rerun); review rounds 1. Guard: 92 writes, 92 allow. Cost of S-3: `changed_outside` refuses a repository whose config has a filter or include (Git LFS).
+- Goal: a written check of the 10-tool server with a finding per gap, fixes with tests, 0 open High (G4-9). G4 `auditor` re-checks it.
+- Reads allowed: `server/`, `tools/`, `tests/`, `requirements-dev.txt`, `.claude-plugin/plugin.json`, `docs/toolchain.md`. Not: `eval/`, `DECISIONS.md`, `LOG.md`, `STATUS.md`, `audits/`, `cto/`.
+- Root lock: list each path input (tool argument and record-map entry); test `..`, absolute outside, UNC `\\host\share`, drive-relative `C:x`, NUL byte, a junction or link outside.
+- Read size: a record file over 2 MB and an audits folder over 200 files give an error answer or `truncated`, never a full read. Add both with tests.
+- Input limits: a table of every argument (type, limit, test). Close any argument without a limit.
+- No network: AST test and socket-blocked run cover every module `server/` imports from `tools/`. `_git` in `tools/scope_guard.py` passes `-c core.fsmonitor=false`; no other change to that file.
+- Leaks: no tool answer holds the absolute root or a home path; one test over all 10 tools on a fixture.
+- Tool descriptions: each says what it reads and that it only reads; no text that tells the model what to do. Note that answers carry project text as data.
+- Dependency: the range in `requirements-dev.txt`, the exact `mcp` version and its installed dependencies (name, version) in `docs/toolchain.md`. No network vulnerability scan; state it as a limit.
+- C-26: `docs/security.md` lists items a-j, each marked not applicable while the server is stdio only, one reason each.
+- `docs/security.md`: findings table (ID S-n, severity High/Medium/Low, status, test name), limits, at most 80 lines. A fix that needs a file outside Files in is a finding, not a fix.
+- Files in: `server/`, `tools/lookup.py`, `tools/records.py`, `tools/events.py`, `tools/scope_guard.py` (`_git` only), `tests/test_server.py`, `tests/test_lookup.py`, `tests/test_scope_guard.py`, `tests/fixtures/server/`, `docs/security.md`, `docs/toolchain.md`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `eval/`, `hooks/`, `agents/`, `.claude/`, `.sdlc/`, `requirements-dev.txt`, `.claude-plugin/`, `DEV_RULES.md`, the kit's records.
+- Tests: `python -m pytest -q` summary pasted. Write or Edit only (DEV_RULES rule 5); no git command that changes state; no live `claude` run.
 - Report in Turkish, fixed format, no commit.
 
 ## Later phases (headlines; contracts are written when the phase opens)
