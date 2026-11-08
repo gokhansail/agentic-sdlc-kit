@@ -1052,20 +1052,26 @@ def test_a_control_file_over_the_size_limit_is_refused_and_one_at_the_limit_is_r
 
 
 @pytest.mark.parametrize("line", ["# a" + " " * 17 + "x", "## " + "\t" * 17 + "x", "### a" + "#" * 17 + "x",
-                                  "   # a" + " \t" * 9 + "x", "# a" + " " * 3000 + "x"])
+                                  "   # a" + " \t" * 9 + "x", "# a" + " " * 3000 + "x", "#" + " " * 20000 + "x"])
 @pytest.mark.parametrize("name", ["project.md", "active-contract.md"])
-def test_a_heading_with_a_long_run_is_refused_before_the_slow_guard_pattern_runs(tmp_path: Path, line: str, name: str) -> None:
-    # tools.scope_guard._HEADING needs about 13 s for a 2,000-space run (S-3); the server never lets it run.
+def test_a_heading_with_a_long_run_is_parsed_by_the_guard_without_a_refusal(tmp_path: Path, line: str, name: str) -> None:
+    # The old guard pattern needed about 13 s for a 2,000-space run (S-6); the server used to refuse the line.
+    # Now the guard parses it in one pass, so the server hands the file over: a heading in the project file
+    # is read as usual, a second heading in the contract is the contract's own error.
     root = make_project(tmp_path, "project.md", "contract.md")
     path = root / ".sdlc" / name
     path.write_bytes(path.read_bytes() + ("\n" + line + "\n").encode("utf-8"))
     started = time.perf_counter()
     got = status(root)
-    assert got["guard_state"] == "broken" and "run of more than 16" in got["broken_reason"]
-    assert contract(root)["valid"] is False and changed_outside(root)["ok"] is False
-    with pytest.raises(ValueError, match="run of more than 16"):
-        scope_check(root, ["a.py"], "sub-agent")
-    assert time.perf_counter() - started < 5
+    assert server_inputs.control_problem(root) == ""
+    if name == "project.md":
+        assert got["guard_state"] == "active" and contract(root)["valid"] is True
+        assert scope_check(root, ["src/a.py"], "sub-agent")["guard_state"] == "active"
+    else:
+        assert got["guard_state"] == "broken" and "second heading" in got["broken_reason"]
+        assert contract(root)["valid"] is False
+        assert scope_check(root, ["src/a.py"], "sub-agent")["results"][0]["allow"] is False
+    assert time.perf_counter() - started < 2
 
 
 def test_a_heading_with_a_short_run_is_read_as_usual(tmp_path: Path) -> None:

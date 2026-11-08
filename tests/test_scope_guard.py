@@ -11,9 +11,12 @@ import ast
 import io
 import json
 import os
+import random
+import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -340,6 +343,167 @@ def test_glob_rules() -> None:
     assert sg.matches("a/c/d.py", ["a/"], False)
     assert not sg.matches("ab/c.py", ["a/"], False)
     assert sg.matches("a.b", ["a.b"], False) and not sg.matches("aXb", ["a.b"], False)
+
+
+# --- bounded time and the same answers as the regex (S-7, S-8) -----------------------
+
+OLD_HEADING = re.compile(r"^ {0,3}#{1,6}\s+(.*?)\s*#*\s*$")  # the pattern heading_text replaced
+TIME_LIMIT = 0.5  # seconds for each worst case; the regex needed 13 s, 4.6 s and 1.6 s
+
+
+def regex_answer(rel: str, pattern: str, casefold: bool) -> bool:
+    return re.fullmatch(sg.glob_to_regex(pattern), rel, re.IGNORECASE if casefold else 0) is not None
+
+
+def timed(call) -> float:
+    started = time.perf_counter()
+    call()
+    return time.perf_counter() - started
+
+
+def pattern_strings_in_tests() -> list[str]:
+    """Every short string constant in tests/*.py. Any string may be a pattern, so all of them are used."""
+    found: set[str] = set()
+    for path in sorted((ROOT / "tests").glob("*.py")):
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                if 0 < len(node.value) <= 120 and "\n" not in node.value and " " not in node.value:
+                    found.add(node.value)
+    return sorted(found)
+
+
+def instance_of(pattern: str, rnd: random.Random) -> str:
+    """A path that the pattern probably matches: wildcards are replaced by short random text."""
+    out = []
+    i = 0
+    while i < len(pattern):
+        if pattern.startswith("**/", i):
+            out.append(rnd.choice(["", "a/", "a/b/", "x.y/"]))
+            i += 3
+        elif pattern.startswith("**", i):
+            out.append(rnd.choice(["", "a", "a/b", "/"]))
+            i += 2
+        elif pattern[i] == "*":
+            out.append(rnd.choice(["", "a", "bb", "x.y"]))
+            i += 1
+        elif pattern[i] == "?":
+            out.append(rnd.choice("aB.x"))
+            i += 1
+        else:
+            out.append(pattern[i])
+            i += 1
+    return "".join(out)
+
+
+def test_the_linear_matcher_gives_the_regex_answer_on_generated_pairs() -> None:
+    rnd = random.Random(20261108)
+    pieces = ["a", "b", "A", "B", ".", "/", "*", "**", "**/", "?", "x", "ab", "\n", "ſ", "K", "k", "K", "s", "S"]
+    path_pieces = ["a", "b", "A", "B", ".", "/", "x", "ab", "\n", "ſ", "K", "k", "K", "s", "S", "//"]
+    pairs = 0
+    matched = 0
+    for _ in range(3000):
+        pattern = "".join(rnd.choice(pieces) for _ in range(rnd.randint(0, 8)))
+        if rnd.random() < 0.5:
+            rel = instance_of(pattern, rnd)
+        else:
+            rel = "".join(rnd.choice(path_pieces) for _ in range(rnd.randint(0, 10)))
+        for casefold in (False, True):
+            want = regex_answer(rel, pattern, casefold)
+            assert sg.matches(rel, [pattern], casefold) is want, (pattern, rel, casefold)
+            pairs += 1
+            matched += want
+    assert pairs >= 2000 and 300 < matched < pairs - 300  # the corpus has both answers in quantity
+
+
+def test_the_linear_matcher_gives_the_regex_answer_for_every_string_in_the_tests() -> None:
+    patterns = pattern_strings_in_tests()
+    paths = ["a/b.py", "src/a.py", "src/pkg/x/y.py", "docs/a/b.md", ".sdlc/active-contract.md", "TASKS.md", "a", "",
+             "tests/fixtures/x/f.json", "tools/metrics/a.py", "audits/r.md", "a/", "SRC/A.PY", "x.y/z", "a\nb/c"]
+    paths += [p for p in patterns if "/" in p][:40]
+    assert len(patterns) > 500
+    for casefold in (False, True):
+        for pattern in patterns:
+            for rel in paths:
+                assert sg.matches(rel, [pattern], casefold) is regex_answer(rel, pattern, casefold), (pattern, rel, casefold)
+
+
+def test_matches_answers_for_a_list_like_the_any_of_the_regex_answers() -> None:
+    assert sg.matches("a/b.py", [], False) is False
+    assert sg.matches("a/b.py", ["x/*", "a/*.py", "["], False) is True
+    assert sg.matches("A/B.PY", ["a/*.py"], True) is True and sg.matches("A/B.PY", ["a/*.py"], False) is False
+    assert sg.matches("", [""], False) is True and sg.matches("a", [""], False) is False
+
+
+def test_glob_to_regex_is_still_the_reference() -> None:
+    assert sg.glob_to_regex("a/**/*.py") == "a/(?:.*/)?[^/]*\\.py"
+    assert sg.glob_to_regex("src/") == "src/.*"
+    assert sg.glob_to_regex("a?b**") == "a[^/]b.*"
+
+
+def test_nine_globstars_against_thirty_segments_are_matched_in_bounded_time() -> None:
+    pattern = "**/" * 9 + "zz"
+    path = "/".join(["a"] * 30)
+    assert timed(lambda: sg.matches(path, [pattern], False)) < TIME_LIMIT
+    assert sg.matches(path, [pattern], False) is False and sg.matches(path + "/zz", [pattern], False) is True
+    assert sg.matches(path + "/ZZ", [pattern], True) is True and sg.matches(path + "/ZZ", [pattern], False) is False
+
+
+def test_fifty_patterns_against_a_500_character_path_are_matched_in_bounded_time() -> None:
+    path = "a" * 500
+    patterns = ["*a*a*b", "*a" * 8 + "b", "**/*a*a*a*b", "a*a*a*a*a*a*a*a*c"] * 12 + ["*a*a*a"] * 2
+    assert len(patterns) == 50
+    for casefold in (False, True):
+        assert timed(lambda: sg.matches(path, patterns, casefold)) < TIME_LIMIT
+    assert sg.matches(path, patterns[:-2], False) is False and sg.matches(path, ["*a*a*a"], False) is True
+    long_path = "a/" * 100_000 + "b"  # unbounded paths come from the hook input
+    assert timed(lambda: sg.matches(long_path, ["**/" * 9 + "zz", "*a*a*b"], True)) < TIME_LIMIT * 4
+
+
+def test_the_heading_parse_gives_the_regex_answer_on_generated_lines() -> None:
+    rnd = random.Random(20261109)
+    pieces = [" ", " ", "#", "#", "a", "\t", "b", " ", "\x1f", "　", "T-1", "``"]
+    fixed = ["", "#", "# ", "# a", "#a", "## A b ##", "   ### x", "    # x", "####### x", "# x #  #", "# #", "\t# x",
+             "#\tx", "###### six", "# Always allowed ", "## T-44a title #"]
+    lines = fixed + ["".join(rnd.choice(pieces) for _ in range(rnd.randint(0, 14))) for _ in range(3000)]
+    headings = 0
+    for line in lines:
+        found = OLD_HEADING.match(line)
+        assert sg.heading_text(line) == (found.group(1) if found else None), repr(line)
+        headings += found is not None
+    assert headings > 300
+
+
+def test_a_heading_with_a_2000_blank_run_is_parsed_in_bounded_time(tmp_path: Path) -> None:
+    for blanks in (800, 2_000, 200_000):
+        for line in ("# a" + " " * blanks + "x", "#" + " " * blanks, "#" + "\t " * blanks + "x ##", "   # a" + "#" * blanks):
+            assert timed(lambda: sg.heading_text(line)) < TIME_LIMIT
+    contract_text = CONTRACT.replace("### [ ] T-99 [M] Example task", "### [ ] T-99 [M] Example" + " " * 2_000 + "task")
+    assert timed(lambda: sg.parse_contract(contract_text)) < TIME_LIMIT
+    assert sg.parse_contract(contract_text).task_id == "T-99"
+    project_text = PROJECT.replace("## Always allowed", "## Always allowed" + " " * 200_000 + "##")
+    assert timed(lambda: sg.parse_always_allowed(project_text)) < TIME_LIMIT
+    assert sg.parse_always_allowed(project_text) == ["LOG.md", "STATUS.md", "reports/"]
+    root = make_project(tmp_path, contract=contract_text, project=project_text)
+    assert timed(lambda: sg.check_contract(root)) < TIME_LIMIT
+    assert sg.check_contract(root)[0] == 0
+    assert sg.main(["--root", str(root), "--check-contract"], stdout=io.StringIO(), stderr=io.StringIO()) == 0
+
+
+def test_a_contract_with_long_field_lines_is_parsed_in_bounded_time() -> None:
+    contract_text = CONTRACT.replace("- Files in:", "-" + " " * 100_000 + "Files in:")
+    assert timed(lambda: sg.parse_contract(contract_text)) < TIME_LIMIT
+    assert sg.parse_contract(contract_text).files_in[0] == "src/a.py"
+    assert timed(lambda: sg.parse_contract("#" + " " * 100_000 + "T-1\n- Files in: `a`\n- Files out: `b`\n")) < TIME_LIMIT
+
+
+def test_a_decision_on_a_crafted_contract_is_made_in_bounded_time() -> None:
+    contract = sg.Contract("T-1", ("**/" * 9 + "*a*a*a*b",), ("**/" * 9 + "zz",), ())
+    path = "/".join(["a"] * 30)
+    started = time.perf_counter()
+    decision = sg.decide(path, sg.ACTIVE, contract, ["**/" * 9 + "q"], True, True)
+    assert time.perf_counter() - started < TIME_LIMIT
+    assert decision.allow is False and "not in Files in" in decision.reason
+    assert sg.decide("/".join(["a"] * 29) + "/aaab", sg.ACTIVE, contract, [], True, False).allow is True
 
 
 # --- the path field of each captured tool ---------------------------------------

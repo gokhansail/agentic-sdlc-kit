@@ -1,8 +1,7 @@
 """Checks on the files that the scope guard and git read for the server's tools (T-44).
 
 The guard functions in `tools/scope_guard.py` read `.sdlc/project.md` and `.sdlc/active-contract.md`
-with no size limit and follow links, and one of their patterns takes minutes on a crafted heading line.
-`control_problem` looks at both files first. `git_problem` looks at the repository config before
+with no size limit and follow links. `control_problem` looks at both files first (link, kind, size). `git_problem` looks at the repository config before
 `git status` runs. `scrub` removes the root and the home folder from a text. A problem text names no path.
 This module defines no path or glob rule of its own.
 """
@@ -17,7 +16,6 @@ from tools.scope_guard import CONTRACT_FILE, PROJECT_FILE
 CONTROL_FILES = (PROJECT_FILE, CONTRACT_FILE)
 CONTROL_LIMIT = 256_000  # bytes; the real files are under 2,000
 CONFIG_LIMIT = 1_000_000
-RUN_LIMIT = 16  # longest run of spaces, tabs and # in a heading line
 GIT_DIR = ".git"
 GIT_RUNS_CONFIG = ("[filter", "[include")  # a filter driver runs on `git status`; an include can hide one
 MAX_PATTERNS = 500  # Files in, Files out or always-allowed entries in one answer
@@ -53,37 +51,18 @@ def scrub(text: str, root: Path) -> str:
     return text
 
 
-def _heading_run(text: str) -> bool:
-    """True when a heading line (up to 3 spaces, then #) has a run of whitespace or # longer than RUN_LIMIT."""
-    for line in text.splitlines():
-        body = line.lstrip(" ")
-        if len(line) - len(body) > 3 or not body.startswith("#"):
-            continue
-        run = 0
-        for ch in body:
-            if ch.isspace() or ch == "#":
-                run += 1
-                if run > RUN_LIMIT:
-                    return True
-            else:
-                run = 0
-    return False
-
-
 def control_problem(root: Path) -> str:
     """"" when the project file and the contract can be handed to the guard; else one sentence why not."""
     base = Path(root).resolve()
     for rel in CONTROL_FILES:
         try:
-            data = read_inside(base, rel, CONTROL_LIMIT)
+            read_inside(base, rel, CONTROL_LIMIT)
         except FileNotFoundError:
             continue
         except UnsafeFile as exc:
             return f"{rel} {exc}"
         except OSError:
             return f"{rel} could not be read"
-        if _heading_run(data.decode("utf-8-sig", errors="replace")):
-            return f"{rel} has a heading line with a run of more than {RUN_LIMIT} spaces or # characters"
     return ""
 
 

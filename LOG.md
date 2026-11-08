@@ -2,6 +2,22 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-08 (8) - T-44a guard match in bounded time
+
+- T-44 committed and pushed (1fc790f).
+- The maintainer chose to fix S-7 and S-8 before the eval runs. The TL wrote the contract and placed `.sdlc/active-contract.md` (6 Files in, 8 Files out).
+- `developer` (Sonnet, effort high) built T-44a:
+  - `tools/scope_guard.py`: `heading_text`, one pass over the line, replaces the `_HEADING` pattern; `matches` keeps the reachable path positions as one integer and moves it token by token, no backtracking; `glob_to_regex` unchanged and kept as the test reference;
+  - `server/inputs.py`: the T-44 stopgap (refuse a heading run over 16 blanks) removed; the size limits stay;
+  - `docs/security.md`: S-6, S-7, S-8 fixed with test names; 2 new limits lines; 1 CHANGELOG line.
+- Same answers as the old regex on 6,000 generated pairs (fixed seed, case folding on and off) and on every short string in `tests/` as a pattern; two planted mutations were caught.
+- Times, before and after: 2,000-blank heading 12.8 s to under 1 ms; 9 `**/` against 30 segments 4.6 s to 0.05 ms; 50 patterns against a 500-character path 1.6 s to 0.3 ms. The hook timeout is 30 s.
+- Findings in `docs/security.md`: 0 open (17 in all: 15 fixed, 2 accepted).
+- Tests: 12 new; 992 passed, 6 skipped (TL rerun).
+- Guard: 19 writes, 19 allow, 0 deny; `--check-worktree`: 7 paths, all inside T-44a.
+- Metrics (T-44a): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- Next: T-46b eval runs in the maintainer's terminal, under a cost cap.
+
 ## 2026-11-08 (7) - T-44 security pass
 
 - T-42 committed and pushed (9643651).

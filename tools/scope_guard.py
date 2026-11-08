@@ -49,6 +49,7 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Sequence, TextIO
 
@@ -89,12 +90,29 @@ class Decision:
 # --- parsing -------------------------------------------------------------------
 
 _TICKED = re.compile(r"`([^`\r\n]+)`")
-_HEADING = re.compile(r"^ {0,3}#{1,6}\s+(.*?)\s*#*\s*$")
 _TASK_ID = re.compile(r"(?<![\w-])[A-Z][A-Z0-9]{0,9}-\d+[a-z]?(?![\w-])")
 _FIELD = re.compile(r"^\s*(?:[-*+]\s+)?(Files in|Files out)\s*:(.*)$", re.IGNORECASE)
 
 
 _RULES_FIELD = re.compile(r"^\s*(?:[-*+]\s+)?Developer rules\s*:(.*)$", re.IGNORECASE)
+
+
+def heading_text(line: str) -> str | None:
+    """The text of a Markdown heading line, or None when the line is not a heading.
+
+    A heading has at most 3 spaces, 1 to 6 `#`, then whitespace; closing `#` characters and the
+    blanks around them are not part of the text. Same result as the pattern
+    `^ {0,3}#{1,6}\\s+(.*?)\\s*#*\\s*$` that this replaced, which backtracks without a bound on a long
+    run of blanks (S-7). Here every step is a single pass over the line.
+    """
+    body = line.lstrip(" ")
+    if len(line) - len(body) > 3:
+        return None
+    rest = body.lstrip("#")
+    hashes = len(body) - len(rest)
+    if not 1 <= hashes <= 6 or not rest[:1].isspace():
+        return None
+    return rest.strip().rstrip("#").rstrip()
 
 
 def backticked(line: str) -> list[str]:
@@ -154,9 +172,9 @@ def parse_always_allowed(text: str) -> list[str]:
     out: list[str] = []
     inside = False
     for line in text.splitlines():
-        heading = _HEADING.match(line)
-        if heading:
-            inside = heading.group(1).strip().lower() == "always allowed"
+        title = heading_text(line)
+        if title is not None:
+            inside = title.strip().lower() == "always allowed"
             continue
         if inside:
             out.extend(patterns_from_line(line))
@@ -178,9 +196,9 @@ def parse_contract(text: str) -> Contract:
     headings: list[tuple[int, str]] = []
     fields: dict[str, list[tuple[int, str]]] = {"files in": [], "files out": []}
     for number, line in enumerate(text.splitlines(), start=1):
-        heading = _HEADING.match(line)
-        if heading:
-            headings.append((number, heading.group(1)))
+        title = heading_text(line)
+        if title is not None:
+            headings.append((number, title))
             continue
         field = _FIELD.match(line)
         if field:
@@ -234,9 +252,113 @@ def glob_to_regex(pattern: str) -> str:
     return "".join(out)
 
 
+_LIT, _ANY_DIR, _ANY_LINE, _ANY_NAME, _ONE_NAME = range(5)
+
+
+@lru_cache(maxsize=1024)
+def _glob_tokens(pattern: str) -> tuple[tuple[int, str], ...]:
+    """The pattern as tokens, cut the same way `glob_to_regex` cuts it.
+
+    _ANY_DIR is `**/` (`(?:.*/)?`), _ANY_LINE is `**` (`.*`, which stops at a newline),
+    _ANY_NAME is `*` (`[^/]*`), _ONE_NAME is `?` (`[^/]`), _LIT is one literal character.
+    """
+    if pattern.endswith("/"):
+        pattern += "**"
+    out: list[tuple[int, str]] = []
+    i = 0
+    while i < len(pattern):
+        if pattern.startswith("**/", i):
+            out.append((_ANY_DIR, ""))
+            i += 3
+        elif pattern.startswith("**", i):
+            out.append((_ANY_LINE, ""))
+            i += 2
+        elif pattern[i] == "*":
+            out.append((_ANY_NAME, ""))
+            i += 1
+        elif pattern[i] == "?":
+            out.append((_ONE_NAME, ""))
+            i += 1
+        else:
+            out.append((_LIT, pattern[i]))
+            i += 1
+    return tuple(out)
+
+
+@lru_cache(maxsize=65536)
+def _same_char(want: str, have: str, casefold: bool) -> bool:
+    """Whether the literal `want` matches the character `have`, as the regex engine decides it."""
+    if want == have:
+        return True
+    return casefold and re.fullmatch(re.escape(want), have, re.IGNORECASE) is not None
+
+
+def _spread(reached: int, allowed: int) -> int:
+    """Add every position reachable by consuming zero or more characters of `allowed`.
+
+    Bit i of a mask is position i of the path. One addition carries through each run of allowed
+    characters, so the whole spread is a few big-integer operations.
+    """
+    return (((reached & allowed) + allowed) ^ allowed) | reached
+
+
+class _Subject:
+    """One path, with the bit masks that the matcher needs. Built lazily, once per path."""
+
+    def __init__(self, rel: str, casefold: bool) -> None:
+        self.rel = rel
+        self.size = len(rel)
+        self.casefold = casefold
+        self._chars: set[str] | None = None
+        self._literal: dict[str, int] = {}
+        self.slash = self._mask(lambda ch: ch == "/")
+        full = (1 << self.size) - 1
+        self.name = full & ~self.slash
+        self.line = full & ~self._mask(lambda ch: ch == "\n")
+
+    def _mask(self, wanted) -> int:
+        bits = "".join("1" if wanted(ch) else "0" for ch in reversed(self.rel))
+        return int(bits, 2) if bits else 0
+
+    def literal(self, want: str) -> int:
+        mask = self._literal.get(want)
+        if mask is None:
+            if not self.casefold:
+                mask = self._mask(lambda ch: ch == want)
+            else:
+                if self._chars is None:
+                    self._chars = set(self.rel)
+                same = {ch for ch in self._chars if _same_char(want, ch, True)}
+                mask = self._mask(lambda ch: ch in same)
+            self._literal[want] = mask
+        return mask
+
+    def fullmatch(self, pattern: str) -> bool:
+        """Same answer as `re.fullmatch(glob_to_regex(pattern), rel, flags)`, without backtracking.
+
+        The set of path positions that the pattern's tokens can reach is kept as one integer and
+        moved token by token: O(pattern length x path length / word size), never exponential.
+        """
+        reached = 1
+        for kind, char in _glob_tokens(pattern):
+            if kind == _LIT:
+                reached = (reached & self.literal(char)) << 1
+            elif kind == _ONE_NAME:
+                reached = (reached & self.name) << 1
+            elif kind == _ANY_NAME:
+                reached = _spread(reached, self.name)
+            elif kind == _ANY_LINE:
+                reached = _spread(reached, self.line)
+            else:
+                reached |= (_spread(reached, self.line) & self.slash) << 1
+            if not reached:
+                return False
+        return bool((reached >> self.size) & 1)
+
+
 def matches(rel: str, patterns: Sequence[str], casefold: bool) -> bool:
-    flags = re.IGNORECASE if casefold else 0
-    return any(re.fullmatch(glob_to_regex(p), rel, flags) for p in patterns)
+    subject = _Subject(rel, casefold)
+    return any(subject.fullmatch(p) for p in patterns)
 
 
 def _is_absolute(path: str) -> bool:

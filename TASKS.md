@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. The 2 server questions are decided (DEC-050 read only, DEC-051 the user installs `mcp`). T-40 done 2026-11-08. T-40a done 2026-11-08 (DEC-052). T-46a eval set frozen and T-41 scope and event tools done 2026-11-08. T-42 record read tools done 2026-11-08. T-44 security pass done 2026-11-08: 0 High open, 2 Medium open in the guard (S-7, S-8). Next: the maintainer decides S-7 and S-8, then T-46b eval runs.
+T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. The 2 server questions are decided (DEC-050 read only, DEC-051 the user installs `mcp`). T-40 done 2026-11-08. T-40a done 2026-11-08 (DEC-052). T-46a eval set frozen and T-41 scope and event tools done 2026-11-08. T-42 record read tools done 2026-11-08. T-44 security pass done 2026-11-08: 0 High open, 2 Medium open in the guard (S-7, S-8). The maintainer chose to fix them first: T-44a done 2026-11-08, 0 findings open. Next: T-46b eval runs.
 
 ## Phases
 
@@ -506,6 +506,23 @@ Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-4
 - `docs/security.md`: findings table (ID S-n, severity High/Medium/Low, status, test name), limits, at most 80 lines. A fix that needs a file outside Files in is a finding, not a fix.
 - Files in: `server/`, `tools/lookup.py`, `tools/records.py`, `tools/events.py`, `tools/scope_guard.py` (`_git` only), `tests/test_server.py`, `tests/test_lookup.py`, `tests/test_scope_guard.py`, `tests/fixtures/server/`, `docs/security.md`, `docs/toolchain.md`, one `CHANGELOG.md` line.
 - Files out: everything else, incl. `eval/`, `hooks/`, `agents/`, `.claude/`, `.sdlc/`, `requirements-dev.txt`, `.claude-plugin/`, `DEV_RULES.md`, the kit's records.
+- Tests: `python -m pytest -q` summary pasted. Write or Edit only (DEV_RULES rule 5); no git command that changes state; no live `claude` run.
+- Report in Turkish, fixed format, no commit.
+
+- [x] T-44a [M] guard heading and glob match in bounded time (S-7, S-8).
+
+### [x] T-44a [M] Guard match in bounded time (`developer`, Sonnet, effort high)
+- Result: `heading_text` (one pass) replaces `_HEADING`; `matches` moves a bit set over the path, `glob_to_regex` kept as the reference; same answers on 6,000 generated pairs and every short string in `tests/`. Worst cases: 2,000-blank heading 12.8 s to under 1 ms, 9 `**/` on 30 segments 4.6 s to 0.05 ms, 50 patterns on a 500-character path 1.6 s to 0.3 ms. Server stopgap removed. S-6, S-7, S-8 fixed, 0 findings open. 992 passed, 6 skipped (TL rerun); review rounds 1. Guard: 19 writes, 19 allow.
+- Goal: no contract, project file or path makes the scope guard slow enough to reach the hook timeout, which lets the write through (V-6). Closes S-7 and S-8 of `docs/security.md`.
+- Reads allowed: `tools/scope_guard.py`, `server/`, `tests/`, `docs/security.md`, `docs/toolchain.md` V-6. Not: `eval/`, `DECISIONS.md`, `LOG.md`, `STATUS.md`, `audits/`, `cto/`.
+- Heading: replace `_HEADING` use in the contract and project file parsers with a linear parse (no regex with nested or adjacent unbounded groups). Same result as today on every existing test.
+- Glob: `matches` uses a matcher without backtracking (segment-wise or a two-pointer `*` and `**` match), O(path length x pattern length) per pattern. `glob_to_regex` stays importable and unchanged; tests use it as the reference.
+- Same answers: a test compares the new matcher with `re.fullmatch(glob_to_regex(p))` on at least 2,000 generated pattern and path pairs (fixed seed; `*`, `**/`, `**`, `?`, `/`, case on and off) and on every pattern in `tests/`.
+- Time: the S-6, S-7 and S-8 worst cases (2,000-blank heading, 9 `**/` against 30 segments, 50 patterns x 500-character paths) each finish under 0.5 s in a test.
+- Server: drop the heading-run refusal in `server/inputs.py` (the guard is now linear); keep the size limits. Update S-6, S-7, S-8 rows in `docs/security.md` with status and test names.
+- Keep: `check`, `decide`, `Contract`, `glob_to_regex`, `matches` call forms; `--check-worktree` unchanged; standard library only.
+- Files in: `tools/scope_guard.py`, `tests/test_scope_guard.py`, `server/inputs.py`, `tests/test_server.py`, `docs/security.md`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `eval/`, `hooks/`, `tools/records.py`, `tools/lookup.py`, `agents/`, `.claude/`, `.sdlc/`, `DEV_RULES.md`, the kit's records.
 - Tests: `python -m pytest -q` summary pasted. Write or Edit only (DEV_RULES rule 5); no git command that changes state; no live `claude` run.
 - Report in Turkish, fixed format, no commit.
 

@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-08
-Now: Phase 4 MCP server open; T-44 done, S-7 and S-8 decision next · repository private · code written, tests green
+Now: Phase 4 MCP server open; T-44a done, T-46b next · repository private · code written, tests green
 
 ## Phase
 
@@ -42,10 +42,10 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - T-41 scope_check, contract, changed_outside, guard_events tools; 742 tests green; live run works.
 - T-42 decision, lesson, finding, task and log tools; 10 tools in all; 868 tests green; live run works.
 - T-44 security pass: 17 findings, 3 High fixed, 0 High open, 2 Medium open in the guard (S-7, S-8); `docs/security.md`; 980 tests green.
+- T-44a guard match in bounded time: S-6, S-7, S-8 fixed, 0 security findings open; 992 tests green.
 
 ## Next
 
-- Decide S-7 and S-8 (guard heading pattern and glob matcher time out the hook).
 - T-46b eval runs in the maintainer's terminal, under a cost cap.
 
 ## Repository
