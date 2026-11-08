@@ -1,0 +1,225 @@
+{
+  "schema": 1,
+  "label": "pilot-1",
+  "date": "2026-11-09",
+  "cli_version": "2.1.319 (Claude Code)",
+  "eval_set_sha256": "c59798e361ff995ede8ae5332218ca66bd27e4051ade1e2e50ad47a91692371f",
+  "question_ids": [
+    "Q01",
+    "Q09",
+    "Q15",
+    "Q21",
+    "Q26"
+  ],
+  "repeats": 1,
+  "settings": {
+    "max_turns": 12,
+    "max_run_usd": 0.25,
+    "timeout_s": 300,
+    "tools": "Read",
+    "restricted": true,
+    "setting_sources": "project,local"
+  },
+  "planned_runs": 20,
+  "done_runs": 20,
+  "complete": true,
+  "stopped": "",
+  "budget_usd": 3.0,
+  "spent_usd": 0.156575,
+  "groups": [
+    {
+      "model": "haiku",
+      "model_id": "claude-haiku-5-5",
+      "condition": "server",
+      "runs": 5,
+      "correct": 4,
+      "accuracy_mean": 0.8,
+      "accuracy_min": 0.8,
+      "accuracy_max": 0.8,
+      "by_category": {
+        "decisions": {
+          "correct": 1,
+          "total": 1
+        },
+        "findings": {
+          "correct": 1,
+          "total": 1
+        },
+        "guard": {
+          "correct": 0,
+          "total": 1
+        },
+        "scope": {
+          "correct": 1,
+          "total": 1
+        },
+        "tasks": {
+          "correct": 1,
+          "total": 1
+        }
+      },
+      "cost_usd": 0.004307,
+      "cost_usd_per_run": 0.000861,
+      "input_tokens": 20,
+      "cache_read_tokens": 56436,
+      "cache_creation_tokens": 12960,
+      "output_tokens": 2297,
+      "duration_ms": 20668,
+      "duration_ms_per_run": 4133.6,
+      "turns_per_run": 2.8,
+      "tool_calls_total": 9,
+      "tool_calls": {
+        "Read": 9
+      },
+      "errors": 0,
+      "unparsed": 0
+    },
+    {
+      "model": "haiku",
+      "model_id": "claude-haiku-5-5",
+      "condition": "no-server",
+      "runs": 5,
+      "correct": 4,
+      "accuracy_mean": 0.8,
+      "accuracy_min": 0.8,
+      "accuracy_max": 0.8,
+      "by_category": {
+        "decisions": {
+          "correct": 1,
+          "total": 1
+        },
+        "findings": {
+          "correct": 1,
+          "total": 1
+        },
+        "guard": {
+          "correct": 0,
+          "total": 1
+        },
+        "scope": {
+          "correct": 1,
+          "total": 1
+        },
+        "tasks": {
+          "correct": 1,
+          "total": 1
+        }
+      },
+      "cost_usd": 0.007953,
+      "cost_usd_per_run": 0.001591,
+      "input_tokens": 20,
+      "cache_read_tokens": 38131,
+      "cache_creation_tokens": 27435,
+      "output_tokens": 4166,
+      "duration_ms": 27115,
+      "duration_ms_per_run": 5423.0,
+      "turns_per_run": 6.2,
+      "tool_calls_total": 26,
+      "tool_calls": {
+        "Read": 26
+      },
+      "errors": 0,
+      "unparsed": 0
+    },
+    {
+      "model": "sonnet",
+      "model_id": "claude-sonnet-5-5",
+      "condition": "server",
+      "runs": 5,
+      "correct": 5,
+      "accuracy_mean": 1.0,
+      "accuracy_min": 1.0,
+      "accuracy_max": 1.0,
+      "by_category": {
+        "decisions": {
+          "correct": 1,
+          "total": 1
+        },
+        "findings": {
+          "correct": 1,
+          "total": 1
+        },
+        "guard": {
+          "correct": 1,
+          "total": 1
+        },
+        "scope": {
+          "correct": 1,
+          "total": 1
+        },
+        "tasks": {
+          "correct": 1,
+          "total": 1
+        }
+      },
+      "cost_usd": 0.064486,
+      "cost_usd_per_run": 0.012897,
+      "input_tokens": 20,
+      "cache_read_tokens": 43036,
+      "cache_creation_tokens": 12833,
+      "output_tokens": 881,
+      "duration_ms": 10656,
+      "duration_ms_per_run": 2131.2,
+      "turns_per_run": 2.6,
+      "tool_calls_total": 8,
+      "tool_calls": {
+        "Read": 1,
+        "mcp__sdlc__contract": 1,
+        "mcp__sdlc__decisions": 2,
+        "mcp__sdlc__findings": 1,
+        "mcp__sdlc__guard_events": 1,
+        "mcp__sdlc__scope_check": 1,
+        "mcp__sdlc__tasks": 1
+      },
+      "errors": 0,
+      "unparsed": 0
+    },
+    {
+      "model": "sonnet",
+      "model_id": "claude-sonnet-5-5",
+      "condition": "no-server",
+      "runs": 5,
+      "correct": 5,
+      "accuracy_mean": 1.0,
+      "accuracy_min": 1.0,
+      "accuracy_max": 1.0,
+      "by_category": {
+        "decisions": {
+          "correct": 1,
+          "total": 1
+        },
+        "findings": {
+          "correct": 1,
+          "total": 1
+        },
+        "guard": {
+          "correct": 1,
+          "total": 1
+        },
+        "scope": {
+          "correct": 1,
+          "total": 1
+        },
+        "tasks": {
+          "correct": 1,
+          "total": 1
+        }
+      },
+      "cost_usd": 0.079829,
+      "cost_usd_per_run": 0.015966,
+      "input_tokens": 20,
+      "cache_read_tokens": 29134,
+      "cache_creation_tokens": 14879,
+      "output_tokens": 1736,
+      "duration_ms": 14796,
+      "duration_ms_per_run": 2959.2,
+      "turns_per_run": 3.0,
+      "tool_calls_total": 10,
+      "tool_calls": {
+        "Read": 10
+      },
+      "errors": 0,
+      "unparsed": 0
+    }
+  ]
+}

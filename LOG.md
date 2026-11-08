@@ -2,9 +2,10 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
-## 2026-11-09 (1) - T-46b pilot stopped; API credit check
+## 2026-11-09 (1) - T-46b pilot ran to the end after a stop; API credit check
 
-- The TL started the pilot (20 runs, budget 3 USD) in this session on the customer's word. The customer stopped everything before the first run ended. No totals file was written; no run process was left.
+- The TL started the pilot (20 runs, budget 3 USD) in this session on the customer's word. The customer said to stop everything. The TL stopped the background shell task and reported the pilot stopped with no process left. That was wrong: stopping the shell task did not stop the Python runner, and the TL's process check matched nothing. The runner finished all 20 runs (about 23:37 to 00:06) and wrote `eval/results/pilot-1.json`. Found after the T-46b commit; the totals file is not committed.
+- Pilot totals (list-price estimate 0.157 USD, `apiKeySource` none on all 20 runs, 0 errors, 0 unparsed): Haiku 4 of 5 with the server, 4 of 5 without (the guard events question wrong in both); Sonnet 5 of 5 in both. Tool calls per 5 runs: Haiku 9 with the server (all Read), 26 without; Sonnet 8 with (7 server tools), 10 without. Cost per run: Haiku 0.0009 and 0.0016 USD, Sonnet 0.013 and 0.016 USD.
 - The customer asked whether the TL session had used the API credit. Checked: the key is not set in the session's process environment, only as a user-level variable. The only calls with the key were the 11 step-0 calls, all refused at 0 USD.
 - The customer's console showed 98.50 USD organization credit and 1.51 of a 20 USD monthly limit spent. Why the step-0 key was refused with "Credit balance is too low" is not known. The records that said "no credit" were corrected (DEC-054, V-16, TASKS).
 - Next: the pilot in the customer's terminal with `docs/eval-runbook.md`, then the full matrix after the weekly usage limit resets.
