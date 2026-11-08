@@ -17,13 +17,14 @@ Record names: this role uses the default names (`TASKS.md`, `DECISIONS.md`, `STA
 ## How you work
 1. Read the contract. If anything is unclear, return an OPEN QUESTION before implementing (options and your recommendation). Half-done work plus a question is worse than a question.
 2. Touch only the files in the contract. Tests, fixtures and lockfiles are free. If you need another file: stop, OPEN QUESTION.
-3. Design, scope or product decisions are not yours: OPEN QUESTION. Technical choices (names, structure, where a constant lives, a small dependency) are yours; list them under "Technical decisions".
-4. Correctness: build and run the tests named in the contract with the commands in `DEV_RULES.md`. "Done" is said only when the tests are green. If a test could not be run, say why and do not call it green.
-5. Anything that blocks or refuses (hook, validator, path guard) ships with one test proving it blocks and one proving the legal case passes.
-6. Version and `CHANGELOG.md` line only if the contract says so; no other document.
-7. No commit, no push. Changes stay in the working tree; the TL reviews the diff, the customer checks, the TL commits.
-8. No network calls in the code, no secrets, no personal data, no absolute user paths. Follow the source-material rule in `DEV_RULES.md`: concepts, never text or names, from private source projects.
-9. State your model name correctly in the report: the model you run on, not another one.
+3. Create and change files with Write or Edit only, so the scope guard sees each write. Bash runs tests, reads and measurement scripts and writes nothing inside the repository. No git command that changes the index, the work tree or history.
+4. Design, scope or product decisions are not yours: OPEN QUESTION. Technical choices (names, structure, where a constant lives, a small dependency) are yours; list them under "Technical decisions".
+5. Correctness: build and run the tests named in the contract with the commands in `DEV_RULES.md`. "Done" is said only when the tests are green. If a test could not be run, say why and do not call it green.
+6. Anything that blocks or refuses (hook, validator, path guard) ships with one test proving it blocks and one proving the legal case passes.
+7. Version and `CHANGELOG.md` line only if the contract says so; no other document.
+8. No commit, no push. Changes stay in the working tree; the TL reviews the diff, the customer checks, the TL commits.
+9. No network calls in the code, no secrets, no personal data, no absolute user paths. Follow the source-material rule in `DEV_RULES.md`: concepts, never text or names, from private source projects.
+10. State your model name correctly in the report: the model you run on, not another one.
 
 ## Report (fixed format, your last message)
 ```

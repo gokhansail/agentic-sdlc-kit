@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. The 2 server questions are decided (DEC-050 read only, DEC-051 the user installs `mcp`). T-40 done 2026-11-08. Open: whether the developer rules forbid Bash writes and git state commands (T-40 finding). Next: T-41 `scope_check` and metrics tools.
+T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. The 2 server questions are decided (DEC-050 read only, DEC-051 the user installs `mcp`). T-40 done 2026-11-08. T-40a done 2026-11-08 (DEC-052). Next: T-41 `scope_check` and metrics tools.
 
 ## Phases
 
@@ -396,6 +396,17 @@ Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-4
 - [x] T-39 [M] scope guard: memory folder for the main session, exact path for the rules file. DEC-046, DEC-048.
 - [x] T-39a [E] the kit opts in to its own guard, run from project settings. DEC-047, DEC-049.
 - [x] T-40 [M] server skeleton: stdio, root lock, one `status` tool, plugin config. DEC-011, DEC-013, DEC-050, DEC-051.
+- [x] T-40a [E] developers write files with the file tools only. DEC-052.
+
+### [x] T-40a [E] File tools only (`developer`, Haiku)
+- Result: `DEV_RULES.md` rule 5 and rule 8 narrowed (28 lines), developer role line 3 and its copy, 1 CHANGELOG line; 604 passed, 1 skipped; review rounds 1. Guard: 4 writes, 4 allow lines with task T-40a, 0 deny; the rules file was allowed through its exact path in Files in (DEC-048, first live use). The TL fixed the rule numbers on the Sources line.
+- Goal: a developer creates and changes repository files with Write or Edit, so the scope guard sees every write (DEC-052).
+- `DEV_RULES.md`: a new rule under Scope: files are created and changed with Write or Edit only; Bash runs tests, reads and measurement scripts and never writes inside the repository (no heredoc, redirect, `sed -i`, writing script); no git command that changes the index, the work tree or history (`stash`, `checkout`, `reset`, `add`, `commit`). Rule 7: the hooks and the phase 4 server read the records; they do not write them (DEC-050). Renumber; stay under 40 lines.
+- `agents/developer.md` "How you work": one line with the same file-tools and git rule; `.claude/agents/developer.md` the same copy.
+- Files in: `DEV_RULES.md`, `agents/developer.md`, `.claude/agents/developer.md`, one `CHANGELOG.md` line.
+- Files out: everything else.
+- Acceptance: `tests/test_role_sync.py` green; the guard logs every write of this task (3 files, 1 CHANGELOG line) as allow with task T-40a; `python -m pytest -q` green, summary pasted.
+- Report in Turkish, fixed format, no commit.
 
 ### [x] T-40 [M] Server skeleton (`developer`, Sonnet, effort high)
 - Result: `server/` (4 files), `tools/records.py`, 64 new tests, 604 passed, 1 skipped; `mcp` 2.3.0; review rounds 1. 2 developer live runs settled 3 of 4 points (V-13; start folder not settled). TL live run: `status` returned T-40, active, 9 Files in. `--check-worktree`: 16 paths, all inside. Finding: 12 of 14 files written through Bash, so 2 guard events; no rule forbids it (DEC-038). One `git stash` and `pop` by the developer, no loss.

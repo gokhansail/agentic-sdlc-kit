@@ -415,3 +415,11 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: no new tool for the user in phase 4; the user-facing install path is chosen in phase 5 with the release.
 - Consequences: T-40 adds the start check and its test. b) and c) stay open for T-51.
 - Outcome:
+
+## DEC-052 Developers write files with the file tools only
+- Date: 2026-11-08 · Question: T-40 finding (12 of 14 files written through Bash, 2 guard events)
+- Options: a) a rule in `DEV_RULES.md` and the developer role: repository files are created and changed with Write or Edit only; Bash runs tests, reads and measurement scripts; no git command that changes the index, the work tree or history b) keep DEC-038 as it is: Bash writes are found at review
+- Decision: a). The customer accepted the TL recommendation.
+- Reason: in T-40 the guard saw 2 of 14 writes and `git stash` briefly removed the TL's uncommitted record change. The review check found no file outside the contract, but the event lines, which G4-7 counts, stayed nearly empty.
+- Consequences: T-40a. The rule is a convention; DEC-038 is unchanged and `--check-worktree` stays the check. `DEV_RULES.md` rule 7 is narrowed to the read-only server (DEC-050).
+- Outcome: T-40a 2026-11-08: rule in `DEV_RULES.md` (rule 5) and the developer role; the next developer task logged 4 of 4 writes.

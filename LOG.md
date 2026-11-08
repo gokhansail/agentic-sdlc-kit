@@ -2,6 +2,15 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-08 (4) - T-40a file tools only
+
+- T-40 committed and pushed (cfe21fa).
+- The maintainer took the TL recommendation on the T-40 finding: developers write files with Write or Edit only and run no git command that changes state (DEC-052).
+- `developer` (Haiku) built T-40a: `DEV_RULES.md` new rule 5, rule 8 narrowed to the read-only server (DEC-050), 28 lines; `agents/developer.md` line 3 and its copy; 1 CHANGELOG line. 604 passed, 1 skipped. Review rounds: 1.
+- Guard: 4 writes, 4 allow lines with task T-40a, 0 deny. The developer rules file was allowed through its exact path in Files in, the first live use of DEC-048.
+- The TL fixed two rule numbers on the `DEV_RULES.md` Sources line (role exceeded, one line).
+- Next: T-41 `scope_check` and metrics tools.
+
 ## 2026-11-08 (3) - T-40 server skeleton
 
 - The maintainer decided the 2 server questions with the TL recommendation:

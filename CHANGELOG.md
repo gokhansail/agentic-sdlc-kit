@@ -43,3 +43,4 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 - Metrics snapshot (`tools/metrics/inputs.py`, `python -m tools.metrics --snapshot`): a second `--snapshot` for a label that already has a manifest exits 2 before anything is written, unless `--replace-snapshot` is given; `--replace-snapshot` without `--snapshot` exits 2.
 - Scope guard (`tools/scope_guard.py`, `skills/init/SKILL.md`): the main session may write in the CLI's per-project memory folder (found from `transcript_path`); a sub-agent may change the developer rules file only when Files in names its exact path, no glob (DEC-046, DEC-048).
 - Plugin commands `init` and `contract` write their files with the Write and Edit tools instead of a shell heredoc, so the scope guard sees the writes.
+- Developer rules and role (`DEV_RULES.md`, `agents/developer.md`, `.claude/agents/developer.md`): files are written with the file tools only; no git command that changes state (DEC-052).
