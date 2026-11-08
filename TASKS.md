@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. The 2 server questions are decided (DEC-050 read only, DEC-051 the user installs `mcp`). T-40 done 2026-11-08. T-40a done 2026-11-08 (DEC-052). Next: T-41 `scope_check` and metrics tools.
+T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. The 2 server questions are decided (DEC-050 read only, DEC-051 the user installs `mcp`). T-40 done 2026-11-08. T-40a done 2026-11-08 (DEC-052). T-46a eval set frozen and T-41 scope and event tools done 2026-11-08. Next: T-42 decision, lesson, gate and log read tools.
 
 ## Phases
 
@@ -443,6 +443,34 @@ Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-4
 - Acceptance: main session memory write allowed; sub-agent memory write denied; `..` escape from the memory folder denied; missing or wrong-layout `transcript_path` denied; event line holds no absolute path; rules file with exact token allowed, with `**`, `*.md` or `{a,b}` token denied for a sub-agent. Existing tests green.
 - Tests: one case per acceptance line, incl. a case-folded Windows path; `test_skills.py` checks "exact path" in `init`. `python -m pytest -q` summary pasted.
 - After: `tech-writer` updates `PLAYBOOK.md` Appendix H (two sentences); `scribe` writes LOG, STATUS, metrics line. Report in Turkish, fixed format, no commit.
+
+- [x] T-46a [M] eval set: synthetic repository, 30 questions, answer key, scorer; frozen before T-41. DEC-012.
+
+### [x] T-46a [M] Eval set (`developer`, Sonnet, effort medium)
+- Result: `eval/` (fictional repository, 30 questions, scorer, README), 56 new tests, 660 passed, 1 skipped; review rounds 1. Categories 8/6/6/5/3/2; 11 questions need 2 or more files. Frozen 2026-11-08, SHA-256 `c59798e361ff995ede8ae5332218ca66bd27e4051ade1e2e50ad47a91692371f` (LF). Guard: 22 writes, 22 allow, 0 deny.
+- Goal: a fixed question set for the DEC-012 eval, written and frozen before the server tools exist, so the tools are not shaped to the questions.
+- Repository: `eval/repo/`, fictional, opted in: `.sdlc/project.md`, `.sdlc/active-contract.md` with globs, braces and a Files out that overlaps Files in, a `Developer rules:` file, `.sdlc/metrics.jsonl` events; `TASKS.md`, `DECISIONS.md` (one decision superseded by a later one), `LOG.md` with metrics lines, `STATUS.md`, `LESSONS.md`, `audits/` (a gate report and a re-verify table with one finding left OPEN). Every record follows `templates/` exactly. No real names, projects or paths.
+- Questions: `eval/questions.jsonl`, 30 lines: id, category, question, answer type (`token`, `yes-no`, `number`, `set`), key. Categories: scope and contract 8, decisions 6, findings and gates 6, tasks and status 5, guard events 3, lessons 2. Each answer follows from the repository state alone; at least 8 need two files combined.
+- Scorer: `eval/score.py`, stdlib, reads one answer per question as a JSON line `{"id": ..., "answer": ...}` and prints per-question and total correct; normalises case, spaces, order of sets, yes/no wording. CLI and function.
+- Files in: `eval/`, `tests/test_eval.py`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `server/`, `tools/`, `hooks/`, `agents/`, `.claude/`, `templates/`, `DEV_RULES.md`.
+- Acceptance: 30 questions, category counts as above; every scope key equals `tools.scope_guard.decide` on `eval/repo/`; the scorer gives 30 of 30 on the key and 0 on an empty answer file; the eval repository is not collected by pytest; `eval/README.md` states the frozen SHA-256 of `questions.jsonl`, which a test checks.
+- Tests: `python -m pytest -q` summary pasted. No model call in this task.
+- Report in Turkish, fixed format, no commit. Files written with Write or Edit only (DEV_RULES rule 5).
+
+- [x] T-41 [H] `scope_check`, contract, worktree and guard-event tools. DEC-011, DEC-050.
+
+### [x] T-41 [H] Scope and event tools (`developer`, Sonnet, effort high)
+- Result: 4 tools (`scope_check`, `contract`, `changed_outside`, `guard_events`), `tools/events.py`, 64 new tests, 742 passed, 1 skipped; review rounds 1. Live run (Haiku): each tool called once, no error, 0.0079 USD. Guard: 23 writes, 23 allow; 1 one-word fix in 4 places done with `sed -i`, reported by the developer (rule 5). Argument errors reach the model as `ToolError` text.
+- Goal: the read-only server answers scope, contract and guard-event questions with the guard's own code (G4-5).
+- Tools: `scope_check(paths, actor)` (actor `sub-agent` or `main`, at most 50 paths): per path allow or deny, reason, state, task, from `tools.scope_guard.check`; `contract`: `check_contract` result plus task ID, Files in, Files out, always-allowed list, developer rules path; `changed_outside`: `check_worktree` paths, with the stated limit that files changed before the task count too (T-33 finding 5); `guard_events(task)`: totals from `.sdlc/metrics.jsonl` per task, decision, tool and agent, malformed lines counted.
+- Event totals: a new stdlib function in `tools/events.py` with a CLI mode; the server wraps it.
+- Every path goes through the root lock or the guard's own root rule; no tool takes the root from an argument; no glob or path rule in `server/`.
+- Files in: `server/`, `tools/events.py`, `tests/test_server.py`, `tests/test_events.py`, `tests/fixtures/server/`, `.gitattributes` (add `*.jsonl text eol=lf`), `docs/toolchain.md`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `eval/` (frozen; do not read it), `tools/scope_guard.py`, `tools/metrics/`, `hooks/`, `agents/`, `.claude/`, `DEV_RULES.md`.
+- Acceptance: parity tests (each tool equals the `tools/` function on the same fixtures); root-lock and `..` cases per path argument; 51 paths refused; socket-blocked run covers every tool; stdio round trip lists 5 tools; one live `claude --plugin-dir . -p` run (Haiku) calls each new tool once.
+- Tests: `python -m pytest -q` summary pasted. Files written with Write or Edit only (DEV_RULES rule 5).
+- Report in Turkish, fixed format, no commit.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-39 scope guard: memory folder for the main session (DEC-046) and exact path for the rules file (DEC-048) · T-39a the kit opts in to its own guard (DEC-047) · T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).

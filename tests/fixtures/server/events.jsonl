@@ -1,0 +1,10 @@
+{"agent": null, "date": "2026-11-08", "decision": "deny", "event": "scope", "state": "no-contract", "task": null, "tool": "Edit"}
+{"agent": "developer", "date": "2026-11-08", "decision": "allow", "event": "scope", "state": "active", "task": "T-77", "tool": "Write"}
+{"agent": "developer", "date": "2026-11-08", "decision": "allow", "event": "scope", "state": "active", "task": "T-77", "tool": "Edit"}
+{"agent": "developer", "date": "2026-11-08", "decision": "deny", "event": "scope", "state": "active", "task": "T-77", "tool": "Write"}
+{"agent": null, "date": "2026-11-08", "decision": "allow", "event": "scope", "state": "active", "task": "T-77", "tool": "Write"}
+{"agent": "scribe", "date": "2026-11-08", "decision": "allow", "event": "scope", "state": "no-contract", "task": null, "tool": "Edit"}
+not json at all
+[1, 2]
+{"event": "scope", "decision": "maybe", "task": "T-77"}
+{"event": "note", "text": "another kind of line"}

@@ -23,25 +23,39 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from server import main as server_main  # noqa: E402
+from server import scope as server_scope  # noqa: E402
+from server.events import guard_events  # noqa: E402
 from server.rootlock import RootLock, RootLockError  # noqa: E402
+from server.scope import changed_outside, contract, scope_check  # noqa: E402
 from server.status import status  # noqa: E402
+from tools import events as event_totals  # noqa: E402
 from tools import scope_guard  # noqa: E402
 from tools.records import read_records  # noqa: E402
 
 FIXTURES = ROOT / "tests" / "fixtures" / "server"
 SERVER_DIR = ROOT / "server"
 ENTRY = SERVER_DIR / "main.py"
-TOOL_ARGS: dict[str, dict[str, Any]] = {"status": {}}  # a tool with arguments adds its entry here
+TOOL_NAMES = ["status", "scope_check", "contract", "changed_outside", "guard_events"]
+TOOL_ARGS: dict[str, dict[str, Any]] = {  # a tool with arguments adds its entry here
+    "status": {},
+    "scope_check": {"paths": ["src/a.py", "src/secret.py", "../outside.txt", "STATUS.md"], "actor": "sub-agent"},
+    "contract": {},
+    "changed_outside": {},
+    "guard_events": {},
+}
 
 
-def make_project(base: Path, project: str | None, contract: str | None) -> Path:
+def make_project(base: Path, project: str | None, contract_fixture: str | None, events: str | None = None) -> Path:
     base.mkdir(parents=True, exist_ok=True)
     if project is not None:
         (base / ".sdlc").mkdir(exist_ok=True)
         (base / ".sdlc" / "project.md").write_bytes((FIXTURES / project).read_bytes())
-    if contract is not None:
+    if contract_fixture is not None:
         (base / ".sdlc").mkdir(exist_ok=True)
-        (base / ".sdlc" / "active-contract.md").write_bytes((FIXTURES / contract).read_bytes())
+        (base / ".sdlc" / "active-contract.md").write_bytes((FIXTURES / contract_fixture).read_bytes())
+    if events is not None:
+        (base / ".sdlc").mkdir(exist_ok=True)
+        (base / ".sdlc" / "metrics.jsonl").write_bytes((FIXTURES / events).read_bytes())
     return base
 
 
@@ -96,6 +110,348 @@ def test_status_equals_the_guard_state_and_the_record_map(tmp_path: Path) -> Non
 def test_status_is_json_serialisable_and_names_no_path(tmp_path: Path) -> None:
     text = json.dumps(status(make_project(tmp_path, "project.md", "contract.md")))
     assert str(tmp_path) not in text and tmp_path.name not in text
+
+
+# --- scope_check ---------------------------------------------------------------------
+
+SCOPE_PATHS = ["src/a.py", "src/pkg/deep/x.py", "tests/b.py", "src/secret.py", "docs/other.md", "STATUS.md",
+               "LOG.md", "DEV_RULES.md", ".sdlc/active-contract.md", "./src/../src/a.py", "src\\pkg\\y.py"]
+OUTSIDE_PATHS = ["..", "../outside.txt", "src/../../outside.txt", "src\\..\\..\\outside.txt", "..\\outside.txt",
+                 "/etc/passwd", "C:\\Windows\\win.ini", "C:/Windows/win.ini", "//server/share/x"]
+
+
+@pytest.mark.parametrize("actor", ["sub-agent", "main"])
+@pytest.mark.parametrize("fixture", [("project.md", "contract.md"), ("project.md", None),
+                                     ("project.md", "contract-broken.md")])
+def test_scope_check_equals_the_guard(tmp_path: Path, fixture: tuple[str, str | None], actor: str) -> None:
+    root = make_project(tmp_path, *fixture)
+    fold = os.name == "nt"
+    got = scope_check(root, SCOPE_PATHS, actor, fold)
+    assert [row["path"] for row in got["results"]][:3] == ["src/a.py", "src/pkg/deep/x.py", "tests/b.py"]
+    for raw, row in zip(SCOPE_PATHS, got["results"]):
+        want = scope_guard.check(root, raw, actor == "sub-agent", fold)
+        assert want is not None
+        assert (row["allow"], row["reason"], row["next_step"], row["state"], row["task"], row["path"]) == (
+            want.allow, want.reason, want.next_step, want.state, want.task_id, want.rel), raw
+    state, contract_obj, _always, _reason = scope_guard.load_state(root)
+    assert (got["guard_state"], got["task_id"]) == (state, contract_obj.task_id if contract_obj else None)
+    assert got["opted_in"] is True and got["note"] == "" and got["actor"] == actor
+
+
+def test_scope_check_known_answers(tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+    rows = {r["path"]: r for r in scope_check(root, SCOPE_PATHS, "sub-agent", False)["results"]}
+    assert rows["src/a.py"]["allow"] is True and rows["src/a.py"]["reason"] == "in scope of T-77"
+    assert rows["src/pkg/y.py"]["allow"] is True  # backslashes unify
+    assert rows["src/secret.py"]["allow"] is False and "Files out" in rows["src/secret.py"]["reason"]
+    assert rows["docs/other.md"]["allow"] is False and "not in Files in" in rows["docs/other.md"]["reason"]
+    assert rows["STATUS.md"]["allow"] is True and rows["LOG.md"]["allow"] is True  # always allowed
+    assert rows["DEV_RULES.md"]["allow"] is False and "developer rules" in rows["DEV_RULES.md"]["reason"]
+    assert rows[".sdlc/active-contract.md"]["allow"] is False
+    main_rows = {r["path"]: r for r in scope_check(root, [".sdlc/active-contract.md", "docs/other.md"], "main", False)["results"]}
+    assert main_rows[".sdlc/active-contract.md"]["allow"] is True
+    assert main_rows["docs/other.md"]["allow"] is False  # the main session is held to Files in too
+
+
+def test_scope_check_without_a_contract_and_with_a_broken_one(tmp_path: Path) -> None:
+    none = scope_check(make_project(tmp_path / "a", "project.md", None), ["src/a.py", "STATUS.md"], "sub-agent")
+    assert none["guard_state"] == scope_guard.NO_CONTRACT and none["task_id"] is None
+    assert [r["allow"] for r in none["results"]] == [False, True]
+    assert "no active contract" in none["results"][0]["reason"]
+    broken = scope_check(make_project(tmp_path / "b", "project.md", "contract-broken.md"), ["STATUS.md"], "main")
+    assert broken["guard_state"] == scope_guard.BROKEN
+    assert broken["results"][0]["allow"] is False and "cannot be used" in broken["results"][0]["reason"]
+
+
+def test_scope_check_when_not_opted_in_gives_one_clear_answer(tmp_path: Path) -> None:
+    got = scope_check(make_project(tmp_path, None, None), ["src/a.py", "../outside.txt", str(tmp_path / "x.py")], "sub-agent")
+    assert got["opted_in"] is False and got["guard_state"] == "not-opted-in" and got["task_id"] is None
+    assert "the guard is off" in got["note"] and "every write is allowed" in got["note"]
+    assert [r["allow"] for r in got["results"]] == [True, True, True]
+    assert {r["state"] for r in got["results"]} == {"not-opted-in"}
+    assert all("the guard is off" in r["reason"] for r in got["results"])
+    assert got["results"][2]["path"] == "x.py"  # an absolute path inside the root comes back relative
+
+
+@pytest.mark.parametrize("actor", ["sub-agent", "main"])
+@pytest.mark.parametrize("raw", OUTSIDE_PATHS)
+def test_scope_check_denies_a_path_outside_the_root(tmp_path: Path, raw: str, actor: str) -> None:
+    root = make_project(tmp_path / "project", "project.md", "contract.md")
+    row = scope_check(root, [raw], actor, False)["results"][0]
+    assert row["allow"] is False and row["reason"] == "the path is outside the project root"
+    assert row["state"] == scope_guard.ACTIVE and row["task"] == "T-77"
+
+
+def test_scope_check_denies_an_absolute_path_outside_and_allows_one_inside(tmp_path: Path) -> None:
+    root = make_project(tmp_path / "project", "project.md", "contract.md")
+    outside = str(tmp_path / "outside" / "secret.txt")
+    sibling = str(tmp_path / "project2" / "a.py")
+    got = scope_check(root, [outside, sibling, str(root / "src" / "a.py")], "sub-agent")
+    assert [r["allow"] for r in got["results"]] == [False, False, True]
+    assert got["results"][2]["path"] == "src/a.py"
+    assert "project2" not in got["results"][2]["reason"]
+
+
+def test_scope_check_case_follows_the_flag(tmp_path: Path) -> None:
+    root = make_project(tmp_path / "project", "project.md", "contract.md").resolve()
+    upper = str(root).upper() + "\\SRC\\A.PY"
+    assert scope_check(root, [upper], "sub-agent", True)["results"][0]["allow"] is True
+    assert scope_check(root, [upper], "sub-agent", False)["results"][0]["allow"] is False
+
+
+def test_scope_check_has_no_memory_folder_exception(tmp_path: Path) -> None:
+    root = make_project(tmp_path / "project", "project.md", "contract.md")
+    memory = tmp_path / "home" / "projects" / "slug" / "memory" / "note.md"
+    row = scope_check(root, [str(memory)], "main", False)["results"][0]
+    assert row["allow"] is False and row["reason"] == "the path is outside the project root"
+
+
+def test_scope_check_limit_is_50_paths(tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+    assert len(scope_check(root, ["src/a.py"] * 50, "main")["results"]) == 50
+    assert scope_check(root, [], "main")["results"] == []
+    with pytest.raises(ValueError, match="at most 50"):
+        scope_check(root, ["src/a.py"] * 51, "main")
+
+
+@pytest.mark.parametrize("actor", ["root", "Main", "sub_agent", "", None, "developer"])
+def test_scope_check_refuses_an_unknown_actor(tmp_path: Path, actor: object) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+    with pytest.raises(ValueError, match="actor"):
+        scope_check(root, ["src/a.py"], actor)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("project", [True, False])
+def test_scope_check_unusable_entries_are_denied(tmp_path: Path, project: bool) -> None:
+    root = make_project(tmp_path, "project.md" if project else None, None)
+    got = scope_check(root, ["", "   ", "a\0b", None, 5], "main")["results"]  # type: ignore[list-item]
+    assert [r["allow"] for r in got] == [False] * 5
+    assert {r["reason"] for r in got} == {"not a usable path"}
+
+
+def test_scope_check_answers_name_no_absolute_path(tmp_path: Path) -> None:
+    root = make_project(tmp_path / "project", "project-custom.md", "contract.md")
+    text = json.dumps(scope_check(root, SCOPE_PATHS + [str(root / "src" / "a.py")], "sub-agent"))
+    assert str(root) not in text and str(tmp_path) not in text and tmp_path.name not in text
+
+
+# --- contract ------------------------------------------------------------------------
+
+def test_contract_of_a_valid_contract(tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+    got = contract(root)
+    code, message = scope_guard.check_contract(root)
+    assert code == 0 and got["valid"] is True and got["message"] == message
+    assert got["task_id"] == "T-77" and got["guard_state"] == scope_guard.ACTIVE and got["opted_in"] is True
+    assert got["files_in"] == ["src/a.py", "src/pkg/", "tests/a.py", "tests/b.py"]
+    assert got["files_out"] == ["src/secret.py"]
+    assert got["always_allowed"] == ["STATUS.md", "LOG.md"]
+    assert got["developer_rules"] == "DEV_RULES.md"
+
+
+def test_contract_equals_the_guard_functions(tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project-custom.md", "contract.md")
+    got = contract(root)
+    _state, parsed, always, _reason = scope_guard.load_state(root)
+    assert parsed is not None
+    assert (got["task_id"], got["files_in"], got["files_out"]) == (parsed.task_id, list(parsed.files_in), list(parsed.files_out))
+    assert got["always_allowed"] == always == ["docs/state.md"]
+    assert got["developer_rules"] == scope_guard.load_developer_rules(root) == "rules/DEV.md"
+
+
+def test_contract_without_a_contract_and_with_a_broken_one(tmp_path: Path) -> None:
+    none = contract(make_project(tmp_path / "a", "project.md", None))
+    assert none["valid"] is False and none["task_id"] is None and none["files_in"] == []
+    assert none["message"] == scope_guard.check_contract(tmp_path / "a")[1] and "no active contract" in none["message"]
+    assert none["guard_state"] == scope_guard.NO_CONTRACT and none["always_allowed"] == ["STATUS.md", "LOG.md"]
+    broken = contract(make_project(tmp_path / "b", "project.md", "contract-broken.md"))
+    assert broken["valid"] is False and broken["task_id"] is None and broken["files_in"] == []
+    assert broken["message"] == scope_guard.check_contract(tmp_path / "b")[1] and "active-contract.md" in broken["message"]
+    assert broken["guard_state"] == scope_guard.BROKEN
+
+
+def test_contract_when_not_opted_in(tmp_path: Path) -> None:
+    got = contract(make_project(tmp_path, None, "contract.md"))
+    assert got["opted_in"] is False and got["guard_state"] == "not-opted-in"
+    assert got["valid"] is True and got["task_id"] == "T-77"  # the file parses even though the guard is off
+    assert got["always_allowed"] == [] and got["developer_rules"] is None
+    bare = contract(make_project(tmp_path / "bare", None, None))
+    assert bare["valid"] is False and bare["opted_in"] is False and "no active contract" in bare["message"]
+
+
+def test_contract_never_raises_and_names_no_root(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+
+    def fail(path: Path) -> tuple[int, str]:
+        raise PermissionError(f"denied: {path}")
+
+    monkeypatch.setattr(scope_guard, "check_contract", fail)
+    got = contract(root)
+    assert got["valid"] is False and "PermissionError" in got["message"]
+    assert str(root) not in got["message"] and "<root>" in got["message"]
+    assert got["task_id"] is None
+
+
+# --- changed_outside -----------------------------------------------------------------
+
+def _git_available() -> bool:
+    return shutil.which("git") is not None
+
+
+def git_project(base: Path) -> Path:
+    root = make_project(base, "project.md", "contract.md")
+    subprocess.run(["git", "init", "-q"], cwd=root, check=True, capture_output=True, timeout=60)
+    (root / "src").mkdir()
+    (root / "tests").mkdir()
+    (root / "src" / "a.py").write_text("x = 1\n", encoding="utf-8")
+    (root / "src" / "secret.py").write_text("y = 1\n", encoding="utf-8")
+    (root / "tests" / "b.py").write_text("z = 1\n", encoding="utf-8")
+    (root / "notes.txt").write_text("n\n", encoding="utf-8")
+    (root / "STATUS.md").write_text("s\n", encoding="utf-8")
+    return root
+
+
+@pytest.mark.skipif(not _git_available(), reason="no git on PATH")
+def test_changed_outside_equals_check_worktree(tmp_path: Path) -> None:
+    root = git_project(tmp_path)
+    got = changed_outside(root, False)
+    code, outside, message = scope_guard.check_worktree(root, False)
+    assert code == 1 and sorted(outside) == ["notes.txt", "src/secret.py"]
+    assert got["ok"] is False and got["outside"] == outside and got["message"] == message
+    assert "before the task started" in got["limit"]
+
+
+@pytest.mark.skipif(not _git_available(), reason="no git on PATH")
+def test_changed_outside_is_ok_when_all_changes_are_inside(tmp_path: Path) -> None:
+    root = git_project(tmp_path)
+    (root / "notes.txt").unlink()
+    (root / "src" / "secret.py").unlink()
+    got = changed_outside(root, False)
+    assert got["ok"] is True and got["outside"] == [] and "all inside T-77" in got["message"]
+
+
+def test_changed_outside_without_a_contract_does_not_raise(tmp_path: Path) -> None:
+    got = changed_outside(make_project(tmp_path, "project.md", None))
+    assert got["ok"] is False and got["outside"] == [] and "no active contract" in got["message"]
+
+
+@pytest.mark.skipif(not _git_available(), reason="no git on PATH")
+def test_changed_outside_in_a_folder_that_is_not_a_repository(tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+    if subprocess.run(["git", "-C", str(root), "rev-parse"], capture_output=True, timeout=60).returncode == 0:
+        pytest.skip("the temp folder is inside a repository")
+    got = changed_outside(root)
+    assert got["ok"] is False and got["outside"] == [] and "git status failed" in got["message"]
+    assert str(root) not in got["message"]
+
+
+def test_changed_outside_when_git_is_missing(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+
+    def no_git(*args: object, **kwargs: object) -> None:
+        raise FileNotFoundError(f"git not found near {root}")
+
+    monkeypatch.setattr(scope_guard.subprocess, "run", no_git)
+    got = changed_outside(root)
+    assert got["ok"] is False and got["outside"] == [] and "git status failed" in got["message"]
+    assert str(root) not in got["message"]
+
+
+def test_changed_outside_never_raises(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    def crash(root: Path, casefold: bool) -> tuple[int, list[str], str]:
+        raise RuntimeError(f"boom in {root}")
+
+    monkeypatch.setattr(scope_guard, "check_worktree", crash)
+    got = changed_outside(tmp_path)
+    assert got["ok"] is False and "RuntimeError" in got["message"] and str(tmp_path) not in got["message"]
+
+
+# --- guard_events --------------------------------------------------------------------
+
+def test_guard_events_equals_the_totals(tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md", "events.jsonl")
+    got = guard_events(root)
+    want = event_totals.totals(event_totals.read_events(root))
+    assert got == {**want, "error": ""}
+    assert (got["allow"], got["deny"], got["malformed"], got["other"]) == (4, 2, 3, 1)
+    one = guard_events(root, "T-77")
+    assert one == {**event_totals.totals(event_totals.read_events(root), "T-77"), "error": ""}
+    assert list(one["tasks"]) == ["T-77"]
+
+
+def test_guard_events_empty_task_means_all_and_the_text_is_trimmed(tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md", "events.jsonl")
+    assert guard_events(root, "") == guard_events(root, None) == guard_events(root, "  ")
+    assert guard_events(root, " T-77 ") == guard_events(root, "T-77")
+
+
+def test_guard_events_without_a_file_or_with_an_unreadable_one(tmp_path: Path) -> None:
+    got = guard_events(make_project(tmp_path / "a", "project.md", None))
+    assert (got["allow"], got["deny"], got["tasks"], got["malformed"], got["error"]) == (0, 0, {}, 0, "")
+    (tmp_path / "b" / ".sdlc" / "metrics.jsonl").mkdir(parents=True)
+    bad = guard_events(tmp_path / "b")
+    assert bad["error"] == "the event file could not be read" and bad["tasks"] == {}
+    assert str(tmp_path) not in json.dumps(bad)
+
+
+def test_guard_events_refuses_a_bad_task_argument(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="task"):
+        guard_events(tmp_path, "T-" + "1" * 60)
+    with pytest.raises(ValueError, match="task"):
+        guard_events(tmp_path, 5)  # type: ignore[arg-type]
+
+
+def test_guard_events_names_no_path(tmp_path: Path) -> None:
+    root = make_project(tmp_path / "project", "project.md", "contract.md", "events.jsonl")
+    text = json.dumps(guard_events(root))
+    assert str(root) not in text and ".jsonl" not in text and "project" not in text
+
+
+# --- the tools through the SDK: refused arguments are tool errors with the reason ------------
+
+def test_tool_errors_carry_the_reason(tmp_path: Path) -> None:
+    pytest.importorskip("mcp")
+    from mcp.server.mcpserver.exceptions import ToolError
+
+    root = make_project(tmp_path, "project.md", "contract.md", "events.jsonl")
+    server = server_main.build_server(RootLock(root), "x")
+
+    async def run() -> list[str]:
+        out: list[str] = []
+        for tool, args in (("scope_check", {"paths": ["a.py"] * 51, "actor": "main"}),
+                           ("scope_check", {"paths": ["a.py"], "actor": "root"}),
+                           ("scope_check", {"paths": ["a.py"]}),
+                           ("guard_events", {"task": "T-" + "1" * 60})):
+            with pytest.raises(ToolError) as err:
+                await server.call_tool(tool, args)
+            out.append(str(err.value))
+        return out
+
+    texts = asyncio.run(run())
+    assert "at most 50" in texts[0] and "actor" in texts[1] and "actor" in texts[2] and "task" in texts[3]
+
+
+def test_tool_descriptions_are_one_plain_sentence_each(tmp_path: Path) -> None:
+    pytest.importorskip("mcp")
+    server = server_main.build_server(RootLock(make_project(tmp_path, None, None)), "x")
+    tools = {t.name: t for t in asyncio.run(server.list_tools())}
+    assert list(tools) == TOOL_NAMES
+    for name, tool in tools.items():
+        text = (tool.description or "").strip()
+        assert text and text.endswith(".") and text.count(". ") == 0, name
+        assert str(tmp_path) not in text
+    assert tools["status"].description == "Guard state, active task, Files in and Files out, and the record file names of this project."
+    assert set(tools["scope_check"].input_schema["properties"]) == {"paths", "actor"}
+    assert tools["contract"].input_schema.get("properties", {}) == {}
+    assert tools["changed_outside"].input_schema.get("properties", {}) == {}
+    assert set(tools["guard_events"].input_schema["properties"]) == {"task"}
+
+
+def test_the_scope_module_calls_the_guard_for_every_decision() -> None:
+    text = (SERVER_DIR / "scope.py").read_text(encoding="utf-8")
+    for name in ("scope_guard.check(", "scope_guard.check_contract(", "scope_guard.check_worktree(", "scope_guard.load_state("):
+        assert name in text, name
+    assert server_scope.MAX_PATHS == 50
 
 
 # --- root lock ---------------------------------------------------------------------
@@ -352,8 +708,9 @@ def _block_sockets(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_every_tool_runs_with_socket_creation_blocked(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     pytest.importorskip("mcp")
-    root = make_project(tmp_path, "project.md", "contract.md")
-    server = server_main.build_server(RootLock(root), "CLAUDE_PROJECT_DIR")
+    root = make_project(tmp_path, "project.md", "contract.md", "events.jsonl")
+    lock = RootLock(root)
+    server = server_main.build_server(lock, "CLAUDE_PROJECT_DIR")
 
     async def run() -> dict[str, Any]:
         seen: dict[str, Any] = {}
@@ -370,11 +727,17 @@ def test_every_tool_runs_with_socket_creation_blocked(monkeypatch: pytest.Monkey
         return seen
 
     seen = asyncio.run(run())
-    assert set(seen) == set(TOOL_ARGS)
+    assert set(seen) == set(TOOL_ARGS) == set(TOOL_NAMES)
     assert seen["status"] == status(root, "CLAUDE_PROJECT_DIR")
+    args = TOOL_ARGS["scope_check"]
+    assert seen["scope_check"] == scope_check(lock.root, args["paths"], args["actor"], lock.casefold)
+    assert seen["contract"] == contract(lock.root)
+    assert seen["changed_outside"] == changed_outside(lock.root, lock.casefold)
+    assert seen["guard_events"] == guard_events(lock.root)
+    assert seen["guard_events"]["allow"] == 4 and seen["contract"]["task_id"] == "T-77"
 
 
-async def _round_trip(env: dict[str, str] | None, cwd: Path | None) -> tuple[list[str], Any]:
+async def _round_trip(env: dict[str, str] | None, cwd: Path | None) -> tuple[list[str], Any, dict[str, Any]]:
     from mcp import ClientSession
     from mcp.client.stdio import StdioServerParameters, stdio_client
 
@@ -385,30 +748,50 @@ async def _round_trip(env: dict[str, str] | None, cwd: Path | None) -> tuple[lis
             names = [t.name for t in (await session.list_tools()).tools]
             result = await session.call_tool("status", {})
             assert not result.is_error
-            return names, result.structured_content
+            extra: dict[str, Any] = {}
+            for name in TOOL_NAMES[1:]:
+                res = await session.call_tool(name, TOOL_ARGS[name])
+                assert not res.is_error, name
+                extra[name] = res.structured_content
+            for label, args in (("too_many", {"paths": ["a.py"] * 51, "actor": "main"}),
+                                ("bad_actor", {"paths": ["a.py"], "actor": "root"})):
+                res = await session.call_tool("scope_check", args)
+                extra[label] = (res.is_error, res.content[0].text)
+            return names, result.structured_content, extra
 
 
 def test_stdio_round_trip_with_the_project_variable(tmp_path: Path) -> None:
     pytest.importorskip("mcp")
-    project = make_project(tmp_path / "p", "project-custom.md", "contract.md")
-    names, got = asyncio.run(asyncio.wait_for(
+    project = make_project(tmp_path / "p", "project-custom.md", "contract.md", "events.jsonl")
+    names, got, extra = asyncio.run(asyncio.wait_for(
         _round_trip({"CLAUDE_PROJECT_DIR": str(project)}, tmp_path), 90))
-    assert names == ["status"]
+    assert sorted(names) == sorted(TOOL_NAMES) and len(names) == 5
     assert got == status(project, "CLAUDE_PROJECT_DIR")
     assert got["task_id"] == "T-77" and got["records"]["tasks"] == "plan/TASKS.md"
+    args = TOOL_ARGS["scope_check"]
+    assert extra["scope_check"] == scope_check(project, args["paths"], args["actor"])
+    assert extra["contract"] == contract(project)
+    assert extra["guard_events"] == guard_events(project)
+    assert extra["changed_outside"] == changed_outside(project)
+    assert extra["too_many"][0] is True and "at most 50" in extra["too_many"][1]
+    assert extra["bad_actor"][0] is True and "actor" in extra["bad_actor"][1]
+    assert str(tmp_path) not in json.dumps(extra)
 
 
 def test_stdio_round_trip_from_the_start_folder(tmp_path: Path) -> None:
     pytest.importorskip("mcp")
     project = make_project(tmp_path / "p", None, None)
-    names, got = asyncio.run(asyncio.wait_for(_round_trip(None, project), 90))
-    assert names == ["status"]
+    names, got, extra = asyncio.run(asyncio.wait_for(_round_trip(None, project), 90))
+    assert sorted(names) == sorted(TOOL_NAMES)
     assert got == status(project, "start folder")
     assert got["guard_state"] == "not-opted-in"
+    assert extra["scope_check"]["guard_state"] == "not-opted-in"
+    assert extra["guard_events"]["tasks"] == {}
 
 
 @pytest.mark.skipif(shutil.which("git") is None, reason="no git on PATH")
 def test_server_files_are_not_ignored_by_git() -> None:
-    res = subprocess.run(["git", "check-ignore", "server/main.py", "server/status.py", "server/rootlock.py"],
-                         cwd=ROOT, capture_output=True, timeout=60)
+    paths = ["server/main.py", "server/status.py", "server/rootlock.py", "server/scope.py", "server/events.py",
+             "tools/events.py", "tests/fixtures/server/events.jsonl"]
+    res = subprocess.run(["git", "check-ignore", *paths], cwd=ROOT, capture_output=True, timeout=60)
     assert res.returncode == 1 and res.stdout == b""  # 1 = none of the paths is ignored

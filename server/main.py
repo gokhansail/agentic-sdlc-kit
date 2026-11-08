@@ -15,7 +15,9 @@ PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 if str(PLUGIN_ROOT) not in sys.path:
     sys.path.insert(0, str(PLUGIN_ROOT))
 
+from server.events import guard_events  # noqa: E402
 from server.rootlock import RootLock  # noqa: E402
+from server.scope import changed_outside, contract, scope_check  # noqa: E402
 from server.status import status  # noqa: E402
 
 SDK_PACKAGE = "mcp"
@@ -61,12 +63,51 @@ def resolve_root() -> tuple[Path, str]:
 
 def build_server(lock: RootLock, root_source: str = "") -> Any:
     from mcp.server.mcpserver import MCPServer
+    from mcp.server.mcpserver.exceptions import ToolError
 
     server = MCPServer("sdlc", instructions="Read-only view of the project's sdlc records and scope guard state.")
 
     @server.tool(name="status", description="Guard state, active task, Files in and Files out, and the record file names of this project.")
     def status_tool() -> dict[str, Any]:
         return status(lock.root, root_source)
+
+    @server.tool(
+        name="scope_check",
+        description="Tells whether the scope guard would allow or deny a write to each of up to 50 paths, "
+        "as a sub-agent or as the main session, with the reason, the guard state and the task.",
+    )
+    def scope_check_tool(paths: list[str], actor: str) -> dict[str, Any]:
+        try:
+            return scope_check(lock.root, paths, actor, lock.casefold)
+        except ValueError as exc:  # a refused argument: the model reads the text and corrects the call
+            raise ToolError(str(exc)) from None
+
+    @server.tool(
+        name="contract",
+        description="Reads the active contract of this project: whether it parses, its task ID, Files in, "
+        "Files out, the always-allowed list and the developer rules path.",
+    )
+    def contract_tool() -> dict[str, Any]:
+        return contract(lock.root)
+
+    @server.tool(
+        name="changed_outside",
+        description="Lists the paths git shows as changed that the active contract does not cover, "
+        "counting files changed before the task started too.",
+    )
+    def changed_outside_tool() -> dict[str, Any]:
+        return changed_outside(lock.root, lock.casefold)
+
+    @server.tool(
+        name="guard_events",
+        description="Counts the scope guard's allow and deny events in .sdlc/metrics.jsonl per task, tool and agent, "
+        "for all tasks or one task, and counts the lines it cannot read.",
+    )
+    def guard_events_tool(task: str | None = None) -> dict[str, Any]:
+        try:
+            return guard_events(lock.root, task)
+        except ValueError as exc:
+            raise ToolError(str(exc)) from None
 
     return server
 

@@ -2,6 +2,30 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-08 (5) - T-46a eval set, T-41 scope and event tools
+
+- T-40a committed and pushed (311c2b0).
+- The TL ran T-46a before T-41 so the eval questions are frozen before the tools exist (`cto/2026-11-07_phase4-plan.md`).
+- `developer` (Sonnet) built T-46a:
+  - `eval/`: a fictional repository that follows `templates/`; 30 questions (scope 8, decisions 6, findings 6, tasks 5, guard events 3, lessons 2; 11 need 2 or more files); a stdlib scorer; a README;
+  - 56 tests; 660 passed, 1 skipped;
+  - scope keys recomputed with `tools.scope_guard`; the scorer gives 30 of 30 on the key;
+  - frozen SHA-256 `c59798e3...` (full value in `eval/README.md`).
+- Guard: 22 writes, 22 allow.
+- `developer` (Sonnet, effort high) built T-41:
+  - tools `scope_check`, `contract`, `changed_outside`, `guard_events`; `tools/events.py` with a CLI; `.gitattributes` `*.jsonl` LF; `docs/toolchain.md` V-14; 1 CHANGELOG line;
+  - 64 tests; 742 passed, 1 skipped (TL rerun);
+  - the developer did not read `eval/`.
+- Live run (Haiku): each new tool called once, no error, 0.0079 USD.
+- Guard: 23 writes, 23 allow. The developer reported one rule 5 break: a one-word fix in 4 places through `sed -i`.
+- Metrics (T-39): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer, tech-writer), Haiku (scribe).
+- Metrics (T-39a): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe), customer result passed.
+- Metrics (T-40): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe); 12 of 14 files written through Bash.
+- Metrics (T-40a): review rounds 1, questions back 0, out-of-scope files 0, models Haiku (developer, scribe).
+- Metrics (T-46a): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- Metrics (T-41): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe); 1 Bash write.
+- Next: T-42 decision, lesson, gate and log read tools.
+
 ## 2026-11-08 (4) - T-40a file tools only
 
 - T-40 committed and pushed (cfe21fa).
