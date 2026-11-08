@@ -115,6 +115,7 @@ def test_init_keeps_the_developer_rules_file_out_of_the_always_allowed_list() ->
     text = " ".join(text_of("init").split())
     assert "The developer rules file never goes in the always-allowed list, even when the arguments name it" in text
     assert "Tell the customer so." in text
+    assert "exact path, with no glob" in text
 
 
 @pytest.mark.parametrize("name", ["init", "contract"])

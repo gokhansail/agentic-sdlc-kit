@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Next: phase 4 opens with the CTO plan in a new session; it includes the two guard changes and the kit's opt-in.
+T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 done 2026-11-08. Now: T-39a, then T-40 after the customer's 2 server answers.
 
 ## Phases
 
@@ -388,6 +388,24 @@ Order:
 - Design reference: `audits/2026-11-07_gate3.md` C-1, D-3.
 - Flag: none. Customer test: none.
 - Report to the TL in Turkish, fixed format. No commit in this folder. After: `scribe` writes LOG and STATUS; `auditor-mini` re-verifies.
+
+## Phase 4
+
+Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-44, T-46a and T-46b, G0 leftover, T-45. T-40 waits for the customer's answers on server writes and SDK install.
+
+- [x] T-39 [M] scope guard: memory folder for the main session, exact path for the rules file. DEC-046, DEC-048.
+
+### [x] T-39 [M] Memory folder and exact rules path (`developer`, Sonnet, effort medium)
+- Result: 5 files and 1 CHANGELOG line, 25 new test cases, 536 passed, 1 skipped; review rounds 1. TL hand run on 5 hook inputs: memory write by the main session allowed, by a sub-agent denied, `..` out of it denied; rules file with `**` denied, with the exact path allowed. `PLAYBOOK.md` Appendix H updated by `tech-writer`. Live `transcript_path` layout checked at T-39a.
+- Goal: the main session may keep notes in the CLI's per-project memory folder (DEC-046); a sub-agent changes the developer rules file only when `Files in` holds its exact path (DEC-048).
+- Rule 1: memory folder = the folder `memory` next to the hook input's `transcript_path` file, only when that file's parent folder sits in a folder named `projects`. A main-session write under it (after `..` is resolved, case-folded on Windows) is allowed with its own reason. Sub-agent, no `transcript_path`, or another layout: unchanged deny. Never read from `.sdlc/project.md`. The event line records the path as `<memory>/<relative>`, never the absolute path.
+- Rule 2: the rules-file exception counts only a `Files in` token, before brace expansion, with no `*`, `?` or `{`, equal to the rules path after normalisation (case-folded on Windows). A glob such as `**` or `*.md` no longer counts. Main session unchanged.
+- Keep: `check`, `decide`, `Contract` stay importable with old call forms working (new parameters optional); `--check-worktree` unchanged; standard library only.
+- Files in: `tools/scope_guard.py`, `tests/test_scope_guard.py`, `skills/init/SKILL.md`, `tests/test_skills.py`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `hooks/`, `templates/`, `agents/`, `.claude/`, `docs/`, `PLAYBOOK.md`, `tests/fixtures/` existing files.
+- Acceptance: main session memory write allowed; sub-agent memory write denied; `..` escape from the memory folder denied; missing or wrong-layout `transcript_path` denied; event line holds no absolute path; rules file with exact token allowed, with `**`, `*.md` or `{a,b}` token denied for a sub-agent. Existing tests green.
+- Tests: one case per acceptance line, incl. a case-folded Windows path; `test_skills.py` checks "exact path" in `init`. `python -m pytest -q` summary pasted.
+- After: `tech-writer` updates `PLAYBOOK.md` Appendix H (two sentences); `scribe` writes LOG, STATUS, metrics line. Report in Turkish, fixed format, no commit.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-39 scope guard: memory folder for the main session (DEC-046) and exact path for the rules file (DEC-048) · T-39a the kit opts in to its own guard (DEC-047) · T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).

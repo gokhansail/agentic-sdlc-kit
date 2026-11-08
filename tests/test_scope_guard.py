@@ -1006,3 +1006,108 @@ def test_rules_file_match_is_case_folded_when_casefold_is_on(tmp_path: Path) -> 
     assert agent_write(root, "DOCS/RULES.MD", casefold=True)[0] == 2
     root_b = make_project(tmp_path / "b", contract=None, project=project.replace("`reports/`", "`reports/`, `DOCS/RULES.MD`"))
     assert agent_write(root_b, "DOCS/RULES.MD", casefold=False)[0] == 0
+
+
+# --- exact rules path (T-39, DEC-048) -------------------------------------------------
+
+@pytest.mark.parametrize("token", ["**", "*.md", "DEV_*.md", "DEV_RULES.m?", "{DEV_RULES,X}.md", "docs/**/*.md"])
+def test_rules_file_is_denied_to_a_sub_agent_when_files_in_only_has_a_glob(tmp_path: Path, token: str) -> None:
+    contract = CONTRACT.replace("`src/a.py`", f"`{token}`, `src/a.py`")
+    root = make_project(tmp_path, contract=contract, project=RULES_PROJECT)
+    code, err = agent_write(root, "DEV_RULES.md")
+    assert code == 2 and "exact path" in err
+    assert agent_write(root, "src/a.py")[0] == 0
+
+
+def test_rules_file_exact_token_is_normalised_and_case_folded(tmp_path: Path) -> None:
+    contract = CONTRACT.replace("`src/a.py`", "`./dev_rules.md`, `src/a.py`")
+    root = make_project(tmp_path, contract=contract, project=RULES_PROJECT)
+    assert agent_write(root, "DEV_RULES.md", casefold=True)[0] == 0
+    assert agent_write(root, "DEV_RULES.md", casefold=False)[0] == 2
+
+
+def test_contract_keeps_the_raw_files_in_tokens() -> None:
+    parsed = sg.parse_contract(CONTRACT)
+    assert "tools/metrics/{a,b}.py" in parsed.files_in_raw and "tools/metrics/a.py" in parsed.files_in
+    assert sg.Contract("T-1", ("a",), ()).files_in_raw == ()
+
+
+# --- memory folder (T-39, DEC-046) ----------------------------------------------------
+
+def memory_input(root: Path, config: Path, rel: str, agent: bool = False, transcript: object = "default") -> dict:
+    data = payload("write-subagent" if agent else "write-main", root, str(config / "projects" / "slug" / "memory" / rel))
+    if transcript == "default":
+        data["transcript_path"] = str(config / "projects" / "slug" / "s1.jsonl")
+    elif transcript is None:
+        data.pop("transcript_path", None)
+    else:
+        data["transcript_path"] = transcript
+    return data
+
+
+@pytest.mark.parametrize("contract", [None, CONTRACT])
+def test_main_session_may_write_in_the_memory_folder(tmp_path: Path, contract: str | None) -> None:
+    root, config = make_project(tmp_path, contract=contract), tmp_path / "cfg"
+    assert run(root, memory_input(root, config, "note.md")) == (0, "")
+    assert run(root, memory_input(root, config, "sub/deep.md")) == (0, "")
+
+
+def test_sub_agent_is_denied_in_the_memory_folder(tmp_path: Path) -> None:
+    root, config = make_project(tmp_path), tmp_path / "cfg"
+    code, err = run(root, memory_input(root, config, "note.md", agent=True))
+    assert code == 2 and "outside the project root" in err
+
+
+def test_dotdot_out_of_the_memory_folder_is_denied(tmp_path: Path) -> None:
+    root, config = make_project(tmp_path), tmp_path / "cfg"
+    for rel in ("../other/x.md", "../../x.md", "../s1.jsonl"):
+        assert run(root, memory_input(root, config, rel))[0] == 2
+    assert run(root, memory_input(root, config, "a/../b.md"))[0] == 0
+
+
+def test_memory_sibling_with_a_shared_prefix_is_denied(tmp_path: Path) -> None:
+    root, config = make_project(tmp_path), tmp_path / "cfg"
+    data = payload("write-main", root, str(config / "projects" / "slug" / "memory-x" / "n.md"))
+    data["transcript_path"] = str(config / "projects" / "slug" / "s1.jsonl")
+    assert run(root, data)[0] == 2
+
+
+@pytest.mark.parametrize("transcript", [None, "", "transcript.jsonl", 5])
+def test_missing_or_relative_transcript_path_keeps_the_deny(tmp_path: Path, transcript: object) -> None:
+    root, config = make_project(tmp_path), tmp_path / "cfg"
+    assert run(root, memory_input(root, config, "note.md", transcript=transcript))[0] == 2
+
+
+def test_wrong_layout_transcript_path_keeps_the_deny(tmp_path: Path) -> None:
+    root, config = make_project(tmp_path), tmp_path / "cfg"
+    for layout in (config / "other" / "slug" / "s1.jsonl", config / "projects" / "s1.jsonl",
+                   config / "projects" / ".." / "evil" / "s1.jsonl"):
+        assert run(root, memory_input(root, config, "note.md", transcript=str(layout)))[0] == 2
+
+
+def test_memory_write_does_not_apply_without_opt_in_or_inside_the_root(tmp_path: Path) -> None:
+    root, config = make_project(tmp_path, project=None), tmp_path / "cfg"
+    assert run(root, memory_input(root, config, "note.md")) == (0, "")
+    assert events(root) == []
+    root2 = make_project(tmp_path / "b")
+    data = payload("write-main", root2, str(root2 / "src" / "other.py"))
+    data["transcript_path"] = str(root2 / "projects" / "slug" / "s1.jsonl")
+    assert run(root2, data)[0] == 2  # decided by the contract, not by the memory rule
+
+
+def test_memory_decision_records_a_relative_marker_not_the_absolute_path(tmp_path: Path) -> None:
+    root, config = make_project(tmp_path), tmp_path / "cfg"
+    decision = sg.check(root, str(config / "projects" / "slug" / "memory" / "a" / "n.md"), False, False,
+                        memory_dir=sg.memory_folder(str(config / "projects" / "slug" / "s1.jsonl"), False))
+    assert decision is not None and decision.allow and decision.rel == "<memory>/a/n.md"
+    run(root, memory_input(root, config, "a/n.md"))
+    assert str(config) not in (root / ".sdlc" / "metrics.jsonl").read_text(encoding="utf-8")
+
+
+def test_memory_folder_is_case_folded_only_when_casefold_is_on(tmp_path: Path) -> None:
+    root = make_project(tmp_path)
+    data = payload("write-main", root, "C:/cfg/Projects/slug/memory/n.md")
+    data["transcript_path"] = "C:/cfg/PROJECTS/slug/s1.jsonl".replace("/", chr(92))
+    assert run(root, data, casefold=True)[0] == 0
+    assert run(root, data, casefold=False)[0] == 2
+    assert sg.memory_folder("C:/cfg/projects/slug/s1.jsonl".replace("/", chr(92)), False) == "C:/cfg/projects/slug/memory"

@@ -16,7 +16,11 @@ States, in the order they are decided:
 Beyond the table: a path outside the project root is denied; a sub-agent never
 writes under .sdlc/; the main session always may. The developer rules file (the
 backticked path on the `Developer rules:` line of .sdlc/project.md) is never covered by
-the always-allowed list: a sub-agent may write it only when Files in names it.
+the always-allowed list: a sub-agent may write it only when Files in names its exact
+path as one token (checked before brace expansion, no `*`, `?` or `{`; a glob does not count).
+One exception to the root rule: the main session may write in the CLI's memory folder, the
+`memory` folder next to the hook input's `transcript_path` file, when that file sits in a
+folder whose parent is named `projects`. A sub-agent, or any other layout, stays denied.
 
 Grammar (only backticked tokens count; `{a,b}` expands; a trailing `/` is a
 folder; `*` stays inside one folder, `**` crosses folders; patterns are anchored
@@ -69,6 +73,7 @@ class Contract:
     task_id: str
     files_in: tuple[str, ...]
     files_out: tuple[str, ...]
+    files_in_raw: tuple[str, ...] = ()  # Files in tokens before brace expansion
 
 
 @dataclass(frozen=True)
@@ -199,7 +204,8 @@ def parse_contract(text: str) -> Contract:
         found[name] = tuple(patterns_from_line(rows[0][1]))
         if name == "files in" and not found[name]:
             raise ConfigError(f"line {rows[0][0]}: `Files in` has no backticked path")
-    return Contract(task.group(0), found["files in"], found["files out"])
+    raw_in = tuple(normalize_pattern(t) for t in backticked(fields["files in"][0][1]))
+    return Contract(task.group(0), found["files in"], found["files out"], raw_in)
 
 
 # --- paths ---------------------------------------------------------------------
@@ -262,6 +268,40 @@ def relative_to_root(root: str, raw: str, casefold: bool) -> str | None:
     return path_n[len(prefix):]
 
 
+def memory_folder(transcript_path: object, casefold: bool) -> str | None:
+    """The CLI's memory folder for a hook input, or None when the layout is not the known one.
+
+    The transcript is `<config>/projects/<project-slug>/<session>.jsonl`; the memory folder is
+    `memory` next to it. Only an absolute path with a parent folder named `projects` counts.
+    """
+    if not isinstance(transcript_path, str) or not transcript_path.strip():
+        return None
+    text = transcript_path.replace("\\", "/")
+    if not _is_absolute(text):
+        return None
+    folder = posixpath.dirname(_normalize(text))
+    grand = posixpath.dirname(folder)
+    name = posixpath.basename(grand)
+    if not posixpath.basename(folder) or not name or posixpath.dirname(grand) == grand:
+        return None
+    if (name.casefold() if casefold else name) != "projects":
+        return None
+    return folder + "/memory"
+
+
+def _names_exactly(tokens: Sequence[str], path: str, casefold: bool) -> bool:
+    """True when one raw Files in token is the plain path, with no glob character."""
+    want = posixpath.normpath(path)
+    want = want.casefold() if casefold else want
+    for token in tokens:
+        if any(c in token for c in "*?{") or token.endswith("/"):
+            continue
+        have = posixpath.normpath(token)
+        if (have.casefold() if casefold else have) == want:
+            return True
+    return False
+
+
 def _under_sdlc(rel: str, casefold: bool) -> bool:
     return (rel.casefold() if casefold else rel).startswith(SDLC_PREFIX)
 
@@ -308,10 +348,10 @@ def decide(
         return result(False, f"the path is in Files out of {contract.task_id}",
                       "Return an OPEN QUESTION; do not work around the contract.")
     if rules_file:
-        if matches(rel, contract.files_in, casefold):
+        if developer_rules and _names_exactly(contract.files_in_raw, developer_rules, casefold):
             return result(True, f"in scope of {contract.task_id} (Files in names the developer rules file)")
         return result(False, f"the path is the developer rules file ({developer_rules}) and Files in of "
-                      f"{contract.task_id} does not name it; the always-allowed list does not cover it",
+                      f"{contract.task_id} does not name its exact path (no glob); the always-allowed list does not cover it",
                       "Return an OPEN QUESTION naming the developer rules file, or ask the technical lead to widen the contract.")
     if matches(rel, contract.files_in, casefold) or matches(rel, always_allowed, casefold):
         return result(True, f"in scope of {contract.task_id}")
@@ -362,6 +402,7 @@ def check(
     is_agent: bool,
     casefold: bool,
     input_error: str = "",
+    memory_dir: str | None = None,
 ) -> Decision | None:
     """Decide one call. None means the project has not opted in: allow, say nothing."""
     if not (root / PROJECT_FILE).is_file():
@@ -372,6 +413,14 @@ def check(
         return Decision(False, state, input_error or "the hook input has no path",
                         "Report this to the technical lead; the call was not checked.", task)
     rel = relative_to_root(str(root), raw_path, casefold)
+    if rel is None and memory_dir and not is_agent:
+        absolute = raw_path.replace("\\", "/")
+        if not _is_absolute(absolute):
+            absolute = _normalize(str(root)) + "/" + absolute
+        inside = relative_to_root(memory_dir, absolute, casefold)
+        if inside is not None:
+            return Decision(True, state, "the main session may write in the CLI memory folder",
+                            "", task, f"<memory>/{inside}")
     if rel is None:
         return Decision(False, state, "the path is outside the project root",
                         "Write only inside the project folder.", task, raw_path.replace("\\", "/"))
@@ -556,7 +605,8 @@ def main(
     tool = event_in.get("tool_name")
     tool = tool[:40] if isinstance(tool, str) else None
 
-    decision = check(root, raw_path, is_agent, fold, input_error)
+    memory = memory_folder(event_in.get("transcript_path"), fold)
+    decision = check(root, raw_path, is_agent, fold, input_error, memory)
     if decision is None:
         return 0
     stamp = today or datetime.date.today().isoformat()

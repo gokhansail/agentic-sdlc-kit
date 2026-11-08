@@ -2,6 +2,30 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-08 (1) - Phase 4 opened, T-39 guard changes
+
+- Records of DEC-046 to DEC-048 committed and pushed (084cec5). 515 passed, 1 skipped.
+- `cto` (Opus) wrote the phase 4 plan, `cto/2026-11-07_phase4-plan.md` (89 lines).
+  - Order: T-39, T-39a, T-40, T-41, T-42, T-44, T-46a and T-46b, G0 leftover, T-45.
+  - 10 countable G4 lines.
+  - 2 maintainer questions block T-40: does the server write records or only read them; how does a user get the `mcp` SDK.
+  - CTO objection to the phase 4 line: `.mcp.json` belongs in T-40, not T-42; the TL agrees.
+- The TL wrote the T-39 contract (11 lines).
+- `developer` (Sonnet) built T-39:
+  - files: `tools/scope_guard.py` (+54, -6), `tests/test_scope_guard.py` (+105, 25 cases), `skills/init/SKILL.md`, `tests/test_skills.py`, 1 CHANGELOG line;
+  - 536 passed, 1 skipped (TL rerun);
+  - review rounds: 1.
+- TL hand run: 5 hook inputs in a throwaway folder opted in to the guard:
+  - main-session memory write: allowed;
+  - sub-agent memory write: denied;
+  - `..` out of the memory folder: denied;
+  - sub-agent rules-file edit with Files in `**`: denied;
+  - the same edit with the exact path: allowed.
+  - Event lines hold no path.
+- `tech-writer` (Sonnet) updated `PLAYBOOK.md` Appendix H (DEC-046, DEC-048).
+- Not verified: the `transcript_path` layout of a live session; to be checked at T-39a when the kit opts in.
+- Next: maintainer review and commit of T-39; then T-39a.
+
 ## 2026-11-07 (7) - Three open questions decided
 
 - The TL explained the 3 open questions in plain terms; the maintainer took the TL recommendation on all 3.

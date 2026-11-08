@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-07
-Now: Phase 3 closed: G3 passed 2026-11-07; phase 4 next · repository private · metrics code written, tests green
+Last updated: 2026-11-08
+Now: Phase 4 MCP server open; T-39 done, T-39a next · repository private · code written, tests green
 
 ## Phase
 
@@ -15,10 +15,10 @@ Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates
 
 Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix round T-34a, `auditor-mini` ACCEPT; `audits/`).
 
+Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
+
 ## Done
 
-- T-11 Playbook: `PLAYBOOK.md`, core and appendices A to I, every claim traced to the source map. The maintainer's end-to-end read is still open (G1).
-- T-12 Templates: 7 files in `templates/`, each field traced to the source map; C-26 moved to T-44.
 - T-13 Role files: 7 role files and `DEV_RULES.md` revised, each traced to the source map; `docs/portability.md` dropped (DEC-018); one term "customer" (DEC-019). Approved 2026-11-01.
 - T-14 G1 audit: CONDITIONAL ACCEPT (2026-11-02); 6 questions answered (DEC-020).
 - T-15 G1 fixes: all findings fixed; the maintainer read `PLAYBOOK.md` end to end (2026-11-02), no corrections.
@@ -41,10 +41,12 @@ Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix r
 - T-33 real task on Project A: medium task merged by the customer; 39 guard events, 1 deny outside the root, 0 out-of-scope files; kit removed, rollback equal; 9 findings in `docs/dogfood-1.md`.
 - DEC-045 triage and T-33b: sub-agents cannot change the developer rules file without a Files in line; 515 tests green.
 - T-34 G3 audit: CONDITIONAL ACCEPT (`audits/2026-11-07_gate3.md`); fix round T-34a: line endings, records, G3-7 statement.
+- Phase 4 plan: `cto/2026-11-07_phase4-plan.md`; decisions DEC-046 to DEC-048.
+- T-39 guard: main-session memory folder, exact rules path; 536 tests green.
 
 ## Next
 
-- Phase 4 MCP server: CTO phase 4 plan in a new session; first tasks T-39 (guard: memory folder, exact rules path) and T-39a (kit opts in to its own guard), DEC-046 to DEC-048.
+- T-39a (kit opts in to its own guard, V-9 desktop check); T-40 waits for 2 customer answers (server writes, SDK install).
 
 ## Repository
 
