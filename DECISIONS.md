@@ -382,7 +382,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a). The customer accepted the TL recommendation.
 - Reason: the README says the kit is built with its own process; G3 found a document edited outside an open contract that the guard would have flagged.
 - Consequences: `tests/test_scope_guard.py` `test_this_repository_has_not_opted_in` flips. The always-allowed list covers the records, `audits/`, `cto/` and `docs/`; the developer rules file stays out (DEC-045). Sessions here load the plugin with `--plugin-dir .`; whether a desktop app session can (V-9) is checked first, and if it cannot, that limit is written down. A TL brief to `tech-writer` gets its own contract line.
-- Outcome:
+- Outcome: T-39a 2026-11-08: `.sdlc/project.md` committed; the guard runs from `.claude/settings.json` (DEC-049), checked live in `claude -p` and in a desktop app session.
 
 ## DEC-048 The developer rules file needs its exact name in Files in
 - Date: 2026-11-07 · Question: G3 finding D-2, customer question 4
@@ -391,3 +391,11 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: with b) a broad contract such as `**` re-opens the hole T-33b closed. The cost of a) is one explicit token in the rare task that edits the rules.
 - Consequences: a phase 4 change in `tools/scope_guard.py` and its tests, in the same task as DEC-046. `skills/init/SKILL.md` and `PLAYBOOK.md` Appendix H say "exact path".
 - Outcome:
+
+## DEC-049 How the kit's own guard runs in a desktop app session
+- Date: 2026-11-08 · Question: V-9 desktop half, DEC-047 fallback (`cto/2026-11-07_phase4-plan.md` debt list)
+- Options: a) `.claude/settings.json` in this repository registers the same launcher from the repository, with `CLAUDE_PLUGIN_ROOT` set to the project folder b) install the plugin from a local marketplace into the user settings c) open the kit's sessions in a terminal with `--plugin-dir .` d) write the limit down only
+- Decision: a). The customer accepted the TL recommendation.
+- Reason: a desktop app session in this folder loads no plugin: no `/sdlc` commands and no `sdlc:` agents, and the app has no `--plugin-dir` option. With d) the opt-in protects nothing in daily work. b) runs a cached copy, so each guard change needs an update. c) changes how the customer works.
+- Consequences: T-39a adds `.claude/settings.json`; a session that also loads the plugin with `--plugin-dir .` runs the guard twice, and `CLAUDE.md` says not to. Other projects still use the plugin. `docs/toolchain.md` V-9 row records the desktop result.
+- Outcome: T-39a 2026-11-08: the settings hook denied a `PLAYBOOK.md` edit with no contract in `claude -p` and in a new desktop app session.

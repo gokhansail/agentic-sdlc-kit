@@ -62,6 +62,8 @@ Everything in the repository is English (DEC-003): code, documents, records, rol
 - Before a push: tests green (`python -m pytest -q`), a CHANGELOG line, records current.
 - Every push goes through the pre-push guard. `tools/install_git_hooks.py` installs it. Never use `--no-verify`. A secret that reached history is treated as leaked. Rotate it. Do not just delete it.
 - Commit messages end with `Co-Authored-By: Claude <model> <noreply@anthropic.com>`.
+- The scope guard runs from `.claude/settings.json` (DEC-049). The TL places `.sdlc/active-contract.md` for each task; a sub-agent writes only what its Files in names.
+- Do not also load the plugin with `--plugin-dir .`: the guard would run twice.
 
 ## Privacy and status line
 No secrets, email addresses, local paths, personal data or raw logs in the repository. Source projects appear as Project A and Project B (DEC-006). From the metric scripts, only totals are committed. Every reply ends with one line: phase, task (the open one, or the next one when none is open), repository visibility, code state (whether the repository holds code, not whether this reply changed any).

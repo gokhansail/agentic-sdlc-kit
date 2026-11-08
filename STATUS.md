@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-08
-Now: Phase 4 MCP server open; T-39 done, T-39a next · repository private · code written, tests green
+Now: Phase 4 MCP server open; T-39 and T-39a done, the kit runs under its own guard · repository private · code written, tests green
 
 ## Phase
 
@@ -19,7 +19,6 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 ## Done
 
-- T-13 Role files: 7 role files and `DEV_RULES.md` revised, each traced to the source map; `docs/portability.md` dropped (DEC-018); one term "customer" (DEC-019). Approved 2026-11-01.
 - T-14 G1 audit: CONDITIONAL ACCEPT (2026-11-02); 6 questions answered (DEC-020).
 - T-15 G1 fixes: all findings fixed; the maintainer read `PLAYBOOK.md` end to end (2026-11-02), no corrections.
 - Phase 2 plan: `cto/2026-11-02_phase2-plan.md`; decisions DEC-021 to DEC-027.
@@ -43,10 +42,11 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - T-34 G3 audit: CONDITIONAL ACCEPT (`audits/2026-11-07_gate3.md`); fix round T-34a: line endings, records, G3-7 statement.
 - Phase 4 plan: `cto/2026-11-07_phase4-plan.md`; decisions DEC-046 to DEC-048.
 - T-39 guard: main-session memory folder, exact rules path; 536 tests green.
+- T-39a the kit opts in: .sdlc/project.md and .claude/settings.json (DEC-047, DEC-049); 540 tests green; checked live and in a desktop app session.
 
 ## Next
 
-- T-39a (kit opts in to its own guard, V-9 desktop check); T-40 waits for 2 customer answers (server writes, SDK install).
+- T-40 server skeleton; waits for 2 customer answers (server writes, SDK install). Each task now needs .sdlc/active-contract.md.
 
 ## Repository
 

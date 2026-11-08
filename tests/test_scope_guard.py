@@ -469,9 +469,40 @@ def test_a_failed_log_write_does_not_change_the_decision(tmp_path: Path) -> None
 
 # --- repository facts ------------------------------------------------------------
 
-def test_this_repository_has_not_opted_in() -> None:
-    assert not (ROOT / ".sdlc" / "project.md").exists()
-    assert not (ROOT / ".sdlc" / "active-contract.md").exists()
+def test_this_repository_has_opted_in() -> None:
+    text = (ROOT / ".sdlc" / "project.md").read_text(encoding="utf-8")
+    assert sg.parse_developer_rules(text) == "DEV_RULES.md"
+    allowed = sg.parse_always_allowed(text)
+    assert allowed and "DEV_RULES.md" not in allowed
+    for rel in ("DEV_RULES.md", "CLAUDE.md", "PLAYBOOK.md", "README.md", "tests/test_x.py"):
+        assert not sg.matches(rel, allowed, False), rel
+    for rel in ("STATUS.md", "TASKS.md", "LOG.md", "DECISIONS.md", "CHANGELOG.md", "LESSONS.md",
+                "audits/x.md", "cto/x.md", "docs/toolchain.md"):
+        assert sg.matches(rel, allowed, False), rel
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="no git on PATH")
+def test_active_contract_is_not_tracked_in_this_repository() -> None:
+    res = subprocess.run(["git", "ls-files", ".sdlc/active-contract.md", ".sdlc/metrics.jsonl"],
+                         cwd=ROOT, capture_output=True, timeout=60)
+    if res.returncode != 0:
+        pytest.skip("not a git work tree")
+    assert res.stdout.strip() == b""
+
+
+def test_this_repository_decisions_with_no_contract() -> None:
+    text = (ROOT / ".sdlc" / "project.md").read_text(encoding="utf-8")
+    allowed = sg.parse_always_allowed(text)
+    rules = sg.parse_developer_rules(text)
+
+    def decide(rel: str, is_agent: bool = False) -> bool:
+        return sg.decide(rel, sg.NO_CONTRACT, None, allowed, is_agent, False, developer_rules=rules).allow
+
+    assert not decide("PLAYBOOK.md")
+    for rel in ("LOG.md", "docs/toolchain.md", "cto/x.md"):
+        assert decide(rel), rel
+    assert not decide("DEV_RULES.md", is_agent=True)
+    assert not decide("DEV_RULES.md")
 
 
 def test_hook_registration() -> None:
@@ -566,6 +597,55 @@ def test_launcher_passes_a_project_that_has_not_opted_in_with_no_python(tmp_path
     empty.mkdir()
     res = launch(root, input_for(root, "src/a.py"), [empty])
     assert res.returncode == 0 and res.stderr == b""
+
+
+@needs_sh
+def settings_command() -> str:
+    data = json.loads((ROOT / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    (entry,) = data["hooks"]["PreToolUse"]
+    assert entry["matcher"] == "Write|Edit|NotebookEdit"
+    (hook,) = entry["hooks"]
+    assert hook["type"] == "command" and hook["timeout"] == 30
+    return hook["command"]
+
+
+def run_settings_command(root: Path, rel: str, python_dir: Path) -> subprocess.CompletedProcess:
+    env = dict(os.environ)
+    env["PATH"] = os.pathsep.join([str(python_dir), env.get("PATH", "")])
+    env["CLAUDE_PROJECT_DIR"] = posix(root)
+    env.pop("CLAUDE_PLUGIN_ROOT", None)
+    env.pop("PYTHONUTF8", None)
+    return subprocess.run([SH, "-c", settings_command()], input=input_for(root, rel), env=env,
+                          capture_output=True, timeout=60)
+
+
+def kit_project(tmp_path: Path) -> Path:
+    """A folder shaped like the kit: this repository's project file, launcher and guard script."""
+    root = tmp_path / "kit"
+    (root / ".sdlc").mkdir(parents=True)
+    (root / "hooks" / "scope").mkdir(parents=True)
+    (root / "tools").mkdir()
+    shutil.copyfile(ROOT / ".sdlc" / "project.md", root / ".sdlc" / "project.md")
+    shutil.copyfile(LAUNCHER, root / "hooks" / "scope" / "launcher.sh")
+    shutil.copyfile(ROOT / "tools" / "scope_guard.py", root / "tools" / "scope_guard.py")
+    return root
+
+
+@needs_sh
+def test_settings_command_denies_playbook_with_no_contract(tmp_path: Path) -> None:
+    root = kit_project(tmp_path)
+    res = run_settings_command(root, "PLAYBOOK.md", real_python_dir(tmp_path))
+    assert res.returncode == 2, res.stderr
+    assert b"scope guard: denied" in res.stderr and b"[no-contract]" in res.stderr
+
+
+@needs_sh
+def test_settings_command_allows_the_log_with_no_contract(tmp_path: Path) -> None:
+    root = kit_project(tmp_path)
+    res = run_settings_command(root, "LOG.md", real_python_dir(tmp_path))
+    assert res.returncode == 0, res.stderr
+    (line,) = events(root)
+    assert line["decision"] == "allow"
 
 
 @needs_sh

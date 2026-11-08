@@ -2,6 +2,24 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-08 (2) - T-39a the kit runs its own guard
+
+- The desktop app session in this folder loaded no plugin: no `/sdlc` commands, no `sdlc:` agents, no `--plugin-dir` option.
+- The maintainer chose the TL recommendation: register the guard in `.claude/settings.json` (DEC-049).
+- The TL wrote the T-39a contract.
+- `developer` (Sonnet) built T-39a:
+  - files: `.sdlc/project.md` (20 lines), `.claude/settings.json` (16 lines), `CLAUDE.md` (2 lines), `tests/test_scope_guard.py` (5 new tests), 1 CHANGELOG line;
+  - 540 passed, 1 skipped (TL rerun);
+  - review rounds: 1.
+- TL live `claude -p` check (Haiku):
+  - with no contract: write to `PLAYBOOK.md` denied, write to `LOG.md` allowed;
+  - main-session write in the memory folder: allowed; `memory/..`: denied;
+  - 4 event lines, none with a path.
+  - Probe lines and files removed.
+- Maintainer check in a new desktop app session: an Edit to `PLAYBOOK.md` with no contract was denied (`[no-contract]`); file unchanged.
+- V-9 closed in `docs/toolchain.md`.
+- Next: T-40 server skeleton after the maintainer's 2 answers (server writes records or reads only; how a user gets the `mcp` SDK).
+
 ## 2026-11-08 (1) - Phase 4 opened, T-39 guard changes
 
 - Records of DEC-046 to DEC-048 committed and pushed (084cec5). 515 passed, 1 skipped.

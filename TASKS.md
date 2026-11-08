@@ -3,7 +3,7 @@
 Written by the Technical Lead. Each task is a contract of at most 15 lines: goal, files to touch and not to touch, acceptance, tests, tag. Tags: [E] easy (one file, no behaviour change), [M] medium, [H] hard. A phase gate that is still `[ ]` blocks the next phase. Decisions are in `DECISIONS.md`.
 
 ## NOW NEXT
-T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 done 2026-11-08. Now: T-39a, then T-40 after the customer's 2 server answers.
+T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit removed, rollback equal to the noted state. G3 passed 2026-11-07 (`auditor-mini` ACCEPT). The 3 open questions are decided (DEC-046, DEC-047, DEC-048). Phase 4 plan written (`cto/2026-11-07_phase4-plan.md`). T-39 and T-39a done 2026-11-08; the kit runs under its own guard. Next: T-40 after the customer's 2 server answers (server writes, SDK install).
 
 ## Phases
 
@@ -394,6 +394,17 @@ Order:
 Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-44, T-46a and T-46b, G0 leftover, T-45. T-40 waits for the customer's answers on server writes and SDK install.
 
 - [x] T-39 [M] scope guard: memory folder for the main session, exact path for the rules file. DEC-046, DEC-048.
+- [x] T-39a [E] the kit opts in to its own guard, run from project settings. DEC-047, DEC-049.
+
+### [x] T-39a [E] The kit opts in to its own guard (`developer`, Sonnet, effort medium)
+- Result: 2 new files, `CLAUDE.md` 2 lines, 5 new tests, 540 passed, 1 skipped; review rounds 1. Live `claude -p`: `PLAYBOOK.md` denied, `LOG.md` allowed, memory folder allowed, `memory/..` denied, event lines without paths. New desktop app session (customer): `PLAYBOOK.md` denied.
+- Goal: sessions in this repository, desktop app included, run the scope guard (DEC-047, DEC-049).
+- Parts: `.sdlc/project.md` from `templates/project.md` as `/sdlc:init` would fill it: records as in `CLAUDE.md`, `Developer rules: DEV_RULES.md`, report language "the language the maintainer writes in"; always allowed: `STATUS.md`, `TASKS.md`, `LOG.md`, `DECISIONS.md`, `CHANGELOG.md`, `LESSONS.md`, `audits/`, `cto/`, `docs/`. Not `CLAUDE.md`, `PLAYBOOK.md`, `README.md`, `DEV_RULES.md`, `tests/`. `.claude/settings.json`: one PreToolUse hook, matcher `Write|Edit|NotebookEdit`, timeout 30, command runs `hooks/scope/launcher.sh` from `$CLAUDE_PROJECT_DIR` with `CLAUDE_PLUGIN_ROOT` set to it. `CLAUDE.md`: 2 lines under "Commits and push": the guard runs from `.claude/settings.json`, the TL places `.sdlc/active-contract.md` per task, do not also load `--plugin-dir .`.
+- Files in: `.sdlc/project.md`, `.claude/settings.json`, `CLAUDE.md`, `tests/test_scope_guard.py`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `tools/`, `hooks/`, `agents/`, `.claude/agents/`, `templates/`, `skills/`, `PLAYBOOK.md`, `DEV_RULES.md`.
+- Acceptance: `test_this_repository_has_not_opted_in` becomes a test that the project file parses, names `DEV_RULES.md`, keeps it out of the always-allowed list, and that `.sdlc/active-contract.md` is not tracked; a test runs the settings command through `sh` on a sample input and gets deny for `PLAYBOOK.md` with no contract and allow for `LOG.md`. Existing tests green.
+- Tests: `python -m pytest -q` summary pasted. No live `claude -p` run; the TL runs it.
+- After: TL live check with `claude -p` in this folder, customer check in a new desktop session, TL writes the V-9 row in `docs/toolchain.md`; `scribe` writes LOG and STATUS. Report in Turkish, fixed format, no commit.
 
 ### [x] T-39 [M] Memory folder and exact rules path (`developer`, Sonnet, effort medium)
 - Result: 5 files and 1 CHANGELOG line, 25 new test cases, 536 passed, 1 skipped; review rounds 1. TL hand run on 5 hook inputs: memory write by the main session allowed, by a sub-agent denied, `..` out of it denied; rules file with `**` denied, with the exact path allowed. `PLAYBOOK.md` Appendix H updated by `tech-writer`. Live `transcript_path` layout checked at T-39a.
