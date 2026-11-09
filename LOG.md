@@ -2,6 +2,25 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-10 (1) - T-46c eval runner review fixes
+
+- Two external read-only reviews of HEAD 663d17d were received on 2026-11-09 (kept outside the repository). The TL turned all their items into a 35-item decision table, kept outside the repository. 5 direction decisions are open with the maintainer.
+- The TL confirmed 2 eval runner defects by reproducing them with the fake CLI:
+  - a run with an error subtype and a right ANSWER line counted 1 error and 1 correct;
+  - budget 0.30, per-run cap 0.25, costs 0.10 then 0.25: 2 calls started, 0.35 USD spent.
+- The full eval matrix was not started (no log, no output folder).
+- The scope guard denied a TL write to a path outside the T-46b contract. The TL placed the T-46c contract instead of working around the denial. The new contract replaced the stale `--bare` goal line of the old active contract.
+- `developer` (Sonnet, effort medium) built T-46c:
+  - `tools/eval_run.py`: correct needs no error and a right answer; new raw key `answer_matched`, totals keys unchanged; every call is estimated at `--max-run-usd`, `seen_max` removed;
+  - help text and `docs/eval-runbook.md` say one run can pass the cap by the cost of its last turn, because the CLI checks its cap between turns;
+  - tests: 2 added, 1 updated (the budget test now expects 2 calls, not 3); 1 CHANGELOG line.
+- The developer reported without a full-suite summary and left 3 pytest processes running. The TL stopped the agent and the processes and counted 0 pytest processes left.
+- TL full run from Git Bash: 1030 passed, 6 skipped, 341 s.
+- Record correction: STATUS line 6 and the T-46b status said the pilot totals were not committed. They were committed in 663d17d. TASKS was corrected by the TL; STATUS is corrected in this entry.
+- Metrics (T-46c): review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- Not committed yet; waits for the maintainer.
+- Next: the rest of the eval runner fixes (review items 3 to 6: process tree stop on Windows, resume refuses changed settings, condition order by fixed seed, 120 runs instead of 360), then the eval runs; 5 review decisions open.
+
 ## 2026-11-09 (1) - T-46b pilot ran to the end after a stop; API credit check
 
 - The TL started the pilot (20 runs, budget 3 USD) in this session on the customer's word. The customer said to stop everything. The TL stopped the background shell task and reported the pilot stopped with no process left. That was wrong: stopping the shell task did not stop the Python runner, and the TL's process check matched nothing. The runner finished all 20 runs (about 23:37 to 00:06) and wrote `eval/results/pilot-1.json`. Found after the T-46b commit; the totals file is not committed.

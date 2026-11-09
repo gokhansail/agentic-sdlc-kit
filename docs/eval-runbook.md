@@ -10,7 +10,7 @@ What is this file? The steps the customer follows in PowerShell to run the eval 
 - Both conditions get the same prompt and the same flags. The model gets the `Read` tool only. The prompt lists the files of the copy. The only difference is `--mcp-config`, which starts the sdlc server with the copy as its root and adds its 10 read-only tools.
 - Models: `haiku` and `sonnet`. Full matrix: 2 models x 2 conditions x 3 runs x 30 questions = 360 runs.
 - Raw output and one record per run go to `%TEMP%\sdlc-eval-out\<label>\`. They stay on this machine. Only the totals go to `eval\results\<label>.json`.
-- The runner stops before a call that could pass the total budget (counted in estimated USD), and says so. It also stops after 3 calls in a row that fail with no cost, which is what a reached usage limit, a lost login or a broken CLI looks like.
+- A call starts only if the estimated USD spent so far plus the per-run cap (`--max-run-usd`, default 0.25) stays within `--budget-usd`; otherwise the runner stops and says so. The CLI checks its cap between turns, so one run can pass the cap by the cost of its last turn, and the total can pass the budget by that amount. It also stops after 3 calls in a row that fail with no cost, which is what a reached usage limit, a lost login or a broken CLI looks like.
 
 ## 1. Check the folder, the key variable and the tools
 Open PowerShell and go to the kit folder first (`cd <kit folder>`). Then paste:

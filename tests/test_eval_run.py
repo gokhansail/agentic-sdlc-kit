@@ -268,6 +268,17 @@ def test_scoring_uses_the_eval_scorer_and_an_unparsed_answer_is_wrong_and_counte
     assert "unparsed 1" in text
 
 
+def test_a_run_with_an_error_subtype_and_a_right_answer_is_not_correct(tmp_path):
+    fake = Fake(lambda q, c, n: stream(answer=str(q["key"]), subtype="error_max_turns"))
+    run(tmp_path, fake, "--questions", "Q01", "--models", "haiku", "--conditions", "no-server")
+    group = totals(tmp_path)["groups"][0]
+    assert (group["runs"], group["correct"], group["errors"]) == (1, 0, 1)
+    assert group["accuracy_mean"] == 0
+    raw = (tmp_path / "out" / "runs.jsonl").read_text(encoding="utf-8").splitlines()
+    record = json.loads(raw[0])
+    assert record["correct"] is False and record["answer_matched"] is True and record["error"]
+
+
 def test_set_answer_is_scored_as_a_set(tmp_path):
     fake = Fake(lambda q, c, n: stream(answer="DEC-009, dec-008"))
     run(tmp_path, fake, "--questions", "Q13", "--models", "haiku", "--conditions", "no-server")
@@ -353,11 +364,21 @@ def test_run_stops_before_a_call_that_would_pass_the_budget(tmp_path):
     fake = Fake(lambda q, c, n: stream(answer=str(q["key"]), cost=0.10))
     code, text = run(tmp_path, fake, "--questions", "all", "--models", "haiku", "--conditions", "no-server",
                      "--max-run-usd", "0.25", budget="0.35")
-    assert len(fake.calls) == 3  # estimate 0.25 before the first result, then the highest cost seen, 0.10
+    assert len(fake.calls) == 2  # every call is estimated at the 0.25 cap: 0 and 0.10 spent fit, 0.20 does not
     data = totals(tmp_path)
-    assert data["stopped"] == "budget" and data["complete"] is False and data["done_runs"] == 3
-    assert data["spent_usd"] == pytest.approx(0.30) and data["spent_usd"] <= data["budget_usd"]
-    assert code == 1 and "stopped before run 4/30" in text and "stopped: budget" in text
+    assert data["stopped"] == "budget" and data["complete"] is False and data["done_runs"] == 2
+    assert data["spent_usd"] == pytest.approx(0.20) and data["spent_usd"] <= data["budget_usd"]
+    assert code == 1 and "stopped before run 3/30" in text and "stopped: budget" in text
+
+
+def test_a_cheap_first_run_does_not_lower_the_estimate_of_the_next_call(tmp_path):
+    costs = {1: 0.10, 2: 0.25}
+    fake = Fake(lambda q, c, n: stream(answer=str(q["key"]), cost=costs.get(n, 0.25)))
+    code, _ = run(tmp_path, fake, "--questions", "all", "--models", "haiku", "--conditions", "no-server",
+                  "--max-run-usd", "0.25", budget="0.30")
+    assert len(fake.calls) == 1  # 0.10 spent + 0.25 cap passes 0.30
+    data = totals(tmp_path)
+    assert code == 1 and data["stopped"] == "budget" and data["spent_usd"] <= data["budget_usd"]
 
 
 def test_the_first_call_uses_the_per_run_cap_as_its_estimate(tmp_path):

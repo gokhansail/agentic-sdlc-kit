@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-09
-Now: Phase 4 MCP server open; T-46b pilot done (totals not committed), full matrix next · repository private · code written, tests green
+Last updated: 2026-11-10
+Now: Phase 4 MCP server open; T-46c done (not committed, waits for the maintainer), eval runner fixes next · repository private · code written, tests green
 
 ## Phase
 
@@ -19,10 +19,6 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 ## Done
 
-- T-24 G2 audit and T-24a (N-1 to N-4 closed): Committed 2026-11-04.
-- Phase 3 plan: `cto/2026-11-04_phase3-plan.md`; decisions DEC-033 to DEC-043.
-- P-30 plugin facts probe: 14 runs and 1 customer terminal run; results in `docs/toolchain.md`, no result contradicts a decision.
-- T-30 skeleton and role files: plugin `sdlc` loads with 7 agents, `agents/` is the role source, 280 tests green; DEC-044. Committed 2026-11-05.
 - T-31 scope guard hook: denies and allows in live runs, sub-agent included; 388 tests green.
 - T-32 git hook installer: target mode, old hook kept, uninstall restores the hook folder; 437 tests green.
 - T-30a the 5 commands: skills, project template, 2 script modes; 498 tests green.
@@ -42,11 +38,14 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - T-42 decision, lesson, finding, task and log tools; 10 tools in all; 868 tests green; live run works.
 - T-44 security pass: 17 findings, 3 High fixed, 0 High open, 2 Medium open in the guard (S-7, S-8); `docs/security.md`; 980 tests green.
 - T-44a guard match in bounded time: S-6, S-7, S-8 fixed, 0 security findings open; 992 tests green.
-- T-46b runner and runbook: `tools/eval_run.py`, 36 tests, subscription login (DEC-054); 1028 tests green; pilot ran 20 of 20 after a stop that did not stop it (LOG 2026-11-09).
+- T-46b runner and runbook: `tools/eval_run.py`, 36 tests, subscription login (DEC-054); 1028 tests green; pilot ran 20 of 20 after a stop that did not stop it (LOG 2026-11-09); pilot totals committed in 663d17d.
+- T-46c eval runner review fixes: correct needs no error and a right answer; every call estimated at the per-run cap; 1030 tests green; not committed yet.
 
 ## Next
 
-- T-46b full matrix (360 runs) after the weekly usage limit resets; budget from the pilot.
+- Rest of the eval runner fixes (review items 3 to 6): process tree stop on Windows, resume refuses changed settings, condition order by fixed seed, 120 runs instead of 360.
+- Eval runs after the runner fixes (120 runs proposed; the maintainer decides).
+- The 5 review decisions with the maintainer (35-item table kept outside the repository).
 
 ## Repository
 
@@ -58,3 +57,4 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 ## Open questions
 
 - N-5 waits for G5 (`TASKS.md`).
+- 5 direction decisions from the 2026-11-09 external reviews.

@@ -6,6 +6,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 
 ### Added
 
+- Eval runner fix (`tools/eval_run.py`, T-46c): a run with an error is never scored correct, and every call is budgeted at the per-run cap.
 - Decision record (`DECISIONS.md`): DEC-001 to DEC-012.
 - Task list (`TASKS.md`) with phases and gates.
 - Status page (`STATUS.md`) for resuming work.

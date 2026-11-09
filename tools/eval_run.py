@@ -285,12 +285,14 @@ def build_record(base: dict, question: dict, condition: str, res: InvokeResult) 
         error = "mcp_not_connected"
     else:
         error = ""
-    correct = answer is not None and score_mod.is_correct(question, answer)
+    answer_matched = answer is not None and bool(score_mod.is_correct(question, answer))
+    correct = answer_matched and not error
     record = dict(base)
     record.update({
         "model_id": model_id,
         "api_key_source": parsed.api_key_source,
         "correct": bool(correct),
+        "answer_matched": answer_matched,
         "answer_found": answer is not None,
         "answer": answer or "",
         "duration_ms": int(_num(result.get("duration_ms"))),
@@ -448,7 +450,6 @@ def run_eval(cfg: Config, invoke: Invoke, env: dict, out=None) -> int:
     runs = load_runs(runs_file) if cfg.resume else []
     done = {(r["repeat"], r["question"], r["model"], r["condition"]) for r in runs}
     spent = sum(r["cost_usd"] for r in runs)
-    seen_max = max((r["cost_usd"] for r in runs), default=0.0)
     failed_in_a_row = 0
     stopped = ""
     planned = len(plan)
@@ -459,7 +460,7 @@ def run_eval(cfg: Config, invoke: Invoke, env: dict, out=None) -> int:
         for index, (repeat, q, model, condition) in enumerate(plan, start=1):
             if (repeat, q["id"], model, condition) in done:
                 continue
-            estimate = seen_max if seen_max > 0 else cfg.max_run_usd
+            estimate = cfg.max_run_usd
             if spent + estimate > cfg.budget_usd:
                 stopped = "budget"
                 say(f"eval_run: stopped before run {index}/{planned}: spent {spent:.4f} USD plus "
@@ -490,7 +491,6 @@ def run_eval(cfg: Config, invoke: Invoke, env: dict, out=None) -> int:
                 handle.write(json.dumps(record) + "\n")
             runs.append(record)
             spent += record["cost_usd"]
-            seen_max = max(seen_max, record["cost_usd"])
             status = "ok" if record["correct"] else ("error " + record["error"] if record["error"] else "wrong")
             say(f"[{len(runs)}/{planned}] {q['id']} {model} {condition}: {status}, "
                 f"{record['cost_usd']:.4f} USD, spent {spent:.4f}")
@@ -536,7 +536,7 @@ def _csv(value: str, allowed: Sequence[str] | None, what: str) -> list[str]:
 def main(argv: Sequence[str] | None = None, invoke: Invoke | None = None, env: dict | None = None, out=None) -> int:
     parser = argparse.ArgumentParser(prog="eval_run", description="Run the eval questions through claude -p on the subscription login.")
     parser.add_argument("--label", required=True, help="name of the totals file eval/results/<label>.json")
-    parser.add_argument("--budget-usd", required=True, type=float, help="total budget; no call starts that could pass it")
+    parser.add_argument("--budget-usd", required=True, type=float, help="total budget in estimated USD; a call starts only if spent plus --max-run-usd stays within it (the CLI checks its cap between turns, so one run can pass the cap by the cost of its last turn)")
     parser.add_argument("--models", default="haiku,sonnet")
     parser.add_argument("--conditions", default=",".join(CONDITIONS), help="server, no-server or both")
     parser.add_argument("--repeats", type=int, default=1)
