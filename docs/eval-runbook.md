@@ -73,7 +73,9 @@ if (-not ((Test-Path .\tools\eval_run.py) -and (Test-Path .\eval\questions.jsonl
 ```
 
 - 360 runs count against the subscription usage limits, so the full matrix may need several sittings. When a limit is reached, the runner prints `stopped: errors` after 3 failed calls. Wait until the limit resets, then continue the same label with the same command plus `--resume`. Runs already done are not repeated, and their estimated cost counts against the budget.
-- If you stop it with Ctrl+C or the window closes, the totals so far are written. Continue with `--resume` the same way.
+- If you stop it with Ctrl+C or the window closes, the totals so far are written. Continue with `--resume` the same way. On a timeout and on Ctrl+C the runner ends the `claude` process and every process it started (the sdlc server included) and waits for them before it goes on or exits.
+- `--resume` is refused (exit code 2, before any call) when `manifest.json` in the output folder is missing or the eval set, a setting or the code a run depends on differs from the first run of the label: questions, models, conditions, repeats, `--max-turns`, `--max-run-usd`, `--timeout-s`, `--no-restricted`, `--seed`, the prompt and flags, and the content of the runner, the server, the `tools` modules the server imports and the `eval/` folder (not `eval/results/`). The message names what differs. Only `--budget-usd` may change, and a commit of other files, such as the records, does not block it. The git commit is written to the manifest and the totals as information only. After a refusal, start a new label.
+- `--seed` (default 0) sets the order of the two conditions: across all (repeat, question, model) cells, half start with the server condition and half without (one more when the count is odd), placed by the seed. The same seed gives the same order. Keep the default unless the Technical Lead says otherwise.
 - If it prints `stopped: budget`, the budget was too low for the whole matrix. The totals file says how many runs are done (`done_runs` against `planned_runs`). Do not start a new label; use `--resume` with a higher `--budget-usd`.
 - Do not start other long Claude sessions on the same account while the matrix runs. They share the usage limit.
 
@@ -98,4 +100,5 @@ Measured on Claude Code 2.1.319 (`docs/toolchain.md`, V-16). These are facts abo
 - The runs are not isolated from the account. The start event of a run lists the CLI's own bundled skills, slash commands and agents, and the model's context holds that listing and the account's e-mail address. None of the user's own agents, plugins, skills, MCP servers or global `CLAUDE.md` reached the 3 runs that were checked. No flag is known that removes the bundled listings, and none was worked around.
 - The model gets `Read` only. `Grep`, `Glob` and `ToolSearch` are not offered by this CLI build, so without the server the model finds facts by reading the files named in the prompt.
 - `total_cost_usd` is an estimate at list price, and usage limits may end a sitting early.
+- On Windows, if `claude` exits by itself while a process it started keeps the output pipe open, the runner cannot find that process by the parent's PID. The call then waits up to the timeout and 30 s more, and that process is not ended by the runner.
 - The totals come from one synthetic project and 30 questions. A result is a sample.

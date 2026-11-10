@@ -6,6 +6,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 
 ### Added
 
+- Eval runner (`tools/eval_run.py`, T-46d): a timeout or Ctrl+C ends the CLI and every process it started, `--resume` is refused when the manifest is missing or a setting or the content of the files a run depends on differs (a commit of other files does not block it), the totals record the runner hash and git state (schema 2), and `--seed` orders the two conditions half and half.
 - Eval runner fix (`tools/eval_run.py`, T-46c): a run with an error is never scored correct, and every call is budgeted at the per-run cap.
 - Decision record (`DECISIONS.md`): DEC-001 to DEC-012.
 - Task list (`TASKS.md`) with phases and gates.

@@ -5,11 +5,17 @@ is started in, and returns stream-json lines like the real CLI (shape measured i
 """
 from __future__ import annotations
 
+import _thread
 import io
 import json
 import os
 import re
+import shutil
+import signal
+import subprocess
 import sys
+import threading
+import time
 from pathlib import Path
 
 import pytest
@@ -294,7 +300,8 @@ GROUP_KEYS = {
     "errors", "unparsed",
 }
 TOP_KEYS = {
-    "schema", "label", "date", "cli_version", "eval_set_sha256", "question_ids", "repeats", "settings",
+    "schema", "label", "date", "cli_version", "eval_set_sha256", "runner_sha256", "git_commit", "git_dirty",
+    "question_ids", "repeats", "settings",
     "planned_runs", "done_runs", "complete", "stopped", "budget_usd", "spent_usd", "groups",
 }
 
@@ -307,7 +314,9 @@ def test_totals_have_fixed_keys_and_no_answer_text(tmp_path):
     code, _ = run(tmp_path, Fake(behave), "--questions", "Q09,Q12", "--models", "haiku,sonnet", "--repeats", "2")
     assert code == 0
     data = totals(tmp_path)
-    assert set(data) == TOP_KEYS
+    assert set(data) == TOP_KEYS and data["schema"] == 2
+    assert data["runner_sha256"] == er.runner_hash() and re.fullmatch(r"[0-9a-f]{64}", data["runner_sha256"])
+    assert isinstance(data["git_commit"], str) and data["git_commit"] and data["git_dirty"] in (True, False, None)
     assert data["planned_runs"] == data["done_runs"] == 16 and data["complete"] is True and data["stopped"] == ""
     assert data["eval_set_sha256"] == er.questions_hash()
     assert data["cli_version"].startswith("2.1.319")
@@ -346,6 +355,65 @@ def test_order_covers_all_models_and_conditions_of_a_question_first(tmp_path):
     run(tmp_path, fake, "--questions", "Q01,Q09", "--models", "haiku,sonnet")
     first_four = {(c["question"], c["model"], c["condition"]) for c in fake.calls[:4]}
     assert {q for q, _, _ in first_four} == {"Q01"} and len(first_four) == 4
+    assert [c["question"] for c in fake.calls] == ["Q01"] * 4 + ["Q09"] * 4
+
+
+def plan_cfg(**kw) -> "er.Config":
+    return er.Config(label="x", budget_usd=1, **kw)
+
+
+def server_first_cells(plan) -> list[bool]:
+    firsts = {}
+    for repeat, q, model, condition in plan:
+        firsts.setdefault((repeat, q["id"], model), condition == "server")
+    return list(firsts.values())
+
+
+@pytest.mark.parametrize("repeats,models", [(1, ["haiku", "sonnet"]), (3, ["haiku", "sonnet"]), (1, ["haiku"]), (3, ["haiku"])])
+def test_exactly_half_of_the_cells_start_with_the_server_condition(repeats, models):
+    questions = QUESTIONS[:5]
+    plan = er.build_plan(questions, plan_cfg(repeats=repeats, models=models, seed=7))
+    cells = repeats * len(questions) * len(models)
+    assert len(plan) == cells * 2
+    firsts = server_first_cells(plan)
+    assert len(firsts) == cells and sum(firsts) == (cells + 1) // 2  # one more when the count is odd
+    for i in range(0, len(plan), 2):  # both conditions of a cell are adjacent and differ
+        assert plan[i][:3] == plan[i + 1][:3] and {plan[i][3], plan[i + 1][3]} == {"server", "no-server"}
+
+
+def test_the_same_seed_gives_the_same_plan_and_another_seed_another_one():
+    def ids(seed):
+        return [(r, q["id"], m, c) for r, q, m, c in er.build_plan(QUESTIONS, plan_cfg(repeats=3, seed=seed))]
+
+    assert ids(5) == ids(5)
+    assert ids(0) == ids(0)
+    assert ids(5) != ids(6)
+
+
+def test_the_plan_keeps_every_question_together_and_one_condition_is_left_alone():
+    plan = er.build_plan(QUESTIONS[:4], plan_cfg(repeats=2, seed=3))
+    per_repeat = [[q["id"] for r, q, _, _ in plan if r == repeat] for repeat in (1, 2)]
+    for ids in per_repeat:
+        compact = [x for i, x in enumerate(ids) if i == 0 or ids[i - 1] != x]
+        assert compact == [q["id"] for q in QUESTIONS[:4]]  # a question never comes back after the next one began
+    for only in ("server", "no-server"):
+        single = er.build_plan(QUESTIONS[:3], plan_cfg(repeats=2, conditions=[only], seed=9))
+        assert [c for *_, c in single] == [only] * 12
+        assert [(r, q["id"], m) for r, q, m, _ in single] == [
+            (r, q["id"], m) for r in (1, 2) for q in QUESTIONS[:3] for m in ("haiku", "sonnet")]
+
+
+def test_the_seed_reaches_the_plan_through_the_command_line(tmp_path):
+    def conditions_seen(seed, folder):
+        fake = Fake()
+        (tmp_path / folder).mkdir()
+        code, _ = run(tmp_path / folder, fake, "--questions", "Q01,Q09,Q15,Q21", "--models", "haiku", "--repeats", "3",
+                      "--seed", seed)
+        assert code == 0
+        return [c["condition"] for c in fake.calls]
+
+    assert conditions_seen("4", "a") == conditions_seen("4", "b")
+    assert conditions_seen("4", "c") != conditions_seen("5", "d")
 
 
 def test_pilot_is_one_question_from_each_of_the_five_largest_categories():
@@ -401,6 +469,244 @@ def test_resume_continues_a_stopped_label_without_repeating_runs(tmp_path):
     assert {c["question"] for c in fake2.calls} == {"Q09"}
 
 
+RESUME_ARGS = ("--questions", "Q01,Q09", "--models", "haiku", "--conditions", "no-server", "--max-run-usd", "0.10")
+
+
+def stopped_first_run(tmp_path):
+    fake = Fake(lambda q, c, n: stream(answer=str(q["key"]), cost=0.10))
+    code, _ = run(tmp_path, fake, *RESUME_ARGS, budget="0.15")
+    assert code == 1 and len(fake.calls) == 1
+    return (tmp_path / "out" / "runs.jsonl").read_text(encoding="utf-8")
+
+
+def test_the_first_run_writes_a_manifest_with_every_setting(tmp_path):
+    run(tmp_path, Fake(), "--questions", "Q01,Q09", "--models", "haiku", "--conditions", "no-server",
+        "--max-turns", "7", "--max-run-usd", "0.2", "--timeout-s", "99", "--seed", "11",
+        budget="4")
+    manifest = json.loads((tmp_path / "out" / "manifest.json").read_text(encoding="utf-8"))
+    assert set(manifest) == {
+        "eval_set_sha256", "question_ids", "models", "conditions", "repeats", "max_turns", "max_run_usd",
+        "timeout_s", "restricted", "seed", "prompt_flags_sha256", "runner_sha256", "deps_sha256", "git_commit",
+        "git_dirty",
+    }
+    assert manifest["deps_sha256"] == er.deps_hash() and re.fullmatch(r"[0-9a-f]{64}", manifest["deps_sha256"])
+    assert manifest["question_ids"] == ["Q01", "Q09"] and manifest["models"] == ["haiku"]
+    assert manifest["conditions"] == ["no-server"] and manifest["repeats"] == 1
+    assert (manifest["max_turns"], manifest["max_run_usd"], manifest["timeout_s"]) == (7, 0.2, 99)
+    assert manifest["restricted"] is True and manifest["seed"] == 11
+    assert manifest["eval_set_sha256"] == er.questions_hash() and manifest["runner_sha256"] == er.runner_hash()
+    assert re.fullmatch(r"[0-9a-f]{64}", manifest["prompt_flags_sha256"])
+    data = totals(tmp_path)
+    assert (data["runner_sha256"], data["git_commit"], data["git_dirty"]) == (
+        manifest["runner_sha256"], manifest["git_commit"], manifest["git_dirty"])
+    assert "budget" not in json.dumps(manifest)
+
+
+def test_prompt_and_flag_hash_changes_with_a_flag_and_with_the_prompt_text(monkeypatch):
+    base = er.prompt_flags_hash(er.Config(label="x", budget_usd=1))
+    assert base == er.prompt_flags_hash(er.Config(label="y", budget_usd=9, claude="other"))  # not run settings
+    assert base != er.prompt_flags_hash(er.Config(label="x", budget_usd=1, max_turns=3))
+    monkeypatch.setitem(er.HINTS, "number", "<value> is a number.")
+    assert base != er.prompt_flags_hash(er.Config(label="x", budget_usd=1))
+
+
+def test_resume_is_refused_when_a_setting_differs_and_no_call_is_made(tmp_path):
+    before = stopped_first_run(tmp_path)
+    for extra, field in ((("--max-turns", "5"), "max_turns"), (("--seed", "3"), "seed"),
+                         (("--timeout-s", "10"), "timeout_s"), (("--no-restricted",), "restricted"),
+                         (("--repeats", "2"), "repeats")):
+        fake = Fake()
+        code, text = run(tmp_path, fake, *RESUME_ARGS, *extra, "--resume", budget="5")
+        assert code == 2 and fake.calls == [] and field in text and "refused" in text
+    code, text = run(tmp_path, Fake(), *RESUME_ARGS, "--models", "haiku,sonnet", "--resume", budget="5")
+    assert code == 2 and "models" in text
+    assert (tmp_path / "out" / "runs.jsonl").read_text(encoding="utf-8") == before
+
+
+def test_resume_is_refused_on_a_changed_eval_set_hash_and_names_it(tmp_path, monkeypatch):
+    stopped_first_run(tmp_path)
+    monkeypatch.setattr(er, "questions_hash", lambda path=er.QUESTIONS_FILE: "0" * 64)
+    fake = Fake()
+    code, text = run(tmp_path, fake, *RESUME_ARGS, "--resume", budget="5")
+    assert code == 2 and fake.calls == [] and "eval_set_sha256" in text
+
+
+def test_resume_is_refused_on_a_changed_runner(tmp_path, monkeypatch):
+    stopped_first_run(tmp_path)
+    monkeypatch.setattr(er, "runner_hash", lambda: "1" * 64)
+    fake = Fake()
+    code, text = run(tmp_path, fake, *RESUME_ARGS, "--resume", budget="5")
+    assert code == 2 and fake.calls == [] and "runner_sha256" in text
+
+
+def test_resume_is_refused_when_the_manifest_is_missing_or_unreadable(tmp_path):
+    stopped_first_run(tmp_path)
+    manifest = tmp_path / "out" / "manifest.json"
+    saved = manifest.read_text(encoding="utf-8")
+    manifest.unlink()
+    fake = Fake()
+    code, text = run(tmp_path, fake, *RESUME_ARGS, "--resume", budget="5")
+    assert code == 2 and fake.calls == [] and "manifest.json" in text and "missing" in text
+    manifest.write_text("not json", encoding="utf-8")
+    code, text = run(tmp_path, fake, *RESUME_ARGS, "--resume", budget="5")
+    assert code == 2 and fake.calls == [] and "cannot be read" in text
+    manifest.write_text(saved, encoding="utf-8")  # the legal case: the intact manifest lets it continue
+    code, _ = run(tmp_path, fake, *RESUME_ARGS, "--resume", budget="5")
+    assert code == 0 and len(fake.calls) == 1
+
+
+def test_resume_is_allowed_when_only_the_git_commit_and_dirty_flag_differ(tmp_path):
+    stopped_first_run(tmp_path)
+    manifest_file = tmp_path / "out" / "manifest.json"
+    manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+    manifest["git_commit"] = "f" * 40 if manifest["git_commit"] != "f" * 40 else "e" * 40
+    manifest["git_dirty"] = not manifest["git_dirty"]  # a commit of other files between two sittings
+    manifest_file.write_text(json.dumps(manifest), encoding="utf-8")
+    fake = Fake()
+    code, text = run(tmp_path, fake, *RESUME_ARGS, "--resume", budget="5")
+    assert code == 0 and len(fake.calls) == 1 and "refused" not in text
+    manifest["deps_sha256"] = "0" * 64  # the legal case's twin: changed code still blocks
+    manifest_file.write_text(json.dumps(manifest), encoding="utf-8")
+    code, text = run(tmp_path, Fake(), *RESUME_ARGS, "--resume", budget="5")
+    assert code == 2 and "deps_sha256" in text and "git_commit" not in text
+
+
+DEPS_TREE = {
+    "tools/eval_run.py": "r", "tools/events.py": "e", "tools/lookup.py": "l", "tools/records.py": "rec",
+    "tools/scope_guard.py": "sg", "server/main.py": "m", "server/scope.py": "s", "eval/questions.jsonl": "q",
+    "eval/repo/TASKS.md": "t",
+}
+
+
+def make_tree(root: Path, files: dict = DEPS_TREE) -> Path:
+    for rel, text in files.items():
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8", newline="")
+    return root
+
+
+def test_deps_hash_covers_the_server_the_imported_tools_and_the_eval_folder(tmp_path):
+    root = make_tree(tmp_path / "kit")
+    base = er.deps_hash(root)
+    assert base == er.deps_hash(root) and re.fullmatch(r"[0-9a-f]{64}", base)
+    for rel in ("server/scope.py", "tools/records.py", "tools/scope_guard.py", "tools/eval_run.py",
+                "eval/questions.jsonl", "eval/repo/TASKS.md"):
+        (root / rel).write_text("changed", encoding="utf-8")
+        assert er.deps_hash(root) != base, rel
+        (root / rel).write_text(DEPS_TREE[rel], encoding="utf-8", newline="")
+        assert er.deps_hash(root) == base
+    (root / "server/new.py").write_text("x", encoding="utf-8")  # a new file under server/ counts
+    assert er.deps_hash(root) != base
+    (root / "server/new.py").unlink()
+    # what does not count: results, caches, other tools modules, other folders, line endings
+    for rel in ("eval/results/t.json", "eval/__pycache__/a.pyc", "server/__pycache__/b.pyc", "server/c.pyc",
+                "tools/other.py", "LOG.md", "docs/x.md"):
+        path = root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("anything", encoding="utf-8")
+    assert er.deps_hash(root) == base
+    (root / "server/main.py").write_text("m", encoding="utf-8", newline="")
+    (root / "eval/repo/TASKS.md").write_bytes(b"t")
+    (root / "server/scope.py").write_bytes(b"s")
+    assert er.deps_hash(root) == base
+    crlf = make_tree(tmp_path / "crlf", {k: v + "\r\n" for k, v in DEPS_TREE.items()})
+    lf = make_tree(tmp_path / "lf", {k: v + "\n" for k, v in DEPS_TREE.items()})
+    assert er.deps_hash(crlf) == er.deps_hash(lf)
+
+
+def test_deps_hash_never_fails_on_a_missing_folder_or_file(tmp_path):
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    assert re.fullmatch(r"[0-9a-f]{64}", er.deps_hash(empty))
+    assert re.fullmatch(r"[0-9a-f]{64}", er.deps_hash(tmp_path / "does-not-exist"))
+    partial = make_tree(tmp_path / "partial", {"server/main.py": "m"})
+    assert er.deps_hash(partial) != er.deps_hash(empty)
+
+
+def test_resume_is_refused_when_a_server_file_or_an_imported_tools_module_changed(tmp_path, monkeypatch):
+    tree = make_tree(tmp_path / "kit")
+    real = er.deps_hash
+    monkeypatch.setattr(er, "deps_hash", lambda: real(tree))
+    stopped_first_run(tmp_path)
+    fake = Fake()
+    for rel in ("server/scope.py", "tools/records.py"):
+        original = (tree / rel).read_text(encoding="utf-8")
+        (tree / rel).write_text("edited", encoding="utf-8")
+        code, text = run(tmp_path, fake, *RESUME_ARGS, "--resume", budget="5")
+        assert code == 2 and fake.calls == [] and "deps_sha256" in text, rel
+        (tree / rel).write_text(original, encoding="utf-8", newline="")
+    code, _ = run(tmp_path, fake, *RESUME_ARGS, "--resume", budget="5")  # restored: the legal case
+    assert code == 0 and len(fake.calls) == 1
+
+
+def imported_tools_modules(path: Path) -> set[str]:
+    import ast
+
+    names: set[str] = set()
+    for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+        if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+            if node.module == "tools":
+                names.update(alias.name for alias in node.names)
+            elif node.module.startswith("tools."):
+                names.add(node.module.split(".")[1])
+        elif isinstance(node, ast.Import):
+            names.update(alias.name.split(".")[1] for alias in node.names if alias.name.startswith("tools."))
+    return names
+
+
+def test_every_tools_module_the_server_imports_is_in_the_dependency_list():
+    listed = {name[:-3] for name in er.DEP_TOOLS}
+    used: set[str] = set()
+    sources = sorted((er.KIT_ROOT / "server").glob("*.py")) + [er.KIT_ROOT / "tools" / name for name in er.DEP_TOOLS]
+    for source in sources:
+        used |= imported_tools_modules(source)
+    assert {"records", "scope_guard", "events", "lookup"} <= used  # the scan sees the known imports
+    assert used <= listed, f"add to DEP_TOOLS: {sorted(used - listed)}"
+    for name in er.DEP_TOOLS:
+        assert (er.KIT_ROOT / "tools" / name).is_file(), name
+
+
+def test_resume_is_allowed_when_only_the_budget_changed(tmp_path):
+    stopped_first_run(tmp_path)
+    fake = Fake(lambda q, c, n: stream(answer=str(q["key"]), cost=0.10))
+    code, _ = run(tmp_path, fake, *RESUME_ARGS, "--resume", budget="50")
+    assert code == 0 and {c["question"] for c in fake.calls} == {"Q09"}
+    assert totals(tmp_path)["budget_usd"] == 50 and totals(tmp_path)["complete"] is True
+
+
+def test_git_state_is_read_only_and_never_fails_the_run(tmp_path, monkeypatch):
+    if not shutil.which("git"):
+        pytest.skip("git is not installed")
+    for name in [n for n in os.environ if n.startswith("GIT_")]:
+        monkeypatch.delenv(name)  # a hook that runs the tests must not point these commands at another repository
+    repo = tmp_path / "repo"
+    (repo / "eval" / "results").mkdir(parents=True)
+    (repo / "server").mkdir()
+    (repo / "eval" / "a.txt").write_text("a", encoding="utf-8")
+    (repo / "server" / "s.py").write_text("s", encoding="utf-8")
+
+    def git(*args):
+        subprocess.run(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=",
+                        "-c", "commit.gpgsign=false", *args], check=True, capture_output=True)
+
+    git("init")
+    git("add", ".")
+    git("commit", "-m", "x")
+    commit, dirty = er.git_state(repo)
+    assert re.fullmatch(r"[0-9a-f]{40}", commit) and dirty is False
+    (repo / "eval" / "results" / "t.json").write_text("{}", encoding="utf-8")  # the runner's own output
+    (repo / "notes.txt").write_text("n", encoding="utf-8")                      # not a file a run depends on
+    assert er.git_state(repo) == (commit, False)
+    (repo / "server" / "s.py").write_text("changed", encoding="utf-8")
+    assert er.git_state(repo) == (commit, True)
+    plain = tmp_path / "plain"
+    plain.mkdir()
+    assert er.git_state(plain) == ("unknown", None)  # no repository: no failure
+    monkeypatch.setattr(er.subprocess, "run", lambda *a, **k: (_ for _ in ()).throw(FileNotFoundError("git")))
+    assert er.git_state(repo) == ("unknown", None)    # no git program: no failure
+
+
 def test_an_existing_label_is_not_overwritten_without_resume(tmp_path):
     run(tmp_path, Fake(), "--questions", "Q01", "--models", "haiku")
     before = (tmp_path / "results" / "t1.json").read_text(encoding="utf-8")
@@ -446,8 +752,9 @@ def test_timeout_missing_result_and_server_not_connected_are_errors(tmp_path):
             return er.InvokeResult(3, "")
         return stream(answer=str(question["key"]), server="failed")
 
-    run(tmp_path, Fake(behave), "--questions", "Q01,Q09,Q15,Q21", "--models", "haiku", "--conditions", "server",
-        "--max-failed-calls", "9")
+    _, text = run(tmp_path, Fake(behave), "--questions", "Q01,Q09,Q15,Q21", "--models", "haiku", "--conditions", "server",
+                  "--max-failed-calls", "9")
+    assert "timed out after 300s" in text and "child processes were stopped" in text
     errors = [json.loads(x)["error"] for x in (tmp_path / "out" / "runs.jsonl").read_text(encoding="utf-8").splitlines()]
     assert errors == ["timeout", "no_result", "exit_3", "mcp_not_connected"]
     assert totals(tmp_path)["groups"][0]["errors"] == 4
@@ -462,6 +769,7 @@ def test_interrupt_writes_the_totals_so_far(tmp_path):
     code, text = run(tmp_path, Fake(behave), "--questions", "Q01,Q09", "--models", "haiku")
     data = totals(tmp_path)
     assert code == 130 and data["stopped"] == "interrupted" and data["done_runs"] == 2 and "--resume" in text
+    assert "child processes were stopped" in text
 
 
 # ---------------------------------------------------------------- arguments
@@ -490,3 +798,110 @@ def test_default_invoke_runs_a_process_and_stops_a_slow_one(tmp_path):
     slow = er.default_invoke([sys.executable, "-c", "import time; time.sleep(30)"], tmp_path, env, 1)
     assert slow.timed_out and slow.returncode is None
     assert er.default_invoke([str(tmp_path / "no-such-program")], tmp_path, env, 5).returncode is None
+
+
+# ---------------------------------------------------------------- stopping a call and what it started
+
+FAKE_CLI = """\
+import os, subprocess, sys, time
+grandchild = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(120)"])
+tmp = sys.argv[1] + ".tmp"
+with open(tmp, "w") as handle:
+    handle.write(str(os.getpid()) + " " + str(grandchild.pid))
+os.replace(tmp, sys.argv[1])
+print("partial output", flush=True)
+time.sleep(120)
+"""
+
+
+def pid_alive(pid: int) -> bool:
+    if os.name == "nt":
+        listing = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/NH", "/FO", "CSV"], capture_output=True,
+                                 text=True, stdin=subprocess.DEVNULL).stdout
+        return f'"{pid}"' in listing
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    stat = Path(f"/proc/{pid}/stat")
+    if stat.is_file():  # a zombie that nobody has reaped yet is not running
+        return stat.read_text(encoding="utf-8", errors="replace").rsplit(")", 1)[-1].split()[:1] != ["Z"]
+    return True
+
+
+def read_pids(pidfile: Path) -> list[int]:
+    try:
+        return [int(part) for part in pidfile.read_text(encoding="utf-8").split()]
+    except (OSError, ValueError):
+        return []
+
+
+def wait_until_gone(pids: list[int], seconds: float = 20) -> bool:
+    deadline = time.monotonic() + seconds
+    while time.monotonic() < deadline:
+        if not any(pid_alive(pid) for pid in pids):
+            return True
+        time.sleep(0.1)
+    return not any(pid_alive(pid) for pid in pids)
+
+
+def kill_quietly(pids: list[int]) -> None:
+    for pid in pids:
+        if not pid_alive(pid):
+            continue
+        if os.name == "nt":
+            subprocess.run(["taskkill", "/F", "/PID", str(pid)], capture_output=True, stdin=subprocess.DEVNULL)
+        else:
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except OSError:
+                pass
+
+
+def fake_cli(tmp_path: Path) -> tuple[list, Path]:
+    script = tmp_path / "fake_cli.py"
+    script.write_text(FAKE_CLI, encoding="utf-8")
+    pidfile = tmp_path / "pids.txt"
+    return [sys.executable, str(script), str(pidfile)], pidfile
+
+
+def test_a_timeout_ends_the_child_and_the_grandchild_it_started(tmp_path):
+    argv, pidfile = fake_cli(tmp_path)
+    try:
+        started = time.monotonic()
+        res = er.default_invoke(argv, tmp_path, dict(os.environ), 4)
+        pids = read_pids(pidfile)
+        assert len(pids) == 2, "the fake CLI did not start both processes in time"
+        assert res.timed_out and res.returncode is None
+        assert "partial output" in res.stdout  # what was written before the stop is kept
+        assert time.monotonic() - started < 60
+        assert wait_until_gone(pids), "child or grandchild is still running"
+    finally:
+        kill_quietly(read_pids(pidfile))
+
+
+def test_an_interrupt_ends_the_child_and_the_grandchild_and_is_raised_again(tmp_path):
+    if signal.getsignal(signal.SIGINT) is not signal.default_int_handler:
+        pytest.skip("SIGINT is not handled by Python in this run")
+    argv, pidfile = fake_cli(tmp_path)
+
+    def interrupt_when_started():
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline and len(read_pids(pidfile)) < 2:
+            time.sleep(0.05)
+        time.sleep(0.3)
+        _thread.interrupt_main()
+
+    thread = threading.Thread(target=interrupt_when_started, daemon=True)
+    thread.start()
+    try:
+        with pytest.raises(KeyboardInterrupt):
+            er.default_invoke(argv, tmp_path, dict(os.environ), 90)
+        pids = read_pids(pidfile)
+        assert len(pids) == 2
+        assert wait_until_gone(pids), "child or grandchild is still running"
+    finally:
+        thread.join(timeout=35)
+        kill_quietly(read_pids(pidfile))

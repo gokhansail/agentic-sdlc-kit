@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-10
-Now: Phase 4 MCP server open; T-46c done (not committed, waits for the maintainer), eval runner fixes next · repository private · code written, tests green
+Now: Phase 4 MCP server open; T-46d done, eval runs next · repository private · code written, tests green
 
 ## Phase
 
@@ -39,12 +39,12 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - T-44 security pass: 17 findings, 3 High fixed, 0 High open, 2 Medium open in the guard (S-7, S-8); `docs/security.md`; 980 tests green.
 - T-44a guard match in bounded time: S-6, S-7, S-8 fixed, 0 security findings open; 992 tests green.
 - T-46b runner and runbook: `tools/eval_run.py`, 36 tests, subscription login (DEC-054); 1028 tests green; pilot ran 20 of 20 after a stop that did not stop it (LOG 2026-11-09); pilot totals committed in 663d17d.
-- T-46c eval runner review fixes: correct needs no error and a right answer; every call estimated at the per-run cap; 1030 tests green; not committed yet.
+- T-46c eval runner review fixes: correct needs no error and a right answer; every call estimated at the per-run cap; 1030 tests green; committed and pushed (91d706e).
+- T-46d eval runner review items 3 to 5: process tree stop, resume refusal on changed settings, seeded condition order; 1052 tests green; committed and pushed.
 
 ## Next
 
-- Rest of the eval runner fixes (review items 3 to 6): process tree stop on Windows, resume refuses changed settings, condition order by fixed seed, 120 runs instead of 360.
-- Eval runs after the runner fixes (120 runs proposed; the maintainer decides).
+- Eval runs (run count 120 or 360; the maintainer decides).
 - The 5 review decisions with the maintainer (35-item table kept outside the repository).
 
 ## Repository

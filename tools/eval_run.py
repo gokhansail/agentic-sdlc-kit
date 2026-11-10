@@ -23,12 +23,16 @@ import hashlib
 import importlib.util
 import json
 import os
+import random
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
-from dataclasses import dataclass, field
+import threading
+import time
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
@@ -49,7 +53,17 @@ BASE_TOOLS = ("Read",)  # Grep, Glob and ToolSearch are not offered by this CLI 
 SETTING_SOURCES = "project,local"
 DROPPED_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "CLAUDE_PROJECT_DIR", "CLAUDE_PLUGIN_ROOT")
 CONDITIONS = ("server", "no-server")
-SCHEMA = 1
+SCHEMA = 2
+POLL_S = 0.1          # the wait for a call is sliced so that Ctrl+C is seen within this time on Windows too
+STOP_WAIT_S = 30      # how long to wait for the output of a call after its process tree was ended
+# The `tools` modules a run depends on: the runner and the modules `server/` imports, with their own
+# imports (a test fails when `server/` or one of these imports a `tools` module that is not listed).
+DEP_TOOLS = ("eval_run.py", "events.py", "lookup.py", "records.py", "scope_guard.py")
+# Folders read as a whole; `eval/results` is written by the runner itself and does not count as a change.
+DEP_DIRS = (("server", ()), ("eval", ("results",)))
+GIT_PATHSPEC = tuple(f"tools/{name}" for name in DEP_TOOLS) + ("server", "eval", ":(exclude)eval/results")
+# Recorded for information; a commit of other files must not stop a --resume.
+RESUME_IGNORED = ("git_commit", "git_dirty")
 LABEL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 WORD_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$")
 ANSWER_RE = re.compile(r"^[\s*_`>#-]*answer\s*[:=][\s*_`]*(.+?)[\s*_`]*$", re.IGNORECASE)
@@ -85,6 +99,7 @@ class Config:
     max_run_usd: float = 0.25
     timeout_s: int = 300
     max_failed_calls: int = 3
+    seed: int = 0
     restricted: bool = True
     keep_workspaces: bool = False
     resume: bool = False
@@ -104,18 +119,96 @@ class InvokeResult:
 Invoke = Callable[[list, Path, dict, int], InvokeResult]
 
 
-def default_invoke(argv: list, cwd: Path, env: dict, timeout: int) -> InvokeResult:
+def _end_tree(proc: subprocess.Popen) -> None:
+    """End the child and every process it started. `claude` starts the MCP server as its own child."""
     try:
-        done = subprocess.run(
-            argv, cwd=str(cwd), env=env, stdin=subprocess.DEVNULL, capture_output=True,
-            text=True, encoding="utf-8", errors="replace", timeout=timeout,
+        if os.name == "nt":
+            subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)], stdin=subprocess.DEVNULL,
+                           capture_output=True, timeout=STOP_WAIT_S)
+        else:
+            os.killpg(proc.pid, signal.SIGKILL)  # the child leads its own session and group
+    except (OSError, subprocess.SubprocessError):
+        pass
+    try:
+        proc.kill()
+    except OSError:
+        pass
+
+
+def _reader(stream: Any, chunks: list) -> None:
+    """Collect a pipe until it closes. The pipe closes when the child and every process that inherited it end."""
+    try:
+        while True:
+            data = stream.read1(65536)
+            if not data:
+                return
+            chunks.append(data)
+    except (OSError, ValueError):
+        return
+
+
+def _start_reader(stream: Any) -> tuple[threading.Thread, list]:
+    chunks: list = []
+    thread = threading.Thread(target=_reader, args=(stream, chunks), daemon=True)
+    thread.start()
+    return thread, chunks
+
+
+def default_invoke(argv: list, cwd: Path, env: dict, timeout: int) -> InvokeResult:
+    """One CLI call. On a timeout, and on Ctrl+C during the call (it is raised again), the child and
+    its descendants are ended before this returns, so no MCP server outlives the call.
+
+    The wait is a short sleep loop, not `communicate()`: on Windows `communicate()` does not give way to
+    Ctrl+C while the child lives, and the stop would wait for the child to end by itself."""
+    extra: dict = {} if os.name == "nt" else {"start_new_session": True}
+    try:
+        proc = subprocess.Popen(
+            argv, cwd=str(cwd), env=env, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, **extra,
         )
-    except subprocess.TimeoutExpired as exc:
-        partial = exc.stdout if isinstance(exc.stdout, str) else (exc.stdout or b"").decode("utf-8", "replace")
-        return InvokeResult(None, partial, True)
     except OSError:
         return InvokeResult(None, "", False)
-    return InvokeResult(done.returncode, done.stdout or "")
+    readers = [_start_reader(proc.stdout), _start_reader(proc.stderr)]
+    out_chunks = readers[0][1]
+
+    def text() -> str:
+        return b"".join(out_chunks).decode("utf-8", errors="replace")
+
+    def finish() -> None:
+        try:
+            proc.wait(timeout=STOP_WAIT_S)
+        except subprocess.TimeoutExpired:
+            pass
+        for thread, _ in readers:
+            thread.join(timeout=STOP_WAIT_S)
+        if not any(thread.is_alive() for thread, _ in readers):
+            for stream in (proc.stdout, proc.stderr):
+                try:
+                    stream.close()
+                except (OSError, ValueError):
+                    pass
+
+    deadline = time.monotonic() + timeout
+    timed_out = False
+    try:
+        while True:
+            left = deadline - time.monotonic()
+            if left <= 0:
+                timed_out = True
+                break
+            if proc.poll() is not None and not any(thread.is_alive() for thread, _ in readers):
+                break
+            time.sleep(min(POLL_S, left))
+    except BaseException:
+        _end_tree(proc)
+        finish()
+        raise
+    if timed_out:
+        _end_tree(proc)
+        finish()
+        return InvokeResult(None, text(), True)
+    finish()
+    return InvokeResult(proc.returncode, text())
 
 
 # ---------------------------------------------------------------- questions
@@ -308,6 +401,123 @@ def build_record(base: dict, question: dict, condition: str, res: InvokeResult) 
     return record
 
 
+# ---------------------------------------------------------------- order, manifest
+
+def build_plan(questions: Sequence[dict], cfg: Config) -> list[tuple]:
+    """(repeat, question, model, condition) in run order. All runs of one question come before the next
+    question. With both conditions, exactly half of the (repeat, question, model) cells start with the
+    server condition (one more when the count is odd); a seeded shuffle of a balanced list places them."""
+    cells = [(repeat, q, model) for repeat in range(1, cfg.repeats + 1) for q in questions for model in cfg.models]
+    both = "server" in cfg.conditions and "no-server" in cfg.conditions
+    if not both:
+        return [(repeat, q, model, condition) for repeat, q, model in cells for condition in cfg.conditions]
+    server_first = [True] * ((len(cells) + 1) // 2) + [False] * (len(cells) // 2)
+    random.Random(cfg.seed).shuffle(server_first)
+    plan = []
+    for (repeat, q, model), first in zip(cells, server_first):
+        for condition in (("server", "no-server") if first else ("no-server", "server")):
+            plan.append((repeat, q, model, condition))
+    return plan
+
+
+def runner_hash() -> str:
+    return hashlib.sha256(Path(__file__).resolve().read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
+def deps_hash(root: Path = KIT_ROOT) -> str:
+    """sha256 over the sorted relative paths and contents (CRLF as LF) of the files a run depends on, read
+    from disk. A missing folder or file is skipped: the hash covers what exists, and this never fails."""
+    found: dict[str, Path] = {}
+    for name in DEP_TOOLS:
+        found[f"tools/{name}"] = root / "tools" / name
+    for folder, skip_top in DEP_DIRS:
+        base = root / folder
+        if not base.is_dir():
+            continue
+        for path in base.rglob("*"):
+            parts = path.relative_to(base).parts
+            if "__pycache__" in parts or path.suffix == ".pyc" or parts[0] in skip_top or not path.is_file():
+                continue
+            found[f"{folder}/{'/'.join(parts)}"] = path
+    digest = hashlib.sha256()
+    for rel in sorted(found):
+        try:
+            data = found[rel].read_bytes().replace(b"\r\n", b"\n")
+        except OSError:
+            continue
+        digest.update(rel.encode("utf-8") + b"\0" + data + b"\0")
+    return digest.hexdigest()
+
+
+def prompt_flags_hash(cfg: Config) -> str:
+    """Hash of the prompt text for each answer type and of the CLI flags of both conditions."""
+    probe = replace(cfg, claude="claude")
+    body = {
+        "prompts": {kind: build_prompt({"question": "<question>", "answer_type": kind}, ["<file>"]) for kind in sorted(HINTS)},
+        "argv": {c: build_argv(probe, "<model>", c, "<prompt>", Path("mcp.json")) for c in CONDITIONS},
+        "dropped_env": list(DROPPED_ENV),
+    }
+    return hashlib.sha256(json.dumps(body, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def git_state(root: Path = KIT_ROOT) -> tuple[str, bool | None]:
+    """(HEAD commit, whether the files a run depends on have changes). ("unknown", None) outside a git
+    repository or without git. Read-only: no optional locks, no fsmonitor."""
+    def git(*args: str) -> str:
+        done = subprocess.run(
+            ["git", "--no-optional-locks", "-C", str(root), "-c", "core.fsmonitor=false", *args],
+            stdin=subprocess.DEVNULL, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
+        )
+        if done.returncode != 0:
+            raise OSError(done.stderr.strip() or "git failed")
+        return done.stdout
+    try:
+        commit = git("rev-parse", "HEAD").strip()
+        dirty = bool(git("status", "--porcelain", "--untracked-files=all", "--", *GIT_PATHSPEC).strip())
+    except (OSError, subprocess.SubprocessError):
+        return "unknown", None
+    return commit or "unknown", dirty
+
+
+def build_manifest(cfg: Config, questions: Sequence[dict]) -> dict:
+    commit, dirty = git_state()
+    return {
+        "eval_set_sha256": questions_hash(),
+        "question_ids": [q["id"] for q in questions],
+        "models": list(cfg.models),
+        "conditions": list(cfg.conditions),
+        "repeats": cfg.repeats,
+        "max_turns": cfg.max_turns,
+        "max_run_usd": cfg.max_run_usd,
+        "timeout_s": cfg.timeout_s,
+        "restricted": cfg.restricted,
+        "seed": cfg.seed,
+        "prompt_flags_sha256": prompt_flags_hash(cfg),
+        "runner_sha256": runner_hash(),
+        "deps_sha256": deps_hash(),
+        "git_commit": commit,
+        "git_dirty": dirty,
+    }
+
+
+def resume_refusal(manifest_file: Path, manifest: dict) -> str | None:
+    """Why `--resume` is refused, or None. The budget is not in the manifest, and the git fields are
+    information only, so only the settings and the content of the files a run depends on are compared."""
+    if not manifest_file.is_file():
+        return "--resume needs manifest.json in the output folder, and it is missing; start a new label"
+    try:
+        old = json.loads(manifest_file.read_text(encoding="utf-8"))
+    except ValueError:
+        old = None
+    if not isinstance(old, dict):
+        return "--resume: manifest.json cannot be read; start a new label"
+    differing = sorted(k for k in set(old) | set(manifest)
+                       if k not in RESUME_IGNORED and old.get(k, "<missing>") != manifest.get(k, "<missing>"))
+    if differing:
+        return "--resume refused: these settings differ from the first run of the label: " + ", ".join(differing)
+    return None
+
+
 # ---------------------------------------------------------------- totals
 
 def _mean(values: Sequence[float]) -> float:
@@ -363,6 +573,9 @@ def build_totals(cfg: Config, meta: dict, runs: Sequence[dict], planned: int, st
         "date": meta["date"],
         "cli_version": meta["cli_version"],
         "eval_set_sha256": meta["eval_set_sha256"],
+        "runner_sha256": meta["runner_sha256"],
+        "git_commit": meta["git_commit"],
+        "git_dirty": meta["git_dirty"],
         "question_ids": meta["question_ids"],
         "repeats": cfg.repeats,
         "settings": {
@@ -423,7 +636,16 @@ def run_eval(cfg: Config, invoke: Invoke, env: dict, out=None) -> int:
     if not cfg.resume and (runs_file.exists() or totals_file.exists()):
         say("eval_run: this label already has output; pick a new label or use --resume")
         return 2
+    manifest_file = cfg.out_dir / "manifest.json"
+    manifest = build_manifest(cfg, questions)
+    if cfg.resume:
+        refusal = resume_refusal(manifest_file, manifest)
+        if refusal:
+            say(f"eval_run: {refusal}")
+            return 2
     cfg.out_dir.mkdir(parents=True, exist_ok=True)
+    if not cfg.resume:
+        manifest_file.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     (cfg.out_dir / "raw").mkdir(exist_ok=True)
     cfg.work_dir.mkdir(parents=True, exist_ok=True)
     cfg.results_dir.mkdir(parents=True, exist_ok=True)
@@ -436,17 +658,14 @@ def run_eval(cfg: Config, invoke: Invoke, env: dict, out=None) -> int:
     meta = {
         "date": dt.date.today().isoformat(),
         "cli_version": version[0][:60] if version else "unknown",
-        "eval_set_sha256": questions_hash(),
-        "question_ids": [q["id"] for q in questions],
+        "eval_set_sha256": manifest["eval_set_sha256"],
+        "runner_sha256": manifest["runner_sha256"],
+        "git_commit": manifest["git_commit"],
+        "git_dirty": manifest["git_dirty"],
+        "question_ids": manifest["question_ids"],
     }
 
-    plan = [
-        (repeat, q, model, condition)
-        for repeat in range(1, cfg.repeats + 1)
-        for q in questions
-        for model in cfg.models
-        for condition in cfg.conditions
-    ]
+    plan = build_plan(questions, cfg)
     runs = load_runs(runs_file) if cfg.resume else []
     done = {(r["repeat"], r["question"], r["model"], r["condition"]) for r in runs}
     spent = sum(r["cost_usd"] for r in runs)
@@ -483,6 +702,8 @@ def run_eval(cfg: Config, invoke: Invoke, env: dict, out=None) -> int:
             finally:
                 if not cfg.keep_workspaces:
                     shutil.rmtree(run_dir, ignore_errors=True)
+            if res.timed_out:
+                say(f"eval_run: {run_id} timed out after {cfg.timeout_s}s; the call and its child processes were stopped")
             (cfg.out_dir / "raw" / f"{run_id}.jsonl").write_text(res.stdout, encoding="utf-8")
             base = {"run_id": run_id, "model": model, "condition": condition, "question": q["id"],
                     "category": q["category"], "repeat": repeat}
@@ -507,7 +728,8 @@ def run_eval(cfg: Config, invoke: Invoke, env: dict, out=None) -> int:
                 break
     except KeyboardInterrupt:
         stopped = "interrupted"
-        say("eval_run: interrupted; totals so far are written; --resume continues")
+        say("eval_run: interrupted; the call in progress and its child processes were stopped; "
+            "totals so far are written; --resume continues")
 
     totals = build_totals(cfg, meta, runs, planned, stopped, spent)
     totals_file.write_text(json.dumps(totals, indent=2) + "\n", encoding="utf-8")
@@ -545,9 +767,10 @@ def main(argv: Sequence[str] | None = None, invoke: Invoke | None = None, env: d
     parser.add_argument("--max-run-usd", type=float, default=0.25, help="cap per run (--max-budget-usd of the CLI)")
     parser.add_argument("--timeout-s", type=int, default=300)
     parser.add_argument("--max-failed-calls", type=int, default=3, help="stop after this many zero-cost errors in a row")
+    parser.add_argument("--seed", type=int, default=0, help="seed of the order in which the two conditions are run (half of the cells start with the server)")
     parser.add_argument("--no-restricted", action="store_true", help="do not pass --restricted to the CLI")
     parser.add_argument("--keep-workspaces", action="store_true")
-    parser.add_argument("--resume", action="store_true", help="continue a label: skip runs already in runs.jsonl")
+    parser.add_argument("--resume", action="store_true", help="continue a label: skip runs already in runs.jsonl; refused when any setting except --budget-usd differs from the first run")
     parser.add_argument("--claude", default=None, help="path of the claude executable (default: found on PATH)")
     parser.add_argument("--out", type=Path, default=None, help="raw output folder (default: system temp)")
     parser.add_argument("--work-dir", type=Path, default=None, help="folder for the per-run copies (default: system temp)")
@@ -578,7 +801,7 @@ def main(argv: Sequence[str] | None = None, invoke: Invoke | None = None, env: d
         label=args.label, budget_usd=args.budget_usd, models=models, conditions=conditions,
         repeats=args.repeats, question_spec=args.questions, max_turns=args.max_turns,
         max_run_usd=args.max_run_usd, timeout_s=args.timeout_s, max_failed_calls=args.max_failed_calls,
-        restricted=not args.no_restricted, keep_workspaces=args.keep_workspaces, resume=args.resume,
+        seed=args.seed, restricted=not args.no_restricted, keep_workspaces=args.keep_workspaces, resume=args.resume,
         claude=claude or "claude",
         out_dir=args.out or temp / "sdlc-eval-out" / args.label,
         work_dir=args.work_dir or temp / "sdlc-eval-work" / args.label,

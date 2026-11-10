@@ -2,6 +2,25 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-10 (2) - T-46d eval runner review items 3 to 5
+
+- T-46c committed and pushed (91d706e).
+- The maintainer gave the go-ahead for the next task. The TL wrote the T-46d contract (review items 3 to 5) and placed `.sdlc/active-contract.md`.
+- `developer` (Sonnet, effort high) built T-46d in `tools/eval_run.py`:
+  - stop: `Popen` with reader threads and a 0.1 s poll; on timeout and on Ctrl+C the child and every descendant are ended (Windows `taskkill /T /F`, POSIX `killpg`);
+  - a test with a fake CLI that starts a sleeping grandchild checks by PID that both processes are dead after a timeout and after an interrupt; with the old `subprocess.run` code the grandchild stayed alive and the call hung up to 120 s;
+  - `manifest.json` per label in the raw output folder; `--resume` is refused (exit 2, before any call) when the manifest is missing or a setting, the prompt and flag hash or `deps_sha256` differs;
+  - `deps_sha256` covers the runner, `server/`, the 4 `tools` modules the server imports and `eval/` without `eval/results/`; `git_commit` and `git_dirty` are written as information only;
+  - totals schema 2 with `runner_sha256`, `git_commit`, `git_dirty`;
+  - `--seed` (default 0): across all (repeat, question, model) cells exactly half start with the server condition, placed by a seeded shuffle;
+  - `docs/eval-runbook.md`: lines for the stop, the resume refusal and the seed; a Limits line: on Windows, a process that outlives a `claude` that exited by itself is not found by PID; the call waits up to the timeout plus 30 s.
+- Review rounds 2. Round 1 compared the git commit on resume, so an unrelated commit between sittings would have refused resume; and the dependency set missed the `tools` modules the server imports. Both fixed in round 2.
+- The TL corrected one runbook sentence on the seed (role exceeded: the TL wrote one documentation line).
+- Tests: 1052 passed, 6 skipped (TL run from Git Bash, 497 s). 0 pytest processes left at the end (checked by the developer and by the TL).
+- Metrics (T-46d): review rounds 3, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- The maintainer approved. The pre-push guard rejected the first push: `tests/test_eval_run.py` gave the test git repository a placeholder e-mail identity. Round 3 (over the 2-round limit; one line): the identity uses an empty e-mail; eval tests 60 passed; the commit was amended before it reached the remote.
+- Next: the eval runs; the run count (120 or 360) is the maintainer's decision; 5 review decisions open.
+
 ## 2026-11-10 (1) - T-46c eval runner review fixes
 
 - Two external read-only reviews of HEAD 663d17d were received on 2026-11-09 (kept outside the repository). The TL turned all their items into a 35-item decision table, kept outside the repository. 5 direction decisions are open with the maintainer.
