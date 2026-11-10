@@ -1,0 +1,279 @@
+{
+  "schema": 2,
+  "label": "full-1",
+  "date": "2026-11-10",
+  "cli_version": "2.1.319 (Claude Code)",
+  "eval_set_sha256": "c59798e361ff995ede8ae5332218ca66bd27e4051ade1e2e50ad47a91692371f",
+  "runner_sha256": "220b488610538e93cdf82a43fd655850624dba816634ab7d252b3ebecea538a8",
+  "git_commit": "07672c836f9de91f0ecb3752402438f01d6dc388",
+  "git_dirty": false,
+  "question_ids": [
+    "Q01",
+    "Q02",
+    "Q03",
+    "Q04",
+    "Q05",
+    "Q06",
+    "Q07",
+    "Q08",
+    "Q09",
+    "Q10",
+    "Q11",
+    "Q12",
+    "Q13",
+    "Q14",
+    "Q15",
+    "Q16",
+    "Q17",
+    "Q18",
+    "Q19",
+    "Q20",
+    "Q21",
+    "Q22",
+    "Q23",
+    "Q24",
+    "Q25",
+    "Q26",
+    "Q27",
+    "Q28",
+    "Q29",
+    "Q30"
+  ],
+  "repeats": 1,
+  "settings": {
+    "max_turns": 12,
+    "max_run_usd": 0.25,
+    "timeout_s": 300,
+    "tools": "Read",
+    "restricted": true,
+    "setting_sources": "project,local"
+  },
+  "planned_runs": 120,
+  "done_runs": 120,
+  "complete": true,
+  "stopped": "",
+  "budget_usd": 3.0,
+  "spent_usd": 0.867159,
+  "groups": [
+    {
+      "model": "haiku",
+      "model_id": "claude-haiku-5-5",
+      "condition": "server",
+      "runs": 30,
+      "correct": 27,
+      "accuracy_mean": 0.9,
+      "accuracy_min": 0.9,
+      "accuracy_max": 0.9,
+      "by_category": {
+        "decisions": {
+          "correct": 6,
+          "total": 6
+        },
+        "findings": {
+          "correct": 6,
+          "total": 6
+        },
+        "guard": {
+          "correct": 2,
+          "total": 3
+        },
+        "lessons": {
+          "correct": 2,
+          "total": 2
+        },
+        "scope": {
+          "correct": 6,
+          "total": 8
+        },
+        "tasks": {
+          "correct": 5,
+          "total": 5
+        }
+      },
+      "cost_usd": 0.029885,
+      "cost_usd_per_run": 0.000996,
+      "input_tokens": 128,
+      "cache_read_tokens": 354962,
+      "cache_creation_tokens": 92717,
+      "output_tokens": 15558,
+      "duration_ms": 103051,
+      "duration_ms_per_run": 3435.033333,
+      "turns_per_run": 3.266667,
+      "tool_calls_total": 68,
+      "tool_calls": {
+        "Read": 58,
+        "mcp__sdlc__contract": 2,
+        "mcp__sdlc__findings": 1,
+        "mcp__sdlc__guard_events": 1,
+        "mcp__sdlc__lessons": 1,
+        "mcp__sdlc__scope_check": 2,
+        "mcp__sdlc__status": 2,
+        "mcp__sdlc__tasks": 1
+      },
+      "errors": 0,
+      "unparsed": 0
+    },
+    {
+      "model": "haiku",
+      "model_id": "claude-haiku-5-5",
+      "condition": "no-server",
+      "runs": 30,
+      "correct": 29,
+      "accuracy_mean": 0.966667,
+      "accuracy_min": 0.966667,
+      "accuracy_max": 0.966667,
+      "by_category": {
+        "decisions": {
+          "correct": 6,
+          "total": 6
+        },
+        "findings": {
+          "correct": 6,
+          "total": 6
+        },
+        "guard": {
+          "correct": 2,
+          "total": 3
+        },
+        "lessons": {
+          "correct": 2,
+          "total": 2
+        },
+        "scope": {
+          "correct": 8,
+          "total": 8
+        },
+        "tasks": {
+          "correct": 5,
+          "total": 5
+        }
+      },
+      "cost_usd": 0.042953,
+      "cost_usd_per_run": 0.001432,
+      "input_tokens": 124,
+      "cache_read_tokens": 236720,
+      "cache_creation_tokens": 145754,
+      "output_tokens": 22845,
+      "duration_ms": 125151,
+      "duration_ms_per_run": 4171.7,
+      "turns_per_run": 5.4,
+      "tool_calls_total": 132,
+      "tool_calls": {
+        "Read": 132
+      },
+      "errors": 0,
+      "unparsed": 0
+    },
+    {
+      "model": "sonnet",
+      "model_id": "claude-sonnet-5-5",
+      "condition": "server",
+      "runs": 30,
+      "correct": 30,
+      "accuracy_mean": 1.0,
+      "accuracy_min": 1.0,
+      "accuracy_max": 1.0,
+      "by_category": {
+        "decisions": {
+          "correct": 6,
+          "total": 6
+        },
+        "findings": {
+          "correct": 6,
+          "total": 6
+        },
+        "guard": {
+          "correct": 3,
+          "total": 3
+        },
+        "lessons": {
+          "correct": 2,
+          "total": 2
+        },
+        "scope": {
+          "correct": 8,
+          "total": 8
+        },
+        "tasks": {
+          "correct": 5,
+          "total": 5
+        }
+      },
+      "cost_usd": 0.346378,
+      "cost_usd_per_run": 0.011546,
+      "input_tokens": 128,
+      "cache_read_tokens": 303502,
+      "cache_creation_tokens": 63333,
+      "output_tokens": 6244,
+      "duration_ms": 97616,
+      "duration_ms_per_run": 3253.866667,
+      "turns_per_run": 2.866667,
+      "tool_calls_total": 56,
+      "tool_calls": {
+        "Read": 8,
+        "mcp__sdlc__contract": 8,
+        "mcp__sdlc__decisions": 12,
+        "mcp__sdlc__findings": 6,
+        "mcp__sdlc__guard_events": 3,
+        "mcp__sdlc__lessons": 2,
+        "mcp__sdlc__log": 1,
+        "mcp__sdlc__scope_check": 9,
+        "mcp__sdlc__status": 4,
+        "mcp__sdlc__tasks": 3
+      },
+      "errors": 0,
+      "unparsed": 0
+    },
+    {
+      "model": "sonnet",
+      "model_id": "claude-sonnet-5-5",
+      "condition": "no-server",
+      "runs": 30,
+      "correct": 30,
+      "accuracy_mean": 1.0,
+      "accuracy_min": 1.0,
+      "accuracy_max": 1.0,
+      "by_category": {
+        "decisions": {
+          "correct": 6,
+          "total": 6
+        },
+        "findings": {
+          "correct": 6,
+          "total": 6
+        },
+        "guard": {
+          "correct": 3,
+          "total": 3
+        },
+        "lessons": {
+          "correct": 2,
+          "total": 2
+        },
+        "scope": {
+          "correct": 8,
+          "total": 8
+        },
+        "tasks": {
+          "correct": 5,
+          "total": 5
+        }
+      },
+      "cost_usd": 0.447943,
+      "cost_usd_per_run": 0.014931,
+      "input_tokens": 130,
+      "cache_read_tokens": 200015,
+      "cache_creation_tokens": 81078,
+      "output_tokens": 10337,
+      "duration_ms": 105158,
+      "duration_ms_per_run": 3505.266667,
+      "turns_per_run": 2.966667,
+      "tool_calls_total": 59,
+      "tool_calls": {
+        "Read": 59
+      },
+      "errors": 0,
+      "unparsed": 0
+    }
+  ]
+}

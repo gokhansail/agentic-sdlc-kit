@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-10
-Now: Phase 4 MCP server open; eval runner ready, the 120-run eval next (DEC-055) · repository private · code written, tests green
+Now: Phase 4 MCP server open; full eval done (120 runs), eval table for G4 next · repository private · code written, tests green
 
 ## Phase
 
@@ -19,7 +19,7 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 ## Done
 
-- T-32 git hook installer: target mode, old hook kept, uninstall restores the hook folder; 437 tests green.
+- Full eval (T-46b runs, 120 of 120): Sonnet 30/30 with and without the server, Haiku 27/30 and 29/30; the server cut Sonnet cost 23 % (list-price estimate); LOG 2026-11-10 (4).
 - T-30a the 5 commands: skills, project template, 2 script modes; 498 tests green.
 - T-33a snapshot guard: a second `--snapshot` for a label is refused; 502 tests green.
 - P-33 rehearsal: passed in the maintainer's own terminal; totals in `docs/dogfood-1.md`.
@@ -44,7 +44,7 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 ## Next
 
-- 120-run eval in the maintainer's terminal (DEC-055, runbook section 3).
+- Eval table for G4 with the narrow claim, then T-45 gate G4.
 - The 5 review decisions with the maintainer (35-item table kept outside the repository).
 
 ## Repository

@@ -2,6 +2,24 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-10 (4) - Full eval: 120 runs
+
+- DEC-055 and T-46e committed and pushed (0e01db2).
+- The maintainer ran the full eval in their own terminal with `docs/eval-runbook.md` section 3: label `full-1`, runner at commit 07672c8, git_dirty false, Claude Code 2.1.319.
+- Result: 120 of 120 runs, complete, stopped no, 0 errors, 0 unparsed, `apiKeySource` none on all 120 runs. Cost 0.867 of the 3.00 USD list-price estimate. Totals in `eval/results/full-1.json`; raw output stayed on the maintainer's machine.
+- Per model and condition (correct of 30; cost USD; tool calls; turns per run):
+  - Sonnet with server: 30; 0.346; 56 (48 server tools, 8 Read); 2.9.
+  - Sonnet without server: 30; 0.448; 59 Read; 3.0.
+  - Haiku with server: 27; 0.030; 68 (10 server tools, 58 Read); 3.3.
+  - Haiku without server: 29; 0.043; 132 Read; 5.4.
+- Sonnet called a server tool in 28 of 30 server runs; Haiku in 7 of 30. The 3 Haiku server misses (Q02 and Q07 scope, Q26 guard) used Read only. Q26 was also wrong for Haiku without the server, as in the pilot.
+- Sonnet with the server: output tokens 6,244 against 10,337 without.
+- Reading: accuracy shows no difference that comes from the server. With the server, Sonnet used fewer reads and cost 23 % less at list price; Haiku used fewer turns and cost 30 % less. The Haiku accuracy gap does not come from server use. No repeats were added (DEC-055 rule).
+- Limits: one run per cell; one small synthetic repository (about 18 KB of records); cost is a list-price estimate, not a bill.
+- Correction to 2026-11-09 (1): the pilot's "9 against 26 tool calls" for Haiku cannot be credited to the server. Haiku called no server tool in the pilot; all 9 calls were Read.
+- T-46b is done (TL marked it in TASKS).
+- Next: eval table for G4 with the narrow claim (what the server changes in this set-up, not general benefit), then T-45 gate G4; 5 review decisions open.
+
 ## 2026-11-10 (3) - Full eval is 120 runs (DEC-055, T-46e)
 
 - T-46d committed and pushed (07672c8), after the pre-push guard fix in round 3 of T-46d.

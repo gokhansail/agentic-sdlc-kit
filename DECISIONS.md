@@ -448,4 +448,4 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a), the TL recommendation. Supersedes the run count of DEC-053.
 - Reason: Sonnet is at the ceiling in the pilot, so repeats add time more than information; one sitting fits the usage limit better. Repeats are added only if the 120 runs show a difference between the conditions.
 - Consequences: the runbook full command uses `--repeats 1`; the eval table reports one run per cell, and its limits say so. Budget 3 USD estimated (per-run cap 0.25 USD).
-- Outcome:
+- Outcome: 2026-11-10, `full-1` 120 of 120, 0 errors; Sonnet 30 of 30 in both conditions, Haiku 27 and 29 of 30, the 3 Haiku server misses used Read only; no repeats added.
