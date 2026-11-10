@@ -2,6 +2,20 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-10 (3) - Full eval is 120 runs (DEC-055, T-46e)
+
+- T-46d committed and pushed (07672c8), after the pre-push guard fix in round 3 of T-46d.
+- The maintainer chose 120 runs for the full eval: 30 questions x 2 models x 2 conditions x 1 repeat (DEC-055, the TL recommendation). This supersedes the 360-run count of DEC-053.
+- Budget: 3 USD estimated, per-run cap 0.25 USD. Repeats are added only if the 120 runs show a difference between the conditions.
+- The TL wrote the T-46e contract and placed `.sdlc/active-contract.md`.
+- `developer` (Haiku) changed `docs/eval-runbook.md`:
+  - 120 runs everywhere; no `360` and no `<BUDGET_USD>` left;
+  - the full command has `--repeats 1` and `--budget-usd 3`;
+  - 1 CHANGELOG line; eval tests 60 passed.
+- Review rounds 1. Questions back 0. Out-of-scope files 0.
+- Metrics (T-46e): review rounds 1, questions back 0, out-of-scope files 0, models Haiku (developer), Haiku (scribe).
+- Next: the 120-run eval in the maintainer's terminal with `docs/eval-runbook.md` section 3; 5 review decisions open.
+
 ## 2026-11-10 (2) - T-46d eval runner review items 3 to 5
 
 - T-46c committed and pushed (91d706e).

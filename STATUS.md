@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-10
-Now: Phase 4 MCP server open; T-46d done, eval runs next · repository private · code written, tests green
+Now: Phase 4 MCP server open; eval runner ready, the 120-run eval next (DEC-055) · repository private · code written, tests green
 
 ## Phase
 
@@ -19,7 +19,6 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 ## Done
 
-- T-31 scope guard hook: denies and allows in live runs, sub-agent included; 388 tests green.
 - T-32 git hook installer: target mode, old hook kept, uninstall restores the hook folder; 437 tests green.
 - T-30a the 5 commands: skills, project template, 2 script modes; 498 tests green.
 - T-33a snapshot guard: a second `--snapshot` for a label is refused; 502 tests green.
@@ -40,11 +39,12 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - T-44a guard match in bounded time: S-6, S-7, S-8 fixed, 0 security findings open; 992 tests green.
 - T-46b runner and runbook: `tools/eval_run.py`, 36 tests, subscription login (DEC-054); 1028 tests green; pilot ran 20 of 20 after a stop that did not stop it (LOG 2026-11-09); pilot totals committed in 663d17d.
 - T-46c eval runner review fixes: correct needs no error and a right answer; every call estimated at the per-run cap; 1030 tests green; committed and pushed (91d706e).
-- T-46d eval runner review items 3 to 5: process tree stop, resume refusal on changed settings, seeded condition order; 1052 tests green; committed and pushed.
+- T-46d eval runner review items 3 to 5: process tree stop, resume refusal on changed settings, seeded condition order; 1052 tests green; committed and pushed (07672c8).
+- T-46e runbook says 120 runs (DEC-055): full command `--repeats 1 --budget-usd 3`; eval tests 60 green; 1 CHANGELOG line.
 
 ## Next
 
-- Eval runs (run count 120 or 360; the maintainer decides).
+- 120-run eval in the maintainer's terminal (DEC-055, runbook section 3).
 - The 5 review decisions with the maintainer (35-item table kept outside the repository).
 
 ## Repository

@@ -440,3 +440,12 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: no extra spend. Read with a file list keeps both conditions equal and keeps the model inside the copy; Bash could reach the kit and the answer key.
 - Consequences: the runner drops `--bare` and removes `ANTHROPIC_API_KEY` from the child environment so the login is used; it narrows what loads (`--strict-mcp-config`, `--setting-sources`, `--tools Read`) as far as the CLI allows, and the eval limits section states what still loads. `total_cost_usd` is a list-price estimate, not a bill; the runs count against the subscription's usage limits.
 - Outcome:
+
+## DEC-055 The full eval is 120 runs, one per question, model and condition
+- Date: 2026-11-10 · Question: run count of the full eval after the 2026-11-09 external reviews
+- Facts: the pilot ran 20 runs in about 29 minutes, 0.157 USD list price; Sonnet scored 5 of 5 in both conditions, Haiku 4 of 5 in both. 360 runs at the pilot pace take about 8.7 hours; 120 runs about 3 hours.
+- Options: a) 120 runs: 30 questions x 2 models x 2 conditions x 1 repeat b) 360 runs: 3 repeats, as DEC-053 planned.
+- Decision: a), the TL recommendation. Supersedes the run count of DEC-053.
+- Reason: Sonnet is at the ceiling in the pilot, so repeats add time more than information; one sitting fits the usage limit better. Repeats are added only if the 120 runs show a difference between the conditions.
+- Consequences: the runbook full command uses `--repeats 1`; the eval table reports one run per cell, and its limits say so. Budget 3 USD estimated (per-run cap 0.25 USD).
+- Outcome:

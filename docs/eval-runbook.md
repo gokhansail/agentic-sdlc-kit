@@ -8,7 +8,7 @@ What is this file? The steps the customer follows in PowerShell to run the eval 
 - `total_cost_usd` in the totals is the CLI's list-price estimate. It is not a bill. Every run counts against the subscription usage limits.
 - Each run works in a fresh copy of `eval/repo/` in the system temp folder, outside this repository. The model cannot see the question file, the answer keys or the kit.
 - Both conditions get the same prompt and the same flags. The model gets the `Read` tool only. The prompt lists the files of the copy. The only difference is `--mcp-config`, which starts the sdlc server with the copy as its root and adds its 10 read-only tools.
-- Models: `haiku` and `sonnet`. Full matrix: 2 models x 2 conditions x 3 runs x 30 questions = 360 runs.
+- Models: `haiku` and `sonnet`. Full run: 2 models x 2 conditions x 1 run x 30 questions = 120 runs (DEC-055).
 - Raw output and one record per run go to `%TEMP%\sdlc-eval-out\<label>\`. They stay on this machine. Only the totals go to `eval\results\<label>.json`.
 - A call starts only if the estimated USD spent so far plus the per-run cap (`--max-run-usd`, default 0.25) stays within `--budget-usd`; otherwise the runner stops and says so. The CLI checks its cap between turns, so one run can pass the cap by the cost of its last turn, and the total can pass the budget by that amount. It also stops after 3 calls in a row that fail with no cost, which is what a reached usage limit, a lost login or a broken CLI looks like.
 
@@ -56,11 +56,11 @@ if (-not (Test-Path .\eval\results\pilot-1.json)) {
 
 Check before going on:
 - `errors` is 0 for every line, and `unparsed` is low. A high `unparsed` means the model did not end with the `ANSWER:` line.
-- The estimated cost per run in the pilot sets the budget of the full run: cost per run x 360, plus some margin.
-- The time per run in the pilot sets the length of a sitting: multiply it by 18 for the full matrix.
+- The estimated cost per run in the pilot sets the budget of the full run: cost per run x 120, plus some margin.
+- The time per run in the pilot sets the length of a sitting: multiply it by 6 for the full run.
 
-## 3. Full matrix: 360 runs
-Fill in the budget first. The Technical Lead gives the number after the pilot. Replace `<BUDGET_USD>` with it, for example `5`.
+## 3. Full run: 120 runs
+The budget is 3 USD (estimated; the per-run cap is 0.25 USD), already filled in below.
 
 ```powershell
 if (-not ((Test-Path .\tools\eval_run.py) -and (Test-Path .\eval\questions.jsonl))) {
@@ -68,16 +68,16 @@ if (-not ((Test-Path .\tools\eval_run.py) -and (Test-Path .\eval\questions.jsonl
 } elseif (-not (Test-Path .\eval\results\pilot-1.json)) {
   Write-Host "STOP: run the pilot (step 2) first"
 } else {
-  python tools/eval_run.py --label full-1 --budget-usd <BUDGET_USD> --questions all --repeats 3 --models haiku,sonnet | Tee-Object -FilePath "$env:TEMP\eval-full-1.log"
+  python tools/eval_run.py --label full-1 --budget-usd 3 --questions all --repeats 1 --models haiku,sonnet | Tee-Object -FilePath "$env:TEMP\eval-full-1.log"
 }
 ```
 
-- 360 runs count against the subscription usage limits, so the full matrix may need several sittings. When a limit is reached, the runner prints `stopped: errors` after 3 failed calls. Wait until the limit resets, then continue the same label with the same command plus `--resume`. Runs already done are not repeated, and their estimated cost counts against the budget.
+- 120 runs count against the subscription usage limits, so the full run may need more than one sitting. When a limit is reached, the runner prints `stopped: errors` after 3 failed calls. Wait until the limit resets, then continue the same label with the same command plus `--resume`. Runs already done are not repeated, and their estimated cost counts against the budget.
 - If you stop it with Ctrl+C or the window closes, the totals so far are written. Continue with `--resume` the same way. On a timeout and on Ctrl+C the runner ends the `claude` process and every process it started (the sdlc server included) and waits for them before it goes on or exits.
 - `--resume` is refused (exit code 2, before any call) when `manifest.json` in the output folder is missing or the eval set, a setting or the code a run depends on differs from the first run of the label: questions, models, conditions, repeats, `--max-turns`, `--max-run-usd`, `--timeout-s`, `--no-restricted`, `--seed`, the prompt and flags, and the content of the runner, the server, the `tools` modules the server imports and the `eval/` folder (not `eval/results/`). The message names what differs. Only `--budget-usd` may change, and a commit of other files, such as the records, does not block it. The git commit is written to the manifest and the totals as information only. After a refusal, start a new label.
 - `--seed` (default 0) sets the order of the two conditions: across all (repeat, question, model) cells, half start with the server condition and half without (one more when the count is odd), placed by the seed. The same seed gives the same order. Keep the default unless the Technical Lead says otherwise.
-- If it prints `stopped: budget`, the budget was too low for the whole matrix. The totals file says how many runs are done (`done_runs` against `planned_runs`). Do not start a new label; use `--resume` with a higher `--budget-usd`.
-- Do not start other long Claude sessions on the same account while the matrix runs. They share the usage limit.
+- If it prints `stopped: budget`, the budget was too low for the whole run. The totals file says how many runs are done (`done_runs` against `planned_runs`). Do not start a new label; use `--resume` with a higher `--budget-usd`.
+- Do not start other long Claude sessions on the same account while the full run runs. They share the usage limit.
 
 ## 4. What to send back to the Technical Lead
 Send these two things and nothing else:
