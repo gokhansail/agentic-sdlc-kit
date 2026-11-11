@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-11
-Now: Phase 4 MCP server open; full eval rerun with 3 runs per cell (360 runs, DEC-056), totals committed; eval table and results text done; review decisions DEC-057 to DEC-059; graded ceremony in the rules (T-47); gate G4 next · repository private · code written, tests green
+Now: Phase 4 MCP server open; full eval rerun with 3 runs per cell (360 runs, DEC-056), totals committed; eval table and results text done; review decisions DEC-057 to DEC-059; graded ceremony in the rules (T-47); G0 leftover done; DEC-060; gate G4 next · repository private · code written, tests green
 
 ## Phase
 
@@ -41,6 +41,7 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - T-46f eval table renderer: `tools/eval_table.py`, tables in `docs/eval-results.md` from `full-2`; 1065 tests green.
 - T-46g eval results text: narrow claim and 10 limits in `docs/eval-results.md`; runbook at 360 runs; committed and pushed (e045d94).
 - T-47 graded ceremony (DEC-058): `CLAUDE.md`, `PLAYBOOK.md`, decision template; 1065 tests green.
+- G0 leftover: a headless session in a clean clone without the local instruction file resumed from the records; DEC-060 keeps the own eval runner (review item 9).
 
 ## Next
 
@@ -56,4 +57,4 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 ## Open questions
 
 - N-5 waits for G5 (`TASKS.md`).
-- Public git history (review item 32) waits for G5; review item 9 decision line.
+- Public git history (review item 32) waits for G5.

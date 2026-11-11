@@ -485,3 +485,12 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: the eval shows no accuracy gain from the server in this set-up; a kit nobody can install is not used. a) keeps the phase plan and adds a stop rule.
 - Consequences: deferred items stay deferred (review 19b, 29); the README (T-50) calls the server experimental and optional. A new idea goes to "Not on the list".
 - Outcome:
+
+## DEC-060 The eval keeps its own runner, not `claude plugin eval`
+- Date: 2026-11-11 · Question: external review 2026-11-09, item 9
+- Facts: DEC-053 and DEC-054 do not name `claude plugin eval`; the two were not compared when T-46b started. The docs page "Test plugins with evals" (code.claude.com, read 2026-11-11) states: a with-plugin and a no-plugin arm; a cost estimate per case and per suite; `--max-cost-usd`; `allowed_tools` per case; a model per case, and `--model` overrides all cases; 3 runs per case per arm by default; graders regex, `tool_used`, `tool_order`, `file_exists`, `llm`, `baseline`, and no custom-code graders; the subscription login works. It does not document per-run input and output tokens, per-run duration or a per-run tool call count, or an arm that removes only the MCP server.
+- Options: a) keep `tools/eval_run.py` for G4 and record why b) port the eval to `claude plugin eval` before G4.
+- Decision: a). The maintainer chose to read the docs first; the TL wrote the line from them.
+- Reason: DEC-012 asks for tokens, duration and tool calls per run, and for an A/B on the server alone; the docs show neither. `full-2` (360 runs) is done, and DEC-059 opens no new capability task.
+- Consequences: `docs/eval-results.md` is unchanged. A port is a candidate only after G5, and only if a project that uses the kit needs it.
+- Outcome:

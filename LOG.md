@@ -2,6 +2,20 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-11 (6) - G0 leftover clean-clone resume check; review item 9 decided (DEC-060)
+
+- Commit 25afce8 (DEC-057 to DEC-059, T-47) is pushed. `main` equals `origin/main`. The "Not committed yet" line in entry (5) is superseded.
+- The maintainer gave the go-ahead to close 2 items before G4: the G0 leftover and review item 9.
+- G0 leftover: the TL cloned the repository into a temporary folder outside the kit. The clone has no local instruction file. One headless run: `claude -p "Where do things stand?"` with Opus, `--setting-sources project,local`, `--strict-mcp-config`, tools Read, Glob and Grep. `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN` were removed from the child environment.
+- Start event: credential source none (subscription login); 0 MCP servers; built-in plugins only; the 7 project roles and the CLI's bundled agents; none of the maintainer's own agents; a new empty memory folder.
+- Result: 8 turns, 68 s, 0.207 USD list-price estimate. The session read `STATUS.md`, the NOW NEXT line and the top of `LOG.md`. It gave the correct phase, eval totals, open items and next task (T-45).
+- The session found 2 stale records: the "5 review decisions open" line in NOW NEXT, and the "Not committed yet" line in LOG (5). It replied in English, with the status line form from `CLAUDE.md`, not the local form.
+- Limit: the session said its user-level instruction file was loaded. The stream does not show the system prompt, so this is not checked directly. The reply language, the status line form and the agent list point the other way. Raw output stays outside the repository.
+- Review item 9: a `claude-code-guide` sub-agent read the "Test plugins with evals" docs page. The TL recorded DEC-060: keep `tools/eval_run.py`. The docs do not show per-run tokens, duration or tool calls, or an A/B on the server alone.
+- The TL fixed the NOW NEXT line in `TASKS.md`.
+- Open: public git history (review item 32) waits for G5.
+- Next: T-45 gate G4.
+
 ## 2026-11-11 (5) - T-47 graded ceremony in the rules
 
 - The maintainer gave the go-ahead for T-47, the graded ceremony (DEC-058). The TL wrote the contract and placed `.sdlc/active-contract.md`.
