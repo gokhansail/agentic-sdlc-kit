@@ -2,6 +2,33 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-11 (3) - T-46g eval results text and runbook
+
+- The maintainer gave the go-ahead for T-46g. The TL placed `.sdlc/active-contract.md` for it.
+- `tech-writer` (Sonnet) wrote `docs/eval-results.md` outside the table markers: what was run, the tables, what they show, and 10 limits. Every number is a table cell or one of 3 raw-only counts from LOG 2026-11-11 (1); each of the 3 is marked as from local raw output, not in the repository.
+- The text says the result belongs to this set-up and is not a general benefit. The cause of the Haiku gap is not known.
+- Runbook `docs/eval-runbook.md`: the full run is `full-2`, 360 runs (DEC-056), command `--label full-2 --budget-usd 8 --questions all --repeats 3`. `full-1` is named as the first measurement and is not used for the gate. 1 CHANGELOG line.
+- TL checks: `eval/repo/` is 18,467 bytes (limit about 18 KB); a second render gives the same bytes; banned-word check clean; 73 eval tests passed.
+- Review rounds: 2. Round 1 said the CLI offers no Grep, Glob or ToolSearch; DEC-054 states that only under `--bare`, and these runs did not use `--bare`. Round 2 says Read only was a choice, so both conditions have the same tool.
+- Questions back: 2 (both answered by the TL). Out-of-scope files: 0.
+- `docs/eval-runbook.md` Limits had the same sentence on tools (written in T-46b, outside this contract). The maintainer chose to fix it before the commit; the TL rewrote the one line (role exceeded: the TL writes no documents) and this LOG line.
+- T-46f and T-46g go in one commit.
+- Metrics (T-46g): review rounds 2; questions back 2; out-of-scope files 0; models Sonnet (tech-writer), Haiku (scribe).
+- Next: T-45 gate G4.
+
+## 2026-11-11 (2) - T-46f eval table renderer
+
+- Commit 7a42813 pushed earlier today: `full-2` totals and the records of 2026-11-10 and 2026-11-11; tests 1052 passed, 6 skipped before the push.
+- The maintainer gave the go-ahead for the eval table. The TL wrote the contracts T-46f (renderer) and T-46g (results text, runbook at 360 runs) in `TASKS.md` and placed `.sdlc/active-contract.md` for T-46f.
+- `developer` (Sonnet, medium) built T-46f: `tools/eval_table.py` (stdlib) renders `eval/results/full-2.json` into the marked block of `docs/eval-results.md`: a header line, one row per model and condition, correct per category. It refuses (exit 2, nothing written) a file that is not complete, a schema other than 2, a missing key, or markers that are not exactly one pair. 13 tests in `tests/test_eval_table.py`; 1 CHANGELOG line.
+- Rendered cells equal the JSON: Sonnet with server 90 correct, 0.785 USD, 141 server tool calls; Haiku with server 83 correct, 0.078 USD, 40 server tool calls. The TL's second render gave the same bytes.
+- Tests: 1065 passed, 6 skipped (developer run); 13 passed (TL run).
+- Review rounds: 1. Questions back: 0. Out-of-scope files: 0.
+- Limit: `--doc` is not root-locked; it is a local CLI the TL runs.
+- Not committed yet.
+- Next: T-46g, `tech-writer` writes the results text with the narrow claim and the limits, and the runbook at 360 runs; then T-45 gate G4.
+- Metrics (T-46f): review rounds 1; questions back 0; out-of-scope files 0; models Sonnet (developer), Haiku (scribe).
+
 ## 2026-11-11 (1) - Full eval rerun: 360 runs, 3 per cell (DEC-056)
 
 - Written by the TL (role exceeded: the scribe writes LOG; the maintainer asked to save the records and stop for the day).
