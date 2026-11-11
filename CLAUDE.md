@@ -26,7 +26,7 @@ When the maintainer asks where things stand, read `STATUS.md`, the "NOW NEXT" li
 ## Flow
 - Plan 1-2 tasks per session. One request is at most one version.
 - An open phase gate blocks the next phase. If the maintainer still wants to go ahead, the TL writes an impact note, warns, records it in the LOG, then does it.
-- `auditor` gives the gate verdict. `auditor-mini` re-verifies findings. At 3-5 tasks or after a large read, suggest a fresh session at a task boundary.
+- `auditor` gives the verdict at phase gates and before publishing, not between them. `auditor-mini` re-verifies findings; a re-verify follows each fix round. At 3-5 tasks or after a large read, suggest a fresh session at a task boundary.
 
 ## Agents
 | Role | Model, effort | Used for |
@@ -35,19 +35,19 @@ When the maintainer asks where things stand, read `STATUS.md`, the "NOW NEXT" li
 | `developer` | Sonnet, medium | every code contract; [H] tasks high; [E] tasks on Haiku (the TL passes the model in the call) |
 | `tech-writer` | Sonnet, medium | English documents, at most 2 rounds |
 | `scout` | Haiku, low | search, counts, measurement scripts; read only |
-| `scribe` | Haiku, low | LOG, STATUS, CHANGELOG check, metrics line |
+| `scribe` | Haiku, low | LOG, STATUS, CHANGELOG check, metrics line; not called for an [E] task (DEC-058) |
 | `auditor` | Fable, xhigh | phase gates, publish readiness |
 | `auditor-mini` | Opus, high | re-verification, metric samples |
 
-A sub-agent cannot ask the maintainer. It returns with the question. A sub-agent report is a claim: the TL checks the diff and the test output before saying "done". If a new role file is not visible in an open session, call `general-purpose` with the same model and the role file body.
+A sub-agent cannot ask the maintainer. It returns with the question. A sub-agent report is a claim: the TL checks the diff and the test output before saying "done". When the TL says a run stopped or a task is done, it shows the evidence: the output, the test summary or the file state. If a new role file is not visible in an open session, call `general-purpose` with the same model and the role file body.
 
 ## Records
 | File | Holds | Written by |
 |---|---|---|
-| `TASKS.md` | task contracts, "NOW NEXT" | TL |
-| `DECISIONS.md` | decisions with reasons | TL |
+| `TASKS.md` | task contracts, "NOW NEXT"; the result line of an [E] task | TL |
+| `DECISIONS.md` | decisions with reasons; the outcome stays empty until a later fact judges the decision, which is normal | TL |
 | `STATUS.md` | current state | scribe |
-| `LOG.md` | what happened, newest first | scribe |
+| `LOG.md` | what happened, newest first; an [E] task has no entry of its own, the next entry names it in one line; [M] and [H] tasks keep the full loop | scribe |
 | `CHANGELOG.md` | changes per version | developer adds the line, scribe checks |
 | `LESSONS.md` | problems, causes, fixes | TL |
 | `audits/` | audit reports | auditor |
@@ -62,7 +62,7 @@ Everything in the repository is English (DEC-003): code, documents, records, rol
 - Before a push: tests green (`python -m pytest -q`), a CHANGELOG line, records current.
 - Every push goes through the pre-push guard. `tools/install_git_hooks.py` installs it. Never use `--no-verify`. A secret that reached history is treated as leaked. Rotate it. Do not just delete it.
 - Commit messages end with `Co-Authored-By: Claude <model> <noreply@anthropic.com>`.
-- The scope guard runs from `.claude/settings.json` (DEC-049). The TL places `.sdlc/active-contract.md` for each task; a sub-agent writes only what its Files in names.
+- The scope guard runs from `.claude/settings.json` (DEC-049). The TL places `.sdlc/active-contract.md` for each task; a sub-agent writes only what its Files in names. An [E] task by a sub-agent that writes still gets a short contract, because the guard needs it.
 - Do not also load the plugin with `--plugin-dir .`: the guard would run twice.
 
 ## Privacy and status line

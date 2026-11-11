@@ -6,6 +6,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 
 ### Added
 
+- Graded ceremony (T-47, DEC-058): `CLAUDE.md` and `PLAYBOOK.md` say an [E] task has no `scribe` call and no LOG entry of its own, audits run at phase gates and before publishing, and "stopped" or "done" comes with evidence; the decision record template says an empty outcome is normal.
 - Eval table renderer (`tools/eval_table.py`, T-46f): renders the totals file into the marked block of `docs/eval-results.md` (header, one row per model and condition, correct per category); a second run gives no diff.
 - Eval totals (`eval/results/full-2.json`, DEC-056): 360 runs, 3 per cell, with and without the server; Sonnet 90 of 90 in both, Haiku 83 and 87 of 90.
 - Eval results text and runbook (T-46g): `docs/eval-results.md` now states what was run, what the tables show and 10 limits; `docs/eval-runbook.md` full run is `full-2`, 360 runs (DEC-056).

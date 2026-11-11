@@ -1,6 +1,6 @@
 # Decisions
 
-One entry per decision. The maintainer decides; the Technical Lead records. "Outcome" is filled in later, when the decision can be judged against what happened. An empty outcome means not reviewed yet.
+One entry per decision. The maintainer decides; the Technical Lead records. "Outcome" is filled when a later fact judges the decision; an empty outcome is normal, not a gap (DEC-058).
 
 Entry format: date, question, options, decision, reason, consequences, outcome.
 
@@ -458,3 +458,30 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: b) would relax a gate criterion after the result is known. 3 repeats also answer whether the Haiku gap (27 against 29 of 30) is noise.
 - Consequences: `full-2` with `--repeats 3`, budget 8 USD estimated (full-1 cost 0.867 USD for 120 runs). `full-1` stays committed as the first measurement; the eval table for G4 uses `full-2`. The runbook command is updated after the run.
 - Outcome: 2026-11-11, `full-2` 360 of 360, 0 errors, 2.116 USD estimated; Sonnet 90 of 90 in both conditions; Haiku 83 of 90 with the server (per repeat 0.900 to 0.933), 87 of 90 without (0.967 in each repeat).
+
+## DEC-057 The plugin is the one delivery path
+- Date: 2026-11-11 · Question: external review 2026-11-09, item 17: plugin or copied templates as the source
+- Facts: the skills already read `templates/` through `${CLAUDE_PLUGIN_ROOT}`; `/sdlc:install-hooks --refresh` replaces stale copies. The maintainer wants the kit listed as a plugin in a Claude plugin catalog, with or without downloads.
+- Options: a) the plugin is the one source; copies in a project come from it and are refreshed, never edited by hand b) the templates are the source; the plugin carries only hooks and the server c) keep both as now.
+- Decision: a). The maintainer asked for the easiest path to a listed plugin; the TL named a).
+- Reason: a catalog listing needs a plugin and a marketplace entry; a) adds no second path to keep equal.
+- Consequences: phase 5 adds the marketplace entry (review item 11) and checks the listing steps against the current Claude Code docs before T-51. `PLAYBOOK.md` stays tool-neutral; it is not a second install path.
+- Outcome:
+
+## DEC-058 Ceremony scales with the task size
+- Date: 2026-11-11 · Question: external review 2026-11-09, items 24, 26, 28
+- Facts: on 2026-11-11 three small record updates took three separate `scribe` calls. 34 of 54 decisions had an empty outcome field (review, HEAD 663d17d).
+- Options: a) graded: an [E] task has no `.sdlc/active-contract.md` beyond the guard need, no `scribe` call and no LOG entry of its own; the TL records it in one line; audits only at phase and publish boundaries; the decision outcome field is optional; the TL shows evidence (output, file state) when it says a run stopped or a task is done b) only the evidence rule and the optional outcome field c) no change.
+- Decision: a), the TL recommendation.
+- Reason: [M] and [H] tasks keep the full loop, where the review rounds found defects; the [E] loop cost more than the change.
+- Consequences: a task (T-47) changes `CLAUDE.md`, `PLAYBOOK.md` and the decision record template; `DEV_RULES.md` holds sub-agent rules only and does not change. The guard still needs a contract for any write by a sub-agent, so an [E] task by a sub-agent keeps a short active contract. Until that task lands, the current rules apply.
+- Outcome:
+
+## DEC-059 Narrow, publish, freeze
+- Date: 2026-11-11 · Question: external review 2026-11-09, items 18, 23, 31, 33
+- Facts: the plugin is installed in no other project; only the pre-push guard is used elsewhere. `full-2`: Sonnet 90 of 90 with and without the server; Haiku 83 with, 87 without (`docs/eval-results.md`). The phase plan already ends with phase 5 Release.
+- Options: a) G4 closes with the 10 current tools; the server is marked experimental and optional; no new capability task is opened; after G5 the kit is frozen and changes only for a concrete need from a project that uses it; work moves to another project b) grow the server in phase 4 c) remove the server.
+- Decision: a), the TL recommendation.
+- Reason: the eval shows no accuracy gain from the server in this set-up; a kit nobody can install is not used. a) keeps the phase plan and adds a stop rule.
+- Consequences: deferred items stay deferred (review 19b, 29); the README (T-50) calls the server experimental and optional. A new idea goes to "Not on the list".
+- Outcome:

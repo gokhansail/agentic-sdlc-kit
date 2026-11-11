@@ -30,7 +30,7 @@ The TL stops the work at a gate. The customer gives the criterion. The auditor g
 
 ### Records
 
-The TL writes the task, decision and lesson records. The scribe writes the log and the status. Documents are kept current, and a changing fact lives in one place. Each task records review rounds, returned questions, the customer's test result and files changed outside the contract. [C-02, C-22, C-28, C-35]
+The TL writes the task, decision and lesson records. The scribe writes the log and the status. Documents are kept current, and a changing fact lives in one place. Each task records review rounds, returned questions, the customer's test result and files changed outside the contract. The size label also sets how much record keeping a task gets: a hard or medium task keeps the full set of records, an easy task gets one result line in the task record. [C-02, C-22, C-28, C-35, DEC-058]
 
 ## Appendix A. Roles and authority matrix
 

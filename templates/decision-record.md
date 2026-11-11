@@ -1,6 +1,6 @@
 # Decision record
 
-What is this file? One entry per decision, in the decisions file. The technical lead records it. Fill the outcome later, when the decision can be judged against what happened.
+What is this file? One entry per decision, in the decisions file. The technical lead records it. Fill the outcome only when a later fact judges the decision.
 
 ## <DEC-ID> <short title>
 - Date: <YYYY-MM-DD>
@@ -9,6 +9,6 @@ What is this file? One entry per decision, in the decisions file. The technical 
 - Decision: <the chosen option, and a short statement of it>
 - Reason: <why this option over the others>
 - Consequences: <what changes because of it>
-- Outcome: <leave empty until reviewed>
+- Outcome: <fill when a later fact judges the decision; an empty outcome is normal, not a gap>
 
 Sources: [C-02], DECISIONS.md format

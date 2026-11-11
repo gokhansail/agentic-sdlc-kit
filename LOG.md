@@ -2,6 +2,34 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-11 (5) - T-47 graded ceremony in the rules
+
+- The maintainer gave the go-ahead for T-47, the graded ceremony (DEC-058). The TL wrote the contract and placed `.sdlc/active-contract.md`.
+- The TL corrected the DEC-058 consequences line: `DEV_RULES.md` holds sub-agent rules only and does not change. The files that change are `CLAUDE.md`, `PLAYBOOK.md` and the decision record template. The LOG entry of 2026-11-11 (4) names `DEV_RULES.md` and `templates/dev-rules.md` for DEC-058; that line is superseded by this entry.
+- `tech-writer` (Sonnet) changed `CLAUDE.md` (82 lines):
+  - An [E] task gets no `scribe` call and no LOG entry of its own. The TL writes its result line in `TASKS.md`, and the next LOG entry names it in one line.
+  - [M] and [H] tasks keep the full loop.
+  - The auditor gives verdicts at phase gates and before publishing. A re-verify follows each fix round.
+  - When the TL says a run stopped or a task is done, it shows the evidence.
+  - An [E] task by a sub-agent that writes still gets a short contract for the guard.
+- `PLAYBOOK.md` Records: one sentence that the size label also sets record keeping, tagged DEC-058. `templates/decision-record.md`: an empty outcome is normal. The TL edited the `DECISIONS.md` header the same way. 1 CHANGELOG line.
+- Review rounds: 2. Round 1 found an unsourced sentence in the template and the same fact in two PLAYBOOK sections. Round 2 removed a blank line in the template; the TL restored it.
+- Tests: 1065 passed, 6 skipped (TL run; `tech-writer` had no shell tool in its session).
+- Questions back: 0. Out-of-scope files: 0.
+- Not committed yet: DEC-057 to DEC-059, T-47 and the records since e045d94 go in one commit.
+- Metrics (T-47): review rounds 2; questions back 0; out-of-scope files 0; models Sonnet (tech-writer), Haiku (scribe).
+- Next: T-45 gate G4.
+
+## 2026-11-11 (4) - Review decisions DEC-057 to DEC-059
+
+- Commit e045d94 pushed: T-46f (eval table renderer) and T-46g (eval results text and runbook at 360 runs), and the TL's one-line fix of the runbook tools limit; 1065 passed, 6 skipped before the push.
+- The maintainer decided 3 of the open review decisions from the external reviews of 2026-11-09. The TL recorded them in `DECISIONS.md`:
+  - DEC-057: the plugin is the one delivery path. Phase 5 adds the marketplace entry and checks the catalog listing steps against current docs before T-51.
+  - DEC-058: ceremony scales with task size. An [E] task has no own scribe call or LOG entry. Audits run at phase and publish boundaries. The decision outcome field is optional. The TL shows evidence when it says a run stopped or a task is done. The change goes to `DEV_RULES.md`, `CLAUDE.md` and `templates/dev-rules.md`; until then the current rules apply.
+  - DEC-059: narrow, publish, freeze. G4 closes with the 10 current tools. The server is marked experimental and optional. No new capability task. The kit is frozen after G5.
+- Still open: public git history (review item 32) waits for G5. Review item 9 needs a decision line on why `claude plugin eval` was not used.
+- Next: T-47 rules for graded ceremony (DEC-058), then T-45 gate G4.
+
 ## 2026-11-11 (3) - T-46g eval results text and runbook
 
 - The maintainer gave the go-ahead for T-46g. The TL placed `.sdlc/active-contract.md` for it.

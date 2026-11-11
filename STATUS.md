@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-11
-Now: Phase 4 MCP server open; full eval rerun with 3 runs per cell (360 runs, DEC-056), totals committed; eval table and results text done (T-46f, T-46g), gate G4 next · repository private · code written, tests green
+Now: Phase 4 MCP server open; full eval rerun with 3 runs per cell (360 runs, DEC-056), totals committed; eval table and results text done; review decisions DEC-057 to DEC-059; graded ceremony in the rules (T-47); gate G4 next · repository private · code written, tests green
 
 ## Phase
 
@@ -19,7 +19,6 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 ## Done
 
-- P-33 rehearsal: passed in the maintainer's own terminal; totals in `docs/dogfood-1.md`.
 - T-30b: `init` and `contract` write through the file tools; 505 tests green.
 - T-33 real task on Project A: medium task merged by the customer; 39 guard events, 1 deny outside the root, 0 out-of-scope files; kit removed, rollback equal; 9 findings in `docs/dogfood-1.md`.
 - DEC-045 triage and T-33b: sub-agents cannot change the developer rules file without a Files in line; 515 tests green.
@@ -40,12 +39,12 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - T-46e runbook says 120 runs (DEC-055): full command `--repeats 1 --budget-usd 3`; eval tests 60 green; 1 CHANGELOG line.
 - Full eval rerun `full-2` (DEC-056): 360 of 360 runs, 0 errors, 2.116 USD list-price estimate; Sonnet 90 of 90 with and without the server, Haiku 83 and 87 of 90; LOG 2026-11-11 (1).
 - T-46f eval table renderer: `tools/eval_table.py`, tables in `docs/eval-results.md` from `full-2`; 1065 tests green.
-- T-46g eval results text: narrow claim and 10 limits in `docs/eval-results.md`; runbook at 360 runs.
+- T-46g eval results text: narrow claim and 10 limits in `docs/eval-results.md`; runbook at 360 runs; committed and pushed (e045d94).
+- T-47 graded ceremony (DEC-058): `CLAUDE.md`, `PLAYBOOK.md`, decision template; 1065 tests green.
 
 ## Next
 
 - T-45 gate G4.
-- The 5 review decisions with the maintainer (35-item table kept outside the repository).
 
 ## Repository
 
@@ -57,4 +56,4 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 ## Open questions
 
 - N-5 waits for G5 (`TASKS.md`).
-- 5 direction decisions from the 2026-11-09 external reviews.
+- Public git history (review item 32) waits for G5; review item 9 decision line.
