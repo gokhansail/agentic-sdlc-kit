@@ -448,4 +448,13 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a), the TL recommendation. Supersedes the run count of DEC-053.
 - Reason: Sonnet is at the ceiling in the pilot, so repeats add time more than information; one sitting fits the usage limit better. Repeats are added only if the 120 runs show a difference between the conditions.
 - Consequences: the runbook full command uses `--repeats 1`; the eval table reports one run per cell, and its limits say so. Budget 3 USD estimated (per-run cap 0.25 USD).
-- Outcome: 2026-11-10, `full-1` 120 of 120, 0 errors; Sonnet 30 of 30 in both conditions, Haiku 27 and 29 of 30, the 3 Haiku server misses used Read only; no repeats added.
+- Outcome: 2026-11-10, `full-1` 120 of 120, 0 errors; Sonnet 30 of 30 in both conditions, Haiku 27 and 29 of 30, the 3 Haiku server misses used Read only; no repeats added. Superseded for the gate by DEC-056 (3 runs per cell).
+
+## DEC-056 The full eval is rerun with 3 runs per cell
+- Date: 2026-11-10 · Question: G4-8 and DEC-012 ask for at least 3 runs per cell; DEC-055 gave 1
+- Facts: `full-1` ran 120 runs, 1 per cell (DEC-055). The TL recommended DEC-055 without checking G4-8 (`cto/2026-11-07_phase4-plan.md`) and DEC-012, which both say at least 3 runs per cell. `--resume` cannot extend `full-1` to 3 repeats: the manifest refuses a changed repeat count (T-46d).
+- Options: a) a new label `full-2`: 30 questions x 2 models x 2 conditions x 3 repeats = 360 runs b) a decision that 1 run per cell meets G4-8.
+- Decision: a), the TL recommendation. Supersedes the run count of DEC-055.
+- Reason: b) would relax a gate criterion after the result is known. 3 repeats also answer whether the Haiku gap (27 against 29 of 30) is noise.
+- Consequences: `full-2` with `--repeats 3`, budget 8 USD estimated (full-1 cost 0.867 USD for 120 runs). `full-1` stays committed as the first measurement; the eval table for G4 uses `full-2`. The runbook command is updated after the run.
+- Outcome: 2026-11-11, `full-2` 360 of 360, 0 errors, 2.116 USD estimated; Sonnet 90 of 90 in both conditions; Haiku 83 of 90 with the server (per repeat 0.900 to 0.933), 87 of 90 without (0.967 in each repeat).

@@ -24,3 +24,10 @@ What is this file? General lessons from building agentic-sdlc-kit: problems met,
 - Cause: stopping the background shell did not end the Python child on this machine (Windows, Git Bash). The TL's check looked for the runner by command line, matched nothing, and the TL took the empty answer as proof.
 - Fix: the facts were corrected in LOG, STATUS and TASKS and told to the maintainer; the runs used the subscription login (`apiKeySource` none), 0.157 USD at list price.
 - Lesson: after a stop, prove it from the output: the run's own files (`runs.jsonl`, the totals file) must stop changing. An empty process search is not proof. Long runs go to the maintainer's terminal, where a stop is a closed window.
+
+### 2026-11-10 - A run plan recommended without the gate criterion
+
+- Problem: the TL recommended 120 eval runs, 1 per cell (DEC-055), and the maintainer chose it. After the run, the eval table could not meet G4-8 and DEC-012, which ask for at least 3 runs per cell. The 120 runs did not count for the gate and the eval was rerun with 360 runs (DEC-056).
+- Cause: the recommendation followed two external reviews and the pilot numbers. The TL did not reread the phase gate and the decision that set up the eval before giving the option.
+- Fix: DEC-056 reruns the eval as `full-2` with 3 repeats; `full-1` stays as the first measurement; the gate criterion was not relaxed after the result.
+- Lesson: before an option changes how a task is measured, read the gate criterion and the decision that set the task up, and name them in the option. A cheaper option that fails the gate is stated as failing it.

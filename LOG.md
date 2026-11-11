@@ -2,6 +2,21 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-11 (1) - Full eval rerun: 360 runs, 3 per cell (DEC-056)
+
+- Written by the TL (role exceeded: the scribe writes LOG; the maintainer asked to save the records and stop for the day).
+- Before the eval table: G4-8 (`cto/2026-11-07_phase4-plan.md`) and DEC-012 ask for at least 3 runs per cell; `full-1` had 1 (DEC-055, the TL recommendation, which missed the gate criterion). The maintainer chose a rerun over relaxing the criterion (DEC-056). Lesson in `LESSONS.md` 2026-11-10.
+- The maintainer ran `full-2` in their own terminal: 360 of 360 runs, complete, 0 errors, 0 unparsed, `apiKeySource` none on all runs, 2.116 of 8.00 USD list-price estimate, runner at 6579f6c, git_dirty false, Claude Code 2.1.319.
+- Per model and condition (correct of 90; accuracy per repeat min to max; cost USD; tool calls, of them server tools; turns per run):
+  - Sonnet with server: 90; 1.000 to 1.000; 0.785; 165, 141; 2.8.
+  - Sonnet without server: 90; 1.000 to 1.000; 1.138; 174, 0; 2.9.
+  - Haiku with server: 83; 0.900 to 0.933; 0.078; 204, 40; 3.3.
+  - Haiku without server: 87; 0.967 to 0.967; 0.115; 385, 0; 5.3.
+- Sonnet called a server tool in 85 of 90 server runs, Haiku in 20 of 90. Output tokens with and without the server: Sonnet 18,119 and 30,657; Haiku 47,805 and 67,069.
+- Haiku misses: with the server 7 (Q02 and Q07 scope, Q26 guard); without the server 3 (Q26 in each repeat). 6 of the 7 server misses called no server tool. The gap repeats in all 3 runs (0.900 to 0.933 against 0.967), so it is not explained as noise; its cause is not yet known.
+- Totals in `eval/results/full-2.json`, not committed yet; raw output stayed on the maintainer's machine. DEC-056 and the 2026-11-10 lesson are also not committed yet.
+- Next: commit with the maintainer's word; the eval table for G4 from `full-2` with the narrow claim; then T-45 gate G4.
+
 ## 2026-11-10 (4) - Full eval: 120 runs
 
 - DEC-055 and T-46e committed and pushed (0e01db2).

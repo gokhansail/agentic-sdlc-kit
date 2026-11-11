@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-10
-Now: Phase 4 MCP server open; full eval done (120 runs), eval table for G4 next · repository private · code written, tests green
+Last updated: 2026-11-11
+Now: Phase 4 MCP server open; full eval rerun with 3 runs per cell (360 runs, DEC-056), totals committed; eval table for G4 next · repository private · code written, tests green
 
 ## Phase
 
@@ -19,8 +19,6 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 ## Done
 
-- Full eval (T-46b runs, 120 of 120): Sonnet 30/30 with and without the server, Haiku 27/30 and 29/30; the server cut Sonnet cost 23 % (list-price estimate); LOG 2026-11-10 (4).
-- T-30a the 5 commands: skills, project template, 2 script modes; 498 tests green.
 - T-33a snapshot guard: a second `--snapshot` for a label is refused; 502 tests green.
 - P-33 rehearsal: passed in the maintainer's own terminal; totals in `docs/dogfood-1.md`.
 - T-30b: `init` and `contract` write through the file tools; 505 tests green.
@@ -41,10 +39,12 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - T-46c eval runner review fixes: correct needs no error and a right answer; every call estimated at the per-run cap; 1030 tests green; committed and pushed (91d706e).
 - T-46d eval runner review items 3 to 5: process tree stop, resume refusal on changed settings, seeded condition order; 1052 tests green; committed and pushed (07672c8).
 - T-46e runbook says 120 runs (DEC-055): full command `--repeats 1 --budget-usd 3`; eval tests 60 green; 1 CHANGELOG line.
+- Full eval rerun `full-2` (DEC-056): 360 of 360 runs, 0 errors, 2.116 USD list-price estimate; Sonnet 90 of 90 with and without the server, Haiku 83 and 87 of 90; LOG 2026-11-11 (1).
 
 ## Next
 
-- Eval table for G4 with the narrow claim, then T-45 gate G4.
+- Eval table for G4 from `full-2` with the narrow claim, then T-45 gate G4.
+- Runbook full command to `--repeats 3` as DEC-056 says (not done yet).
 - The 5 review decisions with the maintainer (35-item table kept outside the repository).
 
 ## Repository

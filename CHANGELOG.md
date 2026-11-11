@@ -6,6 +6,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 
 ### Added
 
+- Eval totals (`eval/results/full-2.json`, DEC-056): 360 runs, 3 per cell, with and without the server; Sonnet 90 of 90 in both, Haiku 83 and 87 of 90.
 - Eval totals (`eval/results/full-1.json`, T-46b, DEC-055): 120 runs, with and without the server; Sonnet 30 of 30 in both, Haiku 27 and 29 of 30.
 - Eval runbook (`docs/eval-runbook.md`, T-46e, DEC-055): the full eval is 120 runs (2 models x 2 conditions x 1 run x 30 questions), budget 3 USD estimated.
 - Eval runner (`tools/eval_run.py`, T-46d): a timeout or Ctrl+C ends the CLI and every process it started, `--resume` is refused when the manifest is missing or a setting or the content of the files a run depends on differs (a commit of other files does not block it), the totals record the runner hash and git state (schema 2), and `--seed` orders the two conditions half and half.
