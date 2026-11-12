@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-12
-Now: Phase 4 MCP server open; full eval rerun with 3 runs per cell (360 runs, DEC-056), totals committed; eval table and results text done; review decisions DEC-057 to DEC-059; graded ceremony in the rules (T-47); G0 leftover done; DEC-060; G4 audit CONDITIONAL ACCEPT; S-1 fixed and pushed (T-45a, 4854cbd); second G4 fix round done (T-45b, T-45c); live token run done (DEC-062); commit and `auditor-mini` re-verify next · repository private · code written, tests green
+Last updated: 2026-11-13
+Now: Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor-mini` re-verify ACCEPT, all 4 conditions closed); fix commits 4854cbd and ba0c63e pushed; maintainer approval and commit of the re-verify report next, then the phase 5 plan by `cto` · repository private · code written, tests green
 
 ## Phase
 
@@ -15,15 +15,12 @@ Phase 2 Evidence closed: G2 passed 2026-11-04 (`auditor-mini` ACCEPT; candidates
 
 Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix round T-34a, `auditor-mini` ACCEPT; `audits/`).
 
-Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
+Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor` CONDITIONAL ACCEPT, fix round T-45a to T-45c, `auditor-mini` ACCEPT; `audits/`).
+
+Phase 5 Release: not opened; plan by `cto` next.
 
 ## Done
 
-- T-39 guard: main-session memory folder, exact rules path; 536 tests green.
-- T-39a the kit opts in: .sdlc/project.md and .claude/settings.json (DEC-047, DEC-049); 540 tests green; checked live and in a desktop app session.
-- T-40 server skeleton: read-only stdio server, status tool, root lock, plugin config; 604 tests green; live call works.
-- T-40a developers write with the file tools only (DEC-052); the guard logged 4 of 4 writes.
-- T-46a eval set: fictional repository, 30 questions, scorer; frozen.
 - T-41 scope_check, contract, changed_outside, guard_events tools; 742 tests green; live run works.
 - T-42 decision, lesson, finding, task and log tools; 10 tools in all; 868 tests green; live run works.
 - T-44 security pass: 17 findings, 3 High fixed, 0 High open, 2 Medium open in the guard (S-7, S-8); `docs/security.md`; 980 tests green.
@@ -38,13 +35,14 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - T-47 graded ceremony (DEC-058): `CLAUDE.md`, `PLAYBOOK.md`, decision template; 1065 tests green.
 - G0 leftover: a headless session in a clean clone without the local instruction file resumed from the records; DEC-060 keeps the own eval runner (review item 9).
 - T-45 G4 audit: CONDITIONAL ACCEPT (`audits/2026-11-11_gate4.md`); 1 High (S-1), 3 Medium, 10 Low; 1065 tests green here and in a fresh clone.
-- T-45a S-1 fix: git does not enter nested repositories; a root laid out as a git folder is refused; security row S-18; 1074 tests green.
-- T-45b G4 findings C-1 and C-2 (developer): 1082 tests passed, 6 skipped (TL run).
-- T-45c G4 documentation items D-1, D-3 (1 to 4), D-4 and P-5 (tech-writer, 2 review rounds); live token run in the maintainer's terminal with and without the server: 221 tokens added per session on the plugin path (G4-4, G4-10, DEC-062).
+- T-45a S-1 fix: git does not enter nested repositories; a root laid out as a git folder is refused; security row S-18; 1074 tests green; pushed (4854cbd).
+- T-45b G4 findings C-1 and C-2 (developer): 1082 tests passed, 6 skipped (TL run); pushed (ba0c63e).
+- T-45c G4 documentation items D-1, D-3 items 1 to 3 (item 4 open), D-4 and P-5 (tech-writer, 2 review rounds); live token run in the maintainer's terminal with and without the server: 221 tokens added per session on the plugin path (G4-4, G4-10, DEC-062); pushed (ba0c63e).
+- T-45 re-verify (`auditor-mini`): ACCEPT; the 4 G4 conditions closed; 12 of 15 items closed, 1 partly, 2 open (`audits/2026-11-13_gate4-reverify.md`).
 
 ## Next
 
-- Maintainer approval, commit, then `auditor-mini` re-verifies the 4 G4 conditions.
+- Maintainer approval and commit of the re-verify report; then the phase 5 plan by `cto`.
 
 ## Repository
 
@@ -58,3 +56,4 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - N-5 waits for G5 (`TASKS.md`).
 - Public git history (review item 32) waits for G5.
 - R-1 rule question and the 2 lines in `.sdlc/project.md` wait for the maintainer.
+- Bare-word candidate (Low, not triaged): `check-worktree` without dashes still falls to the guard's hook mode and writes 1 event line.

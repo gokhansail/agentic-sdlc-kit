@@ -2,6 +2,30 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-13 (1) - Gate G4 re-verify: ACCEPT, G4 passed
+
+- Commit ba0c63e is pushed: T-45b, T-45c, the live run and the records. `main` equals `origin/main`. The "Not committed yet" line in LOG 2026-11-12 (2) is superseded.
+- The TL closed the T-45b and T-45c contract after the maintainer's approval (the new close rule). Both tasks are marked done in `TASKS.md`.
+- The maintainer gave the go-ahead for the re-verify. The TL placed the contract (Files in: the report only).
+- `auditor-mini` (Opus, high) wrote `audits/2026-11-13_gate4-reverify.md`, 46 lines. Verdict: ACCEPT.
+- Conditions closed:
+  - S-1: both layouts reproduced at 3a699e0; marker 0 at ba0c63e (G4-9).
+  - G4-4: judged from the records; raw output is not in the repository.
+  - G4-10: as amended openly in DEC-062.
+  - P-1 closed. P-3 and S-2 closed.
+- Low sample: C-1 and C-2 planted faults caught (3 and 1 tests; 6 tests in all). D-4, P-4, P-5 and D-1 closed. D-3 partly closed (item 4, `.sdlc/project.md`). D-2 and R-1 open outside the gate. Totals: 12 closed, 1 partly, 2 open.
+- Checks: 1082 passed, 6 skipped. Pre-push guard exit 0 over 162 files and the 2 fix commits; a planted key was refused (exit 1). `--check-contract` and `--check-worktree` exit 0.
+- Notes from the re-verify:
+  - Run 2 of the token pair disallowed the 10 tools but kept the server. Its instruction text may still have been in context, so 221 may be slightly low.
+  - The toolchain section says measured 2026-11-12; the date changed between the 2 runs.
+- New candidate, Low, not triaged: a bare word without dashes (for example `check-worktree`) still falls to the guard's hook mode and writes 1 event line.
+- Process note: the re-verifier's Write tool was denied outside the project root by the scope guard. It wrote its probe script with Bash into a temporary folder outside the repository. The guard does not see Bash writes (known limit, DEC-052).
+- TL check: report present; verdict line read; pre-push guard exit 0 with the report in the tree.
+- G4 passed 2026-11-13. Phase 4 closed.
+- Open with the maintainer: R-1 rule question; the 2 lines in `.sdlc/project.md`; the bare-word candidate. Not committed yet.
+- Metrics (T-45 re-verify): review rounds 0; questions back 0; out-of-scope files 0; models Opus (auditor-mini), Haiku (scribe).
+- Next: maintainer approval and commit; then the phase 5 plan by `cto`.
+
 ## 2026-11-12 (2) - G4 fix round 2: T-45b, T-45c, live run (G4-4, G4-10)
 
 - Commit 4854cbd is pushed: T-45a (S-1 fix), the G4 audit report and the records. `main` equals `origin/main`. The "Not committed yet" line in entry (1) is superseded.
