@@ -683,6 +683,14 @@ def _script_mode(args: argparse.Namespace, stdout: TextIO | None, stderr: TextIO
     return code
 
 
+USAGE = (
+    "usage: scope_guard [--root DIR] [--check-contract | --check-worktree]\n"
+    "  no option: hook mode, reads the hook input as JSON on stdin\n"
+    "  --check-contract   exit 0 when .sdlc/active-contract.md parses\n"
+    "  --check-worktree   print the changed paths outside the contract\n"
+)
+
+
 def main(
     argv: Sequence[str] | None = None,
     stdin_bytes: bytes | None = None,
@@ -691,11 +699,16 @@ def main(
     casefold: bool | None = None,
     stdout: TextIO | None = None,
 ) -> int:
-    parser = argparse.ArgumentParser(prog="scope_guard", add_help=False)
+    parser = argparse.ArgumentParser(prog="scope_guard", add_help=False, allow_abbrev=False)
     parser.add_argument("--root", default=None)
     parser.add_argument("--check-contract", action="store_true")
     parser.add_argument("--check-worktree", action="store_true")
-    args, _ = parser.parse_known_args(argv)
+    args, unknown = parser.parse_known_args(argv)
+    if any(item.startswith("-") for item in unknown):
+        # An option that is not one of these would fall through to hook mode: it would wait on
+        # stdin and log a decision no write caused (finding C-2 of gate G4).
+        (stderr if stderr is not None else sys.stderr).write(USAGE)
+        return 2
     if args.check_contract or args.check_worktree:
         return _script_mode(args, stdout, stderr, casefold)
     if stdin_bytes is None:

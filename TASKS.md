@@ -13,7 +13,7 @@ T-33 done 2026-11-07: one real task on Project A, merged by the customer, kit re
 | 1 Playbook | the method in tool-neutral English, no code | G1: every claim maps to a source-map line; no private data; maintainer read it once end to end | `auditor`, then `auditor-mini` |
 | 2 Evidence | before/after numbers, reproducible | G2 (DEC-026, DEC-032): rerun from a clean working tree of the gate commit matches the manifest hashes and leaves `evidence/` and `EVIDENCE.md` unchanged; 3 hand counts (H1, H2, H3) match exactly; limits section of at least 9 items; tests green, a known-answer test per metric; guard clean and `evidence/*.json` holds only fixed keys, numbers, dates, hashes and labels; unparsed metric lines 0 or stated in the limits | `auditor-mini` |
 | 3 Plugin | Claude Code plugin: roles, commands, hooks | G3 (DEC-043, 9 criteria, evidence in `cto/2026-11-04_phase3-plan.md` section 3): G3-1 plugin validates and loads, as amended by DEC-044; G3-2 scope guard tests per state on captured real hook input; G3-3 scope guard live: a sub-agent write denied and allowed in a real session; G3-4 git hook in a foreign repository, incl. existing hook kept and uninstall; G3-5 one real task on Project A (DEC-033); G3-6 footprint equals the agreed list, rollback rehearsed; G3-7 load, hook and push worked in the customer's own terminal; G3-8 `EVIDENCE.md`, `evidence/` and the Project A manifest unchanged; G3-9 guard clean, role sync test green, toolchain doc current, playbook states the hooks that exist | `auditor`, then `auditor-mini` |
-| 4 MCP server | file-based core | G4: tests green; root lock and `..` tests pass; no network; works in Claude Code (DEC-011); eval table from T-46 | `auditor`, then `auditor-mini` |
+| 4 MCP server | file-based core | G4: G4-1 to G4-10 in `cto/2026-11-07_phase4-plan.md` section 3, adopted by DEC-061; G4-10 token cost measured as in DEC-062 | `auditor`, then `auditor-mini` |
 | 5 Release | README, v0.1.0, marketplace, public | G5: publish-readiness audit incl. git history; every README number reproducible; maintainer says publish | `auditor` |
 | 6 Ongoing | dogfood and measurement | none | none |
 
@@ -624,6 +624,8 @@ Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-4
 - Files out: everything else, incl. `DEV_RULES.md`, `templates/dev-rules.md`, `agents/`, `.claude/`, `skills/`, `hooks/`, `tools/`, `server/`, `tests/`, `eval/`, `EVIDENCE.md`, `evidence/`, `docs/`, the records.
 - Acceptance: each of the 5 DEC-058 points (no scribe for [E], no own LOG entry for [E], audits at boundaries, outcome optional, evidence for stopped or done) is in `CLAUDE.md` once and nowhere twice; the PLAYBOOK sentence carries a source tag; `python -m pytest -q` green (the lookup and eval tests read the decision format). At most 2 rounds. Report in Turkish.
 
+- [x] T-48 [E] G0 leftover: a headless session in a clean clone without the local instruction file resumed from the records (LOG 2026-11-11 (6)). Result: correct phase, totals, open items and next task. Limit: the run shows a resume without the repository's local instruction file; it does not show a resume without the maintainer's user-level file (G4 finding P-4; audit question 5 waits for G5).
+
 - [ ] T-45 gate G4: `auditor`, then `auditor-mini`. `auditor` 2026-11-11: CONDITIONAL ACCEPT (`audits/2026-11-11_gate4.md`): 7 of 10 criteria met, G4-4 and G4-10 partly, G4-9 not met; 0 Critical, 1 High (S-1), 3 Medium, 10 Low. Fix round next.
 
 ### [ ] T-45 Gate G4 audit (`auditor`, Fable, effort xhigh)
@@ -648,9 +650,32 @@ Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-4
 - Files out: everything else, incl. `eval/`, `hooks/`, `agents/`, `.claude/`, `skills/`, the records.
 - Acceptance: one test per layout that plants a filter which appends to a marker file, with a control run without the filter; marker 0 lines after `changed_outside`, and the answer says why. Existing S-2 and S-3 tests still pass. `python -m pytest -q` summary pasted. Files written with Write or Edit only; no git command that changes state in this repository.
 
+- [ ] T-45b [M] G4 fix: 2 wrapper parity tests, guard usage on an unknown option (C-1, C-2).
+
+### [ ] T-45b [M] Wrapper parity and guard options (`developer`, Sonnet, effort medium)
+- Result 2026-11-12: 1 server parity test (`guard_events` with a task, `scope_check` as `main` and as `sub-agent`); `tools/scope_guard.py` prints the usage and exits 2 on an option starting with `-` that it does not know, with `allow_abbrev=False` (`--check-wor` is no longer read as `--check-worktree`); 6 parametrised cases plus a hook mode test. Mutation: guard condition off, 6 of 6 fail; F14 and F15 wrapped in memory, both caught. 1082 passed, 6 skipped (TL run). Review rounds 1. Questions back 0. Out-of-scope files 0. Waits for the maintainer's approval.
+- Goal: findings C-1 and C-2 in `audits/2026-11-11_gate4.md` closed with tests.
+- C-1: `tests/test_server.py` gets 2 parity cases through the registered tool: `guard_events` with a task ID equals the `tools/` function with the same ID; `scope_check` with actor `main` equals the function with `main` and differs from `sub-agent` on a fixture where the 2 answers differ.
+- C-2: `tools/scope_guard.py`: an option other than `--check-contract` and `--check-worktree` prints the usage to stderr and exits 2, reads no stdin and writes no event line. Hook mode (no option) is unchanged.
+- Files in: `tests/test_server.py`, `tools/scope_guard.py`, `tests/test_scope_guard.py`, one `CHANGELOG.md` line.
+- Files out: everything else, incl. `server/`, `eval/`, `hooks/`, `agents/`, `.claude/`, `skills/`, the records.
+- Acceptance: each new test fails when its fix or wrapper argument is removed (say how you checked); a test that `--help` and a typo option leave the event file unchanged; `python -m pytest -q` summary pasted. Write or Edit only; no git command that changes state. Report in Turkish.
+
+- [ ] T-45c [M] G4 fix: stale document lines, review item list, contract close rule (D-1, D-3, D-4, P-5).
+
+### [ ] T-45c [M] Document fixes (`tech-writer`, Sonnet, effort medium)
+- Result 2026-11-12: 6 of 7 items done: `docs/toolchain.md`, `PLAYBOOK.md` Appendix I, `docs/dogfood-1.md`, `docs/eval-results.md` limit, `CLAUDE.md` contract close rule, new `docs/review-items.md` (36 rows, 13 with no tracked record). `.sdlc/project.md` not changed: the guard denies sub-agent writes under `.sdlc/`; open with the maintainer. Review rounds 2 (round 2: items 25, 34, 35 and the row count). Questions back 3, answered. Waits for the maintainer's approval.
+- Goal: the document parts of findings D-1, D-3 (items 1 to 4), D-4 and P-5 in `audits/2026-11-11_gate4.md`.
+- `docs/toolchain.md`: the "Not verified" line under the eval CLI notes says what V-16 settled and that the wildcard was not checked. `PLAYBOOK.md` Appendix I: the server was tested with Claude Code only, past tense. `docs/dogfood-1.md`: finding 1 decided by DEC-046, built in T-39. `.sdlc/project.md`: the `Lessons` and `Audits` lines as in `templates/project.md`.
+- `docs/eval-results.md` Limits: one line that `claude plugin eval` gives an isolated home per run and was not used (DEC-060).
+- `CLAUDE.md` Commits section: the TL closes the active contract (`contract close`) when the maintainer approves the task; event counts per task assume this.
+- New `docs/review-items.md`: one row per item of the 2026-11-09 external review table (`archive/review-decisions-2026-11-09.md`, Turkish, private): number, neutral English subject, decision or task ID, status. Status comes from tracked records only; no reviewer, product or model names; the sources as "review 1" and "review 2".
+- Files in: the 6 files above, one `CHANGELOG.md` line. Files out: everything else, incl. the records, `server/`, `tools/`, `eval/`.
+- Acceptance: each change cites its source (DEC or T ID); the writing-style list holds; at most 2 rounds. Report in Turkish.
+
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-39 scope guard: memory folder for the main session (DEC-046) and exact path for the rules file (DEC-048) · T-39a the kit opts in to its own guard (DEC-047) · T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).
-- Phase 5: T-50 README · T-51 v0.1.0 and marketplace, with the T-33 findings routed by DEC-045 (`docs/dogfood-1.md`): 3 the kit introduces itself to a session, 6 contract fields and placement in another project's tasks file, 7 a tools section in `.sdlc/project.md` and a narrow allow list, 9 a plan budget · T-52 gate G5, incl. G2 candidate N-5: engine-specific test attribute and folder layout in the profiles and in the git history; the maintainer decides before the repository goes public.
+- Phase 5: T-50 README · T-51 v0.1.0 and marketplace, with the T-33 findings routed by DEC-045 (`docs/dogfood-1.md`): 3 the kit introduces itself to a session, 6 contract fields and placement in another project's tasks file, 7 a tools section in `.sdlc/project.md` and a narrow allow list, 9 a plan budget · T-52 gate G5, incl. G2 candidate N-5: engine-specific test attribute and folder layout in the profiles and in the git history; the maintainer decides before the repository goes public. From phase 4 decisions (G4 finding P-1): T-50 calls the server experimental and optional and states the freeze after G5 (DEC-059) · T-51 decides how a plugin user without the `mcp` SDK ends up with no failing server, incl. DEC-051 options b) and c) still open · before T-51 the listing steps are checked against the current Claude Code docs (DEC-057) · T-52 decides the public git history (review item 32). Deferred, not planned: review items 19b and 29 (DEC-059).
 
 ## Not on the list
 Ideas that come up go here first and are not worked on until the maintainer moves them into a phase.

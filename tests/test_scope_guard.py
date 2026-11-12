@@ -994,6 +994,32 @@ def test_script_modes_write_no_event_line_and_read_no_stdin(tmp_path: Path, monk
     assert events(root) == []
 
 
+@pytest.mark.parametrize("option", ["--help", "-h", "--check-worktre", "--check-wor", "--bogus=1", "-x"])
+def test_an_unknown_option_prints_the_usage_exits_2_and_writes_no_event_line(
+        tmp_path: Path, monkeypatch, option: str) -> None:
+    root = make_project(tmp_path)
+    monkeypatch.setattr(sys, "stdin", None)  # a read of stdin would raise
+    before = events(root)
+    err = io.StringIO()
+    code = sg.main(["--root", str(root), option], stderr=err, today=TODAY)
+    assert code == 2
+    assert err.getvalue().startswith("usage: scope_guard") and "--check-worktree" in err.getvalue()
+    assert events(root) == before == []
+    assert not (root / ".sdlc" / "metrics.jsonl").exists()
+    # an unknown option next to a valid script option is refused too
+    assert sg.main(["--root", str(root), "--check-contract", option], stdout=io.StringIO(), stderr=io.StringIO()) == 2
+    assert not (root / ".sdlc" / "metrics.jsonl").exists()
+
+
+def test_hook_mode_without_an_option_and_the_script_modes_still_work(tmp_path: Path) -> None:
+    root = make_project(tmp_path)
+    assert write_in(root, "src/a.py")[0] == 0
+    assert write_in(root, "docs/other.txt")[0] == 2
+    assert len(events(root)) == 2  # the legal case still logs one line per decision
+    assert mode(root, "--check-contract")[0] == 0
+    assert len(events(root)) == 2
+
+
 def test_check_contract_refuses_when_there_is_no_active_contract(tmp_path: Path) -> None:
     root = make_project(tmp_path, contract=None)
     code, out, err = mode(root, "--check-contract")

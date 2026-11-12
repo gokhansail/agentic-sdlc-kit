@@ -152,7 +152,18 @@ Sources: https://code.claude.com/docs/en/headless.md, https://code.claude.com/do
 - `--tools ""` removes built-in tools; MCP tools stay unless `--disallowedTools "mcp__*"`. `--max-turns` and `--max-budget-usd` cap a run.
 - Result fields per the SDK result type: `duration_ms`, `num_turns`, `total_cost_usd`, `usage` (input, output, cache tokens), `modelUsage`, `is_error`. https://code.claude.com/docs/en/agent-sdk/typescript.md
 - `claude plugin eval` runs suites from `evals/<case>/prompt.md` with graders, 3 runs per case by default, isolated home and config per run, results in `aggregate-result.json`. Every run is a model call billed to the account. Suites that grant shell tools need WSL2 on native Windows.
-- Not verified: that `claude -p --output-format json` returns all the result fields above; that `--allowedTools "mcp__<server>__*"` works with a wildcard. Check both with one real run when T-46 starts.
+- V-16 settled the result fields on the stream form (`--output-format stream-json --verbose`): the result event carries `usage`, `modelUsage`, `total_cost_usd`, `num_turns`, `duration_ms` and `is_error`. The single `json` form was not run. The eval used exact tool names in `--allowedTools`, so the wildcard `"mcp__<server>__*"` was not checked [V-16, DEC-054].
+
+## Server in the customer's terminal and its token cost (G4-4, G4-10, DEC-062)
+
+Measured 2026-11-12 on Claude Code 2.1.319, Windows 10, PowerShell, subscription login (`apiKeySource` none): 2 `claude --plugin-dir . -p` runs on Haiku in this repository, started by the customer in their own terminal. Raw output stayed on the customer's machine.
+
+- Run 1, plugin with the server: the init event lists `plugin:sdlc:sdlc` connected, source plugin, and the 10 server tools. The model found `status` through a tool search and called it; the answer held the open task and the guard state. 3 turns, 4.9 s, 0.007 USD estimated. This is the G4-4 call.
+- Run 2, the same command with the 10 server tools in `--disallowedTools`: 0 server tools in the init event. The run ended with an error after 5 turns, as expected, since the tool it was asked to call was not there.
+- Context of the first model turn (input, cache write and cache read tokens): 43,461 with the server, 43,240 without. The server adds 221 tokens per session on the plugin path, because the tools are deferred and only their names are listed until a tool search loads one.
+- `claude plugin details` reports about 1,031 tokens for the plugin before and after the server; it prints the MCP server as "tool schemas resolved at runtime; not counted".
+- A configuration that lists the tools directly (`--mcp-config`, as in the eval, V-16) puts all 10 definitions in context. They are 4,149 characters, 5,173 with output schemas; at 4 characters per token, an estimate, about 1,000 to 1,300 tokens. Not measured.
+- Limits: one pair of runs; both sessions also had 4 claude.ai connectors, the same in each run; the date changed between the 2 runs, so the system prompt differed by the date line.
 
 ## Memory files (T-05)
 

@@ -63,6 +63,7 @@ Everything in the repository is English (DEC-003): code, documents, records, rol
 - Every push goes through the pre-push guard. `tools/install_git_hooks.py` installs it. Never use `--no-verify`. A secret that reached history is treated as leaked. Rotate it. Do not just delete it.
 - Commit messages end with `Co-Authored-By: Claude <model> <noreply@anthropic.com>`.
 - The scope guard runs from `.claude/settings.json` (DEC-049). The TL places `.sdlc/active-contract.md` for each task; a sub-agent writes only what its Files in names. An [E] task by a sub-agent that writes still gets a short contract, because the guard needs it.
+- When the maintainer approves a task, the TL closes its contract with `/sdlc:contract close`. Event counts per task assume this (D-1, G4 audit).
 - Do not also load the plugin with `--plugin-dir .`: the guard would run twice.
 
 ## Privacy and status line

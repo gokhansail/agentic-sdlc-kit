@@ -852,6 +852,30 @@ def test_every_tool_runs_with_socket_creation_blocked(monkeypatch: pytest.Monkey
     assert seen["findings"]["total"] == 3 and seen["tasks"]["items"][0]["id"] == "T-2"
 
 
+def test_guard_events_and_scope_check_pass_their_optional_arguments_through(tmp_path: Path) -> None:
+    pytest.importorskip("mcp")
+    root = add_records(make_project(tmp_path, "project.md", "contract.md", "events.jsonl"))
+    lock = RootLock(root)
+    server = server_main.build_server(lock, "x")
+    guarded = [".sdlc/active-contract.md", "docs/other.md"]  # main may write the first, a sub-agent may not
+    calls = [
+        ("guard_events", {"task": "T-77"}),
+        ("scope_check", {"paths": guarded, "actor": "main"}),
+        ("scope_check", {"paths": guarded, "actor": "sub-agent"}),
+    ]
+
+    async def run() -> list[Any]:
+        return [(await server.call_tool(tool, args)).structured_content for tool, args in calls]
+
+    one, as_main, as_sub = asyncio.run(run())
+    assert one == guard_events(lock.root, "T-77")
+    assert one != guard_events(lock.root) and list(one["tasks"]) == ["T-77"]
+    assert as_main == scope_check(lock.root, guarded, "main", lock.casefold)
+    assert as_sub == scope_check(lock.root, guarded, "sub-agent", lock.casefold)
+    assert as_main != as_sub and as_main["actor"] == "main"
+    assert as_main["results"][0]["allow"] is True and as_sub["results"][0]["allow"] is False
+
+
 def test_each_lookup_tool_equals_its_function(tmp_path: Path) -> None:
     pytest.importorskip("mcp")
     root = add_records(make_project(tmp_path, "project.md", None))

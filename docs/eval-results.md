@@ -51,7 +51,7 @@ The cause of the Haiku gap is not known. This eval did not test any explanation.
 - Read is the only tool besides the server. It was chosen so that both conditions have the same single tool, with the files listed in the prompt, and the eval measures the server and not a difference in tools (DEC-054). The no-server condition therefore finds facts by reading files.
 - Cost is a list-price estimate, not a bill. Runs count against the subscription usage limits.
 - Each run is capped at 12 turns and 0.25 USD estimated.
-- The runs are not isolated from the account. The CLI's own bundled listings were in the model's context (`docs/eval-runbook.md`, Limits).
+- The runs are not isolated from the account. The CLI's own bundled listings were in the model's context (`docs/eval-runbook.md`, Limits). `claude plugin eval` gives an isolated home and config for each run (`docs/toolchain.md`); it was not used, so these runs have no such isolation (DEC-060).
 - 90 runs per model and condition are a sample. Haiku with the server had 4 more misses than without (83 against 87 correct of 90), in every repeat. This eval does not say why.
 - `full-1` (1 run per cell) is kept as the first measurement and is not used for the gate.
 - The result belongs to this set-up. It is not a general benefit of the server.

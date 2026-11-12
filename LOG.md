@@ -2,6 +2,30 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-12 (2) - G4 fix round 2: T-45b, T-45c, live run (G4-4, G4-10)
+
+- Commit 4854cbd is pushed: T-45a (S-1 fix), the G4 audit report and the records. `main` equals `origin/main`. The "Not committed yet" line in entry (1) is superseded.
+- The maintainer decided P-2: measure the server's token cost live, with and without the server (DEC-062).
+- The TL wrote the contracts T-45b and T-45c and placed one active contract for both (`.sdlc/active-contract.md`).
+- `developer` (Sonnet, medium) did T-45b: G4 findings C-1 and C-2. Tests: 1082 passed, 6 skipped (TL run). See the T-45b result line in `TASKS.md`.
+- `tech-writer` (Sonnet, medium) did T-45c: D-1, D-3 items 1 to 4, D-4 and P-5. 2 review rounds.
+- `.sdlc/project.md` is not changed. The guard denies sub-agent writes under `.sdlc/`; the change is open with the maintainer.
+- TL records:
+  - P-1: 4 items on the phase 5 line of `TASKS.md`.
+  - P-3: the G4 Phases row points to DEC-061 and DEC-062.
+  - P-4: the G0 leftover gets task line T-48 [E]. Corrected limit: the run shows a resume without the repository's local instruction file, not without the maintainer's user-level file. This corrects the limit line of LOG 2026-11-11 (6). The first T-48 line had no ID and failed the record parse test (1 failed); the TL gave it ID T-48, then the test was green.
+  - D-3 items 5 and 6 and D-4: outcome lines in DEC-056, DEC-055 and DEC-060.
+- S-2: the 2 external review files moved into the ignored archive folder; the empty folder `x/` removed. This corrects LOG 2026-11-10 (1), which said they were kept outside the repository. They were untracked in the root until today.
+- Live run in the maintainer's terminal, 2026-11-12, CLI 2.1.319, Haiku, subscription login:
+  - Run 1, plugin-loaded server: `status` called through a tool search; 3 turns; 0.007 USD. The maintainer confirmed the run (G4-4).
+  - Run 2, the 10 server tools disallowed: first-turn context 43,240 tokens. The plugin path gave 43,461 tokens. 221 tokens added per session on the plugin path (G4-10, DEC-062).
+  - The first attempt of run 2 wrote an empty file because stderr was not captured. Rerun with all streams captured.
+- The TL wrote the token section in `docs/toolchain.md` ("Server in the customer's terminal and its token cost").
+- Metrics (T-45b): review rounds 1; questions back 0; out-of-scope files 0; models Sonnet (developer), Haiku (scribe).
+- Metrics (T-45c): review rounds 2; questions back 3; out-of-scope files 0; models Sonnet (tech-writer), Haiku (scribe).
+- Open: R-1 rule question and the 2 lines in `.sdlc/project.md` wait for the maintainer. Not committed yet.
+- Next: maintainer approval and commit, then `auditor-mini` re-verifies the 4 G4 conditions.
+
 ## 2026-11-12 (1) - T-45a git config check in 2 more layouts (S-1)
 
 - The maintainer decided the 3 gate questions. The TL recorded DEC-061: fix S-1 with tests; one short Haiku run in the maintainer's terminal after the fix for G4-4; the 10 G4 criteria adopted as written.

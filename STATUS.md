@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-12
-Now: Phase 4 MCP server open; full eval rerun with 3 runs per cell (360 runs, DEC-056), totals committed; eval table and results text done; review decisions DEC-057 to DEC-059; graded ceremony in the rules (T-47); G0 leftover done; DEC-060; G4 audit CONDITIONAL ACCEPT; S-1 fixed (T-45a); second fix task next · repository private · code written, tests green
+Now: Phase 4 MCP server open; full eval rerun with 3 runs per cell (360 runs, DEC-056), totals committed; eval table and results text done; review decisions DEC-057 to DEC-059; graded ceremony in the rules (T-47); G0 leftover done; DEC-060; G4 audit CONDITIONAL ACCEPT; S-1 fixed and pushed (T-45a, 4854cbd); second G4 fix round done (T-45b, T-45c); live token run done (DEC-062); commit and `auditor-mini` re-verify next · repository private · code written, tests green
 
 ## Phase
 
@@ -19,9 +19,6 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 ## Done
 
-- DEC-045 triage and T-33b: sub-agents cannot change the developer rules file without a Files in line; 515 tests green.
-- T-34 G3 audit: CONDITIONAL ACCEPT (`audits/2026-11-07_gate3.md`); fix round T-34a: line endings, records, G3-7 statement.
-- Phase 4 plan: `cto/2026-11-07_phase4-plan.md`; decisions DEC-046 to DEC-048.
 - T-39 guard: main-session memory folder, exact rules path; 536 tests green.
 - T-39a the kit opts in: .sdlc/project.md and .claude/settings.json (DEC-047, DEC-049); 540 tests green; checked live and in a desktop app session.
 - T-40 server skeleton: read-only stdio server, status tool, root lock, plugin config; 604 tests green; live call works.
@@ -42,10 +39,12 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - G0 leftover: a headless session in a clean clone without the local instruction file resumed from the records; DEC-060 keeps the own eval runner (review item 9).
 - T-45 G4 audit: CONDITIONAL ACCEPT (`audits/2026-11-11_gate4.md`); 1 High (S-1), 3 Medium, 10 Low; 1065 tests green here and in a fresh clone.
 - T-45a S-1 fix: git does not enter nested repositories; a root laid out as a git folder is refused; security row S-18; 1074 tests green.
+- T-45b G4 findings C-1 and C-2 (developer): 1082 tests passed, 6 skipped (TL run).
+- T-45c G4 documentation items D-1, D-3 (1 to 4), D-4 and P-5 (tech-writer, 2 review rounds); live token run in the maintainer's terminal with and without the server: 221 tokens added per session on the plugin path (G4-4, G4-10, DEC-062).
 
 ## Next
 
-- Second G4 fix task (P-1, P-2, S-2, Low findings), live run in the maintainer's terminal, then `auditor-mini`.
+- Maintainer approval, commit, then `auditor-mini` re-verifies the 4 G4 conditions.
 
 ## Repository
 
@@ -58,3 +57,4 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 - N-5 waits for G5 (`TASKS.md`).
 - Public git history (review item 32) waits for G5.
+- R-1 rule question and the 2 lines in `.sdlc/project.md` wait for the maintainer.

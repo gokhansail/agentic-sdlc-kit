@@ -167,7 +167,7 @@ Code and documents may reach a second model provider. User data, personal data a
 
 ## Appendix I. Why the method is not specific to Claude Code
 
-This repository is built and run with Claude Code. The kit's server will be tested with Claude Code only. [DEC-011]
+This repository is built and run with Claude Code. The kit's server was tested with Claude Code only. [DEC-011]
 
 The method itself sits in files and rules about who may write them. The contract is a file. The handover is a file, so a backup developer on another model can read the contract and the developer rules and do the same work. [C-05, C-08, C-15]
 

@@ -448,7 +448,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a), the TL recommendation. Supersedes the run count of DEC-053.
 - Reason: Sonnet is at the ceiling in the pilot, so repeats add time more than information; one sitting fits the usage limit better. Repeats are added only if the 120 runs show a difference between the conditions.
 - Consequences: the runbook full command uses `--repeats 1`; the eval table reports one run per cell, and its limits say so. Budget 3 USD estimated (per-run cap 0.25 USD).
-- Outcome: 2026-11-10, `full-1` 120 of 120, 0 errors; Sonnet 30 of 30 in both conditions, Haiku 27 and 29 of 30, the 3 Haiku server misses used Read only; no repeats added. Superseded for the gate by DEC-056 (3 runs per cell).
+- Outcome: 2026-11-10, `full-1` 120 of 120, 0 errors; Sonnet 30 of 30 in both conditions, Haiku 27 and 29 of 30, the 3 Haiku server misses used Read only; no repeats added. Superseded for the gate by DEC-056 (3 runs per cell). Correction 2026-11-12 (G4 finding D-3): the time estimates in Facts (about 3 hours for 120 runs, about 8.7 hours for 360) were wrong by a factor of 14 to 15; the local run files show 13 minutes for `full-1` and 34 minutes for `full-2`. The estimate came from the 20-run pilot, which ran before T-46d.
 
 ## DEC-056 The full eval is rerun with 3 runs per cell
 - Date: 2026-11-10 · Question: G4-8 and DEC-012 ask for at least 3 runs per cell; DEC-055 gave 1
@@ -457,7 +457,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a), the TL recommendation. Supersedes the run count of DEC-055.
 - Reason: b) would relax a gate criterion after the result is known. 3 repeats also answer whether the Haiku gap (27 against 29 of 30) is noise.
 - Consequences: `full-2` with `--repeats 3`, budget 8 USD estimated (full-1 cost 0.867 USD for 120 runs). `full-1` stays committed as the first measurement; the eval table for G4 uses `full-2`. The runbook command is updated after the run.
-- Outcome: 2026-11-11, `full-2` 360 of 360, 0 errors, 2.116 USD estimated; Sonnet 90 of 90 in both conditions; Haiku 83 of 90 with the server (per repeat 0.900 to 0.933), 87 of 90 without (0.967 in each repeat).
+- Outcome: 2026-11-11, `full-2` 360 of 360, 0 errors, 2.116 USD estimated (the run started 2026-11-10 23:44 and ended 2026-11-11 00:18, so the totals and the table header say 2026-11-10; G4 finding D-3); Sonnet 90 of 90 in both conditions; Haiku 83 of 90 with the server (per repeat 0.900 to 0.933), 87 of 90 without (0.967 in each repeat).
 
 ## DEC-057 The plugin is the one delivery path
 - Date: 2026-11-11 · Question: external review 2026-11-09, item 17: plugin or copied templates as the source
@@ -493,7 +493,7 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a). The maintainer chose to read the docs first; the TL wrote the line from them.
 - Reason: DEC-012 asks for tokens, duration and tool calls per run, and for an A/B on the server alone; the docs show neither. `full-2` (360 runs) is done, and DEC-059 opens no new capability task.
 - Consequences: `docs/eval-results.md` is unchanged. A port is a candidate only after G5, and only if a project that uses the kit needs it.
-- Outcome:
+- Outcome: 2026-11-12, fact added after G4 finding D-4: `claude plugin eval` gives an isolated home and config per run (`docs/toolchain.md`, since 2026-10-29), and the own runner does not; the eval limits state this (T-45c). The decision stands on its 2 reasons.
 
 ## DEC-061 G4 fix round: fix S-1, live run in the customer's terminal, adopt the 10 criteria
 - Date: 2026-11-11 · Question: G4 audit (`audits/2026-11-11_gate4.md`), customer questions 1 to 3
@@ -502,4 +502,13 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Decision: a), a), a), the TL recommendations.
 - Reason: a public kit with an open High contradicts its own security note; the plugin path is the one delivery path (DEC-057), so it is the one to check live; the audit already used the 10 criteria.
 - Consequences: T-45a fixes S-1 and updates the S-3 and S-4 rows. The live run follows T-45a, as G3-7 was recorded. The other conditions (P-1, P-2, S-2) and the Low findings go to a second fix task. Then `auditor-mini` re-verifies.
-- Outcome:
+- Outcome: 2026-11-12, T-45a fixed S-1 (4854cbd). The customer ran the plugin-loaded server in their own terminal on CLI 2.1.319 and confirmed the run; the `status` call returned the open task (`docs/toolchain.md`). Re-verification pending.
+
+## DEC-062 Server token cost for G4-10: measured live, with and without the server
+- Date: 2026-11-12 · Question: G4 audit finding P-2
+- Facts: G4-10 asks for the tokens the server adds per session from `claude plugin details`; on CLI 2.1.319 that command prints the MCP server as "tool schemas resolved at runtime; not counted" and the same about 1,031 tokens as before the server. The 10 tool definitions are 4,149 characters, 5,173 with output schemas; at 4 characters per token, an estimate, about 1,000 to 1,300 tokens.
+- Options: a) one live run with the plugin-loaded server and one without, in the customer's terminal, compare the input tokens of the first turn b) report the definition size only, as an estimate.
+- Decision: a), the TL recommendation.
+- Reason: the criterion asks for a reported number, and the command it names cannot give it; an estimate from characters is not a measure.
+- Consequences: the run pair joins the G4-4 live run in the customer's terminal (DEC-061). `docs/toolchain.md` gets one paragraph: what `plugin details` counts and does not count, the definition size, and the 2 first-turn numbers. The G4-10 wording names the first-turn measure; the change is recorded here, not made silently.
+- Outcome: 2026-11-12, one pair in the customer's terminal on CLI 2.1.319: first-turn context 43,461 tokens with the server, 43,240 without, 221 added on the plugin path, where the tools are deferred (`docs/toolchain.md`). The direct-listing cost stays an estimate.
