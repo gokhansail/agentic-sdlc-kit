@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-11
-Now: Phase 4 MCP server open; full eval rerun with 3 runs per cell (360 runs, DEC-056), totals committed; eval table and results text done; review decisions DEC-057 to DEC-059; graded ceremony in the rules (T-47); G0 leftover done; DEC-060; gate G4 next · repository private · code written, tests green
+Last updated: 2026-11-12
+Now: Phase 4 MCP server open; full eval rerun with 3 runs per cell (360 runs, DEC-056), totals committed; eval table and results text done; review decisions DEC-057 to DEC-059; graded ceremony in the rules (T-47); G0 leftover done; DEC-060; G4 audit CONDITIONAL ACCEPT; S-1 fixed (T-45a); second fix task next · repository private · code written, tests green
 
 ## Phase
 
@@ -19,8 +19,6 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 
 ## Done
 
-- T-30b: `init` and `contract` write through the file tools; 505 tests green.
-- T-33 real task on Project A: medium task merged by the customer; 39 guard events, 1 deny outside the root, 0 out-of-scope files; kit removed, rollback equal; 9 findings in `docs/dogfood-1.md`.
 - DEC-045 triage and T-33b: sub-agents cannot change the developer rules file without a Files in line; 515 tests green.
 - T-34 G3 audit: CONDITIONAL ACCEPT (`audits/2026-11-07_gate3.md`); fix round T-34a: line endings, records, G3-7 statement.
 - Phase 4 plan: `cto/2026-11-07_phase4-plan.md`; decisions DEC-046 to DEC-048.
@@ -42,10 +40,12 @@ Phase 4 MCP server open: plan `cto/2026-11-07_phase4-plan.md`.
 - T-46g eval results text: narrow claim and 10 limits in `docs/eval-results.md`; runbook at 360 runs; committed and pushed (e045d94).
 - T-47 graded ceremony (DEC-058): `CLAUDE.md`, `PLAYBOOK.md`, decision template; 1065 tests green.
 - G0 leftover: a headless session in a clean clone without the local instruction file resumed from the records; DEC-060 keeps the own eval runner (review item 9).
+- T-45 G4 audit: CONDITIONAL ACCEPT (`audits/2026-11-11_gate4.md`); 1 High (S-1), 3 Medium, 10 Low; 1065 tests green here and in a fresh clone.
+- T-45a S-1 fix: git does not enter nested repositories; a root laid out as a git folder is refused; security row S-18; 1074 tests green.
 
 ## Next
 
-- T-45 gate G4.
+- Second G4 fix task (P-1, P-2, S-2, Low findings), live run in the maintainer's terminal, then `auditor-mini`.
 
 ## Repository
 

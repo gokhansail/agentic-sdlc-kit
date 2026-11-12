@@ -1281,6 +1281,121 @@ def test_changed_outside_runs_git_for_a_repository_without_a_filter(tmp_path: Pa
     assert sorted(changed_outside(root, False)["outside"]) == ["notes.txt", "src/secret.py"]
 
 
+def _filter_probe(tmp_path: Path) -> tuple[str, Path]:
+    """A clean filter command that appends a line to a marker file, and that marker (outside the project)."""
+    marker = tmp_path / "filter-ran"
+    script = tmp_path / "clean.sh"
+    script.write_text(f'#!/bin/sh\necho x >> "{marker.as_posix()}"\ncat\n', encoding="utf-8", newline="\n")
+    return f"sh {script.as_posix()}", marker
+
+
+def _marker_lines(marker: Path) -> int:
+    return len(marker.read_text(encoding="utf-8").splitlines()) if marker.exists() else 0
+
+
+def _nested_repository_in(root: Path, command: str | None) -> Path:
+    """`vendor/lib` is a repository of its own, committed in `root` as a gitlink; its own config names the filter."""
+    nested = root / "vendor" / "lib"
+    nested.mkdir(parents=True)
+    subprocess.run(["git", "init", "-q"], cwd=nested, check=True, capture_output=True, timeout=60)
+    (nested / "a.txt").write_text("a\n", encoding="utf-8", newline="\n")
+    (nested / ".gitattributes").write_text("* filter=probe\n", encoding="utf-8", newline="\n")
+    git_commit(nested, "a.txt", ".gitattributes")
+    git_commit(root, "src/a.py", "vendor/lib")
+    if command is not None:
+        subprocess.run(["git", "config", "filter.probe.clean", command], cwd=nested, check=True, timeout=60)
+    later = time.time() + 30  # only the time changed: git compares the content through the filter
+    os.utime(nested / "a.txt", (later, later))
+    return nested
+
+
+def _as_a_git_folder(root: Path, command: str | None) -> None:
+    """The project root laid out as a git folder: HEAD, objects, refs, index, config at the root, `core.worktree = .`."""
+    for entry in list((root / ".git").iterdir()):
+        shutil.move(str(entry), str(root / entry.name))
+    (root / ".git").rmdir()
+    settings = [("core.worktree", ".")] + ([("filter.probe.clean", command)] if command is not None else [])
+    for key, value in settings:
+        subprocess.run(["git", "config", "--file", str(root / "config"), key, value], check=True, timeout=60)
+    (root / ".gitattributes").write_text("* filter=probe\n", encoding="utf-8", newline="\n")
+    later = time.time() + 30
+    os.utime(root / "src" / "a.py", (later, later))
+
+
+@pytest.mark.skipif(not _git_available(), reason="no git on PATH")
+def test_a_filter_in_a_nested_repository_is_not_run_by_changed_outside(tmp_path: Path) -> None:
+    command, marker = _filter_probe(tmp_path)
+    clean = git_project(tmp_path / "control")
+    _nested_repository_in(clean, None)
+    assert server_inputs.git_problem(clean) == ""
+    assert changed_outside(clean, False)["ok"] is False and _marker_lines(marker) == 0  # no filter: nothing to run
+    root = git_project(tmp_path / "r")
+    _nested_repository_in(root, command)
+    assert server_inputs.git_problem(root) == ""  # the config git would read is not the one S-3 looks at
+    subprocess.run(["git", "status", "--porcelain"], cwd=root, check=True, capture_output=True, timeout=60)
+    if _marker_lines(marker) == 0:
+        pytest.skip("this git does not run a clean filter of a nested repository on status here")
+    marker.unlink()  # control run above: plain git did start the program
+    got = changed_outside(root, False)
+    assert _marker_lines(marker) == 0
+    assert sorted(got["outside"]) == ["notes.txt", "src/secret.py"]  # the other changes are still found
+    assert "nested" in got["limit"]
+
+
+@pytest.mark.skipif(not _git_available(), reason="no git on PATH")
+def test_a_root_laid_out_as_a_git_folder_does_not_run_its_filter_through_changed_outside(tmp_path: Path) -> None:
+    command, marker = _filter_probe(tmp_path)
+    clean = git_project(tmp_path / "control")
+    git_commit(clean, "src/a.py")
+    _as_a_git_folder(clean, None)
+    assert changed_outside(clean, False)["ok"] is False  # the control layout is refused as well
+    assert _marker_lines(marker) == 0
+    root = git_project(tmp_path / "r")
+    git_commit(root, "src/a.py")
+    _as_a_git_folder(root, command)
+    subprocess.run(["git", "status", "--porcelain"], cwd=root, capture_output=True, timeout=60)
+    if _marker_lines(marker) == 0:
+        pytest.skip("this git does not run a clean filter from a root laid out as a git folder here")
+    marker.unlink()  # control run above: plain git did start the program
+    got = changed_outside(root, False)
+    assert _marker_lines(marker) == 0
+    assert got["ok"] is False and got["outside"] == []
+    assert "git status was not run" in got["message"] and "git folder" in got["message"]
+    assert str(tmp_path) not in got["message"]
+
+
+@pytest.mark.parametrize("parts", [("objects",), ("refs",), ("commondir",), ("objects", "refs")])
+def test_changed_outside_does_not_start_git_for_a_folder_laid_out_as_a_git_folder(
+        monkeypatch: pytest.MonkeyPatch, tmp_path: Path, parts: tuple[str, ...]) -> None:
+    root = make_project(tmp_path / "a", "project.md", "contract.md")
+    (root / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+    for name in parts:
+        (root / name).mkdir()
+    above = make_project(tmp_path / "b" / "app", "project.md", "contract.md")  # the git folder is above the root
+    (above.parent / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+    (above.parent / parts[0]).mkdir()
+    _no_git_run(monkeypatch)
+    for where in (root, above):
+        got = changed_outside(where)
+        assert got["ok"] is False and got["outside"] == []
+        assert "git status was not run" in got["message"] and "git folder" in got["message"]
+
+
+def test_a_head_file_or_an_objects_folder_alone_is_not_a_git_folder(tmp_path: Path) -> None:
+    root = make_project(tmp_path, "project.md", "contract.md")
+    if any((p / ".git").exists() for p in (root.resolve(), *root.resolve().parents)):
+        pytest.skip("the temp folder is inside a repository")
+    (root / "HEAD").write_text("x\n", encoding="utf-8")
+    assert server_inputs.git_problem(root) == ""
+    (root / "HEAD").unlink()
+    (root / "objects").mkdir()
+    (root / "refs").mkdir()
+    assert server_inputs.git_problem(root) == ""  # git needs HEAD as well
+    (root / ".git").mkdir()
+    (root / "HEAD").write_text("x\n", encoding="utf-8")
+    assert server_inputs.git_problem(root) == ""  # a `.git` entry is looked at first, as git does
+
+
 def test_changed_outside_asks_git_not_to_take_optional_locks(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     root = make_project(tmp_path, "project.md", "contract.md")
     seen: list[str | None] = []

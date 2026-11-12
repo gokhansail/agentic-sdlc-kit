@@ -17,6 +17,8 @@ CONTROL_FILES = (PROJECT_FILE, CONTRACT_FILE)
 CONTROL_LIMIT = 256_000  # bytes; the real files are under 2,000
 CONFIG_LIMIT = 1_000_000
 GIT_DIR = ".git"
+GIT_HEAD = "HEAD"
+GIT_FOLDER_PARTS = ("objects", "refs", "commondir")  # with HEAD, git takes a folder as a repository folder itself
 GIT_RUNS_CONFIG = ("[filter", "[include")  # a filter driver runs on `git status`; an include can hide one
 MAX_PATTERNS = 500  # Files in, Files out or always-allowed entries in one answer
 MAX_RECORD_NAMES = 40
@@ -71,12 +73,16 @@ def git_problem(root: Path) -> str:
 
     Git runs a clean filter from the repository config when it compares a file whose time changed
     (measured on git 2.35). The config of a plain repository is read here; a linked worktree or a
-    submodule keeps its config elsewhere and is refused.
+    submodule keeps its config elsewhere and is refused. A folder laid out as a git folder with no `.git`
+    entry is refused too: git takes it as the repository and reads its `config` (T-45a). Git looks for
+    the `.git` entry first and for the folder itself second, one folder at a time, going up; so does this.
     """
     base = Path(root).resolve()
     for folder in (base, *base.parents):
         dot = folder / GIT_DIR
         if not os.path.lexists(dot):
+            if os.path.lexists(folder / GIT_HEAD) and any(os.path.lexists(folder / name) for name in GIT_FOLDER_PARTS):
+                return "the folder is laid out as a git folder (HEAD with objects or refs); its config is not checked"
             continue
         if dot.is_symlink():
             return "the .git entry is a link"

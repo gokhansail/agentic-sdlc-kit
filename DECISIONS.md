@@ -494,3 +494,12 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: DEC-012 asks for tokens, duration and tool calls per run, and for an A/B on the server alone; the docs show neither. `full-2` (360 runs) is done, and DEC-059 opens no new capability task.
 - Consequences: `docs/eval-results.md` is unchanged. A port is a candidate only after G5, and only if a project that uses the kit needs it.
 - Outcome:
+
+## DEC-061 G4 fix round: fix S-1, live run in the customer's terminal, adopt the 10 criteria
+- Date: 2026-11-11 · Question: G4 audit (`audits/2026-11-11_gate4.md`), customer questions 1 to 3
+- Facts: S-1 High: `changed_outside` lets git start a program from a git config in 2 layouts (a nested repository; a root laid out as a git folder), reproduced in scratch; `docs/security.md` says 0 open High. G4-4 asks for a call in a terminal the customer opened; the eval loaded the server with `--mcp-config`, not as a plugin. G4-1 to G4-10 stand only in `cto/2026-11-07_phase4-plan.md` (finding P-3).
+- Options: S-1 a) fix with tests b) accept the risk in a decision; G4-4 a) one short Haiku run in the customer's terminal after the fix, with the customer's statement b) a decision that the eval runs suffice; criteria a) adopt all 10 as written b) name the ones that do not bind.
+- Decision: a), a), a), the TL recommendations.
+- Reason: a public kit with an open High contradicts its own security note; the plugin path is the one delivery path (DEC-057), so it is the one to check live; the audit already used the 10 criteria.
+- Consequences: T-45a fixes S-1 and updates the S-3 and S-4 rows. The live run follows T-45a, as G3-7 was recorded. The other conditions (P-1, P-2, S-2) and the Low findings go to a second fix task. Then `auditor-mini` re-verifies.
+- Outcome:

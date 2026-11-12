@@ -624,6 +624,30 @@ Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-4
 - Files out: everything else, incl. `DEV_RULES.md`, `templates/dev-rules.md`, `agents/`, `.claude/`, `skills/`, `hooks/`, `tools/`, `server/`, `tests/`, `eval/`, `EVIDENCE.md`, `evidence/`, `docs/`, the records.
 - Acceptance: each of the 5 DEC-058 points (no scribe for [E], no own LOG entry for [E], audits at boundaries, outcome optional, evidence for stopped or done) is in `CLAUDE.md` once and nowhere twice; the PLAYBOOK sentence carries a source tag; `python -m pytest -q` green (the lookup and eval tests read the decision format). At most 2 rounds. Report in Turkish.
 
+- [ ] T-45 gate G4: `auditor`, then `auditor-mini`. `auditor` 2026-11-11: CONDITIONAL ACCEPT (`audits/2026-11-11_gate4.md`): 7 of 10 criteria met, G4-4 and G4-10 partly, G4-9 not met; 0 Critical, 1 High (S-1), 3 Medium, 10 Low. Fix round next.
+
+### [ ] T-45 Gate G4 audit (`auditor`, Fable, effort xhigh)
+- Goal: a verdict on phase 4 (ACCEPT, CONDITIONAL ACCEPT or REJECT) with evidence per criterion.
+- Criteria: G4-1 to G4-10 in `cto/2026-11-07_phase4-plan.md`, the G4 row of the Phases table, DEC-046 to DEC-060, and the G0 leftover (LOG 2026-11-11 (6)).
+- State: HEAD 3a699e0, pushed; working tree clean except 2 untracked external review files, which are out of scope and must not be read or quoted.
+- Method: read records, code, tests and git; run `python -m pytest -q` here and in a fresh clone; run the pre-push guard over the tree and the phase 4 commits; planted faults only in scratch copies outside the repository.
+- Limits: no `claude -p` model runs and no eval runs; where a criterion needs a live run, judge it from the records and say so. Fixes nothing.
+- Files in: `audits/2026-11-11_gate4.md`.
+- Files out: everything else.
+- Report: English file; summary to the TL in Turkish with verdict, finding counts by severity, and the questions for the customer.
+
+- [x] T-45a [H] G4 fix: `changed_outside` starts no program from a nested or root-level git config (S-1, DEC-061).
+
+### [x] T-45a [H] Git config check in 2 more layouts (`developer`, Sonnet, effort high)
+- Result 2026-11-12: `git status` in `check_worktree` runs with `--ignore-submodules=all` (layout 1, also for `--check-worktree`); `git_problem` refuses a folder with `HEAD` and `objects`, `refs` or `commondir` and no `.git` entry (layout 2, server path only). `docs/security.md` row S-18, S-3 and S-4 rows, 3 limits. 6 new tests; the developer's mutation run failed 8 of 14 targeted tests. 1074 passed, 6 skipped (developer and TL runs); 14 targeted passed, 0 skipped. Review rounds 1. Questions back 0. Out-of-scope files 0. Limit: layout 2 is not refused by the `--check-worktree` CLI, the user's own command, as for S-3. The TL's first T-45a contract named the records in Files out, so the guard denied the TL's own result line; the records step got its own contract.
+- Goal: `changed_outside` never lets git start a filter or other program from a config the S-3 check did not read. Finding S-1 in `audits/2026-11-11_gate4.md` has both probes.
+- Layout 1, nested repository: a gitlink (mode 160000, with or without `.gitmodules`) whose own config names a filter. Layout 2: the root laid out as a git folder (`HEAD`, `objects/`, `config` with `core.worktree`), no `.git` entry.
+- Behaviour: the server refuses layout 2 with a message, or runs git with the `.git` folder it checked named explicitly so git refuses it; git status in the server path does not enter nested repositories. The `--check-worktree` CLI may share the change; if it does, its message and the tests say so.
+- Limit to state: a change inside a nested repository is then not reported as outside the contract; `/sdlc:review` runs `git status` from the CLI with no config check.
+- Files in: `server/inputs.py`, `server/scope.py`, `tools/scope_guard.py`, `tests/test_server.py`, `tests/test_scope_guard.py`, `docs/security.md` (S-3 and S-4 rows, a new row for S-1, the limits), one `CHANGELOG.md` line.
+- Files out: everything else, incl. `eval/`, `hooks/`, `agents/`, `.claude/`, `skills/`, the records.
+- Acceptance: one test per layout that plants a filter which appends to a marker file, with a control run without the filter; marker 0 lines after `changed_outside`, and the answer says why. Existing S-2 and S-3 tests still pass. `python -m pytest -q` summary pasted. Files written with Write or Edit only; no git command that changes state in this repository.
+
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-39 scope guard: memory folder for the main session (DEC-046) and exact path for the rules file (DEC-048) · T-39a the kit opts in to its own guard (DEC-047) · T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).
 - Phase 5: T-50 README · T-51 v0.1.0 and marketplace, with the T-33 findings routed by DEC-045 (`docs/dogfood-1.md`): 3 the kit introduces itself to a session, 6 contract fields and placement in another project's tasks file, 7 a tools section in `.sdlc/project.md` and a narrow allow list, 9 a plan budget · T-52 gate G5, incl. G2 candidate N-5: engine-specific test attribute and folder layout in the profiles and in the git history; the maintainer decides before the repository goes public.

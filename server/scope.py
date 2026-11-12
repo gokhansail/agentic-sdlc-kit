@@ -22,7 +22,7 @@ PATH_LIMIT = 500
 GUARD_OFF = "the guard is off in this project (no .sdlc/project.md): every write is allowed"
 WORKTREE_LIMIT = (
     "git cannot tell when a file changed, so files changed before the task started are listed too; "
-    "paths under .sdlc/ are not checked"
+    "paths under .sdlc/ are not checked; a change inside a nested repository is not reported"
 )
 
 

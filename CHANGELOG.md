@@ -6,6 +6,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 
 ### Added
 
+- Git config check in 2 more layouts (T-45a, finding S-1 of gate G4): `changed_outside` starts no program from a nested repository (git status runs with `--ignore-submodules=all`, also for `--check-worktree`) and refuses a root laid out as a git folder; `docs/security.md` row S-18 and the limits.
 - Graded ceremony (T-47, DEC-058): `CLAUDE.md` and `PLAYBOOK.md` say an [E] task has no `scribe` call and no LOG entry of its own, audits run at phase gates and before publishing, and "stopped" or "done" comes with evidence; the decision record template says an empty outcome is normal.
 - Eval table renderer (`tools/eval_table.py`, T-46f): renders the totals file into the marked block of `docs/eval-results.md` (header, one row per model and condition, correct per category); a second run gives no diff.
 - Eval totals (`eval/results/full-2.json`, DEC-056): 360 runs, 3 per cell, with and without the server; Sonnet 90 of 90 in both, Haiku 83 and 87 of 90.

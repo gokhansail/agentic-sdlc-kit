@@ -603,7 +603,8 @@ def check_worktree(root: Path, casefold: bool) -> tuple[int, list[str], str]:
         return 1, [], f"the contract cannot be used: {broken}"
     try:
         prefix = _git(root, "rev-parse", "--show-prefix").decode("utf-8", errors="replace").strip()
-        raw = _git(root, "status", "--porcelain", "-z", "--untracked-files=all", "--", ".")
+        # a nested repository keeps its own config, which git would read (and run a filter from) when it enters it
+        raw = _git(root, "status", "--porcelain", "-z", "--untracked-files=all", "--ignore-submodules=all", "--", ".")
     except (OSError, subprocess.SubprocessError) as exc:
         return 1, [], f"git status failed: {exc}"
     outside: list[str] = []

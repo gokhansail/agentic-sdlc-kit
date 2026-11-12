@@ -2,6 +2,46 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-12 (1) - T-45a git config check in 2 more layouts (S-1)
+
+- The maintainer decided the 3 gate questions. The TL recorded DEC-061: fix S-1 with tests; one short Haiku run in the maintainer's terminal after the fix for G4-4; the 10 G4 criteria adopted as written.
+- The TL wrote the T-45a contract and placed `.sdlc/active-contract.md`.
+- `developer` (Sonnet, high) changed 7 files:
+  - `tools/scope_guard.py` (+2/-1)
+  - `server/inputs.py` (+7/-1)
+  - `server/scope.py` (+1/-1)
+  - `tests/test_server.py` (+115)
+  - `tests/test_scope_guard.py` (+55)
+  - `docs/security.md` (+7/-3)
+  - 1 CHANGELOG line
+- Layout 1, nested repository: `git status` in `check_worktree` runs with `--ignore-submodules=all`, so git does not enter it. `--check-worktree` has the change too.
+- Layout 2, root laid out as a git folder: `git_problem` refuses a folder with `HEAD` and `objects`, `refs` or `commondir` and no `.git` entry, in each folder from the root upward.
+- `docs/security.md`: new row S-18 (High, FIXED); S-3 and S-4 rows updated; 3 limits.
+- Tests: 6 new, each filter test with a control run. The developer's mutation run: with the 2 fixes off, 8 of 14 targeted tests failed. 1074 passed, 6 skipped (developer run and TL run); 14 targeted passed, 0 skipped (TL run). Pre-push guard exit 0 over the changed files.
+- Limits:
+  - A change inside a nested repository is not reported.
+  - Layout 2 is refused in the server path only, not by the `--check-worktree` CLI, which is the user's own command.
+  - `/sdlc:review` runs `git status` with no config check.
+- Review rounds: 1. Questions back: 0. Out-of-scope files: 0.
+- Not committed yet.
+- Metrics (T-45a): review rounds 1; questions back 0; out-of-scope files 0; models Sonnet (developer), Haiku (scribe).
+- Next: second fix task (P-1, P-2, S-2 and the Low findings), the live run in the maintainer's terminal, then `auditor-mini`.
+
+## 2026-11-11 (7) - Gate G4 audit: CONDITIONAL ACCEPT
+
+- The maintainer gave the go-ahead for the G4 audit. The TL wrote the T-45 contract in `TASKS.md` and placed `.sdlc/active-contract.md` (Files in: `audits/2026-11-11_gate4.md`).
+- `auditor` (Fable, xhigh) wrote `audits/2026-11-11_gate4.md`, 227 lines. Verdict: CONDITIONAL ACCEPT. Criteria: 7 of 10 met; G4-4 and G4-10 partly met; G4-9 not met.
+- Tests: 1065 passed, 6 skipped in this folder and in a fresh clone. Pre-push guard exit 0 over 160 tracked files, the 20 phase 4 commits and the full history.
+- Findings: 0 Critical, 1 High, 3 Medium, 10 Low.
+  - S-1 High: `changed_outside` starts a program from a git config in 2 layouts (a nested repository; a root laid out as a git folder). Reproduced in scratch folders outside the repository. `docs/security.md` says 0 open High, so G4-9 does not hold.
+  - P-1 Medium: 4 decision consequences for phase 5 are not on the task list; "experimental and optional" (DEC-059) is in no product file.
+  - P-2 Medium: the server's token cost is not recorded; `plugin details` does not count MCP tool schemas.
+  - S-2 Medium: 2 private external review files sit untracked in the working folder and are not ignored.
+- Conditions: S-1 fixed with a test, or the risk accepted in a decision; a call of the plugin-loaded server in a terminal the customer opened, or a decision that the eval runs suffice; a token cost paragraph; the 4 items on the phase 5 line. Then `auditor-mini`.
+- The auditor ran `tools/scope_guard.py --help` by mistake; it added 1 deny line to the ignored event file (finding C-2). No model, eval or network runs.
+- TL check: the report passes the pre-push guard (exit 0); the code lines that S-1 cites (`server/inputs.py`, `_git` in `tools/scope_guard.py`) match the claim.
+- Next: the maintainer decides the gate questions; then a fix round.
+
 ## 2026-11-11 (6) - G0 leftover clean-clone resume check; review item 9 decided (DEC-060)
 
 - Commit 25afce8 (DEC-057 to DEC-059, T-47) is pushed. `main` equals `origin/main`. The "Not committed yet" line in entry (5) is superseded.

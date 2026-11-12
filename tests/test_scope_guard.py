@@ -1192,6 +1192,61 @@ def test_a_repository_config_cannot_start_a_program_through_core_fsmonitor(tmp_p
     assert not marker.exists()
 
 
+def test_check_worktree_asks_git_not_to_enter_nested_repositories(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    seen: list[list[str]] = []
+
+    def fake_run(args: list[str], **kwargs: object) -> subprocess.CompletedProcess:
+        seen.append(list(args))
+        return subprocess.CompletedProcess(args, 0, b"", b"")
+
+    root = make_project(tmp_path)
+    monkeypatch.setattr(sg.subprocess, "run", fake_run)
+    assert sg.check_worktree(root, False)[0] == 0
+    status = [args for args in seen if "status" in args]
+    assert len(status) == 1 and "--ignore-submodules=all" in status[0]
+
+
+@needs_git
+def test_a_filter_in_a_nested_repository_cannot_start_a_program_through_check_worktree(tmp_path: Path) -> None:
+    marker = tmp_path / "nested-filter-ran"
+    script = tmp_path / "clean.sh"  # outside the repository, so it is not a change itself
+    script.write_text(f'#!/bin/sh\necho x >> "{posix(marker)}"\ncat\n', encoding="utf-8", newline="\n")
+
+    def lines() -> int:
+        return len(marker.read_text(encoding="utf-8").splitlines()) if marker.exists() else 0
+
+    def nested_project(base: Path, command: str | None) -> Path:
+        root = git_project(base)
+        nested = root / "vendor" / "lib"
+        nested.mkdir(parents=True)
+        sh_git(nested, "init", "-q")
+        sh_git(nested, "config", "user.name", "Test")
+        sh_git(nested, "config", "user.email", "test@users.noreply.github.com")
+        touch(nested, "a.txt")
+        (nested / ".gitattributes").write_text("* filter=probe\n", encoding="utf-8", newline="\n")
+        sh_git(nested, "add", "-A")
+        sh_git(nested, "commit", "-q", "-m", "n")
+        sh_git(root, "add", "vendor/lib")  # a gitlink
+        sh_git(root, "commit", "-q", "-m", "n")
+        if command is not None:
+            sh_git(nested, "config", "filter.probe.clean", command)
+        later = time.time() + 30  # only the time changed: git compares the content through the filter
+        os.utime(nested / "a.txt", (later, later))
+        return root
+
+    clean = nested_project(tmp_path / "control", None)  # control layout without the filter
+    assert sg.check_worktree(clean, False)[0] == 0 and lines() == 0
+    root = nested_project(tmp_path / "r", f"sh {posix(script)}")
+    sh_git(root, "status", "--porcelain")  # control run: plain git does start the program
+    if lines() == 0:
+        pytest.skip("this git does not run a clean filter of a nested repository on status here")
+    marker.unlink()
+    touch(root, "stray.txt")
+    code, outside, _ = sg.check_worktree(root, False)
+    assert lines() == 0
+    assert code == 1 and outside == ["stray.txt"]  # a change in the repository itself is still found
+
+
 def test_check_worktree_outside_a_git_repository_is_exit_1(tmp_path: Path) -> None:
     root = make_project(tmp_path)
     code, out, err = mode(root, "--check-worktree")
