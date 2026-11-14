@@ -2,6 +2,36 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-14 (3) - T-49 session start hook
+
+- The maintainer gave the go-ahead for T-49 (kit introduces itself to a session, DEC-064). The TL wrote the contract and placed `.sdlc/active-contract.md`.
+- `developer` (Sonnet, medium):
+  - Probe first on CLI 2.1.319: a plugin SessionStart hook reaches the model as plain stdout and as JSON `additionalContext`. Stdout chosen.
+  - New `hooks/session/launcher.sh` (9 lines): exits 0 silently without `.sdlc/project.md`, else prints `templates/seat.md`.
+  - New `templates/seat.md` (16 lines).
+  - New `tests/test_session_hook.py` (6 tests).
+  - `hooks/hooks.json`: SessionStart entry.
+  - `docs/toolchain.md`: V-17.
+  - 1 CHANGELOG line.
+- Live Haiku runs in a scratch fixture:
+  - Opted in: the model named the TL seat and the status record as its first step.
+  - Not opted in: no seat.
+  - First-turn tokens 51,083 against 50,645: 438 added per session.
+- TL checks:
+  - Diff read.
+  - Launcher run by hand: prints the seat in an opted-in folder, nothing elsewhere.
+  - 54 passed in the hook, role sync and skills tests.
+  - Developer's full run: 1088 passed, 6 skipped.
+- Notes:
+  - The developer's report said this repository has no `.sdlc/project.md`. It has one; the launcher prints the seat here when the plugin is loaded.
+  - The user-level instruction file reached the non-opted-in run. Not a kit defect.
+  - The developer left a background process; the TL stopped it.
+  - The TL removed the records from the contract's Files out so that `scribe` could write.
+- Metrics (T-49): review rounds 0; questions back 0; out-of-scope files 0; models Sonnet (developer), Haiku (scribe).
+- Open: the live check in the maintainer's terminal (G5-6).
+- Next: maintainer approval and commit; then T-54a Haiku raw read.
+- Not committed yet.
+
 ## 2026-11-14 (2) - Phase 5 plan by cto; DEC-064 to DEC-066
 
 - The maintainer: the kit is about to be published without evidence that it gives better work than a plain prompt. The maintainer asked for a CTO plan with a sandbox project in this repository: plain prompt against the kit, measuring tokens, time and result quality; and a test of the Haiku server gap.

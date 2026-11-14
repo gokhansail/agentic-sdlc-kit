@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-14
-Now: Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor-mini` re-verify ACCEPT, all 4 conditions closed); fix commits 4854cbd and ba0c63e pushed; G4 records committed and pushed (8c069c9); DEC-063 adds T-53, evidence from a non-game project, to phase 5; phase 5 plan by `cto` written (`cto/2026-11-14_phase5-plan.md`), DEC-064 to DEC-066 decided; T-49 next · repository private · code written, tests green
+Now: Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor-mini` re-verify ACCEPT, all 4 conditions closed); fix commits 4854cbd and ba0c63e pushed; G4 records committed and pushed (8c069c9); DEC-063 adds T-53, evidence from a non-game project, to phase 5; phase 5 plan by `cto` written (`cto/2026-11-14_phase5-plan.md`), DEC-064 to DEC-066 decided; T-49 done, waiting for approval; T-54a next · repository private · code written, tests green
 
 ## Phase
 
@@ -21,7 +21,7 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); not start
 
 ## Done
 
-- T-41 scope_check, contract, changed_outside, guard_events tools; 742 tests green; live run works.
+- T-49 session start hook: the kit introduces itself in opted-in projects; 438 tokens per session; 1088 tests green.
 - T-42 decision, lesson, finding, task and log tools; 10 tools in all; 868 tests green; live run works.
 - T-44 security pass: 17 findings, 3 High fixed, 0 High open, 2 Medium open in the guard (S-7, S-8); `docs/security.md`; 980 tests green.
 - T-44a guard match in bounded time: S-6, S-7, S-8 fixed, 0 security findings open; 992 tests green.
@@ -42,7 +42,7 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); not start
 
 ## Next
 
-- T-49 kit introduces itself through a SessionStart hook (DEC-064); probe first.
+- Maintainer approval and commit of T-49; then T-54a Haiku raw read.
 
 ## Repository
 

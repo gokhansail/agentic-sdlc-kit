@@ -6,6 +6,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 
 ### Added
 
+- Session start hook (T-49, DEC-064): `hooks/session/launcher.sh` prints `templates/seat.md` into the session context when `.sdlc/project.md` exists and nothing otherwise; `tests/test_session_hook.py`; `docs/toolchain.md` row V-17.
 - Document fixes (T-45c, G4 findings D-1, D-3, D-4, P-5): `docs/review-items.md` lists the 35 external review items with decision or task and status; the stale lines in `docs/toolchain.md`, `PLAYBOOK.md` and `docs/dogfood-1.md` corrected; an isolation limit in `docs/eval-results.md`; `CLAUDE.md` says the TL closes the contract when a task is approved.
 - Wrapper parity and guard options (T-45b, findings C-1 and C-2 of gate G4): 1 server test runs `guard_events` with a task and `scope_check` as `main` through the registered tools; `tools/scope_guard.py` prints the usage and exits 2 on an unknown option, reads no stdin and writes no event line.
 - Git config check in 2 more layouts (T-45a, finding S-1 of gate G4): `changed_outside` starts no program from a nested repository (git status runs with `--ignore-submodules=all`, also for `--check-worktree`) and refuses a root laid out as a git folder; `docs/security.md` row S-18 and the limits.
