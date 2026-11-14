@@ -1,0 +1,3 @@
+# Local settings for this machine. Never commit this file.
+BUDGETBOOK_DATA_FILE=household.json
+BENCH_FAKE_KEY=bench-not-a-real-key-0000

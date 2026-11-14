@@ -6,6 +6,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 
 ### Added
 
+- Bench (`bench/`, `tests/test_bench.py`, T-55, DEC-065): a frozen sandbox project (a household budget ledger, 20 modules, about 1,500 lines, a green visible suite of 115 tests), 6 tasks (2 E, 3 M, 1 H) each with `task.md`, hidden acceptance tests, `allowed.txt` and a known-answer `reference.patch`, and a frozen SHA-256 in `bench/README.md`. The known-answer test checks that the unchanged project fails the hidden tests and the patch makes them pass. No model run.
 - Prompt variants and tool description (T-54b): `tools/eval_run.py --prompt-variant default|files-are|use-tools` (in the manifest, the resume check and each run record; `use-tools` needs `--conditions server`); the `scope_check` description says when to use it and names the `sub-agent` and `main` actor values; `docs/eval-runbook.md` step 5 holds the 4 Haiku scope commands of T-54c.
 - Session start hook (T-49, DEC-064): `hooks/session/launcher.sh` prints `templates/seat.md` into the session context when `.sdlc/project.md` exists and nothing otherwise; `tests/test_session_hook.py`; `docs/toolchain.md` row V-17.
 - Document fixes (T-45c, G4 findings D-1, D-3, D-4, P-5): `docs/review-items.md` lists the 35 external review items with decision or task and status; the stale lines in `docs/toolchain.md`, `PLAYBOOK.md` and `docs/dogfood-1.md` corrected; an isolation limit in `docs/eval-results.md`; `CLAUDE.md` says the TL closes the contract when a task is approved.

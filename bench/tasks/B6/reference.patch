@@ -1,0 +1,183 @@
+diff --git a/.env.example b/.env.example
+new file mode 100644
+--- /dev/null
++++ b/.env.example
+@@ -0,0 +1,5 @@
++# Copy this file to .env and change what you need.
++# Variables set in the environment win over this file.
++BUDGETBOOK_CURRENCY=
++BUDGETBOOK_DATA_FILE=budgetbook.json
++BUDGETBOOK_DEFAULT_ACCOUNT=main
+diff --git a/budgetbook/cli.py b/budgetbook/cli.py
+--- a/budgetbook/cli.py
++++ b/budgetbook/cli.py
+@@ -63,12 +63,15 @@ def build_parser() -> argparse.ArgumentParser:
+     parser.add_argument("--data", help="ledger file (default: BUDGETBOOK_DATA_FILE or budgetbook.json)")
+     commands = parser.add_subparsers(dest="command", required=True)
+
++    config = commands.add_parser("config", help="show the effective settings")
++    config.set_defaults(handler=_cmd_config)
++
+     add = commands.add_parser("add", help="book a transaction")
+     add.add_argument("date", type=_date_arg)
+     add.add_argument("amount", type=_amount_arg, help="negative for an expense")
+     add.add_argument("category")
+     add.add_argument("description", nargs="?", default="")
+-    add.add_argument("--account", default="main")
++    add.add_argument("--account", help="account (default: BUDGETBOOK_DEFAULT_ACCOUNT or main)")
+     add.set_defaults(handler=_cmd_add)
+
+     lst = commands.add_parser("list", help="list transactions")
+@@ -168,9 +171,16 @@ def build_parser() -> argparse.ArgumentParser:
+ # -- handlers: each loads the ledger, does its work, saves when it changed something -------
+
+
++def _cmd_config(args: argparse.Namespace, path: str) -> int:
++    for name, value in args.settings.as_variables().items():
++        print(f"{name}={value}")
++    return 0
++
++
+ def _cmd_add(args: argparse.Namespace, path: str) -> int:
+     ledger = Ledger.load(path)
+-    tx = ledger.add(args.date, args.amount, args.category, args.description, args.account)
++    account = args.account or args.settings.default_account
++    tx = ledger.add(args.date, args.amount, args.category, args.description, account)
+     ledger.save(path)
+     print(f"Added {tx.id}: {tx.date.isoformat()} {format_amount(tx.amount)} {tx.category}")
+     return 0
+@@ -180,7 +190,7 @@ def _cmd_list(args: argparse.Namespace, path: str) -> int:
+     ledger = Ledger.load(path)
+     transactions = ledger.between(args.from_date, args.to_date)
+     transactions = select(transactions, category=args.category, account=args.account, text=args.search)
+-    print(render_transactions(transactions))
++    print(render_transactions(transactions, args.settings.currency))
+     return 0
+
+
+@@ -218,7 +228,7 @@ def _cmd_remove(args: argparse.Namespace, path: str) -> int:
+ def _cmd_report(args: argparse.Namespace, path: str) -> int:
+     ledger = Ledger.load(path)
+     year, month = args.month
+-    print(render_report(monthly_report(ledger, year, month)))
++    print(render_report(monthly_report(ledger, year, month), args.settings.currency))
+     return 0
+
+
+@@ -341,7 +351,8 @@ def _cmd_budget_remove(args: argparse.Namespace, path: str) -> int:
+ def main(argv: Sequence[str] | None = None) -> int:
+     parser = build_parser()
+     args = parser.parse_args(argv)
+-    path = args.data or load_settings().data_file
++    args.settings = load_settings()
++    path = args.data or args.settings.data_file
+     handler: Callable[[argparse.Namespace, str], int] = args.handler
+     try:
+         return handler(args, path)
+diff --git a/budgetbook/config.py b/budgetbook/config.py
+--- a/budgetbook/config.py
++++ b/budgetbook/config.py
+@@ -10,16 +10,30 @@ from typing import Mapping
+
+ ENV_PREFIX = "BUDGETBOOK_"
+ DEFAULT_DATA_FILE = "budgetbook.json"
++DEFAULT_ACCOUNT = "main"
+
+
+ @dataclass(frozen=True)
+ class Settings:
+     """The effective settings of one run.
+
+-    ``data_file`` is the path of the ledger file the commands read and write.
++    ``data_file`` is the path of the ledger file the commands read and write, ``currency``
++    a symbol put in front of amounts in ``list`` and ``report`` (empty: none) and
++    ``default_account`` the account ``add`` uses when none is given.
+     """
+
+     data_file: str = DEFAULT_DATA_FILE
++    currency: str = ""
++    default_account: str = DEFAULT_ACCOUNT
++
++    def as_variables(self) -> dict[str, str]:
++        """The settings under their variable names, sorted by name."""
++        values = {
++            ENV_PREFIX + "CURRENCY": self.currency,
++            ENV_PREFIX + "DATA_FILE": self.data_file,
++            ENV_PREFIX + "DEFAULT_ACCOUNT": self.default_account,
++        }
++        return dict(sorted(values.items()))
+
+
+ def parse_dotenv(text: str) -> dict[str, str]:
+@@ -58,4 +72,8 @@ def load_settings(
+     folder = Path(cwd) if cwd is not None else Path.cwd()
+     values = dict(read_dotenv(folder / ".env"))
+     values.update({name: value for name, value in environ.items() if name.startswith(ENV_PREFIX)})
+-    return Settings(data_file=values.get(ENV_PREFIX + "DATA_FILE", DEFAULT_DATA_FILE))
++    return Settings(
++        data_file=values.get(ENV_PREFIX + "DATA_FILE", DEFAULT_DATA_FILE),
++        currency=values.get(ENV_PREFIX + "CURRENCY", ""),
++        default_account=values.get(ENV_PREFIX + "DEFAULT_ACCOUNT", DEFAULT_ACCOUNT),
++    )
+diff --git a/budgetbook/rendering.py b/budgetbook/rendering.py
+--- a/budgetbook/rendering.py
++++ b/budgetbook/rendering.py
+@@ -16,6 +16,12 @@ from .textfmt import pad_left, pad_right, truncate
+ DESCRIPTION_WIDTH = 30
+
+
++def money(cents: int, currency: str = "") -> str:
++    """Format cents with the currency symbol after the sign: ``-$12.50``."""
++    sign = "-" if cents < 0 else ""
++    return f"{sign}{currency}{format_amount(abs(cents))}"
++
++
+ def format_table(
+     headers: Sequence[str], rows: Sequence[Sequence[str]], right: Sequence[int] = ()
+ ) -> list[str]:
+@@ -35,7 +41,7 @@ def format_table(
+     return [line(headers)] + [line(row) for row in rows]
+
+
+-def render_transactions(transactions: Sequence[Transaction]) -> str:
++def render_transactions(transactions: Sequence[Transaction], currency: str = "") -> str:
+     """The ``list`` output: a table and a ``Total:`` line, or ``No transactions.``"""
+     if not transactions:
+         return "No transactions."
+@@ -43,7 +49,7 @@ def render_transactions(transactions: Sequence[Transaction]) -> str:
+         [
+             str(tx.id),
+             tx.date.isoformat(),
+-            format_amount(tx.amount),
++            money(tx.amount, currency),
+             tx.account,
+             tx.category,
+             truncate(tx.description, DESCRIPTION_WIDTH),
+@@ -53,21 +59,21 @@ def render_transactions(transactions: Sequence[Transaction]) -> str:
+     lines = format_table(["ID", "Date", "Amount", "Account", "Category", "Description"], rows, right=(0, 2))
+     total = sum(tx.amount for tx in transactions)
+     noun = "transaction" if len(transactions) == 1 else "transactions"
+-    lines.append(f"Total: {format_amount(total)} ({len(transactions)} {noun})")
++    lines.append(f"Total: {money(total, currency)} ({len(transactions)} {noun})")
+     return "\n".join(lines)
+
+
+-def render_report(report: MonthlyReport) -> str:
++def render_report(report: MonthlyReport, currency: str = "") -> str:
+     lines = [
+         f"Report {month_label(report.year, report.month)}",
+-        f"Income: {format_amount(report.income)}",
+-        f"Expenses: {format_amount(report.expenses)}",
+-        f"Net: {format_amount(report.net)}",
++        f"Income: {money(report.income, currency)}",
++        f"Expenses: {money(report.expenses, currency)}",
++        f"Net: {money(report.net, currency)}",
+     ]
+     if report.by_category:
+         lines.append("By category:")
+         for category, total in report.by_category.items():
+-            lines.append(f"  {category}: {format_amount(total)}")
++            lines.append(f"  {category}: {money(total, currency)}")
+     return "\n".join(lines)
+
+

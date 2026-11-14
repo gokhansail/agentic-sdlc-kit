@@ -1,0 +1,21 @@
+diff --git a/budgetbook/categories.py b/budgetbook/categories.py
+--- a/budgetbook/categories.py
++++ b/budgetbook/categories.py
+@@ -13,13 +13,13 @@ SEPARATOR = "/"
+ def normalize_category(name: str) -> str:
+     """Return the canonical form of a category name.
+
+-    Lower case, runs of white space inside a name become one space, parts joined by ``/``.
++    Lower case; inside each part runs of white space become one space and the ends are trimmed,
++    so spaces around ``/`` do not matter; parts are joined by ``/``.
+     An empty name or an empty part (``food//x``, ``/food``) is rejected.
+     """
+-    cleaned = " ".join(name.lower().split())
+-    if not cleaned:
++    parts = [" ".join(part.split()) for part in name.lower().split(SEPARATOR)]
++    if parts == [""]:
+         raise CategoryError("category must not be empty")
+-    parts = cleaned.split(SEPARATOR)
+     if any(not part for part in parts):
+         raise CategoryError(f"category has an empty part: {name!r}")
+     return SEPARATOR.join(parts)

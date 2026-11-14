@@ -1,0 +1,9 @@
+[project]
+name = "budgetbook"
+version = "0.3.0"
+description = "A small household budget ledger with a command line interface."
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

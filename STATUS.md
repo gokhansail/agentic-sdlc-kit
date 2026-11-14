@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-14
-Now: Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor-mini` re-verify ACCEPT, all 4 conditions closed); fix commits 4854cbd and ba0c63e pushed; G4 records committed and pushed (8c069c9); DEC-063 adds T-53, evidence from a non-game project, to phase 5; phase 5 plan by `cto` written (`cto/2026-11-14_phase5-plan.md`), DEC-064 to DEC-066 decided; T-49 committed (d95e946); T-54a and T-54b done, waiting for approval; T-54c runs next · repository private · code written, tests green
+Now: Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor-mini` re-verify ACCEPT, all 4 conditions closed); fix commits 4854cbd and ba0c63e pushed; G4 records committed and pushed (8c069c9); DEC-063 adds T-53, evidence from a non-game project, to phase 5; phase 5 plan by `cto` written (`cto/2026-11-14_phase5-plan.md`), DEC-064 to DEC-066 decided; T-49 committed (d95e946); T-54a, T-54b, T-54c done and committed (0f1b0ff, f86de6b); T-55 bench sandbox and 6 tasks done and approved; next T-56 bench runner and probes · repository private · code written, tests green
 
 ## Phase
 
@@ -17,10 +17,12 @@ Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix r
 
 Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor` CONDITIONAL ACCEPT, fix round T-45a to T-45c, `auditor-mini` ACCEPT; `audits/`).
 
-Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); not started; bench of kit against plain prompt, 2 arms, 36 runs (DEC-065).
+Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55 done); bench of kit against plain prompt, 2 arms, 36 runs (DEC-065).
 
 ## Done
 
+- T-55 bench: sandbox budget ledger (20 modules, 1,511 lines, 115 visible tests) and 6 tasks with hidden tests and reference patches; 1127 tests green.
+- T-54c Haiku scope runs: either prompt variant 40 of 40 with the server; default prompt 32 of 40.
 - T-54a Haiku raw read: the server gap is 2 scope questions (Q02, Q07).
 - T-54b prompt variants and `scope_check` description; 1095 tests green.
 - T-49 session start hook: the kit introduces itself in opted-in projects; 438 tokens per session; 1088 tests green.
@@ -34,15 +36,11 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); not start
 - T-46g eval results text: narrow claim and 10 limits in `docs/eval-results.md`; runbook at 360 runs; committed and pushed (e045d94).
 - T-47 graded ceremony (DEC-058): `CLAUDE.md`, `PLAYBOOK.md`, decision template; 1065 tests green.
 - G0 leftover: a headless session in a clean clone without the local instruction file resumed from the records; DEC-060 keeps the own eval runner (review item 9).
-- T-45 G4 audit: CONDITIONAL ACCEPT (`audits/2026-11-11_gate4.md`); 1 High (S-1), 3 Medium, 10 Low; 1065 tests green here and in a fresh clone.
-- T-45a S-1 fix: git does not enter nested repositories; a root laid out as a git folder is refused; security row S-18; 1074 tests green; pushed (4854cbd).
-- T-45b G4 findings C-1 and C-2 (developer): 1082 tests passed, 6 skipped (TL run); pushed (ba0c63e).
-- T-45c G4 documentation items D-1, D-3 items 1 to 3 (item 4 open), D-4 and P-5 (tech-writer, 2 review rounds); live token run in the maintainer's terminal with and without the server: 221 tokens added per session on the plugin path (G4-4, G4-10, DEC-062); pushed (ba0c63e).
-- T-45 re-verify (`auditor-mini`): ACCEPT; the 4 G4 conditions closed; 12 of 15 items closed, 1 partly, 2 open (`audits/2026-11-13_gate4-reverify.md`).
 
 ## Next
 
-- Maintainer approval and commit of T-54a and T-54b; then T-54c runs in the maintainer's terminal.
+- T-56 bench runner and probes.
+- T-53 Project C trial, once the maintainer names Project C (DEC-067 cited in TASKS.md but not written).
 
 ## Repository
 
@@ -57,4 +55,5 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); not start
 - Public git history (review item 32) waits for G5.
 - R-1 rule question and the 2 lines in `.sdlc/project.md` wait for the maintainer.
 - CTO Q4 scoring rule waits for the pre-registration; Q5 server without the SDK waits for T-51.
+- DEC-067 (Project C choice) is cited in TASKS.md but missing from DECISIONS.md; asked again.
 - Bare-word candidate (Low, not triaged): `check-worktree` without dashes still falls to the guard's hook mode and writes 1 event line.

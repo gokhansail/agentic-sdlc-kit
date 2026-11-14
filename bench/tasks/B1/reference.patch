@@ -1,0 +1,12 @@
+diff --git a/budgetbook/ledger.py b/budgetbook/ledger.py
+--- a/budgetbook/ledger.py
++++ b/budgetbook/ledger.py
+@@ -97,7 +97,7 @@ class Ledger:
+         return [
+             tx
+             for tx in self.all()
+-            if (start is None or tx.date >= start) and (end is None or tx.date < end)
++            if (start is None or tx.date >= start) and (end is None or tx.date <= end)
+         ]
+
+     def in_month(self, year: int, month: int) -> list[Transaction]:

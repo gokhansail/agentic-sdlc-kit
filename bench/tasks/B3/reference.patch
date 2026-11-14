@@ -1,0 +1,132 @@
+diff --git a/budgetbook/budgets.py b/budgetbook/budgets.py
+--- a/budgetbook/budgets.py
++++ b/budgetbook/budgets.py
+@@ -1,9 +1,14 @@
+ """Monthly budgets per category. The limits live in ``Ledger.budgets`` (category to cents)."""
+ from __future__ import annotations
+
+-from .categories import normalize_category
++from dataclasses import dataclass
++
++from .categories import is_within, normalize_category
+ from .errors import AmountError, NotFoundError
+ from .ledger import Ledger
++from .money import round_half_up_div
++
++WARN_TENTHS = 800  # 80.0 percent
+
+
+ def set_budget(ledger: Ledger, category: str, limit: int) -> str:
+@@ -29,3 +34,46 @@ def remove_budget(ledger: Ledger, category: str) -> None:
+ def all_budgets(ledger: Ledger) -> list[tuple[str, int]]:
+     """Every budget as ``(category, limit)``, ordered by category name."""
+     return sorted(ledger.budgets.items())
++
++
++@dataclass(frozen=True)
++class BudgetStatus:
++    category: str
++    spent: int
++    limit: int
++    percent_tenths: int  # spent as a percentage of the limit, in tenths of a percent
++    status: str  # OK, WARN or OVER
++
++
++def spent_in_month(ledger: Ledger, category: str, year: int, month: int) -> int:
++    """Net expenses of a category and the categories below it in a month, never below zero.
++
++    Refunds in the category reduce the amount.
++    """
++    name = normalize_category(category)
++    total = sum(
++        tx.amount
++        for tx in ledger.in_month(year, month)
++        if is_within(normalize_category(tx.category), name)
++    )
++    return max(-total, 0)
++
++
++def budget_statuses(ledger: Ledger, year: int, month: int) -> list[BudgetStatus]:
++    """One status per budget, ordered by category name.
++
++    The percentage is rounded to one decimal, halves up. OVER means more than the limit was
++    spent; WARN means the rounded percentage is 80.0 or more.
++    """
++    statuses = []
++    for category, limit in all_budgets(ledger):
++        spent = spent_in_month(ledger, category, year, month)
++        tenths = round_half_up_div(spent * 1000, limit)
++        if spent > limit:
++            status = "OVER"
++        elif tenths >= WARN_TENTHS:
++            status = "WARN"
++        else:
++            status = "OK"
++        statuses.append(BudgetStatus(category, spent, limit, tenths, status))
++    return statuses
+diff --git a/budgetbook/cli.py b/budgetbook/cli.py
+--- a/budgetbook/cli.py
++++ b/budgetbook/cli.py
+@@ -11,6 +11,7 @@ import sys
+ from typing import Callable, Sequence
+
+ from . import budgets as budget_ops
++from .budgets import budget_statuses
+ from . import installments
+ from .accounts import balances
+ from .config import load_settings
+@@ -25,6 +26,7 @@ from .recurring import forecast
+ from .rendering import (
+     render_balances,
+     render_budget_list,
++    render_budget_status,
+     render_comparison,
+     render_forecast,
+     render_report,
+@@ -94,6 +96,7 @@ def build_parser() -> argparse.ArgumentParser:
+
+     report = commands.add_parser("report", help="monthly report")
+     report.add_argument("month", type=_month_arg, help="YYYY-MM")
++    report.add_argument("--budgets", action="store_true", help="add a check of the budgets")
+     report.set_defaults(handler=_cmd_report)
+
+     summary = commands.add_parser("summary", help="income and expenses for each month of a year")
+@@ -219,6 +222,8 @@ def _cmd_report(args: argparse.Namespace, path: str) -> int:
+     ledger = Ledger.load(path)
+     year, month = args.month
+     print(render_report(monthly_report(ledger, year, month)))
++    if args.budgets:
++        print(render_budget_status(budget_statuses(ledger, year, month)))
+     return 0
+
+
+diff --git a/budgetbook/rendering.py b/budgetbook/rendering.py
+--- a/budgetbook/rendering.py
++++ b/budgetbook/rendering.py
+@@ -4,6 +4,7 @@ from __future__ import annotations
+ import calendar
+ from typing import Sequence
+
++from .budgets import BudgetStatus
+ from .dates import month_label
+ from .models import Transaction
+ from .money import format_amount
+@@ -100,6 +101,18 @@ def render_budget_list(budgets: Sequence[tuple[str, int]]) -> str:
+     return "\n".join(format_table(["Category", "Monthly limit"], rows, right=(1,)))
+
+
++def render_budget_status(statuses: Sequence[BudgetStatus]) -> str:
++    if not statuses:
++        return "No budgets set."
++    lines = ["Budgets:"]
++    for item in statuses:
++        whole, tenth = divmod(item.percent_tenths, 10)
++        lines.append(
++            f"{item.category} {format_amount(item.spent)} {format_amount(item.limit)} {whole}.{tenth}% {item.status}"
++        )
++    return "\n".join(lines)
++
++
+ def render_top(ranked: Sequence[tuple[str, int]]) -> str:
+     if not ranked:
+         return "No expenses."

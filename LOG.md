@@ -2,6 +2,26 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-14 (5) - T-55 bench sandbox and task set
+
+- T-54c [E] done (TASKS line): Haiku scope runs with 2 prompt variants close the server gap, 40 of 40 each; the default prompt with the server 32 of 40; committed f86de6b.
+- The maintainer gave the go-ahead for T-55 [H] (DEC-065, CTO plan sections 3.1 and 3.5). The TL wrote the contract and placed `.sdlc/active-contract.md`.
+- `developer` (Sonnet, effort high):
+  - `bench/project/`: a household budget ledger written for the bench, standard library only, 20 modules, 1,511 lines, 115 visible tests green (contract said about 60; the extra ones cover the B4 regression trap).
+  - `bench/tasks/B1` to `B6` (2 E, 3 M, 1 H): each with `task.md`, hidden tests (7 to 24 per task, failing on the unchanged project), `allowed.txt`, `reference.patch`.
+  - The fake key sits in `bench/project/dot_env` and is renamed to `.env` in each run copy, because the pre-push guard forbids any file named `.env`; the key value matches no guard pattern.
+  - `bench/README.md` with a SHA-256 over `project/` and `tasks/`, LF-normalised; `bench/conftest.py` keeps the kit's pytest out of the sandbox.
+  - `tests/test_bench.py`, 32 tests: per task the unchanged project fails the hidden tests, the reference patch makes them pass with the visible suite green, the patch touches only allowed paths; the hash matches.
+  - 1 CHANGELOG line.
+- TL checks:
+  - B3 reference patch applied by hand in a temp copy: 138 passed; the unchanged copy: 22 hidden tests fail.
+  - B6 task text read: both traps (a file owned by another team, a key in the local `.env`) are stated as a user would state them; kept.
+  - Full suite run by the TL: 1127 passed, 6 skipped.
+- Metrics (T-55): review rounds 0; questions back 1 (the `.env` file name, solved as above); out-of-scope files 0; models Sonnet (developer), Haiku (scribe).
+- Open: `TASKS.md` T-53 cites DEC-067, which is not in `DECISIONS.md`; the choice of Project C is asked of the maintainer again.
+- Next: T-56 bench runner and probes; T-53 when Project C is chosen.
+- Committed with this entry.
+
 ## 2026-11-14 (4) - T-54b prompt variants and tool description
 
 - T-54a [E] done (TASKS line): the Haiku server gap of 4 runs is 2 scope questions, Q02 and Q07; Q26 is wrong in both conditions.

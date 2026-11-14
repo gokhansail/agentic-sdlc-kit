@@ -1,0 +1,41 @@
+diff --git a/budgetbook/cli.py b/budgetbook/cli.py
+--- a/budgetbook/cli.py
++++ b/budgetbook/cli.py
+@@ -58,6 +58,16 @@ def _amount_arg(text: str) -> int:
+         raise argparse.ArgumentTypeError(str(exc)) from None
+
+
++def _limit_arg(text: str) -> int:
++    try:
++        value = int(text)
++    except ValueError:
++        raise argparse.ArgumentTypeError(f"not a whole number: {text!r}") from None
++    if value < 1:
++        raise argparse.ArgumentTypeError("must be 1 or more")
++    return value
++
++
+ def build_parser() -> argparse.ArgumentParser:
+     parser = argparse.ArgumentParser(prog="budgetbook", description="A small household budget ledger.")
+     parser.add_argument("--data", help="ledger file (default: BUDGETBOOK_DATA_FILE or budgetbook.json)")
+@@ -77,6 +87,7 @@ def build_parser() -> argparse.ArgumentParser:
+     lst.add_argument("--category", help="a category and everything below it")
+     lst.add_argument("--account")
+     lst.add_argument("--search", help="text in description or category")
++    lst.add_argument("--limit", type=_limit_arg, help="show only the latest N rows")
+     lst.set_defaults(handler=_cmd_list)
+
+     edit = commands.add_parser("edit", help="change fields of a transaction")
+@@ -180,7 +191,12 @@ def _cmd_list(args: argparse.Namespace, path: str) -> int:
+     ledger = Ledger.load(path)
+     transactions = ledger.between(args.from_date, args.to_date)
+     transactions = select(transactions, category=args.category, account=args.account, text=args.search)
++    matched = len(transactions)
++    if args.limit is not None:
++        transactions = transactions[-args.limit:]
+     print(render_transactions(transactions))
++    if len(transactions) < matched:
++        print(f"Showing {len(transactions)} of {matched}")
+     return 0
+
+

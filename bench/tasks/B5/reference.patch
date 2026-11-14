@@ -1,0 +1,144 @@
+diff --git a/budgetbook/ledger.py b/budgetbook/ledger.py
+--- a/budgetbook/ledger.py
++++ b/budgetbook/ledger.py
+@@ -2,20 +2,20 @@
+ from __future__ import annotations
+
+ import datetime as dt
+-import json
+-import os
+ from pathlib import Path
+
+ from .categories import normalize_category
+ from .dates import month_bounds
+ from .errors import LedgerFileError, NotFoundError
+ from .models import RecurringItem, Transaction
++from .storage import JsonFileStorage, Storage
+
+ FORMAT_VERSION = 1
+
+
+ class Ledger:
+-    """In-memory ledger. ``save`` and ``load`` use one JSON file."""
++    """In-memory ledger. ``load`` and ``save`` use one JSON file; ``from_storage`` and
++    ``save_to`` work with any ``Storage``."""
+
+     def __init__(self) -> None:
+         self._transactions: dict[int, Transaction] = {}
+@@ -136,28 +136,19 @@ class Ledger:
+         return ledger
+
+     @classmethod
+-    def load(cls, path: str | os.PathLike) -> "Ledger":
++    def from_storage(cls, storage: Storage) -> "Ledger":
++        """Read a ledger from a storage. A storage with nothing in it is an empty ledger."""
++        data = storage.load()
++        return cls() if data is None else cls.from_dict(data)
++
++    def save_to(self, storage: Storage) -> None:
++        storage.save(self.to_dict())
++
++    @classmethod
++    def load(cls, path: str | Path) -> "Ledger":
+         """Read a ledger file. A file that does not exist yet is an empty ledger."""
+-        path = Path(path)
+-        if not path.exists():
+-            return cls()
+-        try:
+-            data = json.loads(path.read_text(encoding="utf-8"))
+-        except json.JSONDecodeError as exc:
+-            raise LedgerFileError(f"{path}: not valid JSON ({exc.msg})") from exc
+-        if not isinstance(data, dict):
+-            raise LedgerFileError(f"{path}: expected a JSON object")
+-        return cls.from_dict(data)
+-
+-    def save(self, path: str | os.PathLike) -> None:
++        return cls.from_storage(JsonFileStorage(path))
++
++    def save(self, path: str | Path) -> None:
+         """Write the ledger file. The old file stays intact if the write fails."""
+-        path = Path(path)
+-        payload = json.dumps(self.to_dict(), indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+-        path.parent.mkdir(parents=True, exist_ok=True)
+-        tmp = path.with_name(path.name + ".tmp")
+-        try:
+-            tmp.write_text(payload, encoding="utf-8", newline="\n")
+-            os.replace(tmp, path)
+-        except BaseException:
+-            tmp.unlink(missing_ok=True)
+-            raise
++        self.save_to(JsonFileStorage(path))
+diff --git a/budgetbook/storage.py b/budgetbook/storage.py
+new file mode 100644
+--- /dev/null
++++ b/budgetbook/storage.py
+@@ -0,0 +1,69 @@
++"""Where the data of a ledger is kept.
++
++A ledger turns itself into a plain dict (``Ledger.to_dict``) and hands it to a ``Storage``;
++it gets the dict back from ``load``. ``JsonFileStorage`` is the file used by the command
++line; ``MemoryStorage`` keeps the data in the process, for tests and short-lived tools.
++"""
++from __future__ import annotations
++
++import copy
++import json
++import os
++from abc import ABC, abstractmethod
++from pathlib import Path
++
++from .errors import LedgerFileError
++
++
++class Storage(ABC):
++    """Reads and writes the data dict of one ledger."""
++
++    @abstractmethod
++    def load(self) -> dict | None:
++        """The stored data, or None when nothing is stored yet."""
++
++    @abstractmethod
++    def save(self, data: dict) -> None:
++        """Store the data, replacing what was stored before."""
++
++
++class MemoryStorage(Storage):
++    """Keeps a copy of the data in memory; nothing leaks in or out by reference."""
++
++    def __init__(self) -> None:
++        self._data: dict | None = None
++
++    def load(self) -> dict | None:
++        return None if self._data is None else copy.deepcopy(self._data)
++
++    def save(self, data: dict) -> None:
++        self._data = copy.deepcopy(data)
++
++
++class JsonFileStorage(Storage):
++    """One JSON file. The write is atomic: the old file stays intact if it fails."""
++
++    def __init__(self, path: str | os.PathLike) -> None:
++        self.path = Path(path)
++
++    def load(self) -> dict | None:
++        if not self.path.exists():
++            return None
++        try:
++            data = json.loads(self.path.read_text(encoding="utf-8"))
++        except json.JSONDecodeError as exc:
++            raise LedgerFileError(f"{self.path}: not valid JSON ({exc.msg})") from exc
++        if not isinstance(data, dict):
++            raise LedgerFileError(f"{self.path}: expected a JSON object")
++        return data
++
++    def save(self, data: dict) -> None:
++        payload = json.dumps(data, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
++        self.path.parent.mkdir(parents=True, exist_ok=True)
++        tmp = self.path.with_name(self.path.name + ".tmp")
++        try:
++            tmp.write_text(payload, encoding="utf-8", newline="\n")
++            os.replace(tmp, self.path)
++        except BaseException:
++            tmp.unlink(missing_ok=True)
++            raise
