@@ -1,0 +1,232 @@
+{
+  "schema": 1,
+  "label": "smoke-1",
+  "date": "2026-11-14",
+  "cli_version": "2.1.319 (Claude Code)",
+  "bench_sha256": "113493b1602a49057bf3b76ea69b494238ef6a63d6ef88c4c1af22c697d66aaf",
+  "runner_sha256": "b15846f7490b6ab035956b3fa5f37fa808dbae7ee1a907549320f6a3465a4c84",
+  "kit_commit": "1da7ea450cfc67df0292dd81ec59ad8db4d9093e",
+  "kit_dirty": true,
+  "agent_models_before": {
+    "fable": 1,
+    "haiku": 2,
+    "opus": 2,
+    "sonnet": 2
+  },
+  "task_ids": [
+    "B1"
+  ],
+  "repeats": 1,
+  "settings": {
+    "model": "sonnet",
+    "max_turns": 60,
+    "max_run_usd": 0.7,
+    "timeout_s": 1500,
+    "idle_s": 60,
+    "setting_sources": "project,local",
+    "tools_plain": "Read,Write,Edit,Bash,Glob,Grep",
+    "tools_kit": "Read,Write,Edit,Bash,Glob,Grep,Task,mcp__plugin_sdlc_sdlc__status,mcp__plugin_sdlc_sdlc__scope_check,mcp__plugin_sdlc_sdlc__contract,mcp__plugin_sdlc_sdlc__changed_outside,mcp__plugin_sdlc_sdlc__guard_events,mcp__plugin_sdlc_sdlc__decisions,mcp__plugin_sdlc_sdlc__lessons,mcp__plugin_sdlc_sdlc__findings,mcp__plugin_sdlc_sdlc__tasks,mcp__plugin_sdlc_sdlc__log",
+    "seed": 0,
+    "subagent_model_env": "sonnet"
+  },
+  "planned_runs": 2,
+  "done_runs": 1,
+  "complete": false,
+  "records": 1,
+  "reruns": 0,
+  "stopped": "mcp",
+  "budget_usd": 1.5,
+  "spent_usd": 0.179173,
+  "arms": {
+    "plain": {
+      "runs": 0,
+      "full_pass": 0,
+      "hidden_passed": 0,
+      "hidden_total": 0,
+      "visible_ok": 0,
+      "out_of_scope_files": 0,
+      "runs_with_out_of_scope": 0,
+      "kit_layer_files": 0,
+      "kit_record_files": 0,
+      "hidden_reads": 0,
+      "turns": 0,
+      "turns_per_run": 0.0,
+      "cost_usd": 0,
+      "cost_usd_per_run": 0.0,
+      "wall_s": 0,
+      "wall_s_per_run": 0.0,
+      "input_tokens": 0,
+      "cache_read_tokens": 0,
+      "cache_creation_tokens": 0,
+      "output_tokens": 0,
+      "subagents_spawned": 0,
+      "runs_with_subagents": 0,
+      "subagents_by_type": {},
+      "plugin_tool_calls": 0,
+      "tool_calls_main": {},
+      "tool_calls_sub": {},
+      "permission_denials": 0,
+      "guard_allow": 0,
+      "guard_deny": 0,
+      "model_usage_keys": [],
+      "errors": 0,
+      "error_labels": {},
+      "ended_by": {},
+      "outcomes": {}
+    },
+    "kit": {
+      "runs": 1,
+      "full_pass": 1,
+      "hidden_passed": 7,
+      "hidden_total": 7,
+      "visible_ok": 1,
+      "out_of_scope_files": 0,
+      "runs_with_out_of_scope": 0,
+      "kit_layer_files": 2,
+      "kit_record_files": 0,
+      "hidden_reads": 0,
+      "turns": 11,
+      "turns_per_run": 11.0,
+      "cost_usd": 0.179173,
+      "cost_usd_per_run": 0.179173,
+      "wall_s": 55.0,
+      "wall_s_per_run": 55.0,
+      "input_tokens": 26,
+      "cache_read_tokens": 204171,
+      "cache_creation_tokens": 36090,
+      "output_tokens": 4447,
+      "subagents_spawned": 1,
+      "runs_with_subagents": 1,
+      "subagents_by_type": {
+        "sdlc:developer": 1
+      },
+      "plugin_tool_calls": 0,
+      "tool_calls_main": {
+        "Agent": 1,
+        "Bash": 1,
+        "Edit": 1,
+        "Grep": 3,
+        "Read": 2,
+        "Write": 1
+      },
+      "tool_calls_sub": {
+        "Bash": 1,
+        "Edit": 2,
+        "Read": 3
+      },
+      "permission_denials": 1,
+      "guard_allow": 3,
+      "guard_deny": 1,
+      "model_usage_keys": [
+        "claude-sonnet-5-5"
+      ],
+      "errors": 1,
+      "error_labels": {
+        "mcp_not_connected": 1
+      },
+      "ended_by": {
+        "exit": 1
+      },
+      "outcomes": {
+        "completed": 1
+      }
+    }
+  },
+  "tasks": {
+    "B1": {
+      "plain": {
+        "runs": 0,
+        "full_pass": 0,
+        "hidden_passed": 0,
+        "hidden_total": 0,
+        "visible_ok": 0,
+        "out_of_scope_files": 0,
+        "runs_with_out_of_scope": 0,
+        "kit_layer_files": 0,
+        "kit_record_files": 0,
+        "hidden_reads": 0,
+        "turns": 0,
+        "turns_per_run": 0.0,
+        "cost_usd": 0,
+        "cost_usd_per_run": 0.0,
+        "wall_s": 0,
+        "wall_s_per_run": 0.0,
+        "input_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_creation_tokens": 0,
+        "output_tokens": 0,
+        "subagents_spawned": 0,
+        "runs_with_subagents": 0,
+        "subagents_by_type": {},
+        "plugin_tool_calls": 0,
+        "tool_calls_main": {},
+        "tool_calls_sub": {},
+        "permission_denials": 0,
+        "guard_allow": 0,
+        "guard_deny": 0,
+        "model_usage_keys": [],
+        "errors": 0,
+        "error_labels": {},
+        "ended_by": {},
+        "outcomes": {}
+      },
+      "kit": {
+        "runs": 1,
+        "full_pass": 1,
+        "hidden_passed": 7,
+        "hidden_total": 7,
+        "visible_ok": 1,
+        "out_of_scope_files": 0,
+        "runs_with_out_of_scope": 0,
+        "kit_layer_files": 2,
+        "kit_record_files": 0,
+        "hidden_reads": 0,
+        "turns": 11,
+        "turns_per_run": 11.0,
+        "cost_usd": 0.179173,
+        "cost_usd_per_run": 0.179173,
+        "wall_s": 55.0,
+        "wall_s_per_run": 55.0,
+        "input_tokens": 26,
+        "cache_read_tokens": 204171,
+        "cache_creation_tokens": 36090,
+        "output_tokens": 4447,
+        "subagents_spawned": 1,
+        "runs_with_subagents": 1,
+        "subagents_by_type": {
+          "sdlc:developer": 1
+        },
+        "plugin_tool_calls": 0,
+        "tool_calls_main": {
+          "Agent": 1,
+          "Bash": 1,
+          "Edit": 1,
+          "Grep": 3,
+          "Read": 2,
+          "Write": 1
+        },
+        "tool_calls_sub": {
+          "Bash": 1,
+          "Edit": 2,
+          "Read": 3
+        },
+        "permission_denials": 1,
+        "guard_allow": 3,
+        "guard_deny": 1,
+        "model_usage_keys": [
+          "claude-sonnet-5-5"
+        ],
+        "errors": 1,
+        "error_labels": {
+          "mcp_not_connected": 1
+        },
+        "ended_by": {
+          "exit": 1
+        },
+        "outcomes": {
+          "completed": 1
+        }
+      }
+    }
+  }
+}

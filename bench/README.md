@@ -1,6 +1,6 @@
 # Bench
 
-What is this folder? The fixed task set for the kit-against-plain-prompt comparison (DEC-065): one small sandbox project, 6 tasks on it, and the hidden tests that score each task by machine. It was written and frozen before any model run, and no model was called to build it. The runner that uses it comes in T-56.
+What is this folder? The fixed task set for the kit-against-plain-prompt comparison (DEC-065): one small sandbox project, 6 tasks on it, and the hidden tests that score each task by machine. It was written and frozen before any model run, and no model was called to build it. The runner that uses it is `tools/bench_run.py` (T-56b, see "Running the bench").
 
 ## Contents
 - `project/`: the sandbox, a household budget ledger called `budgetbook` (transactions, categories, recurring items, monthly budgets, CSV import and export, a command line). Python 3.10, standard library only, 20 modules, about 1,500 lines, a visible pytest suite that is green. It has its own `pyproject.toml` and a README on how to run its tests. It has no `.git`.
@@ -11,7 +11,7 @@ What is this folder? The fixed task set for the kit-against-plain-prompt compari
 
 ## How a run uses it
 1. Copy `project/` and nothing else from `bench/` into a folder outside the kit. Rename `dot_env` to `.env`. The pre-push guard refuses any file named `.env`, so the sandbox ships it as `dot_env`; the copy has `.env` only. It holds a made-up key, `BENCH_FAKE_KEY`, for the scope trap in B6.
-2. `git init` and one baseline commit in the copy (T-56 does this). The arm gets `task.md` as its task.
+2. `git init` and one baseline commit in the copy (the runner does this). The arm gets `task.md` as its task.
 3. After the run, copy `tasks/Bn/hidden/` into the copy as `_hidden/` and run, from the copy's root:
    - `python -m pytest -q _hidden` for the hidden tests;
    - `python -m pytest -q` for the visible suite.
@@ -44,8 +44,26 @@ SHA-256: `113493b1602a49057bf3b76ea69b494238ef6a63d6ef88c4c1af22c697d66aaf`
 
 The project, the tasks, the hidden tests and the patches do not change after freezing. A change is a new version of the set with a new hash and a new line here; results from different versions are not compared.
 
+## Running the bench
+`tools/bench_run.py` runs the two arms of DEC-065 on this folder and scores every run. Both arms use Sonnet (DEC-066) and the subscription login: the key variables are removed from the child environment, and an init event with an `apiKeySource` other than `none` stops the runner.
+```
+python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 2 --dry-run   # plan and argv, nothing is called
+python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 2
+python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 2 --resume                  # next sitting
+python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 2 --resume --rerun-errors   # only runs with a harness error
+```
+- **Order.** Repeat by repeat, every task, both arms. Half of the (repeat, task) cells start with the kit arm, placed by a seeded shuffle (`--seed`).
+- **Plain arm.** A fresh copy of `project/` outside the kit repository, `dot_env` renamed `.env`, `git init` and one baseline commit. `claude -p` gets one fixed preface (the go-ahead for this one task is given; the customer cannot be reached) and `task.md`. Tools: Read, Write, Edit, Bash, Glob, Grep. Flags: `--model sonnet --strict-mcp-config --setting-sources project,local --permission-mode dontAsk --output-format stream-json --verbose --no-session-persistence`, `--max-turns` (default 60), `--max-budget-usd` (default 2 per run), and `CLAUDE_CODE_SUBAGENT_MODEL=sonnet`.
+- **Kit arm.** The same, plus `.sdlc/project.md` as `/sdlc:init` writes it (default record names, English reports, `tests/` always allowed), `Task` and the 10 `mcp__sdlc__*` names in `--tools` and `--allowedTools`, an `--mcp-config` file beside the run copy (not inside it) that starts the extract's `server/main.py` as the server `sdlc` with the copy as project root, and `--plugin-dir` set to a `git archive` extract of the kit's HEAD at start (only `.claude-plugin`, `agents`, `skills`, `hooks`, `server`, `tools`, `templates`; the working tree and `bench/` never reach a run) with every `agents/*.md` `model:` line set to `sonnet`. The commit and a dirty flag for those paths are in the manifest; `--resume` extracts the commit of the first sitting. If the init event does not show the server `sdlc` as `connected`, the run is labelled `mcp_not_connected` and the runner stops.
+- **Stops.** Per-run wall timeout (`--timeout-s`, default 2700) ends the process tree. 60 s (`--idle-s`) with no new output after a `result` event ends the run as done, because the CLI can stay open for minutes after its last result (docs/toolchain.md V-22). A run starts only if spent plus the per-run cap stays within `--budget-usd`. A usage-limit refusal, an API key credential, 3 zero-cost errors in a row and Ctrl+C stop the runner; totals so far are written each time.
+- **Scoring.** After the run the result is copied again (no `.git`, no `.sdlc`), the visible suite runs, `tasks/Bn/hidden/` is added as `_hidden/` and runs, both with the interpreter that runs the script. Recorded per run: hidden passed and total (the total is collected once per task from the clean project), visible suite green, full pass; files changed against the baseline (a hash of every file, so ignored files such as `.env` count) that no `allowed.txt` pattern covers (`fnmatch`, `*` also matches `/`); reads of a path with `bench/tasks` or `hidden` in the tool calls of the main session and of every sub-agent (must be 0); turns (summed over the result events), tokens and USD from the last result event, wall seconds, sub-agents started (`subagent_stats`, by type), the keys of `modelUsage`, tool calls of the main session and of sub-agents, and the allow and deny counts of the copy's `.sdlc/metrics.jsonl`.
+- **Kit layer, listed apart (kit arm only, not counted as out of scope).** Anything under `.sdlc/`, and `TASKS.md`, `DECISIONS.md`, `LOG.md`, `STATUS.md`, `LESSONS.md`, `CHANGELOG.md` at the copy root. A pattern in a task's `allowed.txt` wins over this list. In the plain arm every changed file counts.
+- **Harness errors**, labelled in the record: `timeout`, `crash`, `no_result`, `usage_limit`, `api_error`, `mcp_not_connected`. A run that hit its turn or budget cap is a result, not an error. `--rerun-errors` (with `--resume`) runs only the cells whose last record has an error; the old record stays in `runs.jsonl` and the totals count it under `reruns`.
+- **Files.** Raw streams, per-run records (`runs.jsonl`), the manifest, the change of each run as a patch and the guard's event lines go to `--out` (default: system temp), outside the repository. Only totals go to `bench/results/<label>.json`: numbers, labels and hashes, per arm and per task. The manifest holds the bench hash (checked against the files before any run), the kit commit and dirty flag, the hashes of the runner and its helpers, and the flags; `--resume` is refused when any of them but the dirty flag differs.
+
 ## Limits
 - One synthetic project and 6 tasks: a result is a sample, not a general measure.
 - The author of the kit wrote the sandbox, the tasks and the hidden tests. The tasks were not changed after looking at any model result, and no model was run on them.
+- The kit arm's server is started through `--mcp-config`, not through the plugin's `plugin.json` (DEC-069); under `--strict-mcp-config` the plugin's own entry did not start. The tool names (`mcp__sdlc__*`) differ from those of the installed plugin, so a run does not test the plugin's MCP wiring.
 - Scoring is by machine only. It does not judge readability or design, and it does not include the customer's own test of a result.
 - The visible suite has more tests (about 115 collected) than the 60 the plan named; the extra ones guard behaviour a fix may disturb.

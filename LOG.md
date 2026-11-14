@@ -2,6 +2,34 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-15 (1) - T-56b bench runner
+
+- The maintainer gave the go-ahead for T-56b [H]. The TL wrote the contract and placed `.sdlc/active-contract.md`.
+- `developer` (Sonnet, high), round 1:
+  - `tools/bench_run.py`, `tests/test_bench_run.py`, fixtures, a run section in `bench/README.md`, row V-23 in `docs/toolchain.md`, 1 CHANGELOG line.
+  - Smoke `smoke-1` (B1) ran only the kit arm and stopped. Under `--strict-mcp-config` the plugin's MCP server did not start: the init event shows an empty `mcp_servers` list. The TL checked the raw init event. The developer stopped as the contract said.
+- DEC-069: the maintainer chose option a. The kit arm keeps `--strict-mcp-config` and gets the server through `--mcp-config`. Tools are named `mcp__sdlc__*`. The limit is stated in `bench/README.md`.
+- `developer`, round 2:
+  - Runner 1172 lines, 58 tests.
+  - `smoke-2` (B1), 1 run per arm, 0.34 of 1.0 USD:
+    - plain: 4 turns, 0.038 USD, 11 s, 7 of 7 hidden tests pass.
+    - kit: 16 turns, 0.305 USD, 115 s, 7 of 7 pass; 2 `sdlc:developer` starts; 4 server tool calls; guard 4 allow, 3 deny.
+  - The sub-agent started before the main session's contract parsed. 2 sub-agent edits were denied as `broken`, then allowed.
+  - Out-of-scope files 0 and hidden-test reads 0 in both arms.
+  - One run per arm. This is not a comparison.
+- Rule break: the developer made its first edits through Bash and `sed`, not Write or Edit (DEV_RULES rule 5). The scope guard may not have seen them. Content was checked by diff and tests.
+- TL checks:
+  - Raw init events read.
+  - `smoke-2` totals read.
+  - No local paths in `bench/results/*.json`.
+  - MCP config code, argv and stop logic read.
+  - Full suite run by the TL: 1189 passed, 6 skipped.
+- Found in `smoke-2`: `templates/seat.md` has no line on task size, so the kit delegates a one-line fix with a full contract. The graded ceremony (DEC-058) is not in the plugin. Open with the maintainer.
+- Metrics (T-56b): review rounds 0; questions back 1 (server flag); out-of-scope files 0; models Sonnet (developer), Haiku (scribe). Smoke spend 0.18 + 0.34 = 0.52 USD.
+- T-59 proposed by the maintainer on 2026-11-15: one large bench task (the size of rebuilding a whole page or screen). 5 questions for `cto` in TASKS.md; `auditor-mini` checks before the pre-registration.
+- Next: `cto` on T-59 and the seat size rule; then pilot and pre-registration; T-53 once Project C is named.
+- Committed with this entry.
+
 ## 2026-11-14 (7) - T-58 guard deny text for the main session
 
 - DEC-068: the maintainer chose to fix the defect before the bench. The TL wrote the T-58 contract.

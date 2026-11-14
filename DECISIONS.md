@@ -557,3 +557,12 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: b) would measure a known message defect, not the method; c) gives the two arms different text.
 - Consequences: T-58 before T-56b. The fix is general, not tuned to B1; the bench limits state that the defect was found by a probe. The 4 probe runs stay excluded from scoring. The sub-agent questions of T-56a stay open until a probe starts a sub-agent.
 - Outcome:
+
+## DEC-069 The bench kit arm gets the server through `--mcp-config`
+- Date: 2026-11-15 · Question: T-56b smoke run `smoke-1`
+- Facts: under `--strict-mcp-config` the kit arm's init event listed no MCP server: the plugin loaded (agents, hooks, guard events) but its `sdlc` server and the 10 `mcp__plugin_sdlc_sdlc__*` tools were missing. Without the flag the 4 account connectors load in that arm only (V-21).
+- Options: a) keep `--strict-mcp-config` in both arms and define the server for the kit arm in a `--mcp-config` file, as the server eval did b) drop the flag in the kit arm.
+- Decision: a), the TL and developer recommendation.
+- Reason: both arms stay isolated; the only difference between them is the kit.
+- Consequences: in the kit arm the server starts from the extracted kit's `server/main.py` with the run copy as project root, and its tools are named `mcp__sdlc__*`, not as the installed plugin names them. The bench limits state that the server was not started through `plugin.json`.
+- Outcome:
