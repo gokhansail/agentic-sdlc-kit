@@ -53,6 +53,8 @@ BASE_TOOLS = ("Read",)  # Grep, Glob and ToolSearch are not offered by this CLI 
 SETTING_SOURCES = "project,local"
 DROPPED_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "CLAUDE_PROJECT_DIR", "CLAUDE_PLUGIN_ROOT")
 CONDITIONS = ("server", "no-server")
+PROMPT_VARIANTS = ("default", "files-are", "use-tools")
+USE_TOOLS_SENTENCE = "The sdlc tools answer questions about scope, contracts and records.\n"
 SCHEMA = 2
 POLL_S = 0.1          # the wait for a call is sliced so that Ctrl+C is seen within this time on Windows too
 STOP_WAIT_S = 30      # how long to wait for the output of a call after its process tree was ended
@@ -103,6 +105,7 @@ class Config:
     restricted: bool = True
     keep_workspaces: bool = False
     resume: bool = False
+    prompt_variant: str = "default"
     claude: str = "claude"
     out_dir: Path = Path(".")
     work_dir: Path = Path(".")
@@ -245,12 +248,17 @@ def workspace_files(root: Path) -> list[str]:
     return sorted(p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file())
 
 
-def build_prompt(question: dict, files: Sequence[str]) -> str:
-    """The same text in both conditions; it never mentions the server."""
+def build_prompt(question: dict, files: Sequence[str], variant: str = "default") -> str:
+    """The same text in both conditions. `default` and `files-are` never mention the server;
+    `use-tools` adds one sentence about the sdlc tools and is for the server condition only."""
+    if variant not in PROMPT_VARIANTS:
+        raise ValueError("unknown prompt variant: " + variant)
+    lead = "The files are: " if variant == "files-are" else "Use only these files: "
     return (
         "Answer one question about the project records in the current folder. "
-        "Use only these files: " + ", ".join(files) + ".\n"
-        "Question: " + question["question"] + "\n"
+        + lead + ", ".join(files) + ".\n"
+        + (USE_TOOLS_SENTENCE if variant == "use-tools" else "")
+        + "Question: " + question["question"] + "\n"
         "Finish with one last line in exactly this form: ANSWER: <value>\n"
         + HINTS.get(question["answer_type"], "")
     ).rstrip()
@@ -453,7 +461,7 @@ def prompt_flags_hash(cfg: Config) -> str:
     """Hash of the prompt text for each answer type and of the CLI flags of both conditions."""
     probe = replace(cfg, claude="claude")
     body = {
-        "prompts": {kind: build_prompt({"question": "<question>", "answer_type": kind}, ["<file>"]) for kind in sorted(HINTS)},
+        "prompts": {kind: build_prompt({"question": "<question>", "answer_type": kind}, ["<file>"], cfg.prompt_variant) for kind in sorted(HINTS)},
         "argv": {c: build_argv(probe, "<model>", c, "<prompt>", Path("mcp.json")) for c in CONDITIONS},
         "dropped_env": list(DROPPED_ENV),
     }
@@ -492,6 +500,7 @@ def build_manifest(cfg: Config, questions: Sequence[dict]) -> dict:
         "timeout_s": cfg.timeout_s,
         "restricted": cfg.restricted,
         "seed": cfg.seed,
+        "prompt_variant": cfg.prompt_variant,
         "prompt_flags_sha256": prompt_flags_hash(cfg),
         "runner_sha256": runner_hash(),
         "deps_sha256": deps_hash(),
@@ -695,7 +704,7 @@ def run_eval(cfg: Config, invoke: Invoke, env: dict, out=None) -> int:
             if condition == "server":
                 mcp_config = run_dir / "mcp.json"
                 write_mcp_config(mcp_config, workspace)
-            prompt = build_prompt(q, workspace_files(workspace))
+            prompt = build_prompt(q, workspace_files(workspace), cfg.prompt_variant)
             argv = build_argv(cfg, model, condition, prompt, mcp_config)
             try:
                 res = invoke(argv, workspace, child_env, cfg.timeout_s)
@@ -706,7 +715,7 @@ def run_eval(cfg: Config, invoke: Invoke, env: dict, out=None) -> int:
                 say(f"eval_run: {run_id} timed out after {cfg.timeout_s}s; the call and its child processes were stopped")
             (cfg.out_dir / "raw" / f"{run_id}.jsonl").write_text(res.stdout, encoding="utf-8")
             base = {"run_id": run_id, "model": model, "condition": condition, "question": q["id"],
-                    "category": q["category"], "repeat": repeat}
+                    "category": q["category"], "repeat": repeat, "prompt_variant": cfg.prompt_variant}
             record = build_record(base, q, condition, res)
             with runs_file.open("a", encoding="utf-8") as handle:
                 handle.write(json.dumps(record) + "\n")
@@ -771,6 +780,7 @@ def main(argv: Sequence[str] | None = None, invoke: Invoke | None = None, env: d
     parser.add_argument("--no-restricted", action="store_true", help="do not pass --restricted to the CLI")
     parser.add_argument("--keep-workspaces", action="store_true")
     parser.add_argument("--resume", action="store_true", help="continue a label: skip runs already in runs.jsonl; refused when any setting except --budget-usd differs from the first run")
+    parser.add_argument("--prompt-variant", default="default", choices=PROMPT_VARIANTS, help="default; files-are (\"The files are: ...\"); use-tools (default plus one sentence about the sdlc tools, server condition only)")
     parser.add_argument("--claude", default=None, help="path of the claude executable (default: found on PATH)")
     parser.add_argument("--out", type=Path, default=None, help="raw output folder (default: system temp)")
     parser.add_argument("--work-dir", type=Path, default=None, help="folder for the per-run copies (default: system temp)")
@@ -792,6 +802,8 @@ def main(argv: Sequence[str] | None = None, invoke: Invoke | None = None, env: d
         select_questions(score_mod.load_questions(QUESTIONS_FILE), args.questions)
     except ValueError as exc:
         return fail(str(exc))
+    if args.prompt_variant == "use-tools" and "no-server" in conditions:
+        return fail("--prompt-variant use-tools names the sdlc tools, so it needs --conditions server")
     env = dict(os.environ if env is None else env)
     claude = args.claude or shutil.which("claude")
     if invoke is None and not claude:
@@ -802,7 +814,7 @@ def main(argv: Sequence[str] | None = None, invoke: Invoke | None = None, env: d
         repeats=args.repeats, question_spec=args.questions, max_turns=args.max_turns,
         max_run_usd=args.max_run_usd, timeout_s=args.timeout_s, max_failed_calls=args.max_failed_calls,
         seed=args.seed, restricted=not args.no_restricted, keep_workspaces=args.keep_workspaces, resume=args.resume,
-        claude=claude or "claude",
+        prompt_variant=args.prompt_variant, claude=claude or "claude",
         out_dir=args.out or temp / "sdlc-eval-out" / args.label,
         work_dir=args.work_dir or temp / "sdlc-eval-work" / args.label,
         results_dir=args.results_dir,

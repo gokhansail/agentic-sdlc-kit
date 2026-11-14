@@ -2,6 +2,24 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-14 (4) - T-54b prompt variants and tool description
+
+- T-54a [E] done (TASKS line): the Haiku server gap of 4 runs is 2 scope questions, Q02 and Q07; Q26 is wrong in both conditions.
+- The maintainer gave the go-ahead for the next Haiku step. The TL wrote the T-54b contract and placed `.sdlc/active-contract.md`.
+- TL design choice against the CTO plan: the `scope_check` description change ships as a fix, not a test-only variant. Reason: the actor values were not named and Haiku guessed a wrong one (`developer`). Cost: the old and new description are not compared on the same day; the T-54c result states it. Plan: 5 conditions, 200 runs; this step: 4 conditions, 160 runs.
+- `developer` (Sonnet, medium):
+  - `tools/eval_run.py`: `--prompt-variant` with `default`, `files-are` and `use-tools`; `use-tools` with `no-server` refused before any call; the variant is in the manifest, the resume check and each run record.
+  - `server/main.py`: the `scope_check` description says when to use it first and names the actor values `sub-agent` and `main`.
+  - `docs/eval-runbook.md`: section with the 4 T-54c commands, 40 runs each, 0.50 USD each.
+  - 7 new tests; the TL added the description size note to `docs/toolchain.md`.
+  - The developer ran the full suite before its last test fix and only 2 test files after it. The TL ran the full suite: 1095 passed, 6 skipped.
+- TL checks:
+  - Diff of `server/main.py` and `tools/eval_run.py` read.
+  - Budget logic checked: a call starts if actual spent plus the 0.25 USD cap fits, so 0.50 USD covers 40 runs at about 0.001 USD each.
+- Metrics (T-54b): review rounds 0; questions back 0; out-of-scope files 0; models Sonnet (developer), Haiku (scribe).
+- Next: maintainer approval and commit of T-54a and T-54b; then T-54c, the 4 runbook commands in the maintainer's terminal.
+- Not committed yet.
+
 ## 2026-11-14 (3) - T-49 session start hook
 
 - The maintainer gave the go-ahead for T-49 (kit introduces itself to a session, DEC-064). The TL wrote the contract and placed `.sdlc/active-contract.md`.

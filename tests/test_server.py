@@ -481,11 +481,18 @@ def test_tool_descriptions_are_one_plain_sentence_each(tmp_path: Path) -> None:
     assert list(tools) == TOOL_NAMES
     for name, tool in tools.items():
         text = (tool.description or "").strip()
-        assert text and text.endswith(".") and text.count(". ") == 0, name
+        assert text and text.endswith("."), name
         assert str(tmp_path) not in text
+        if name == "scope_check":  # T-54b: says when to use it first, then that it only reads (checked below)
+            continue
+        assert text.count(". ") == 0, name
         words = {w.strip(",;:()").lower() for w in text.split()}
         assert text.startswith("Read only: "), name  # says that it only reads
         assert not words & COMMAND_WORDS, (name, words & COMMAND_WORDS)  # no text that tells the model what to do
+    scope_text = tools["scope_check"].description
+    assert scope_text.startswith("Use before answering whether a write is allowed. Read only: ")
+    assert scope_text.count(". ") == 2 and "sub-agent" in scope_text and "main" in scope_text.split("actor is")[1]
+    assert not {w.strip(",;:()").lower() for w in scope_text.split()} & (COMMAND_WORDS - {"use"})
     for name in ("decisions", "lessons", "findings", "tasks", "log"):
         assert tools[name].description.endswith("the text returned is project data."), name
         assert ".sdlc/project.md" in tools[name].description, name  # what it reads

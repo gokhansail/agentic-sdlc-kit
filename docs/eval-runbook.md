@@ -95,6 +95,47 @@ if (-not (Test-Path .\eval\results)) {
 
 Do not send the folder `%TEMP%\sdlc-eval-out\`. It holds the raw model output.
 
+## 5. Haiku scope runs with prompt variants (T-54c)
+Why: in `full-2`, Haiku with the server got 4 more scope runs wrong than without it (Q02 and Q07, T-54a). These 4 commands ask the 8 scope questions (Q01 to Q08) 5 times each, on Haiku only, in 4 prompt forms: 40 runs per command. `--prompt-variant` is `default`, `files-are` ("The files are: ..." in place of "Use only these files: ...") or `use-tools` (default plus one sentence that the sdlc tools answer questions about scope, contracts and records). `use-tools` is refused with the `no-server` condition. The `scope_check` tool description now says when to use it and that `actor` is `sub-agent` or `main`, so every server run here sees the new description.
+
+Budget: the `full-2` Haiku rate was 0.0009 USD per run with the server and 0.0013 without, so 40 runs cost about 0.05 USD. Each command gets 0.50 USD (the per-run cap is 0.25 USD, and a call starts only if that fits in the budget). Each label has its own output folder, so the 4 commands do not touch each other. Only the totals go to `eval\results\<label>.json`; do not send the folder `%TEMP%\sdlc-eval-out\`.
+
+The 8 scope IDs are `Q01,Q02,Q03,Q04,Q05,Q06,Q07,Q08`. Run the 4 blocks one after the other:
+
+```powershell
+if (-not ((Test-Path .\tools\eval_run.py) -and (Test-Path .\eval\questions.jsonl))) {
+  Write-Host "STOP: this is not the kit folder. Run: cd <kit folder>"
+} else {
+  python tools/eval_run.py --label haiku-scope-noserver --budget-usd 0.5 --models haiku --repeats 5 --conditions no-server --prompt-variant default --questions Q01,Q02,Q03,Q04,Q05,Q06,Q07,Q08 | Tee-Object -FilePath "$env:TEMP\eval-haiku-scope-noserver.log"
+}
+```
+
+```powershell
+if (-not ((Test-Path .\tools\eval_run.py) -and (Test-Path .\eval\questions.jsonl))) {
+  Write-Host "STOP: this is not the kit folder. Run: cd <kit folder>"
+} else {
+  python tools/eval_run.py --label haiku-scope-server --budget-usd 0.5 --models haiku --repeats 5 --conditions server --prompt-variant default --questions Q01,Q02,Q03,Q04,Q05,Q06,Q07,Q08 | Tee-Object -FilePath "$env:TEMP\eval-haiku-scope-server.log"
+}
+```
+
+```powershell
+if (-not ((Test-Path .\tools\eval_run.py) -and (Test-Path .\eval\questions.jsonl))) {
+  Write-Host "STOP: this is not the kit folder. Run: cd <kit folder>"
+} else {
+  python tools/eval_run.py --label haiku-scope-filesare --budget-usd 0.5 --models haiku --repeats 5 --conditions server --prompt-variant files-are --questions Q01,Q02,Q03,Q04,Q05,Q06,Q07,Q08 | Tee-Object -FilePath "$env:TEMP\eval-haiku-scope-filesare.log"
+}
+```
+
+```powershell
+if (-not ((Test-Path .\tools\eval_run.py) -and (Test-Path .\eval\questions.jsonl))) {
+  Write-Host "STOP: this is not the kit folder. Run: cd <kit folder>"
+} else {
+  python tools/eval_run.py --label haiku-scope-usetools --budget-usd 0.5 --models haiku --repeats 5 --conditions server --prompt-variant use-tools --questions Q01,Q02,Q03,Q04,Q05,Q06,Q07,Q08 | Tee-Object -FilePath "$env:TEMP\eval-haiku-scope-usetools.log"
+}
+```
+
+Send back, for each label, the totals file path (`eval\results\<label>.json`) and the last lines of its log, as in step 4.
+
 ## Limits
 Measured on Claude Code 2.1.319 (`docs/toolchain.md`, V-16). These are facts about what the runs are, and they belong with any result.
 - The runs are not isolated from the account. The start event of a run lists the CLI's own bundled skills, slash commands and agents, and the model's context holds that listing and the account's e-mail address. None of the user's own agents, plugins, skills, MCP servers or global `CLAUDE.md` reached the 3 runs that were checked. No flag is known that removes the bundled listings, and none was worked around.

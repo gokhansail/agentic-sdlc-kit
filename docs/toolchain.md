@@ -164,7 +164,7 @@ Measured 2026-11-12 on Claude Code 2.1.319, Windows 10, PowerShell, subscription
 - Run 2, the same command with the 10 server tools in `--disallowedTools`: 0 server tools in the init event. The run ended with an error after 5 turns, as expected, since the tool it was asked to call was not there.
 - Context of the first model turn (input, cache write and cache read tokens): 43,461 with the server, 43,240 without. The server adds 221 tokens per session on the plugin path, because the tools are deferred and only their names are listed until a tool search loads one.
 - `claude plugin details` reports about 1,031 tokens for the plugin before and after the server; it prints the MCP server as "tool schemas resolved at runtime; not counted".
-- A configuration that lists the tools directly (`--mcp-config`, as in the eval, V-16) puts all 10 definitions in context. They are 4,149 characters, 5,173 with output schemas; at 4 characters per token, an estimate, about 1,000 to 1,300 tokens. Not measured.
+- A configuration that lists the tools directly (`--mcp-config`, as in the eval, V-16) puts all 10 definitions in context. They are 4,149 characters, 5,173 with output schemas; at 4 characters per token, an estimate, about 1,000 to 1,300 tokens. Not measured. T-54b (2026-11-14) made the `scope_check` description 38 characters longer (209 to 247); the totals above are from before it.
 - Limits: one pair of runs; both sessions also had 4 claude.ai connectors, the same in each run; the date changed between the 2 runs, so the system prompt differed by the date line.
 
 ## Memory files (T-05)

@@ -162,6 +162,79 @@ def test_prompt_is_equal_in_both_conditions_and_does_not_name_the_server(tmp_pat
     assert all(name in prompt for name in ("DECISIONS.md", ".sdlc/active-contract.md"))
 
 
+PINNED_DEFAULT = (
+    "Answer one question about the project records in the current folder. "
+    "Use only these files: a.md, b.md.\n"
+    "Question: Is it allowed? Answer yes or no.\n"
+    "Finish with one last line in exactly this form: ANSWER: <value>\n"
+    + er.HINTS["yes-no"]
+).rstrip()
+
+
+def test_default_prompt_is_byte_equal_to_the_pinned_text():
+    q = {"question": "Is it allowed? Answer yes or no.", "answer_type": "yes-no"}
+    assert er.build_prompt(q, ["a.md", "b.md"]) == PINNED_DEFAULT
+    assert er.build_prompt(q, ["a.md", "b.md"], "default") == PINNED_DEFAULT
+
+
+def test_prompt_variants_differ_only_where_they_should():
+    q = {"question": "Is it allowed? Answer yes or no.", "answer_type": "yes-no"}
+    files = ["a.md", "b.md"]
+    default = er.build_prompt(q, files)
+    files_are = er.build_prompt(q, files, "files-are")
+    use_tools = er.build_prompt(q, files, "use-tools")
+    assert files_are == default.replace("Use only these files: ", "The files are: ")
+    assert "Use only" not in files_are and "The files are: a.md, b.md.\n" in files_are
+    sentence = "The sdlc tools answer questions about scope, contracts and records.\n"
+    assert use_tools == default.replace("Question:", sentence + "Question:", 1)
+    assert use_tools.count("sdlc tools") == 1 and "sdlc" not in default and "sdlc" not in files_are
+    with pytest.raises(ValueError):
+        er.build_prompt(q, files, "nope")
+
+
+def test_the_variant_reaches_the_prompt_the_manifest_and_each_record(tmp_path):
+    fake = Fake(lambda q, c, n: stream(answer=str(q["key"]), cost=0.01))
+    code, _ = run(tmp_path, fake, "--questions", "Q01", "--models", "haiku", "--conditions", "server",
+                  "--prompt-variant", "use-tools")
+    assert code == 0
+    assert "The sdlc tools answer questions" in fake.calls[0]["prompt"]
+    manifest = json.loads((tmp_path / "out" / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["prompt_variant"] == "use-tools"
+    records = [json.loads(line) for line in (tmp_path / "out" / "runs.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert records and all(r["prompt_variant"] == "use-tools" for r in records)
+
+
+def test_use_tools_is_refused_without_the_server_and_allowed_with_it(tmp_path):
+    for conditions in ("no-server", "server,no-server"):
+        fake = Fake()
+        code, text = run(tmp_path, fake, "--questions", "Q01", "--models", "haiku", "--conditions", conditions,
+                         "--prompt-variant", "use-tools")
+        assert code == 2 and fake.calls == [] and "needs --conditions server" in text
+    assert not (tmp_path / "out" / "manifest.json").exists()
+    fake = Fake()
+    code, _ = run(tmp_path, fake, "--questions", "Q01", "--models", "haiku", "--conditions", "server",
+                  "--prompt-variant", "use-tools")
+    assert code == 0 and len(fake.calls) == 1
+
+
+def test_an_unknown_variant_is_refused_by_the_parser(tmp_path):
+    with pytest.raises(SystemExit):
+        run(tmp_path, Fake(), "--questions", "Q01", "--prompt-variant", "nope")
+
+
+def test_the_variant_changes_the_prompt_hash_and_default_keeps_it():
+    base = er.prompt_flags_hash(er.Config(label="x", budget_usd=1))
+    assert base == er.prompt_flags_hash(er.Config(label="x", budget_usd=1, prompt_variant="default"))
+    assert base != er.prompt_flags_hash(er.Config(label="x", budget_usd=1, prompt_variant="files-are"))
+
+
+def test_resume_is_refused_when_the_variant_changes(tmp_path):
+    stopped_first_run(tmp_path)
+    fake = Fake()
+    code, text = run(tmp_path, fake, *RESUME_ARGS, "--prompt-variant", "files-are", "--resume", budget="5")
+    assert code == 2 and fake.calls == [] and "prompt_variant" in text and "refused" in text
+
+
 def test_workspace_holds_no_question_file_or_key(tmp_path):
     seen = []
 
@@ -486,9 +559,10 @@ def test_the_first_run_writes_a_manifest_with_every_setting(tmp_path):
     manifest = json.loads((tmp_path / "out" / "manifest.json").read_text(encoding="utf-8"))
     assert set(manifest) == {
         "eval_set_sha256", "question_ids", "models", "conditions", "repeats", "max_turns", "max_run_usd",
-        "timeout_s", "restricted", "seed", "prompt_flags_sha256", "runner_sha256", "deps_sha256", "git_commit",
-        "git_dirty",
+        "timeout_s", "restricted", "seed", "prompt_variant", "prompt_flags_sha256", "runner_sha256",
+        "deps_sha256", "git_commit", "git_dirty",
     }
+    assert manifest["prompt_variant"] == "default"
     assert manifest["deps_sha256"] == er.deps_hash() and re.fullmatch(r"[0-9a-f]{64}", manifest["deps_sha256"])
     assert manifest["question_ids"] == ["Q01", "Q09"] and manifest["models"] == ["haiku"]
     assert manifest["conditions"] == ["no-server"] and manifest["repeats"] == 1

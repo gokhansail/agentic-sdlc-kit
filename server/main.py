@@ -82,8 +82,9 @@ def build_server(lock: RootLock, root_source: str = "") -> Any:
 
     @server.tool(
         name="scope_check",
-        description="Read only: tells whether the scope guard would allow or deny a write to each of up to 50 paths, "
-        "as a sub-agent or as the main session, from .sdlc/project.md and the active contract; it opens none of the paths.",
+        description="Use before answering whether a write is allowed. Read only: tells whether the scope guard would "
+        "allow or deny a write to each of up to 50 paths, from .sdlc/project.md and the active contract; it opens none "
+        "of the paths. actor is sub-agent or main.",
     )
     def scope_check_tool(paths: list[str], actor: str) -> dict[str, Any]:
         try:
