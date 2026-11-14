@@ -2,6 +2,35 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-14 (2) - Phase 5 plan by cto; DEC-064 to DEC-066
+
+- The maintainer: the kit is about to be published without evidence that it gives better work than a plain prompt. The maintainer asked for a CTO plan with a sandbox project in this repository: plain prompt against the kit, measuring tokens, time and result quality; and a test of the Haiku server gap.
+- `cto` (Opus, high) wrote `cto/2026-11-14_phase5-plan.md`, 205 lines: 13 ordered steps, the eval design in `bench/`, a Haiku test, G5-1 to G5-9 proposed, 5 questions.
+- Finding in the plan: no file the plugin ships states the TL seat; the text exists only in this repository's `CLAUDE.md`. Candidate cause of the Haiku server gap: the eval prompt says "Use only these files" (`tools/eval_run.py` line 251). Not tested yet.
+- TL check: the line 251 text and the missing seat text are confirmed in the files.
+- Maintainer decisions:
+  - Q1 a) a SessionStart hook (DEC-064).
+  - Q2 b) 2 arms, 36 runs, against the CTO recommendation a) 3 arms, 54 runs (DEC-065).
+  - Q3 a) Sonnet in every role (DEC-066).
+  - Q4 (scoring rule, before the first scored run) and Q5 (server without the SDK, before T-51) stay open.
+- Process notes:
+  - The CTO edited its report with a Bash Python script after writing it. The scope guard does not see Bash writes (known limit, DEC-052). The change stayed in the report file.
+  - A `tools/pre_push_guard.py --help` call by the CTO waited for input in the background; the TL stopped it.
+- `TASKS.md`: not written by the scribe. The phase 5 ordered task list (DEC-064 to DEC-066) and NOW NEXT are for the TL.
+- Metrics (P-50 CTO plan): review rounds 0; questions back 0; out-of-scope files 0; models Opus (cto), Haiku (scribe).
+- Next: T-49 kit introduces itself, starting with a probe of the SessionStart hook.
+- Not committed yet.
+
+## 2026-11-14 (1) - DEC-063 evidence from a non-game project
+
+- The maintainer asked for a pre-release overview of the project, phase by phase. Phases 0 to 2 were covered so far. No file was changed for the overview.
+- Correction: commit 8c069c9 (G4 re-verify report and records) is pushed; `main` equals `origin/main`. This supersedes "Not committed yet" in LOG 2026-11-13 (1).
+- The TL raised a concern: all evidence comes from 2 game projects (Project A and Project B) and one synthetic eval repository. The kit has not run on a project that is not a game. The TL recommended stating this as a README limit. The maintainer chose a trial before G5, as evidence collection, not software development (DEC-063).
+- `TASKS.md`: phase 5 gets T-53 (before T-52): one real task with the kit on a project that is not a game, evidence only, no kit code change. A T-50 item: the README names the project types the evidence comes from. NOW NEXT updated.
+- Open with the maintainer, unchanged: R-1 rule question; the 2 lines in `.sdlc/project.md`; the bare-word candidate.
+- Next: phase 5 plan by `cto`, with T-53 in it.
+- No metrics line: no task ran. Not committed yet.
+
 ## 2026-11-13 (1) - Gate G4 re-verify: ACCEPT, G4 passed
 
 - Commit ba0c63e is pushed: T-45b, T-45c, the live run and the records. `main` equals `origin/main`. The "Not committed yet" line in LOG 2026-11-12 (2) is superseded.

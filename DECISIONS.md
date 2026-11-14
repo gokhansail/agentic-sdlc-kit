@@ -512,3 +512,39 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: the criterion asks for a reported number, and the command it names cannot give it; an estimate from characters is not a measure.
 - Consequences: the run pair joins the G4-4 live run in the customer's terminal (DEC-061). `docs/toolchain.md` gets one paragraph: what `plugin details` counts and does not count, the definition size, and the 2 first-turn numbers. The G4-10 wording names the first-turn measure; the change is recorded here, not made silently.
 - Outcome: 2026-11-12, one pair in the customer's terminal on CLI 2.1.319: first-turn context 43,461 tokens with the server, 43,240 without, 221 added on the plugin path, where the tools are deferred (`docs/toolchain.md`). The direct-listing cost stays an estimate.
+
+## DEC-063 Evidence from a non-game project before G5
+- Date: 2026-11-14 · Question: TL review before phase 5
+- Facts: `EVIDENCE.md` counts Project A, Project B and the kit; Project A and Project B are both game projects. The one real task in a foreign project (T-33, G3-5) ran on Project A. The eval (`docs/eval-results.md`) uses one synthetic repository. No run of the kit on a project that is not a game is recorded.
+- Options: a) before G5, one real task with the kit on a project that is not a game; collect evidence only; no kit code change b) state the limit in the README and leave the trial to a later version.
+- Decision: a). The TL recommended b); the maintainer chose a), as evidence collection, not software development.
+- Reason: a reader can read evidence from 2 game projects as "a kit for games". The kit has no game-specific code or rule, but no record shows it working elsewhere.
+- Consequences: phase 5 gets T-53, before T-52. T-53 records what T-33 recorded: footprint, guard events, the per-task metric line, rollback. The results go to a dogfood document and, where a metric applies, to `evidence/` through `tools/metrics`. A kit defect found in T-53 is a finding; it is fixed before G5 only if it blocks install or use, otherwise it goes to v0.1.1. The target project is chosen when T-53 opens. The README (T-50) names the project types the evidence comes from, with or without T-53.
+- Outcome:
+
+## DEC-064 The kit introduces itself through a session start hook
+- Date: 2026-11-14 · Question: `cto/2026-11-14_phase5-plan.md` Q1; T-33 finding 3
+- Facts: no file in `skills/`, `templates/` or `hooks/` states the TL seat or the task loop; the text is only in this repository's `CLAUDE.md`. In T-33 the Project A TL session did not know the kit and planned to write the contract by hand.
+- Options: a) a SessionStart hook that adds a short seat text only where `.sdlc/project.md` exists b) `/sdlc:init` appends a section to the project's `CLAUDE.md` c) a typed `/sdlc:lead` command.
+- Decision: a), the CTO and TL recommendation.
+- Reason: automatic, writes no user file, silent in projects that did not opt in, testable. c) depends on the user remembering, which failed in T-33.
+- Consequences: T-49 first in phase 5. One probe first: whether a plugin SessionStart hook adds context on the current CLI. The seat text is one template file; it includes the plan budget (T-33 finding 9). Its token cost per session is measured as in DEC-062. T-53 and the bench run after T-49.
+- Outcome:
+
+## DEC-065 Kit against plain prompt: 2 arms, 36 runs
+- Date: 2026-11-14 · Question: `cto/2026-11-14_phase5-plan.md` Q2
+- Facts: no record measures whether the kit gives better work than a plain prompt (`EVIDENCE.md`, `docs/eval-results.md`). CTO estimate, not measured: 3 arms x 6 tasks x 3 repeats = 54 runs, about 52 USD and 9 hours; 2 arms = 36 runs, about 36 USD and 6 hours. The last estimate of this kind was off by a factor of 14 to 15 (DEC-055).
+- Options: a) 3 arms: plain, one agent with the kit's rules, full kit; 54 runs b) 2 arms: plain and full kit; 36 runs c) 2 arms, 4 tasks, 24 runs.
+- Decision: b). The CTO recommended a).
+- Reason: the maintainer's choice; b) answers the question asked, plain prompt against the kit, at about two thirds of the cost.
+- Consequences: a sandbox project and 6 tasks with hidden acceptance tests in `bench/` (T-55), a runner reusing `tools/eval_run.py` (T-56), a pilot that sets the budget, then a pre-registration record before the first scored run. If the kit wins, the result cannot say whether the process or the extra agents and tokens carry the gain; the README states this limit.
+- Outcome:
+
+## DEC-066 The bench uses Sonnet in every role
+- Date: 2026-11-14 · Question: `cto/2026-11-14_phase5-plan.md` Q3
+- Facts: the kit as shipped runs an Opus TL, a Sonnet developer and a Haiku scribe. A plain Sonnet prompt against that mix compares models as well as process.
+- Options: a) Sonnet in every role in both arms b) a) plus the same arms on Haiku c) the kit as shipped against plain Opus and plain Sonnet.
+- Decision: a), the CTO and TL recommendation.
+- Reason: same model in each pair, so a difference comes from the process; cost stays in the DEC-065 range.
+- Consequences: the README says the bench ran on Sonnet only and is not the kit's default model mix. The Haiku server gap is tested apart (T-54).
+- Outcome:

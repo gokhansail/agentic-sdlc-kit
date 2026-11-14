@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-13
-Now: Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor-mini` re-verify ACCEPT, all 4 conditions closed); fix commits 4854cbd and ba0c63e pushed; maintainer approval and commit of the re-verify report next, then the phase 5 plan by `cto` · repository private · code written, tests green
+Last updated: 2026-11-14
+Now: Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor-mini` re-verify ACCEPT, all 4 conditions closed); fix commits 4854cbd and ba0c63e pushed; G4 records committed and pushed (8c069c9); DEC-063 adds T-53, evidence from a non-game project, to phase 5; phase 5 plan by `cto` written (`cto/2026-11-14_phase5-plan.md`), DEC-064 to DEC-066 decided; T-49 next · repository private · code written, tests green
 
 ## Phase
 
@@ -17,7 +17,7 @@ Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix r
 
 Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor` CONDITIONAL ACCEPT, fix round T-45a to T-45c, `auditor-mini` ACCEPT; `audits/`).
 
-Phase 5 Release: not opened; plan by `cto` next.
+Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); not started; bench of kit against plain prompt, 2 arms, 36 runs (DEC-065).
 
 ## Done
 
@@ -42,7 +42,7 @@ Phase 5 Release: not opened; plan by `cto` next.
 
 ## Next
 
-- Maintainer approval and commit of the re-verify report; then the phase 5 plan by `cto`.
+- T-49 kit introduces itself through a SessionStart hook (DEC-064); probe first.
 
 ## Repository
 
@@ -56,4 +56,5 @@ Phase 5 Release: not opened; plan by `cto` next.
 - N-5 waits for G5 (`TASKS.md`).
 - Public git history (review item 32) waits for G5.
 - R-1 rule question and the 2 lines in `.sdlc/project.md` wait for the maintainer.
+- CTO Q4 scoring rule waits for the pre-registration; Q5 server without the SDK waits for T-51.
 - Bare-word candidate (Low, not triaged): `check-worktree` without dashes still falls to the guard's hook mode and writes 1 event line.
