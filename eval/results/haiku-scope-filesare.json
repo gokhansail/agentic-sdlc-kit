@@ -1,0 +1,69 @@
+{
+  "schema": 2,
+  "label": "haiku-scope-filesare",
+  "date": "2026-11-14",
+  "cli_version": "2.1.319 (Claude Code)",
+  "eval_set_sha256": "c59798e361ff995ede8ae5332218ca66bd27e4051ade1e2e50ad47a91692371f",
+  "runner_sha256": "29afe9014a3dbc302a4a5377232e57fc20a7527cda04a0ad0525246524436e6a",
+  "git_commit": "0f1b0ff97c786b06edd5c8bdb4bad5b651869b3c",
+  "git_dirty": false,
+  "question_ids": [
+    "Q01",
+    "Q02",
+    "Q03",
+    "Q04",
+    "Q05",
+    "Q06",
+    "Q07",
+    "Q08"
+  ],
+  "repeats": 5,
+  "settings": {
+    "max_turns": 12,
+    "max_run_usd": 0.25,
+    "timeout_s": 300,
+    "tools": "Read",
+    "restricted": true,
+    "setting_sources": "project,local"
+  },
+  "planned_runs": 40,
+  "done_runs": 40,
+  "complete": true,
+  "stopped": "",
+  "budget_usd": 0.5,
+  "spent_usd": 0.020675,
+  "groups": [
+    {
+      "model": "haiku",
+      "model_id": "claude-haiku-5-5",
+      "condition": "server",
+      "runs": 40,
+      "correct": 40,
+      "accuracy_mean": 1.0,
+      "accuracy_min": 1.0,
+      "accuracy_max": 1.0,
+      "by_category": {
+        "scope": {
+          "correct": 40,
+          "total": 40
+        }
+      },
+      "cost_usd": 0.020675,
+      "cost_usd_per_run": 0.000517,
+      "input_tokens": 160,
+      "cache_read_tokens": 461582,
+      "cache_creation_tokens": 49701,
+      "output_tokens": 12206,
+      "duration_ms": 162916,
+      "duration_ms_per_run": 4072.9,
+      "turns_per_run": 2.9,
+      "tool_calls_total": 76,
+      "tool_calls": {
+        "mcp__sdlc__contract": 36,
+        "mcp__sdlc__scope_check": 40
+      },
+      "errors": 0,
+      "unparsed": 0
+    }
+  ]
+}
