@@ -2,6 +2,48 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-14 (7) - T-58 guard deny text for the main session
+
+- DEC-068: the maintainer chose to fix the defect before the bench. The TL wrote the T-58 contract.
+- `developer` (Sonnet, medium):
+  - `tools/scope_guard.py`: on a no-contract or broken-contract deny, the main session gets a next step. It names `/sdlc:contract <task>` and the contract format, then says to hand the code work to `developer`. Sub-agent deny texts are byte-equal to before.
+  - `templates/seat.md` gains one rule line: with a go-ahead given, place the contract and hand the work to `developer` (16 lines).
+  - 4 guard tests; the seat test updated.
+  - V-17 note: seat tokens not re-measured.
+  - 1 CHANGELOG line.
+- TL checks:
+  - Diff read.
+  - Full suite run by the TL: 1131 passed, 6 skipped.
+- Metrics (T-58): review rounds 0; questions back 0; out-of-scope files 0; models Sonnet (developer), Haiku (scribe).
+- Next: T-56b bench runner; T-53 once the maintainer names Project C.
+- Committed with this entry.
+
+## 2026-11-14 (6) - T-56a bench probes
+
+- The maintainer gave the go-ahead for T-56 (bench runner and probes). The TL split it: T-56a probes first, T-56b runner contract from the probe answers (CTO plan section 3.7).
+- `developer` (Sonnet, medium): 4 headless runs of bench task B1 on CLI 2.1.319, subscription login, copies in the system temp folder.
+  - P1 plain, 10 turns, 0.211 USD, 7 of 7 hidden tests pass.
+  - K1 kit, 22 turns, 0.357 USD, 7 of 7.
+  - K2 kit with a 0.30 USD cap, 12 turns, 0.134 USD, 2 of 7.
+  - K3 kit with a 6-turn cap, 9 turns, 0.097 USD, 2 of 7.
+  - Reads of hidden test paths: 0.
+- Found:
+  - No kit run started a sub-agent. The main session edited code itself; the guard denied it with no contract.
+  - K2 and K3 stopped after that one deny.
+  - K1 wrote the contract by hand, broken 3 times, then passed.
+  - The deny text told the main session to ask the technical lead.
+  - Plugin tools need `--allowedTools` entries; connectors load unless `--strict-mcp-config` is given.
+  - K3 ended at 9 turns with a 6-turn cap and no error.
+- Rows V-18 to V-21 in `docs/toolchain.md`.
+- The TL took the deny defect to the maintainer: fix before the bench (DEC-068, T-58). The maintainer chose the fix and one more probe run.
+- K4 after T-58, same prompt, plugin tools allowed: 15 turns, 0.339 USD, 3.2 min model time, about 12.5 min wall because the CLI stayed open after its last answer. 7 of 7 hidden tests pass; 0 denies. The main session wrote the contract and started `sdlc:developer`.
+  - Settled: sub-agent events are marked by `parent_tool_use_id` and `task_started` `local_agent`; `modelUsage` includes sub-agent tokens (cache read 665,965 + 137,520 = 803,485); the guard names the sub-agent in its events.
+  - Open: whether caps bound a sub-agent; whether `CLAUDE_CODE_SUBAGENT_MODEL` overrides a Haiku or Opus role.
+  - Limit: one run, and plugin tools were allowed only in K4.
+  - Row V-22 in `docs/toolchain.md`.
+- 5 runs, 1.14 USD list-price estimate. Excluded from bench scoring.
+- Metrics (T-56a): review rounds 0; questions back 1 (one more run, answered by the maintainer); out-of-scope files 0; models Sonnet (developer, runs), Haiku (scribe).
+
 ## 2026-11-14 (5) - T-55 bench sandbox and task set
 
 - T-54c [E] done (TASKS line): Haiku scope runs with 2 prompt variants close the server gap, 40 of 40 each; the default prompt with the server 32 of 40; committed f86de6b.

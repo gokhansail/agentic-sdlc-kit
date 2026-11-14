@@ -548,3 +548,12 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: same model in each pair, so a difference comes from the process; cost stays in the DEC-065 range.
 - Consequences: the README says the bench ran on Sonnet only and is not the kit's default model mix. The Haiku server gap is tested apart (T-54).
 - Outcome:
+
+## DEC-068 Fix the guard's deny for the main session before the bench
+- Date: 2026-11-14 · Question: T-56a probe result
+- Facts: in 3 kit probe runs of bench task B1 (Sonnet, headless, go-ahead given) no run started a sub-agent; the main session edited code itself. The guard denied the edit with no contract in place. K2 and K3 stopped after that one deny, 2 of 7 hidden tests; K1 wrote the contract by hand, it parsed as broken 3 times, then passed, 7 of 7. The deny text tells the main session to "ask the technical lead", but the main session is the technical lead, and it names neither `/sdlc:contract` nor the contract format (`tools/scope_guard.py` lines 455 and 465). The plain run passed 7 of 7.
+- Options: a) fix before the bench: a main-session deny names `/sdlc:contract` and the minimal contract format; the seat text says that with a go-ahead given the TL places the contract and hands the work to `developer` b) measure the kit as it is c) a kit-arm prompt that tells it to delegate.
+- Decision: a), the TL recommendation.
+- Reason: b) would measure a known message defect, not the method; c) gives the two arms different text.
+- Consequences: T-58 before T-56b. The fix is general, not tuned to B1; the bench limits state that the defect was found by a probe. The 4 probe runs stay excluded from scoring. The sub-agent questions of T-56a stay open until a probe starts a sub-agent.
+- Outcome:

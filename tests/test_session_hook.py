@@ -78,7 +78,9 @@ def test_hooks_json_registers_session_start():
 
 def test_seat_text_shape():
     text = SEAT.read_text(encoding="utf-8")
-    assert len(text.splitlines()) <= 25
+    assert len(text.splitlines()) <= 18
+    assert "go-ahead for a task is already given" in text
+    assert "/sdlc:contract" in text and "`developer` sub-agent" in text
     assert "!" not in text
     assert "Sources:" in text
     for word in ("leverage", "seamless", "robust", "crucial", "comprehensive", "ensure that"):

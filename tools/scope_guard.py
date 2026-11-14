@@ -430,6 +430,16 @@ def _under_sdlc(rel: str, casefold: bool) -> bool:
 
 # --- decision ------------------------------------------------------------------
 
+# Next-step texts for the main session (the technical lead). The format named here is what
+# `parse_contract` accepts: one heading with a task ID, one `Files in:` line, one `Files out:` line.
+_CONTRACT_FORMAT = ("one '## <ID> <title>' heading, one '- Files in:' line and one '- Files out:' line, "
+                    "every path in backticks")
+MAIN_NO_CONTRACT_NEXT = (f"You are the technical lead. Place the contract with /sdlc:contract <task>, or write "
+                         f".sdlc/active-contract.md yourself: {_CONTRACT_FORMAT}. "
+                         "Then hand the code work to the developer sub-agent.")
+MAIN_BROKEN_NEXT = (f"You are the technical lead. Fix .sdlc/active-contract.md or place a new one with "
+                    f"/sdlc:contract <task>: {_CONTRACT_FORMAT}. Then hand the code work to the developer sub-agent.")
+
 def decide(
     rel: str,
     state: str,
@@ -453,7 +463,7 @@ def decide(
         return result(True, "the main session may write under .sdlc/")
     if state == BROKEN:
         return result(False, f"the contract cannot be used: {broken_reason}",
-                      "Ask the technical lead to fix .sdlc/active-contract.md.")
+                      "Ask the technical lead to fix .sdlc/active-contract.md." if is_agent else MAIN_BROKEN_NEXT)
     rules_file = bool(is_agent and developer_rules and matches(rel, [developer_rules], casefold))
     if rules_file and state == NO_CONTRACT:
         return result(False, f"the path is the developer rules file ({developer_rules}); "
@@ -463,7 +473,8 @@ def decide(
         if matches(rel, always_allowed, casefold):
             return result(True, "in the always-allowed list")
         return result(False, "there is no active contract",
-                      "Ask the technical lead to place .sdlc/active-contract.md for this task.")
+                      "Ask the technical lead to place .sdlc/active-contract.md for this task." if is_agent
+                      else MAIN_NO_CONTRACT_NEXT)
     if contract is None:
         raise ValueError("state active needs a contract")
     if matches(rel, contract.files_out, casefold):

@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-14
-Now: Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor-mini` re-verify ACCEPT, all 4 conditions closed); fix commits 4854cbd and ba0c63e pushed; G4 records committed and pushed (8c069c9); DEC-063 adds T-53, evidence from a non-game project, to phase 5; phase 5 plan by `cto` written (`cto/2026-11-14_phase5-plan.md`), DEC-064 to DEC-066 decided; T-49 committed (d95e946); T-54a, T-54b, T-54c done and committed (0f1b0ff, f86de6b); T-55 bench sandbox and 6 tasks done and approved; next T-56 bench runner and probes · repository private · code written, tests green
+Now: Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor-mini` re-verify ACCEPT, all 4 conditions closed); fix commits 4854cbd and ba0c63e pushed; G4 records committed and pushed (8c069c9); DEC-063 adds T-53, evidence from a non-game project, to phase 5; phase 5 plan by `cto` written (`cto/2026-11-14_phase5-plan.md`), DEC-064 to DEC-066 decided; T-49 committed (d95e946); T-54a, T-54b, T-54c done and committed (0f1b0ff, f86de6b); T-55 bench sandbox and 6 tasks done and approved; T-56a probes (5 runs, 1.14 USD) and T-58 guard deny fix (DEC-068) done and approved; next T-56b bench runner · repository private · code written, tests green
 
 ## Phase
 
@@ -17,10 +17,12 @@ Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix r
 
 Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor` CONDITIONAL ACCEPT, fix round T-45a to T-45c, `auditor-mini` ACCEPT; `audits/`).
 
-Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55 done); bench of kit against plain prompt, 2 arms, 36 runs (DEC-065).
+Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-58 done); bench of kit against plain prompt, 2 arms, 36 runs (DEC-065).
 
 ## Done
 
+- T-58 guard deny text: a main-session deny names /sdlc:contract and the contract format; seat line added; 1131 tests green.
+- T-56a bench probes: 5 runs of B1, 1.14 USD; the guard deny stopped 2 of 3 kit runs before T-58; after it the kit run delegated to developer, 7/7; sub-agent marking and cost settled, caps open.
 - T-55 bench: sandbox budget ledger (20 modules, 1,511 lines, 115 visible tests) and 6 tasks with hidden tests and reference patches; 1127 tests green.
 - T-54c Haiku scope runs: either prompt variant 40 of 40 with the server; default prompt 32 of 40.
 - T-54a Haiku raw read: the server gap is 2 scope questions (Q02, Q07).
@@ -35,11 +37,10 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 - T-46f eval table renderer: `tools/eval_table.py`, tables in `docs/eval-results.md` from `full-2`; 1065 tests green.
 - T-46g eval results text: narrow claim and 10 limits in `docs/eval-results.md`; runbook at 360 runs; committed and pushed (e045d94).
 - T-47 graded ceremony (DEC-058): `CLAUDE.md`, `PLAYBOOK.md`, decision template; 1065 tests green.
-- G0 leftover: a headless session in a clean clone without the local instruction file resumed from the records; DEC-060 keeps the own eval runner (review item 9).
 
 ## Next
 
-- T-56 bench runner and probes.
+- T-56b bench runner (`tools/bench_run.py`), with its own timeout and process stop.
 - T-53 Project C trial, once the maintainer names Project C (DEC-067 cited in TASKS.md but not written).
 
 ## Repository

@@ -249,6 +249,60 @@ def test_unreadable_contract_is_broken(tmp_path: Path) -> None:
     assert write_in(root, "src/a.py")[0] == 2
 
 
+# --- deny texts for the main session and the sub-agent (T-58) --------------------
+
+SUB_NO_CONTRACT = "Next: Ask the technical lead to place .sdlc/active-contract.md for this task."
+SUB_BROKEN = "Next: Ask the technical lead to fix .sdlc/active-contract.md."
+
+
+def test_main_session_no_contract_text_names_the_command_and_the_format(tmp_path: Path) -> None:
+    root = make_project(tmp_path, contract=None)
+    code, err = write_in(root, "src/a.py")
+    assert code == 2 and "[no-contract]" in err
+    assert sg.MAIN_NO_CONTRACT_NEXT in err
+    for part in ("technical lead", "/sdlc:contract <task>", "## <ID> <title>", "Files in:", "Files out:",
+                 "backticks", "developer sub-agent"):
+        assert part in sg.MAIN_NO_CONTRACT_NEXT
+    assert len(sg.MAIN_NO_CONTRACT_NEXT) <= 320
+    assert SUB_NO_CONTRACT not in err
+
+
+def test_main_session_broken_text_keeps_the_reason_and_adds_the_format(tmp_path: Path) -> None:
+    root = make_project(tmp_path, contract=BROKEN["files in repeated"])
+    code, err = write_in(root, "src/a.py")
+    assert code == 2 and "[broken]" in err
+    assert "line 7: `Files in` is repeated (first at line 4)" in err
+    assert sg.MAIN_BROKEN_NEXT in err
+    for part in ("/sdlc:contract <task>", "## <ID> <title>", "Files in:", "Files out:", "backticks",
+                 "developer sub-agent"):
+        assert part in sg.MAIN_BROKEN_NEXT
+    assert len(sg.MAIN_BROKEN_NEXT) <= 320
+    assert SUB_BROKEN not in err
+
+
+def test_sub_agent_deny_texts_are_unchanged(tmp_path: Path) -> None:
+    root = make_project(tmp_path, contract=None)
+    code, err = run(root, payload("write-subagent", root, str(root / "src" / "a.py")))
+    assert code == 2 and SUB_NO_CONTRACT in err and "/sdlc:contract" not in err
+    root = make_project(tmp_path / "b", contract="not a contract")
+    code, err = run(root, payload("write-subagent", root, str(root / "src" / "a.py")))
+    assert code == 2 and SUB_BROKEN in err and "/sdlc:contract" not in err
+
+
+def test_the_format_in_the_main_session_text_parses_as_an_active_contract(tmp_path: Path) -> None:
+    # Built only from what the deny text says: one `## <ID> <title>` heading, one `- Files in:`
+    # line, one `- Files out:` line, every path in backticks.
+    text = "## T-77 Sample task\n- Files in: `src/a.py`, `tests/test_a.py`\n- Files out: `docs/`\n"
+    root = make_project(tmp_path, contract=text)
+    out, err = io.StringIO(), io.StringIO()
+    assert sg.main(["--root", str(root), "--check-contract"], stdout=out, stderr=err) == 0
+    assert out.getvalue() == "contract T-77: 2 Files in, 1 Files out\n"
+    contract = sg.parse_contract(text)
+    assert contract.task_id == "T-77"
+    assert write_in(root, "src/a.py") == (0, "")
+    assert write_in(root, "docs/x.md")[0] == 2
+
+
 # --- paths ----------------------------------------------------------------------
 
 def test_dotdot_that_stays_inside_the_root_is_resolved(tmp_path: Path) -> None:
