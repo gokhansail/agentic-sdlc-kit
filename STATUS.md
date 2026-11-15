@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-15
-Now: Phase 5 bench runner done: T-56b committed (DEC-069; smoke-2 on B1, 1 run per arm, 0.34 of 1.0 USD; kit arm 7 of 7 with the server through `--mcp-config`); T-49, T-54a to T-54c, T-55, T-56a, T-58 done earlier; next `cto` report on T-59 and the seat size question · repository private · code written, 1189 tests green
+Now: Phase 5 bench decisions made (DEC-070 to DEC-073); T-59b committed (seat 18 lines, contract ID format, `check_contract` message; check runs `check-1` and `check-2` on B1, 7 of 7 each, 0.40 USD; kit frozen at f148c73 for the bench); next T-59a B7 large task · repository private · code written, 1195 tests passed
 
 ## Phase
 
@@ -17,10 +17,11 @@ Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix r
 
 Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor` CONDITIONAL ACCEPT, fix round T-45a to T-45c, `auditor-mini` ACCEPT; `audits/`).
 
-Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-56b, T-58 done); bench of kit against plain prompt, 2 arms, 36 runs (DEC-065).
+Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-56b, T-56c, T-58, T-59b done); bench of kit against plain prompt, 2 arms, 42 runs over 7 tasks (DEC-065, amended by DEC-072).
 
 ## Done
 
+- T-59b seat size and contract ID format: seat 18 lines (DEC-058 size line; check the contract before delegating); ID format in 3 texts; `check_contract` adds the format on a missing or broken contract (DEC-073); `check-1` 7 of 7 and still `T-FIX-1`; `check-2` 7 of 7, first write parsed; 1195 passed.
 - T-56b bench runner: `tools/bench_run.py` (1172 lines, 58 tests); kit arm through `--mcp-config` (DEC-069); smoke-2 on B1 7 of 7 in both arms, 1 run each; 1189 tests green.
 - T-58 guard deny text: a main-session deny names /sdlc:contract and the contract format; seat line added; 1131 tests green.
 - T-56a bench probes: 5 runs of B1, 1.14 USD; the guard deny stopped 2 of 3 kit runs before T-58; after it the kit run delegated to developer, 7/7; sub-agent marking and cost settled, caps open.
@@ -35,11 +36,10 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 - T-46d eval runner review items 3 to 5: process tree stop, resume refusal on changed settings, seeded condition order; 1052 tests green; committed and pushed (07672c8).
 - T-46e runbook says 120 runs (DEC-055): full command `--repeats 1 --budget-usd 3`; eval tests 60 green; 1 CHANGELOG line.
 - Full eval rerun `full-2` (DEC-056): 360 of 360 runs, 0 errors, 2.116 USD list-price estimate; Sonnet 90 of 90 with and without the server, Haiku 83 and 87 of 90; LOG 2026-11-11 (1).
-- T-46f eval table renderer: `tools/eval_table.py`, tables in `docs/eval-results.md` from `full-2`; 1065 tests green.
 
 ## Next
 
-- `cto` report on T-59 (one large bench task, 5 questions in TASKS.md) and the seat size rule question; then pilot and pre-registration.
+- T-59a B7 large task (`budgetbook` output layer), then T-59c `auditor-mini` check; pilot (B7 and B3); pre-registration; full run of 42 runs.
 - T-53 Project C trial, once the maintainer names Project C (DEC-067 cited in TASKS.md but not written).
 
 ## Repository
@@ -56,5 +56,5 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 - R-1 rule question and the 2 lines in `.sdlc/project.md` wait for the maintainer.
 - CTO Q4 scoring rule waits for the pre-registration; Q5 server without the SDK waits for T-51.
 - DEC-067 (Project C choice) is cited in TASKS.md but missing from DECISIONS.md; asked again.
-- Seat size: `templates/seat.md` has no task-size line, so a one-line fix gets a full contract; the graded ceremony (DEC-058) is not in the plugin. T-59: one large bench task, 5 questions for `cto` in TASKS.md.
+- T-59 (B7, one large bench task, DEC-070 to DEC-072): not written yet; T-59a is the next step; 0 scored runs.
 - Bare-word candidate (Low, not triaged): `check-worktree` without dashes still falls to the guard's hook mode and writes 1 event line.

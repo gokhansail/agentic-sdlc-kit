@@ -2,6 +2,38 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-15 (2) - Bench decisions and T-59b seat size and contract ID format
+
+- The maintainer proposed T-59 on 2026-11-15: one large bench task, the size of rebuilding a whole page or screen. The TL put 5 questions to `cto`.
+- `cto` report `cto/2026-11-15_bench-large-task.md`. The maintainer chose every recommendation:
+  - DEC-070: B7 in the same sandbox (rebuild of the CLI output layer), reported apart; category on B1 to B6.
+  - DEC-071: machine scoring primary; blind review of 3 B7 diff pairs, secondary.
+  - DEC-072: 7 tasks, 3 repeats, 42 runs (mix 2 E, 3 M, 2 H); B7 caps from a pilot.
+  - DEC-073: the seat carries DEC-058 before the first scored run; then the kit is frozen.
+- `scout` read of the `smoke-2` kit stream (B1, kit arm):
+  - The main session wrote `## T-FIX-1 ...` in `.sdlc/active-contract.md` by hand. `_TASK_ID` rejects it, so the contract parsed as broken.
+  - The main session started `sdlc:developer` without a check; 2 sub-agent edits were denied.
+  - Cause, general: the ID format was named only as `<ID>` in 3 texts.
+- T-59b round 1 (`developer`, Sonnet, medium; committed acd5e01):
+  - `templates/seat.md` 18 lines: DEC-058 size line; check the contract before a sub-agent starts.
+  - ID format sentence in `_CONTRACT_FORMAT` (`tools/scope_guard.py`), `templates/task-contract.md` and `skills/contract/SKILL.md` step 2. Parsing unchanged.
+  - 1192 passed.
+  - Check run `check-1` (B1, kit arm only, cap 0.7 USD): 17 turns, 0.23 USD, 54 s, 7 of 7 hidden tests pass, 1 sub-agent, guard 4 allow 0 deny.
+  - Goal not met: the main session wrote `T-FIX-1` twice and reached `T-90` by `sed`. It never saw the format text.
+- Round 2 (maintainer's yes; committed f148c73):
+  - `check_contract` in `tools/scope_guard.py` adds the format sentence when the contract is missing or does not parse. The `contract` server tool and `--check-contract` both use it.
+  - 1195 passed (`developer`); 384 guard and server tests passed (TL).
+  - Check run `check-2` (B1, kit arm only, cap 0.5 USD): 11 turns, 0.170 USD, 52 s, 7 of 7 hidden tests pass, 1 sub-agent, guard 3 allow 0 deny.
+  - The format appeared in the first `contract` answer. One write, `## T-1 ...`, valid at once.
+  - One run each. This is not evidence of an effect.
+  - The main session removed the contract with `rm`, not `/sdlc:contract close`.
+- Rows V-24 and V-25 in `docs/toolchain.md`. Kit frozen at f148c73 for the bench (DEC-073).
+- Earlier today, T-56c [E]: 3 placeholder emails in the bench runner changed so the pre-push guard accepted the T-56b push.
+- Check runs spend 0.23 + 0.17 = 0.40 USD.
+- Metrics (T-59b): review rounds 1; questions back 0; out-of-scope files 0; models Sonnet (developer), Haiku (scout, scribe), Opus (cto).
+- Committed with this entry.
+- Next: T-59a B7 large task; T-59c check; pilot; pre-registration; full run of 42; T-53 once Project C is named.
+
 ## 2026-11-15 (1) - T-56b bench runner
 
 - The maintainer gave the go-ahead for T-56b [H]. The TL wrote the contract and placed `.sdlc/active-contract.md`.
