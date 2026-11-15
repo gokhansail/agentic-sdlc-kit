@@ -291,10 +291,12 @@ def test_contract_without_a_contract_and_with_a_broken_one(tmp_path: Path) -> No
     none = contract(make_project(tmp_path / "a", "project.md", None))
     assert none["valid"] is False and none["task_id"] is None and none["files_in"] == []
     assert none["message"] == scope_guard.check_contract(tmp_path / "a")[1] and "no active contract" in none["message"]
+    assert "Format: one '## <ID> <title>' heading" in none["message"] and "T-12a" in none["message"]
     assert none["guard_state"] == scope_guard.NO_CONTRACT and none["always_allowed"] == ["STATUS.md", "LOG.md"]
     broken = contract(make_project(tmp_path / "b", "project.md", "contract-broken.md"))
     assert broken["valid"] is False and broken["task_id"] is None and broken["files_in"] == []
     assert broken["message"] == scope_guard.check_contract(tmp_path / "b")[1] and "active-contract.md" in broken["message"]
+    assert "Format: one '## <ID> <title>' heading" in broken["message"] and "T-12a" in broken["message"]
     assert broken["guard_state"] == scope_guard.BROKEN
 
 

@@ -307,6 +307,34 @@ def test_sub_agent_deny_texts_are_unchanged(tmp_path: Path) -> None:
     assert code == 2 and SUB_BROKEN in err and "/sdlc:contract" not in err
 
 
+def test_sub_agent_next_steps_are_byte_equal_to_the_old_texts() -> None:
+    no_contract = sg.decide("src/a.py", sg.NO_CONTRACT, None, [], True, False)
+    assert no_contract.next_step == "Ask the technical lead to place .sdlc/active-contract.md for this task."
+    broken = sg.decide("src/a.py", sg.BROKEN, None, [], True, False, broken_reason="x")
+    assert broken.next_step == "Ask the technical lead to fix .sdlc/active-contract.md."
+
+
+def test_check_contract_messages_carry_the_format_when_missing_or_broken(tmp_path: Path) -> None:
+    ending = f"Format: {sg._CONTRACT_FORMAT}."
+    missing = sg.check_contract(make_project(tmp_path / "a", contract=None))
+    assert missing[0] == 1 and missing[1].startswith("no active contract") and missing[1].endswith(ending)
+    broken = sg.check_contract(make_project(tmp_path / "b", contract="## no id\n- Files in: `a`\n- Files out: `b`\n"))
+    assert broken[0] == 1 and "no task ID" in broken[1] and broken[1].endswith(ending)
+    for message in (missing[1], broken[1]):
+        for part in ID_SENTENCE_PARTS:
+            assert part in message
+        example = re.search(r"for example (T-\d+[a-z]?)", message)
+        assert example and sg._TASK_ID.fullmatch(example.group(1))
+
+
+def test_check_contract_message_for_a_valid_contract_is_unchanged(tmp_path: Path) -> None:
+    root = make_project(tmp_path)
+    code, message = sg.check_contract(root)
+    parsed = sg.parse_contract(CONTRACT)
+    assert code == 0 and "Format" not in message
+    assert message == f"contract T-99: {len(parsed.files_in)} Files in, {len(parsed.files_out)} Files out"
+
+
 def test_the_format_in_the_main_session_text_parses_as_an_active_contract(tmp_path: Path) -> None:
     # Built only from what the deny text says: one `## <ID> <title>` heading, one `- Files in:`
     # line, one `- Files out:` line, every path in backticks.

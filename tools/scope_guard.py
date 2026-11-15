@@ -567,11 +567,11 @@ def check_contract(root: Path) -> tuple[int, str]:
     """Exit code and message for `--check-contract`."""
     contract_path = root / CONTRACT_FILE
     if not contract_path.is_file():
-        return 1, f"no active contract: {CONTRACT_FILE} does not exist"
+        return 1, f"no active contract: {CONTRACT_FILE} does not exist. Format: {_CONTRACT_FORMAT}."
     try:
         contract = parse_contract(_read(contract_path))
     except (ConfigError, OSError) as exc:
-        return 1, f"{CONTRACT_FILE}: {exc}"
+        return 1, f"{CONTRACT_FILE}: {exc}. Format: {_CONTRACT_FORMAT}."
     project = root / PROJECT_FILE
     if project.is_file():
         try:
