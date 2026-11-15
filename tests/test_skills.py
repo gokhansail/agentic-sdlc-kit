@@ -93,6 +93,14 @@ def test_the_skills_name_the_scripts_and_the_template_they_need() -> None:
     assert "${CLAUDE_PLUGIN_ROOT}/tools/install_git_hooks.py\" --target ." in text_of("install-hooks")
 
 
+def test_the_task_id_format_is_stated_in_the_template_and_the_contract_skill() -> None:
+    sentence = ("capital letters, one dash, digits and an optional lower-case letter, "
+                "for example `T-12` or `T-12a`; with no tasks record, number from `T-1`")
+    template = (ROOT / "templates" / "task-contract.md").read_text(encoding="utf-8")
+    assert sentence in template
+    assert sentence in " ".join(text_of("contract").split())
+
+
 @pytest.mark.parametrize("name", ["contract", "install-hooks", "review"])
 def test_python_is_tried_in_the_launcher_order(name: str) -> None:
     text = text_of(name)

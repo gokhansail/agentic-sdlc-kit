@@ -566,3 +566,39 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: both arms stay isolated; the only difference between them is the kit.
 - Consequences: in the kit arm the server starts from the extracted kit's `server/main.py` with the run copy as project root, and its tools are named `mcp__sdlc__*`, not as the installed plugin names them. The bench limits state that the server was not started through `plugin.json`.
 - Outcome:
+
+## DEC-070 Large bench task B7, reported apart from the 6-task category
+- Date: 2026-11-15 · Question: `cto/2026-11-15_bench-large-task.md` Q1, Q2; T-59
+- Facts: the customer asked for a task the size of rebuilding a whole page or screen. Proposed after `smoke-2` (B1, 1 run per arm: plain 0.038 USD, 11 s; kit 0.305 USD, 115 s; both 7/7). Plain cost on B1 varied 5.5 times across 2 runs (V-19, `smoke-2`); kit to plain ratio 1.7 in one pair, 8 in the other. 0 scored runs; set v1 frozen.
+- Options: a) B7 in the same sandbox, reported apart; category on B1 to B6 b) category on 7 tasks c) no large task. Form: a) rebuild of the CLI output layer in the same sandbox b) a second sandbox with an HTML page c) both.
+- Decision: a) and a), the CTO recommendation.
+- Reason: the addition follows a result that looked bad for the kit, so it must not move the headline. A CLI screen is printed text, which hidden tests can pin byte for byte; a page sandbox costs a second project and a runner change and tests still cannot judge its look. The real page work is in T-53.
+- Consequences: set v2 with a new hash; B7 frozen before any model run on it; pre-registered reading H5 (B7 full passes per arm out of 3; cost ratio on B7 against the E tasks; no threshold); the pre-registration states the motive and both hashes; B7 is published whatever its result. A pilot result on B7 changes neither the task nor the kit.
+- Outcome:
+
+## DEC-071 B7 scoring: machine primary, blind review secondary
+- Date: 2026-11-15 · Question: `cto/2026-11-15_bench-large-task.md` Q3
+- Facts: hidden tests can judge printed text, JSON and CSV structure, exit codes and file bytes; they cannot judge module structure, duplication or readability. Every task allows `tests/*`, so an arm can change visible tests.
+- Options: a) machine scoring plus the customer's blind review of the 3 B7 diff pairs, reported apart b) machine only c) blind review of all 21 pairs.
+- Decision: a), the CTO recommendation.
+- Reason: adds a view of design for the one task where design is the point, at about 3 pairs of the customer's time; it cannot change H1 or H5.
+- Consequences: `scout` strips `.sdlc/` and the kit record files, names each pair X and Y in a seeded order and keeps the key outside the repository; a fixed form: which one would you merge, and one line why. B7's hidden tests repeat the key visible checks. n = 1 reviewer who knows the kit; the blinding is partial; stated as a limit.
+- Outcome:
+
+## DEC-072 Bench count: 7 tasks, 3 repeats, 42 runs
+- Date: 2026-11-15 · Question: `cto/2026-11-15_bench-large-task.md` Q4; amends DEC-065
+- Facts: DEC-065 planned 2 arms x 6 tasks x 3 repeats = 36 runs. The runner has one per-run cap and timeout for all tasks (2 USD, 2,700 s), and `--resume` refuses changed flags. `bench/README.md` shows `--repeats 2` in its example.
+- Options: a) 1 large task, 3 repeats, 42 runs, B7 caps from a pilot b) 2 large tasks, 48 runs c) B7 with 1 repeat, 38 runs.
+- Decision: a), the CTO recommendation.
+- Reason: 3 repeats as DEC-012 and DEC-065; 1 run per arm would repeat the smoke problem; a second large task changes the mix for one more sample.
+- Consequences: mix 2 E, 3 M, 2 H. B1 to B6 run under one label with the current caps, B7 under its own label with caps from the pilot (per-run cap 3 times the pilot kit cost, timeout the larger of 2,700 s and 3 times the pilot time; the factor 3 is opinion). Pilot: B7 and B3, 2 arms, 1 run each, not scored. The pre-registration names the exact commands; the README example is corrected to 3 repeats.
+- Outcome:
+
+## DEC-073 The seat text carries the graded ceremony before the first scored run
+- Date: 2026-11-15 · Question: `cto/2026-11-15_bench-large-task.md` Q5; `smoke-2`
+- Facts: `templates/seat.md` (16 lines) has no line on task size; DEC-058 is in `PLAYBOOK.md` and this repository's `CLAUDE.md` only. In `smoke-2` the kit started `sdlc:developer` 2 times and had 3 guard denies for a one-line fix; the sub-agent started before the main session's contract parsed.
+- Options: a) add 1 seat line that delivers DEC-058, read the `smoke-2` stream for the early-start deny and fix it only if its cause is general, 1 check run of B1 (excluded), then freeze the kit b) measure as shipped and state the gap as a limit.
+- Decision: a), the CTO recommendation.
+- Reason: DEC-058 was decided on 2026-11-11; b) would measure a seat that v0.1.0 does not ship. Expected effect is small (CTO opinion): the overhead comes from delegation and the sequencing fault, and DEC-066 keeps every role on Sonnet.
+- Consequences: T-59b before the pilot. It is the second change after a result was seen (after DEC-068); the pre-registration states both. After the check run the kit does not change before the full run except for harness errors.
+- Outcome:

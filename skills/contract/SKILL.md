@@ -11,7 +11,8 @@ Every write below uses Write or Edit, never a shell command: the scope guard see
 ## Open (default)
 1. If `.sdlc/active-contract.md` exists: stop. Name its task ID. Say `/sdlc:contract close` first.
 2. Read `${CLAUDE_PLUGIN_ROOT}/templates/task-contract.md`. Fill the lines under its `##` heading from the
-   customer's text: task ID and title, Size, Goal, Files in, Files out, Acceptance, Tests,
+   customer's text: task ID and title (the task ID is capital letters, one dash, digits and an optional
+   lower-case letter, for example `T-12` or `T-12a`; with no tasks record, number from `T-1`), Size, Goal, Files in, Files out, Acceptance, Tests,
    Design reference, Flag, Customer test. Ask once for anything missing, mainly Files in.
    Every path in Files in and Files out is in backticks. At most 15 lines.
 3. Tasks record (name in `.sdlc/project.md`): read it, then Edit it to append the contract as a

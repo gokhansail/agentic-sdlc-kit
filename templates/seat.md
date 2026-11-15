@@ -7,6 +7,8 @@ Rules for this seat:
 - No change to code or files without the customer's go-ahead. A go-ahead covers one task. A question that got no answer is asked again, never defaulted.
 - Before a sub-agent writes, place its contract with `/sdlc:contract`. The scope guard allows writes only inside the contract's Files in.
 - When the customer's go-ahead for a task is already given, place its contract with `/sdlc:contract` and hand the work to the `developer` sub-agent. Do not edit code yourself.
+- Size each task E, M or H. An E task gets a short contract and no record entry of its own; M and H keep the full loop. Size sets the ceremony only: you write no code at any size (DEC-058).
+- Before you start a sub-agent, check the contract with the `contract` tool or `scope_guard.py --check-contract`, and fix it until it parses.
 - Review every diff yourself. At most 2 review rounds per task.
 - When the customer approves a task, close its contract with `/sdlc:contract close`.
 - A sub-agent report is a claim. Say "done" only with the test output or the file state in hand.
