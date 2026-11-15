@@ -2,6 +2,29 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-16 (2) - B7 check, fix round and re-verify (T-59c to T-59e)
+
+- The maintainer approved the commit on 2026-11-16 and asked for the B7 check before the pre-registration.
+- T-59c, `auditor-mini` (Opus, high): check of B7 set v2 (commit 740c1d1) against its hidden tests. CONDITIONAL ACCEPT: High 0, Medium 2, Low 5. Report `audits/2026-11-16_b7-check.md`.
+  - B7-1 (Medium): on Windows a real process prints CRLF, while `task.md` said there is no carriage return. The hidden tests read stdout in process, so an arm writing at file-descriptor level could fail every CSV test.
+  - B7-2 (Medium): every `allowed.txt` pattern ended in `.py`, while the text allowed new files of any kind.
+  - B7-3 (Low, recommended): some visible checks were not repeated in the hidden tests (`import`, `recurring add`).
+  - B7-4 to B7-7 (Low): open.
+  - No B7 run before 740c1d1.
+- The maintainer chose the fix round for B7-1, B7-2 and B7-3.
+- T-59d, `developer` (Sonnet, medium), set v3:
+  - `task.md`: 1 sentence on line ends (B7-1).
+  - `allowed.txt`: 8 new-file patterns without `.py` (B7-2).
+  - Hidden tests: `import` and `recurring add` in the wrong-usage list; 2 new tests (`Imported 1 transaction.` and `Imported 0 transactions.`; the error lines of `remove` and `edit`); 45 to 47 hidden tests (B7-3).
+  - `bench/README.md`: v3 hash line; v2 and v1 lines kept.
+  - The TL contract named the wrong file for the "other commands" lists; the developer used the right one.
+  - Set v3 hash `e7f25782b9d3b370a9ce0eac4715d3dafb73b158b6d6c0ab8f7b287fdf5c2b4b`.
+- T-59e, `auditor-mini` (Opus, high): re-verify ACCEPT, report `audits/2026-11-16_b7-reverify.md`. B7-1, B7-2 and B7-3 CLOSED. Reference: 47 of 47 hidden, 115 of 115 visible. Unchanged project: 27 fail, 20 pass of 47. Hash recomputed by the auditor: equal.
+- Open: B7-4 to B7-7 (Low). The pass floor for the pre-registration is 20 of 47 (0.43). Candidate outside B7: the runner does not count changed or deleted visible test files per run; the TL asks the maintainer before the pre-registration.
+- Full suite (TL): 1204 passed, 6 skipped.
+- Metrics: T-59c questions back 0; T-59d review rounds 0, questions back 0 (1 contract wording error by the TL), out-of-scope files 0; T-59e 0. Models: Opus (`auditor-mini`), Sonnet (`developer`), Haiku (scribe).
+- Next: decide the runner candidate; pilot (B7 and B3, 2 arms, 1 run each); pre-registration; full run of 42; T-53 once Project C is named.
+
 ## 2026-11-16 (1) - T-59a B7 large bench task
 
 - The maintainer said "continue with the next dev task". The TL wrote the T-59a contract (`TASKS.md`) and placed `.sdlc/active-contract.md`. Approved by the maintainer 2026-11-16 [H].

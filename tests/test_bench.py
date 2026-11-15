@@ -31,7 +31,7 @@ README = BENCH / "README.md"
 TASK_IDS = ["B1", "B2", "B3", "B4", "B5", "B6", "B7"]
 SKIP_DIRS = {"__pycache__", ".pytest_cache"}
 SKIP_SUFFIXES = {".pyc"}
-# The current set (v2). The runner reads the same line, so no other line may look like it.
+# The current set (v3). The runner reads the same line, so no other line may look like it.
 HASH_LINE = re.compile(r"^SHA-256: `([0-9a-f]{64})`$", re.MULTILINE)
 # Set v1 (B1 to B6) stays in the README, marked as v1 and as replaced.
 V1_LINE = re.compile(r"^Set v1 \(B1 to B6, replaced by v2\): `([0-9a-f]{64})`$", re.MULTILINE)
@@ -127,7 +127,7 @@ def outside_allowed(paths: set[str], patterns: list[str]) -> list[str]:
 
 def test_readme_hash_matches_the_files():
     matches = HASH_LINE.findall(README.read_text(encoding="utf-8"))
-    assert len(matches) == 1, "bench/README.md must have exactly one 'SHA-256: `<hex>`' line (the v2 line)"
+    assert len(matches) == 1, "bench/README.md must have exactly one 'SHA-256: `<hex>`' line (the v3 line)"
     assert matches[0] == tree_hash(BENCH)
 
 

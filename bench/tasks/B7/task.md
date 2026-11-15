@@ -42,5 +42,5 @@ Standard output is the table of the command and nothing else.
 - The first line is the header: the row keys listed for JSON, in that order, separated by commas (`id,date,amount,account,category,description` for `list`). Then one line per row, with the same values in the same order as the JSON rows. A `null` value and an empty description are both an empty field. No rows: the header line only.
 - No title line, no total or net line and no label line. So the CSV of `report` has the `categories` rows only, the CSV of `summary` has the twelve month rows and no year row, and the CSV of `compare` is the header and one row.
 - The separator is a comma. A field is wrapped in double quotes only when it contains a comma, a double quote or a line feed, and a double quote inside a field is written twice.
-- Every line, the last one too, ends with a single line feed. There is no carriage return.
+- Every line, the last one too, ends with a single line feed. There is no carriage return. The line ends are those the program writes to `sys.stdout`; the newline translation of the Windows console is not part of the task.
 - Descriptions are not shortened.

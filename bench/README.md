@@ -1,6 +1,6 @@
 # Bench
 
-What is this folder? The fixed task set for the kit-against-plain-prompt comparison (DEC-065): one small sandbox project, 7 tasks on it, and the hidden tests that score each task by machine. Set v1 had B1 to B6; set v2 adds B7, a rebuild of the output layer, which is reported apart from the other six (DEC-070). Each set was written and frozen before any model run on its tasks, and no model was called to build them. The runner that uses it is `tools/bench_run.py` (T-56b, see "Running the bench").
+What is this folder? The fixed task set for the kit-against-plain-prompt comparison (DEC-065): one small sandbox project, 7 tasks on it, and the hidden tests that score each task by machine. Set v1 had B1 to B6; set v2 adds B7, a rebuild of the output layer, which is reported apart from the other six (DEC-070); set v3 is v2 with the fixes of the B7 check (T-59d). Each set was written and frozen before any model run on its tasks, and no model was called to build them. The runner that uses it is `tools/bench_run.py` (T-56b, see "Running the bench").
 
 ## Contents
 - `project/`: the sandbox, a household budget ledger called `budgetbook` (transactions, categories, recurring items, monthly budgets, CSV import and export, a command line). Python 3.10, standard library only, 20 modules, about 1,500 lines, a visible pytest suite that is green. It has its own `pyproject.toml` and a README on how to run its tests. It has no `.git`.
@@ -41,13 +41,15 @@ Sizes follow the kit's own scale: 2 E, 3 M, 2 H. B7 is reported apart from B1 to
 ## Frozen
 SHA-256 over every file under `project/` and `tasks/`, in this way: take the paths relative to `bench/` with `/` as separator, leave out `__pycache__` and `.pytest_cache` folders and `*.pyc` files, sort the paths as plain strings, and feed into SHA-256 for each file the path in UTF-8, one NUL byte, the content with every CRLF turned into LF, one NUL byte. `tests/test_bench.py` has the same function (`tree_hash`) and checks this line.
 
-Set v2 (B1 to B7, current; B7 was added in T-59a and frozen before any model run on it, DEC-070):
+Set v3 (B1 to B7, current; B7 was fixed in T-59d after the check of `audits/2026-11-16_b7-check.md` and frozen before any model run on it, DEC-070):
 
-SHA-256: `6b5154df73e57284e3a0a145f834dc04109da0164c2caf726ffe9922f9bf8a3e`
+SHA-256: `e7f25782b9d3b370a9ce0eac4715d3dafb73b158b6d6c0ab8f7b287fdf5c2b4b`
+
+Set v2 (B1 to B7, replaced by v3; B7 was added in T-59a): `6b5154df73e57284e3a0a145f834dc04109da0164c2caf726ffe9922f9bf8a3e`
 
 Set v1 (B1 to B6, replaced by v2): `113493b1602a49057bf3b76ea69b494238ef6a63d6ef88c4c1af22c697d66aaf`
 
-v1 is kept so that a result made on it can be traced. `tests/test_bench.py` checks that the project and B1 to B6 alone still give the v1 value, so v2 differs from v1 by the folder `tasks/B7` only. The `smoke-*` and `check-*` files in `results/` were made on v1.
+v2 and v1 are kept so that a result made on them can be traced. v3 changes `tasks/B7` only (a sentence on line ends and `allowed.txt` in the task, 2 more hidden tests, and `import` and `recurring add` in the wrong-usage list of the option test); `tests/test_bench.py` checks that the project and B1 to B6 alone still give the v1 value, so v3 differs from v1 by the folder `tasks/B7` only. No model ran on B7 under v2. The `smoke-*` and `check-*` files in `results/` were made on v1.
 
 The project, the tasks, the hidden tests and the patches do not change after freezing. A change is a new version of the set with a new hash and a new line here; results from different versions are not compared.
 
@@ -70,7 +72,7 @@ python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 3 --resume --
 
 ## Limits
 - One synthetic project and 7 tasks: a result is a sample, not a general measure.
-- B7 is the only task of its size (a reference patch of 639 lines over 4 files, 45 hidden tests; B6 has 183 lines). It is reported apart from B1 to B6 and does not count in their category (DEC-070); it is run under its own label with its own caps (DEC-072), for example `--tasks B1,B2,B3,B4,B5,B6` for the first label and `--tasks B7` for the second. Its tests judge printed text, JSON and CSV, exit codes and the ledger file. They do not judge module structure, duplication or readability, so a rebuild that copies code instead of restructuring it can pass; the secondary blind review of the diffs covers that (DEC-071). The task text pins the JSON and CSV shapes exactly, so the tests do not judge a guess, and that makes B7 a rebuild plus a specification, not an open design task.
+- B7 is the only task of its size (a reference patch of 639 lines over 4 files, 47 hidden tests; B6 has 183 lines). It is reported apart from B1 to B6 and does not count in their category (DEC-070); it is run under its own label with its own caps (DEC-072), for example `--tasks B1,B2,B3,B4,B5,B6` for the first label and `--tasks B7` for the second. Its tests judge printed text, JSON and CSV, exit codes and the ledger file. They do not judge module structure, duplication or readability, so a rebuild that copies code instead of restructuring it can pass; the secondary blind review of the diffs covers that (DEC-071). The task text pins the JSON and CSV shapes exactly, so the tests do not judge a guess, and that makes B7 a rebuild plus a specification, not an open design task.
 - The author of the kit wrote the sandbox, the tasks and the hidden tests. The tasks were not changed after looking at any model result, and no model was run on them.
 - The kit arm's server is started through `--mcp-config`, not through the plugin's `plugin.json` (DEC-069); under `--strict-mcp-config` the plugin's own entry did not start. The tool names (`mcp__sdlc__*`) differ from those of the installed plugin, so a run does not test the plugin's MCP wiring.
 - Scoring is by machine only. It does not judge readability or design, and it does not include the customer's own test of a result.

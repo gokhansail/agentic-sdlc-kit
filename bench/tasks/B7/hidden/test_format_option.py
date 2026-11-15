@@ -47,6 +47,8 @@ def test_other_commands_do_not_take_the_option(run, rich):
         ("remove", "1"),
         ("installments", "100", "3", "2024-05-31", "furniture"),
         ("export", "-"),
+        ("import", "bank.csv"),
+        ("recurring", "add", "rent", "-900", "housing", "monthly", "2024-01-31"),
         ("recurring", "list"),
         ("budget", "set", "food", "10"),
         ("budget", "remove", "food"),
@@ -67,6 +69,22 @@ def test_other_commands_print_what_they_printed_before(run, data_file):
     assert run("recurring", "list")[1] == "rent: -900.00 monthly from 2024-01-31\n"
     assert run("budget", "set", "Eating Out", "200")[1] == "Budget for eating out set.\n"
     assert run("budget", "remove", "eating out")[1] == "Budget for eating out removed.\n"
+
+
+def test_import_prints_what_it_printed_before(run, data_file, tmp_path):
+    source = tmp_path / "bank.csv"
+    source.write_text("date,amount,category\n2024-03-05,-5,food\n", encoding="utf-8")
+    assert run("import", str(source))[1] == "Imported 1 transaction.\n"
+    assert run("import", str(source), "--skip-duplicates")[1] == "Imported 0 transactions.\n"
+
+
+def test_a_failing_edit_keeps_its_error_line(run, rich):
+    code, out, err = run("remove", "99")
+    assert code == 1 and out == ""
+    assert err.startswith("error: no transaction with id 99")
+    code, out, err = run("edit", "1")
+    assert code == 1 and out == ""
+    assert err.startswith("error: nothing to change")
 
 
 def test_export_keeps_its_own_columns(run, data_file):
