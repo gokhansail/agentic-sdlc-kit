@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-15
-Now: Phase 5 bench decisions made (DEC-070 to DEC-073); T-59b committed (seat 18 lines, contract ID format, `check_contract` message; check runs `check-1` and `check-2` on B1, 7 of 7 each, 0.40 USD; kit frozen at f148c73 for the bench); next T-59a B7 large task · repository private · code written, 1195 tests passed
+Last updated: 2026-11-16
+Now: T-59a done (B7 `budgetbook` output layer frozen; set v2 hash `6b5154df...8a3e`; no model run); next T-59c `auditor-mini` check of B7 · repository private · code written, 1204 tests passed
 
 ## Phase
 
@@ -17,10 +17,11 @@ Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix r
 
 Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor` CONDITIONAL ACCEPT, fix round T-45a to T-45c, `auditor-mini` ACCEPT; `audits/`).
 
-Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-56b, T-56c, T-58, T-59b done); bench of kit against plain prompt, 2 arms, 42 runs over 7 tasks (DEC-065, amended by DEC-072).
+Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-56b, T-56c, T-58, T-59b, T-59a done); bench of kit against plain prompt, 2 arms, 42 runs over 7 tasks (DEC-065, amended by DEC-072).
 
 ## Done
 
+- T-59a B7 large bench task: `budgetbook` output layer as bench task B7 (`bench/tasks/B7/`, 45 hidden tests, 639-line reference patch, 27 of 45 fail on the unchanged project); set v2 hash `6b5154df...8a3e`; 2 review rounds; no model run; 1204 passed.
 - T-59b seat size and contract ID format: seat 18 lines (DEC-058 size line; check the contract before delegating); ID format in 3 texts; `check_contract` adds the format on a missing or broken contract (DEC-073); `check-1` 7 of 7 and still `T-FIX-1`; `check-2` 7 of 7, first write parsed; 1195 passed.
 - T-56b bench runner: `tools/bench_run.py` (1172 lines, 58 tests); kit arm through `--mcp-config` (DEC-069); smoke-2 on B1 7 of 7 in both arms, 1 run each; 1189 tests green.
 - T-58 guard deny text: a main-session deny names /sdlc:contract and the contract format; seat line added; 1131 tests green.
@@ -35,11 +36,10 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 - T-44a guard match in bounded time: S-6, S-7, S-8 fixed, 0 security findings open; 992 tests green.
 - T-46d eval runner review items 3 to 5: process tree stop, resume refusal on changed settings, seeded condition order; 1052 tests green; committed and pushed (07672c8).
 - T-46e runbook says 120 runs (DEC-055): full command `--repeats 1 --budget-usd 3`; eval tests 60 green; 1 CHANGELOG line.
-- Full eval rerun `full-2` (DEC-056): 360 of 360 runs, 0 errors, 2.116 USD list-price estimate; Sonnet 90 of 90 with and without the server, Haiku 83 and 87 of 90; LOG 2026-11-11 (1).
 
 ## Next
 
-- T-59a B7 large task (`budgetbook` output layer), then T-59c `auditor-mini` check; pilot (B7 and B3); pre-registration; full run of 42 runs.
+- T-59c `auditor-mini` check of B7's text against its hidden tests; pilot (B7 and B3); pre-registration; full run of 42 runs.
 - T-53 Project C trial, once the maintainer names Project C (DEC-067 cited in TASKS.md but not written).
 
 ## Repository
@@ -56,5 +56,5 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 - R-1 rule question and the 2 lines in `.sdlc/project.md` wait for the maintainer.
 - CTO Q4 scoring rule waits for the pre-registration; Q5 server without the SDK waits for T-51.
 - DEC-067 (Project C choice) is cited in TASKS.md but missing from DECISIONS.md; asked again.
-- T-59 (B7, one large bench task, DEC-070 to DEC-072): not written yet; T-59a is the next step; 0 scored runs.
+- T-59 (B7, one large bench task, DEC-070 to DEC-072): T-59a done 2026-11-16 (B7 frozen, set v2 hash); T-59c next; 0 scored runs.
 - Bare-word candidate (Low, not triaged): `check-worktree` without dashes still falls to the guard's hook mode and writes 1 event line.

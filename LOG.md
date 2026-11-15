@@ -2,6 +2,28 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-16 (1) - T-59a B7 large bench task
+
+- The maintainer said "continue with the next dev task". The TL wrote the T-59a contract (`TASKS.md`) and placed `.sdlc/active-contract.md`. Approved by the maintainer 2026-11-16 [H].
+- `developer` (Sonnet, high). The previous session ended mid-task. The work on disk was intact; the TL resumed `developer`.
+- Round 1:
+  - B7 built in `bench/tasks/B7/`: `task.md` 46 lines; 45 hidden tests in 4 files (text 13, JSON 12, CSV 11, option 9); `reference.patch` 639 lines over 4 files (`README.md`, `cli.py`, `rendering.py`, new `tables.py`); `allowed.txt` 12 patterns.
+  - The unchanged project fails 27 of 45 hidden tests; 18 text checks pass by design. With the patch: 45 of 45 hidden, visible suite 115 green.
+  - Full suite: 1 failed, 1203 passed. `tests/test_bench_run.py` real-bench dry run expected 12 runs and saw 14 (B7 included). That file was outside the contract; `developer` returned it as a question.
+- TL review finding: `task.md` left the new module name free, while `allowed.txt` covers only the listed name prefixes. A free name could count as out of scope.
+- Round 2 (the maintainer's yes):
+  - The runner test passes `--tasks B1,B2,B3,B4,B5,B6` and still expects 12 runs. Test file only, no runner change.
+  - One `task.md` sentence on where new code may go, worded to match `allowed.txt`.
+  - The stale comment in `allowed.txt` fixed (the maintainer's yes).
+  - The TL ran `tests/test_bench.py` and `tests/test_bench_run.py`: 99 passed.
+  - Set v2 hash `6b5154df73e57284e3a0a145f834dc04109da0164c2caf726ffe9922f9bf8a3e`.
+- No model run on B7. Out-of-scope paths unchanged (`bench/project`, B1 to B6, `tools`, `server`), checked by the TL with `git status`.
+- Open in `task.md`, judged by no test: `change_percent` sign at zero; `\r` in a CSV field; `--format` given twice or before the command. For T-59c.
+- Pre-registration note: `--tasks all` now includes B7. The commands must name `--tasks B1,B2,B3,B4,B5,B6` and `--tasks B7`.
+- Metrics (T-59a): review rounds 2; questions back 1; out-of-scope files 0; models Sonnet (developer), Haiku (scribe).
+- Full suite (TL): 1204 passed, 6 skipped.
+- Next: T-59c `auditor-mini` check of B7's text against its hidden tests; pilot (B7 and B3); pre-registration; full run of 42; T-53 once Project C is named.
+
 ## 2026-11-15 (2) - Bench decisions and T-59b seat size and contract ID format
 
 - The maintainer proposed T-59 on 2026-11-15: one large bench task, the size of rebuilding a whole page or screen. The TL put 5 questions to `cto`.

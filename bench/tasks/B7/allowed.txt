@@ -1,0 +1,13 @@
+# The output layer, the command line, the project README and tests; a new module's name begins with one of the listed words (table, column, output, format, render, layout, view) or the module sits in a new subfolder.
+budgetbook/cli.py
+budgetbook/rendering.py
+budgetbook/table*.py
+budgetbook/column*.py
+budgetbook/output*.py
+budgetbook/format*.py
+budgetbook/render*.py
+budgetbook/layout*.py
+budgetbook/view*.py
+budgetbook/*/*.py
+README.md
+tests/*

@@ -1,0 +1,639 @@
+diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -21,12 +21,15 @@ python -m budgetbook add 2024-03-05 -42.80 "food/groceries" "weekly shop"
+ python -m budgetbook add 2024-03-01 2500 salary
+ python -m budgetbook list --from 2024-03-01 --to 2024-03-31
+ python -m budgetbook report 2024-03
++python -m budgetbook report 2024-03 --format json
+ python -m budgetbook budget set food 400
+ python -m budgetbook recurring add rent -900 housing monthly 2024-01-01
+ python -m budgetbook forecast 2024-04
+ python -m budgetbook export march.csv --from 2024-03-01 --to 2024-03-31
+ ```
+
++`list`, `top`, `report`, `summary`, `compare`, `accounts`, `forecast` and `budget list` take `--format text|json|csv` (default `text`).
++
+ Amounts are signed: negative is an expense, positive is income or a refund. Categories may have parts, `food/groceries`; a filter on `food` includes everything below it.
+
+ ## Layout
+@@ -46,7 +49,8 @@ Amounts are signed: negative is an expense, positive is income or a refund. Cate
+ | `summary.py` | yearly summary |
+ | `accounts.py` | balances per account |
+ | `textfmt.py` | text padding and truncation (display team) |
+-| `rendering.py` | text output for the commands |
++| `tables.py` | a `Table` (columns, rows, surrounding lines) and its text, JSON and CSV output |
++| `rendering.py` | the `Table` of each table command |
+ | `config.py` | settings from the environment and `.env` |
+ | `cli.py` | the command line |
+
+@@ -54,5 +58,5 @@ Amounts are signed: negative is an expense, positive is income or a refund. Cate
+
+ - Money is integer cents inside the package; floats are not used for amounts.
+ - A category is always passed through `normalize_category` before it is stored or compared.
+-- Output functions in `rendering.py` return strings; only `cli.py` prints.
++- A table command describes its output once, as a `Table` in `rendering.py`; `tables.py` turns it into text, JSON or CSV. Both return strings; only `cli.py` prints.
+ - `textfmt.py` belongs to the display team. Other teams do not edit it.
+diff --git a/budgetbook/cli.py b/budgetbook/cli.py
+--- a/budgetbook/cli.py
++++ b/budgetbook/cli.py
+@@ -23,18 +23,19 @@ from .models import FREQUENCIES, RecurringItem
+ from .money import format_amount, parse_amount
+ from .recurring import forecast
+ from .rendering import (
+-    render_balances,
+-    render_budget_list,
+-    render_comparison,
+-    render_forecast,
+-    render_report,
+-    render_summary,
+-    render_top,
+-    render_transactions,
++    balances_table,
++    budget_list_table,
++    comparison_table,
++    forecast_table,
++    report_table,
++    summary_table,
++    top_table,
++    transactions_table,
+ )
+ from .reports import monthly_report
+ from .stats import compare_with_previous_month, top_categories
+ from .summary import year_totals, yearly_summary
++from .tables import FORMATS, Table, render
+
+
+ def _date_arg(text: str) -> dt.date:
+@@ -58,6 +59,10 @@ def _amount_arg(text: str) -> int:
+         raise argparse.ArgumentTypeError(str(exc)) from None
+
+
++def _add_format(parser: argparse.ArgumentParser) -> None:
++    parser.add_argument("--format", choices=FORMATS, default="text", help="output format (default: text)")
++
++
+ def build_parser() -> argparse.ArgumentParser:
+     parser = argparse.ArgumentParser(prog="budgetbook", description="A small household budget ledger.")
+     parser.add_argument("--data", help="ledger file (default: BUDGETBOOK_DATA_FILE or budgetbook.json)")
+@@ -77,6 +82,7 @@ def build_parser() -> argparse.ArgumentParser:
+     lst.add_argument("--category", help="a category and everything below it")
+     lst.add_argument("--account")
+     lst.add_argument("--search", help="text in description or category")
++    _add_format(lst)
+     lst.set_defaults(handler=_cmd_list)
+
+     edit = commands.add_parser("edit", help="change fields of a transaction")
+@@ -94,23 +100,28 @@ def build_parser() -> argparse.ArgumentParser:
+
+     report = commands.add_parser("report", help="monthly report")
+     report.add_argument("month", type=_month_arg, help="YYYY-MM")
++    _add_format(report)
+     report.set_defaults(handler=_cmd_report)
+
+     summary = commands.add_parser("summary", help="income and expenses for each month of a year")
+     summary.add_argument("year", type=int)
++    _add_format(summary)
+     summary.set_defaults(handler=_cmd_summary)
+
+     accounts = commands.add_parser("accounts", help="balance per account")
+     accounts.add_argument("--as-of", type=_date_arg)
++    _add_format(accounts)
+     accounts.set_defaults(handler=_cmd_accounts)
+
+     top = commands.add_parser("top", help="the top-level categories with the highest expenses in a month")
+     top.add_argument("month", type=_month_arg, help="YYYY-MM")
+     top.add_argument("--count", type=int, default=5)
++    _add_format(top)
+     top.set_defaults(handler=_cmd_top)
+
+     compare = commands.add_parser("compare", help="expenses of a month against the month before")
+     compare.add_argument("month", type=_month_arg, help="YYYY-MM")
++    _add_format(compare)
+     compare.set_defaults(handler=_cmd_compare)
+
+     inst = commands.add_parser("installments", help="book a purchase paid in monthly parts")
+@@ -149,6 +160,7 @@ def build_parser() -> argparse.ArgumentParser:
+
+     fc = commands.add_parser("forecast", help="expected recurring bookings in a month")
+     fc.add_argument("month", type=_month_arg, help="YYYY-MM")
++    _add_format(fc)
+     fc.set_defaults(handler=_cmd_forecast)
+
+     budget = commands.add_parser("budget", help="monthly budgets per category")
+@@ -158,6 +170,7 @@ def build_parser() -> argparse.ArgumentParser:
+     b_set.add_argument("limit", type=_amount_arg)
+     b_set.set_defaults(handler=_cmd_budget_set)
+     b_list = budget_commands.add_parser("list")
++    _add_format(b_list)
+     b_list.set_defaults(handler=_cmd_budget_list)
+     b_remove = budget_commands.add_parser("remove")
+     b_remove.add_argument("category")
+@@ -165,6 +178,10 @@ def build_parser() -> argparse.ArgumentParser:
+     return parser
+
+
++def _show(table: Table, fmt: str) -> None:
++    sys.stdout.write(render(table, fmt))
++
++
+ # -- handlers: each loads the ledger, does its work, saves when it changed something -------
+
+
+@@ -180,7 +197,7 @@ def _cmd_list(args: argparse.Namespace, path: str) -> int:
+     ledger = Ledger.load(path)
+     transactions = ledger.between(args.from_date, args.to_date)
+     transactions = select(transactions, category=args.category, account=args.account, text=args.search)
+-    print(render_transactions(transactions))
++    _show(transactions_table(transactions), args.format)
+     return 0
+
+
+@@ -203,7 +220,7 @@ def _cmd_top(args: argparse.Namespace, path: str) -> int:
+     ledger = Ledger.load(path)
+     year, month = args.month
+     ranked = top_categories(ledger.in_month(year, month), args.count)
+-    print(render_top(ranked))
++    _show(top_table(ranked), args.format)
+     return 0
+
+
+@@ -218,21 +235,21 @@ def _cmd_remove(args: argparse.Namespace, path: str) -> int:
+ def _cmd_report(args: argparse.Namespace, path: str) -> int:
+     ledger = Ledger.load(path)
+     year, month = args.month
+-    print(render_report(monthly_report(ledger, year, month)))
++    _show(report_table(monthly_report(ledger, year, month)), args.format)
+     return 0
+
+
+ def _cmd_summary(args: argparse.Namespace, path: str) -> int:
+     ledger = Ledger.load(path)
+     lines = yearly_summary(ledger, args.year)
+-    print(render_summary(args.year, lines, year_totals(lines)))
++    _show(summary_table(args.year, lines, year_totals(lines)), args.format)
+     return 0
+
+
+ def _cmd_compare(args: argparse.Namespace, path: str) -> int:
+     ledger = Ledger.load(path)
+     year, month = args.month
+-    print(render_comparison(compare_with_previous_month(ledger, year, month)))
++    _show(comparison_table(compare_with_previous_month(ledger, year, month)), args.format)
+     return 0
+
+
+@@ -251,7 +268,7 @@ def _cmd_installments(args: argparse.Namespace, path: str) -> int:
+
+ def _cmd_accounts(args: argparse.Namespace, path: str) -> int:
+     ledger = Ledger.load(path)
+-    print(render_balances(balances(ledger, args.as_of)))
++    _show(balances_table(balances(ledger, args.as_of)), args.format)
+     return 0
+
+
+@@ -312,7 +329,7 @@ def _cmd_forecast(args: argparse.Namespace, path: str) -> int:
+     ledger = Ledger.load(path)
+     year, month = args.month
+     first, last = month_bounds(year, month)
+-    print(render_forecast(year, month, forecast(ledger.recurring, first, last)))
++    _show(forecast_table(year, month, forecast(ledger.recurring, first, last)), args.format)
+     return 0
+
+
+@@ -326,7 +343,7 @@ def _cmd_budget_set(args: argparse.Namespace, path: str) -> int:
+
+ def _cmd_budget_list(args: argparse.Namespace, path: str) -> int:
+     ledger = Ledger.load(path)
+-    print(render_budget_list(budget_ops.all_budgets(ledger)))
++    _show(budget_list_table(budget_ops.all_budgets(ledger)), args.format)
+     return 0
+
+
+diff --git a/budgetbook/rendering.py b/budgetbook/rendering.py
+--- a/budgetbook/rendering.py
++++ b/budgetbook/rendering.py
+@@ -1,4 +1,8 @@
+-"""Turn results into text for the terminal. Nothing here prints; callers print the strings."""
++"""Describe each table command's output as a ``Table``. Nothing here prints; callers print.
++
++One function per command builds its columns and the lines around them; ``tables.py`` turns
++the result into text, JSON or CSV.
++"""
+ from __future__ import annotations
+
+ import calendar
+@@ -11,123 +15,163 @@ from .recurring import Projected
+ from .reports import MonthlyReport
+ from .stats import Comparison
+ from .summary import MonthLine
+-from .textfmt import pad_left, pad_right, truncate
++from .tables import Column, Table, format_table, render_text  # noqa: F401  (format_table: kept importable here)
++from .textfmt import truncate
+
+ DESCRIPTION_WIDTH = 30
+
+
+-def format_table(
+-    headers: Sequence[str], rows: Sequence[Sequence[str]], right: Sequence[int] = ()
+-) -> list[str]:
+-    """Lay out a table with two spaces between columns; columns in ``right`` are right-aligned."""
+-    widths = [len(header) for header in headers]
+-    for row in rows:
+-        for index, cell in enumerate(row):
+-            widths[index] = max(widths[index], len(cell))
+-
+-    def line(cells: Sequence[str]) -> str:
+-        padded = [
+-            pad_left(cell, widths[i]) if i in right else pad_right(cell, widths[i])
+-            for i, cell in enumerate(cells)
+-        ]
+-        return "  ".join(padded).rstrip()
+-
+-    return [line(headers)] + [line(row) for row in rows]
+-
+-
+-def render_transactions(transactions: Sequence[Transaction]) -> str:
+-    """The ``list`` output: a table and a ``Total:`` line, or ``No transactions.``"""
+-    if not transactions:
+-        return "No transactions."
+-    rows = [
+-        [
+-            str(tx.id),
+-            tx.date.isoformat(),
+-            format_amount(tx.amount),
+-            tx.account,
+-            tx.category,
+-            truncate(tx.description, DESCRIPTION_WIDTH),
+-        ]
+-        for tx in transactions
+-    ]
+-    lines = format_table(["ID", "Date", "Amount", "Account", "Category", "Description"], rows, right=(0, 2))
+-    total = sum(tx.amount for tx in transactions)
++def transactions_table(transactions: Sequence[Transaction]) -> Table:
++    total = format_amount(sum(tx.amount for tx in transactions))
+     noun = "transaction" if len(transactions) == 1 else "transactions"
+-    lines.append(f"Total: {format_amount(total)} ({len(transactions)} {noun})")
+-    return "\n".join(lines)
+-
+-
+-def render_report(report: MonthlyReport) -> str:
+-    lines = [
+-        f"Report {month_label(report.year, report.month)}",
+-        f"Income: {format_amount(report.income)}",
+-        f"Expenses: {format_amount(report.expenses)}",
+-        f"Net: {format_amount(report.net)}",
+-    ]
+-    if report.by_category:
+-        lines.append("By category:")
+-        for category, total in report.by_category.items():
+-            lines.append(f"  {category}: {format_amount(total)}")
+-    return "\n".join(lines)
+-
+-
+-def render_forecast(year: int, month: int, entries: Sequence[Projected]) -> str:
++    columns = (
++        Column("id", "ID", lambda tx: tx.id, right=True),
++        Column("date", "Date", lambda tx: tx.date.isoformat()),
++        Column("amount", "Amount", lambda tx: format_amount(tx.amount), right=True),
++        Column("account", "Account", lambda tx: tx.account),
++        Column("category", "Category", lambda tx: tx.category),
++        Column(
++            "description",
++            "Description",
++            lambda tx: tx.description,
++            text=lambda tx: truncate(tx.description, DESCRIPTION_WIDTH),
++        ),
++    )
++    return Table(
++        columns,
++        transactions,
++        "transactions",
++        foot=(f"Total: {total} ({len(transactions)} {noun})",),
++        empty="No transactions.",
++        after=(("total", total), ("count", len(transactions))),
++    )
++
++
++def report_table(report: MonthlyReport) -> Table:
++    label = month_label(report.year, report.month)
++    income, expenses, net = (format_amount(n) for n in (report.income, report.expenses, report.net))
++    columns = (
++        Column("category", "Category", lambda item: item[0]),
++        Column("total", "Total", lambda item: format_amount(item[1])),
++    )
++    return Table(
++        columns,
++        list(report.by_category.items()),
++        "categories",
++        layout="pairs",
++        head=(f"Report {label}", f"Income: {income}", f"Expenses: {expenses}", f"Net: {net}"),
++        rows_title="By category:",
++        before=(("month", label), ("income", income), ("expenses", expenses), ("net", net)),
++    )
++
++
++def forecast_table(year: int, month: int, entries: Sequence[Projected]) -> Table:
+     label = month_label(year, month)
+-    if not entries:
+-        return f"Nothing expected in {label}."
+-    rows = [
+-        [e.date.isoformat(), e.name, format_amount(e.amount), e.category, e.account] for e in entries
+-    ]
+-    lines = [f"Forecast {label}"]
+-    lines += format_table(["Date", "Name", "Amount", "Category", "Account"], rows, right=(2,))
+-    lines.append(f"Net: {format_amount(sum(e.amount for e in entries))}")
+-    return "\n".join(lines)
+-
+-
+-def render_balances(balances: dict[str, int]) -> str:
+-    if not balances:
+-        return "No accounts."
+-    rows = [[name, format_amount(total)] for name, total in balances.items()]
+-    lines = format_table(["Account", "Balance"], rows, right=(1,))
+-    lines.append(f"Total: {format_amount(sum(balances.values()))}")
+-    return "\n".join(lines)
+-
+-
+-def render_budget_list(budgets: Sequence[tuple[str, int]]) -> str:
+-    if not budgets:
+-        return "No budgets set."
+-    rows = [[name, format_amount(limit)] for name, limit in budgets]
+-    return "\n".join(format_table(["Category", "Monthly limit"], rows, right=(1,)))
++    net = format_amount(sum(e.amount for e in entries))
++    columns = (
++        Column("date", "Date", lambda e: e.date.isoformat()),
++        Column("name", "Name", lambda e: e.name),
++        Column("amount", "Amount", lambda e: format_amount(e.amount), right=True),
++        Column("category", "Category", lambda e: e.category),
++        Column("account", "Account", lambda e: e.account),
++    )
++    return Table(
++        columns,
++        entries,
++        "entries",
++        head=(f"Forecast {label}",),
++        foot=(f"Net: {net}",),
++        empty=f"Nothing expected in {label}.",
++        before=(("month", label),),
++        after=(("net", net),),
++    )
++
++
++def balances_table(balances: dict[str, int]) -> Table:
++    total = format_amount(sum(balances.values()))
++    columns = (
++        Column("account", "Account", lambda item: item[0]),
++        Column("balance", "Balance", lambda item: format_amount(item[1]), right=True),
++    )
++    return Table(
++        columns,
++        list(balances.items()),
++        "accounts",
++        foot=(f"Total: {total}",),
++        empty="No accounts.",
++        after=(("total", total),),
++    )
++
++
++def budget_list_table(budgets: Sequence[tuple[str, int]]) -> Table:
++    columns = (
++        Column("category", "Category", lambda item: item[0]),
++        Column("limit", "Monthly limit", lambda item: format_amount(item[1]), right=True),
++    )
++    return Table(columns, budgets, "budgets", empty="No budgets set.")
++
++
++def top_table(ranked: Sequence[tuple[str, int]]) -> Table:
++    columns = (
++        Column("category", "Category", lambda item: item[0]),
++        Column("expenses", "Expenses", lambda item: format_amount(item[1]), right=True),
++    )
++    return Table(columns, ranked, "categories", empty="No expenses.")
++
++
++def _tenths(value: int | None) -> str | None:
++    """Tenths of a percent as ``-99.0``; None stays None."""
++    if value is None:
++        return None
++    whole, tenth = divmod(abs(value), 10)
++    return f"{'-' if value < 0 else ''}{whole}.{tenth}"
++
++
++def comparison_table(comparison: Comparison) -> Table:
++    label = month_label(comparison.year, comparison.month)
++    columns = (
++        Column("month", "Month", lambda c: label, in_text=False),
++        Column("expenses", f"Expenses {label}", lambda c: format_amount(c.expenses)),
++        Column("previous_expenses", "Expenses before", lambda c: format_amount(c.previous_expenses)),
++        Column("change", "Change", lambda c: format_amount(c.change)),
++        Column(
++            "change_percent",
++            "Change in percent",
++            lambda c: _tenths(c.change_tenths),
++            text=lambda c: "not available" if c.change_tenths is None else f"{_tenths(c.change_tenths)}%",
++        ),
++    )
++    return Table(columns, [comparison], None, layout="fields")
++
++
++def summary_table(year: int, lines: Sequence[MonthLine], totals: MonthLine) -> Table:
++    columns = (
++        Column(
++            "month",
++            "Month",
++            lambda line: month_label(year, line.month),
++            text=lambda line: "Year" if line.month == 0 else calendar.month_abbr[line.month],
++        ),
++        Column("income", "Income", lambda line: format_amount(line.income), right=True),
++        Column("expenses", "Expenses", lambda line: format_amount(line.expenses), right=True),
++        Column("net", "Net", lambda line: format_amount(line.net), right=True),
++    )
++    total = {name: format_amount(getattr(totals, name)) for name in ("income", "expenses", "net")}
++    return Table(
++        columns,
++        lines,
++        "months",
++        head=(f"Summary {year}",),
++        text_only_rows=(totals,),
++        before=(("year", year),),
++        after=(("total", total),),
++    )
+
+
+-def render_top(ranked: Sequence[tuple[str, int]]) -> str:
+-    if not ranked:
+-        return "No expenses."
+-    rows = [[category, format_amount(total)] for category, total in ranked]
+-    return "\n".join(format_table(["Category", "Expenses"], rows, right=(1,)))
++def render_transactions(transactions: Sequence[Transaction]) -> str:
++    """The ``list`` text: a table and a ``Total:`` line, or ``No transactions.``"""
++    return render_text(transactions_table(transactions))
+
+
+-def render_comparison(comparison: Comparison) -> str:
+-    label = month_label(comparison.year, comparison.month)
+-    lines = [
+-        f"Expenses {label}: {format_amount(comparison.expenses)}",
+-        f"Expenses before: {format_amount(comparison.previous_expenses)}",
+-        f"Change: {format_amount(comparison.change)}",
+-    ]
+-    if comparison.change_tenths is None:
+-        lines.append("Change in percent: not available")
+-    else:
+-        sign = "-" if comparison.change_tenths < 0 else ""
+-        whole, tenth = divmod(abs(comparison.change_tenths), 10)
+-        lines.append(f"Change in percent: {sign}{whole}.{tenth}%")
+-    return "\n".join(lines)
+-
+-
+-def render_summary(year: int, lines: Sequence[MonthLine], totals: MonthLine) -> str:
+-    rows = [
+-        [calendar.month_abbr[line.month], format_amount(line.income), format_amount(line.expenses), format_amount(line.net)]
+-        for line in lines
+-    ]
+-    rows.append(["Year", format_amount(totals.income), format_amount(totals.expenses), format_amount(totals.net)])
+-    table = format_table(["Month", "Income", "Expenses", "Net"], rows, right=(1, 2, 3))
+-    return "\n".join([f"Summary {year}"] + table)
++def render_report(report: MonthlyReport) -> str:
++    return render_text(report_table(report))
+diff --git a/budgetbook/tables.py b/budgetbook/tables.py
+new file mode 100644
+--- /dev/null
++++ b/budgetbook/tables.py
+@@ -0,0 +1,135 @@
++"""Table output as data: columns, rows and the lines around them, in three renderings.
++
++A table command builds a ``Table`` and this module turns it into text, JSON or CSV, so no
++command lays out its own output. Nothing here prints; callers write the returned string.
++"""
++from __future__ import annotations
++
++import csv
++import io
++import json
++from dataclasses import dataclass
++from typing import Any, Callable, Sequence
++
++from .textfmt import pad_left, pad_right
++
++FORMATS = ("text", "json", "csv")
++
++
++@dataclass(frozen=True)
++class Column:
++    """One column: how to read it from a row and how it is named and shown.
++
++    ``key`` is the JSON key and the CSV header. ``get`` returns the value for JSON and CSV
++    (a string, an integer or None). ``text`` gives the text cell when it differs from the
++    value, and ``in_text`` False leaves the column out of the text output.
++    """
++
++    key: str
++    header: str
++    get: Callable[[Any], str | int | None]
++    right: bool = False
++    text: Callable[[Any], str] | None = None
++    in_text: bool = True
++
++    def text_cell(self, row: Any) -> str:
++        if self.text is not None:
++            return self.text(row)
++        value = self.get(row)
++        return "" if value is None else str(value)
++
++
++@dataclass(frozen=True)
++class Table:
++    """The output of one command.
++
++    ``layout`` is how the text shows the rows: ``grid`` (an aligned table), ``pairs``
++    (``  name: value`` lines under ``rows_title``) or ``fields`` (``Header: value`` lines
++    for a single row). ``head`` and ``foot`` are text lines around the rows, ``empty`` the
++    only text line when there are no rows, and ``text_only_rows`` rows that end the text
++    grid but are not data (a total). ``before`` and ``after`` are JSON fields around the
++    rows; ``rows_key`` None puts the fields of the single row into the document itself.
++    """
++
++    columns: Sequence[Column]
++    rows: Sequence[Any]
++    rows_key: str | None
++    layout: str = "grid"
++    head: Sequence[str] = ()
++    foot: Sequence[str] = ()
++    empty: str | None = None
++    rows_title: str = ""
++    text_only_rows: Sequence[Any] = ()
++    before: Sequence[tuple[str, Any]] = ()
++    after: Sequence[tuple[str, Any]] = ()
++
++
++def format_table(
++    headers: Sequence[str], rows: Sequence[Sequence[str]], right: Sequence[int] = ()
++) -> list[str]:
++    """Lay out a table with two spaces between columns; columns in ``right`` are right-aligned."""
++    widths = [len(header) for header in headers]
++    for row in rows:
++        for index, cell in enumerate(row):
++            widths[index] = max(widths[index], len(cell))
++
++    def line(cells: Sequence[str]) -> str:
++        padded = [
++            pad_left(cell, widths[i]) if i in right else pad_right(cell, widths[i])
++            for i, cell in enumerate(cells)
++        ]
++        return "  ".join(padded).rstrip()
++
++    return [line(headers)] + [line(row) for row in rows]
++
++
++def _text_body(table: Table) -> list[str]:
++    shown = [column for column in table.columns if column.in_text]
++    rows = list(table.rows) + list(table.text_only_rows)
++    if table.layout == "grid":
++        cells = [[column.text_cell(row) for column in shown] for row in rows]
++        right = tuple(index for index, column in enumerate(shown) if column.right)
++        return format_table([column.header for column in shown], cells, right)
++    if table.layout == "pairs":
++        lines = [f"  {shown[0].text_cell(row)}: {shown[1].text_cell(row)}" for row in rows]
++        return [table.rows_title] + lines if lines else []
++    return [f"{column.header}: {column.text_cell(rows[0])}" for column in shown]
++
++
++def render_text(table: Table) -> str:
++    """The text output without a final newline."""
++    if table.empty is not None and not table.rows:
++        return table.empty
++    return "\n".join([*table.head, *_text_body(table), *table.foot])
++
++
++def render_json(table: Table) -> str:
++    document: dict[str, Any] = dict(table.before)
++    records = [{column.key: column.get(row) for column in table.columns} for row in table.rows]
++    if table.rows_key is None:
++        document.update(records[0])
++    else:
++        document[table.rows_key] = records
++    document.update(table.after)
++    return json.dumps(document, indent=2, ensure_ascii=False) + "\n"
++
++
++def render_csv(table: Table) -> str:
++    buffer = io.StringIO(newline="")
++    writer = csv.writer(buffer, lineterminator="\n")
++    writer.writerow([column.key for column in table.columns])
++    for row in table.rows:
++        values = [column.get(row) for column in table.columns]
++        writer.writerow(["" if value is None else value for value in values])
++    return buffer.getvalue()
++
++
++def render(table: Table, fmt: str) -> str:
++    """The text to write to standard output, ending in a newline, for one of ``FORMATS``."""
++    if fmt == "json":
++        return render_json(table)
++    if fmt == "csv":
++        return render_csv(table)
++    if fmt == "text":
++        return render_text(table) + "\n"
++    raise ValueError(f"unknown format: {fmt!r}")

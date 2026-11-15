@@ -908,8 +908,8 @@ def test_totals_hold_numbers_labels_and_hashes_only(env):
 
 def test_the_real_bench_dry_run_passes_the_hash_check_and_plans_twelve_runs(tmp_path):
     out = io.StringIO()
-    code = br.main(["--label", "dry", "--budget-usd", "30", "--dry-run", "--out", str(tmp_path / "o"), "--work-dir", str(tmp_path / "w"),
-                    "--results-dir", str(tmp_path / "r")], env={"PATH": "x"}, out=out)
+    code = br.main(["--label", "dry", "--budget-usd", "30", "--dry-run", "--tasks", "B1,B2,B3,B4,B5,B6", "--out", str(tmp_path / "o"),
+                    "--work-dir", str(tmp_path / "w"), "--results-dir", str(tmp_path / "r")], env={"PATH": "x"}, out=out)
     text = out.getvalue()
     assert code == 0, text
     assert "12 runs planned" in text and br.readme_hash(REAL_BENCH) in text

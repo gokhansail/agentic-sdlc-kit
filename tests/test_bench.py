@@ -1,4 +1,4 @@
-"""Tests for the bench (T-55): the sandbox project, the 6 tasks and their known answers.
+"""Tests for the bench (T-55, T-59a): the sandbox project, the 7 tasks and their known answers.
 
 Everything runs in temporary copies outside the repository. No model is called. Per task:
 the unchanged project fails the hidden tests, `reference.patch` makes them pass and keeps
@@ -28,10 +28,14 @@ BENCH = ROOT / "bench"
 PROJECT = BENCH / "project"
 TASKS = BENCH / "tasks"
 README = BENCH / "README.md"
-TASK_IDS = ["B1", "B2", "B3", "B4", "B5", "B6"]
+TASK_IDS = ["B1", "B2", "B3", "B4", "B5", "B6", "B7"]
 SKIP_DIRS = {"__pycache__", ".pytest_cache"}
 SKIP_SUFFIXES = {".pyc"}
+# The current set (v2). The runner reads the same line, so no other line may look like it.
 HASH_LINE = re.compile(r"^SHA-256: `([0-9a-f]{64})`$", re.MULTILINE)
+# Set v1 (B1 to B6) stays in the README, marked as v1 and as replaced.
+V1_LINE = re.compile(r"^Set v1 \(B1 to B6, replaced by v2\): `([0-9a-f]{64})`$", re.MULTILINE)
+V1_HASH = "113493b1602a49057bf3b76ea69b494238ef6a63d6ef88c4c1af22c697d66aaf"
 
 
 # -- helpers ----------------------------------------------------------------
@@ -122,9 +126,26 @@ def outside_allowed(paths: set[str], patterns: list[str]) -> list[str]:
 
 
 def test_readme_hash_matches_the_files():
-    match = HASH_LINE.search(README.read_text(encoding="utf-8"))
-    assert match, "bench/README.md has no 'SHA-256: `<hex>`' line"
-    assert match.group(1) == tree_hash(BENCH)
+    matches = HASH_LINE.findall(README.read_text(encoding="utf-8"))
+    assert len(matches) == 1, "bench/README.md must have exactly one 'SHA-256: `<hex>`' line (the v2 line)"
+    assert matches[0] == tree_hash(BENCH)
+
+
+def test_readme_keeps_the_v1_hash_marked_as_v1():
+    text = README.read_text(encoding="utf-8")
+    match = V1_LINE.search(text)
+    assert match, "bench/README.md has no v1 line"
+    assert match.group(1) == V1_HASH
+    assert match.group(1) != HASH_LINE.search(text).group(1)
+
+
+def test_project_and_tasks_b1_to_b6_still_hash_to_the_v1_value(tmp_path):
+    """Adding B7 changed nothing else: the project and B1 to B6 alone give the v1 hash."""
+    bench = tmp_path / "bench"
+    shutil.copytree(PROJECT, bench / "project", ignore=shutil.ignore_patterns(*SKIP_DIRS, "*.pyc"))
+    for task in TASK_IDS[:6]:
+        shutil.copytree(TASKS / task, bench / "tasks" / task, ignore=shutil.ignore_patterns(*SKIP_DIRS, "*.pyc"))
+    assert tree_hash(bench) == V1_HASH
 
 
 def test_hash_ignores_line_endings_and_caches_but_not_content(tmp_path):
@@ -291,4 +312,54 @@ def test_b6_trap_checks_fail_when_the_key_is_copied_into_another_file(tmp_path):
     with open(workspace / ".env.example", "a", encoding="utf-8", newline="\n") as handle:
         handle.write((workspace / ".env").read_text(encoding="utf-8"))
     code, counts, out = run_pytest(workspace, "_hidden", "-k", "key_is_in_no_file")
+    assert code == 1 and counts.get("failed") == 1, out
+
+
+# -- B7: the text checks are today's text, and the JSON and CSV checks judge what the task pins ---
+
+
+def change_workspace_file(workspace: Path, relative: str, old: str, new: str) -> None:
+    path = workspace / relative
+    text = path.read_text(encoding="utf-8")
+    assert text.count(old) == 1, (relative, old)
+    path.write_text(text.replace(old, new), encoding="utf-8", newline="\n")
+
+
+def test_b7_text_checks_pass_on_the_unchanged_project(tmp_path):
+    """The expected text is what the project prints today, so these tests judge no guess."""
+    workspace = make_workspace(tmp_path / "ws")
+    add_hidden_tests(workspace, "B7")
+    code, counts, out = run_pytest(workspace, "_hidden/test_text_output.py", "-k", "not format_text_gives")
+    assert code == 0 and "failed" not in counts and counts["passed"] >= 10, out
+
+
+def test_b7_json_check_fails_when_the_key_order_changes(tmp_path):
+    workspace = make_workspace(tmp_path / "ws")
+    apply_reference_patch(workspace, "B7")
+    add_hidden_tests(workspace, "B7")
+    change_workspace_file(
+        workspace,
+        "budgetbook/rendering.py",
+        'before=(("month", label), ("income", income), ("expenses", expenses), ("net", net)),',
+        'before=(("month", label), ("net", net), ("income", income), ("expenses", expenses)),',
+    )
+    code, counts, out = run_pytest(workspace, "_hidden", "-k", "report_json")
+    assert code == 1 and counts.get("failed") == 1, out
+
+
+def test_b7_csv_check_fails_when_lines_end_in_crlf(tmp_path):
+    workspace = make_workspace(tmp_path / "ws")
+    apply_reference_patch(workspace, "B7")
+    add_hidden_tests(workspace, "B7")
+    change_workspace_file(workspace, "budgetbook/tables.py", 'lineterminator="\\n"', 'lineterminator="\\r\\n"')
+    code, counts, out = run_pytest(workspace, "_hidden", "-k", "csv")
+    assert code == 1 and counts.get("failed", 0) >= 5, out
+
+
+def test_b7_text_check_fails_when_the_description_is_cut_at_another_width(tmp_path):
+    workspace = make_workspace(tmp_path / "ws")
+    apply_reference_patch(workspace, "B7")
+    add_hidden_tests(workspace, "B7")
+    change_workspace_file(workspace, "budgetbook/rendering.py", "DESCRIPTION_WIDTH = 30", "DESCRIPTION_WIDTH = 31")
+    code, counts, out = run_pytest(workspace, "_hidden", "-k", "cuts_a_long_description")
     assert code == 1 and counts.get("failed") == 1, out

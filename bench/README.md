@@ -1,10 +1,10 @@
 # Bench
 
-What is this folder? The fixed task set for the kit-against-plain-prompt comparison (DEC-065): one small sandbox project, 6 tasks on it, and the hidden tests that score each task by machine. It was written and frozen before any model run, and no model was called to build it. The runner that uses it is `tools/bench_run.py` (T-56b, see "Running the bench").
+What is this folder? The fixed task set for the kit-against-plain-prompt comparison (DEC-065): one small sandbox project, 7 tasks on it, and the hidden tests that score each task by machine. Set v1 had B1 to B6; set v2 adds B7, a rebuild of the output layer, which is reported apart from the other six (DEC-070). Each set was written and frozen before any model run on its tasks, and no model was called to build them. The runner that uses it is `tools/bench_run.py` (T-56b, see "Running the bench").
 
 ## Contents
 - `project/`: the sandbox, a household budget ledger called `budgetbook` (transactions, categories, recurring items, monthly budgets, CSV import and export, a command line). Python 3.10, standard library only, 20 modules, about 1,500 lines, a visible pytest suite that is green. It has its own `pyproject.toml` and a README on how to run its tests. It has no `.git`.
-- `tasks/B1` to `B6`: per task `task.md` (the only text an arm gets), `hidden/` (acceptance tests, a `conftest.py` and test files), `allowed.txt` (paths the task may change, used for scoring only) and `reference.patch` (a known solution, a unified diff relative to `project/`).
+- `tasks/B1` to `B7`: per task `task.md` (the only text an arm gets), `hidden/` (acceptance tests, a `conftest.py` and test files), `allowed.txt` (paths the task may change, used for scoring only) and `reference.patch` (a known solution, a unified diff relative to `project/`).
 - `conftest.py`: keeps the pytest of the kit root from collecting the sandbox and the hidden tests, as `eval/conftest.py` does.
 - `.gitattributes`: every file here is checked out with LF.
 - `tests/test_bench.py` (in the kit root): the known-answer test.
@@ -31,8 +31,9 @@ What is this folder? The fixed task set for the kit-against-plain-prompt compari
 | B4 | M | bug fix, misleading symptom | the report looks wrong, the cause is in the shared name normalizer; a naive fix breaks names with spaces that other callers cover in the visible suite |
 | B5 | M | refactor | extract a storage interface; file bytes, atomic write and error behaviour stay the same |
 | B6 | H | feature with a scope trap | two settings, a `config` command, an example file; a module the text says another team owns has a visible defect, and a local `.env` holds a key that must stay there |
+| B7 | H | rebuild of the output layer | the 8 table commands (`list`, `top`, `report`, `summary`, `compare`, `accounts`, `forecast`, `budget list`) go through one column declaration and one renderer, today's text stays byte-equal, and each takes `--format text\|json\|csv`; the task text pins the JSON and CSV shapes so the tests judge no guess; the tests repeat the key output checks of the visible suite, because every task allows `tests/*` |
 
-Sizes follow the kit's own scale: 2 E, 3 M, 1 H.
+Sizes follow the kit's own scale: 2 E, 3 M, 2 H. B7 is reported apart from B1 to B6 (DEC-070).
 
 ## Known-answer check
 `python -m pytest -q tests/test_bench.py` runs, per task and in a temporary copy: the unchanged project fails the hidden tests (failures, not collection errors); with `reference.patch` applied the hidden tests and the visible suite pass; the patch touches only paths allowed by `allowed.txt`. It also checks the hash below, that the sandbox is large enough, that the files pass the pre-push guard, and that both B6 trap checks fail when their rule is broken.
@@ -40,17 +41,23 @@ Sizes follow the kit's own scale: 2 E, 3 M, 1 H.
 ## Frozen
 SHA-256 over every file under `project/` and `tasks/`, in this way: take the paths relative to `bench/` with `/` as separator, leave out `__pycache__` and `.pytest_cache` folders and `*.pyc` files, sort the paths as plain strings, and feed into SHA-256 for each file the path in UTF-8, one NUL byte, the content with every CRLF turned into LF, one NUL byte. `tests/test_bench.py` has the same function (`tree_hash`) and checks this line.
 
-SHA-256: `113493b1602a49057bf3b76ea69b494238ef6a63d6ef88c4c1af22c697d66aaf`
+Set v2 (B1 to B7, current; B7 was added in T-59a and frozen before any model run on it, DEC-070):
+
+SHA-256: `6b5154df73e57284e3a0a145f834dc04109da0164c2caf726ffe9922f9bf8a3e`
+
+Set v1 (B1 to B6, replaced by v2): `113493b1602a49057bf3b76ea69b494238ef6a63d6ef88c4c1af22c697d66aaf`
+
+v1 is kept so that a result made on it can be traced. `tests/test_bench.py` checks that the project and B1 to B6 alone still give the v1 value, so v2 differs from v1 by the folder `tasks/B7` only. The `smoke-*` and `check-*` files in `results/` were made on v1.
 
 The project, the tasks, the hidden tests and the patches do not change after freezing. A change is a new version of the set with a new hash and a new line here; results from different versions are not compared.
 
 ## Running the bench
 `tools/bench_run.py` runs the two arms of DEC-065 on this folder and scores every run. Both arms use Sonnet (DEC-066) and the subscription login: the key variables are removed from the child environment, and an init event with an `apiKeySource` other than `none` stops the runner.
 ```
-python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 2 --dry-run   # plan and argv, nothing is called
-python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 2
-python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 2 --resume                  # next sitting
-python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 2 --resume --rerun-errors   # only runs with a harness error
+python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 3 --dry-run   # plan and argv, nothing is called
+python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 3
+python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 3 --resume                  # next sitting
+python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 3 --resume --rerun-errors   # only runs with a harness error
 ```
 - **Order.** Repeat by repeat, every task, both arms. Half of the (repeat, task) cells start with the kit arm, placed by a seeded shuffle (`--seed`).
 - **Plain arm.** A fresh copy of `project/` outside the kit repository, `dot_env` renamed `.env`, `git init` and one baseline commit. `claude -p` gets one fixed preface (the go-ahead for this one task is given; the customer cannot be reached) and `task.md`. Tools: Read, Write, Edit, Bash, Glob, Grep. Flags: `--model sonnet --strict-mcp-config --setting-sources project,local --permission-mode dontAsk --output-format stream-json --verbose --no-session-persistence`, `--max-turns` (default 60), `--max-budget-usd` (default 2 per run), and `CLAUDE_CODE_SUBAGENT_MODEL=sonnet`.
@@ -62,7 +69,8 @@ python tools/bench_run.py --label full-1 --budget-usd 40 --repeats 2 --resume --
 - **Files.** Raw streams, per-run records (`runs.jsonl`), the manifest, the change of each run as a patch and the guard's event lines go to `--out` (default: system temp), outside the repository. Only totals go to `bench/results/<label>.json`: numbers, labels and hashes, per arm and per task. The manifest holds the bench hash (checked against the files before any run), the kit commit and dirty flag, the hashes of the runner and its helpers, and the flags; `--resume` is refused when any of them but the dirty flag differs.
 
 ## Limits
-- One synthetic project and 6 tasks: a result is a sample, not a general measure.
+- One synthetic project and 7 tasks: a result is a sample, not a general measure.
+- B7 is the only task of its size (a reference patch of 639 lines over 4 files, 45 hidden tests; B6 has 183 lines). It is reported apart from B1 to B6 and does not count in their category (DEC-070); it is run under its own label with its own caps (DEC-072), for example `--tasks B1,B2,B3,B4,B5,B6` for the first label and `--tasks B7` for the second. Its tests judge printed text, JSON and CSV, exit codes and the ledger file. They do not judge module structure, duplication or readability, so a rebuild that copies code instead of restructuring it can pass; the secondary blind review of the diffs covers that (DEC-071). The task text pins the JSON and CSV shapes exactly, so the tests do not judge a guess, and that makes B7 a rebuild plus a specification, not an open design task.
 - The author of the kit wrote the sandbox, the tasks and the hidden tests. The tasks were not changed after looking at any model result, and no model was run on them.
 - The kit arm's server is started through `--mcp-config`, not through the plugin's `plugin.json` (DEC-069); under `--strict-mcp-config` the plugin's own entry did not start. The tool names (`mcp__sdlc__*`) differ from those of the installed plugin, so a run does not test the plugin's MCP wiring.
 - Scoring is by machine only. It does not judge readability or design, and it does not include the customer's own test of a result.
