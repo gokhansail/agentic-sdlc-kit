@@ -529,6 +529,26 @@ def test_snapshot_sees_a_changed_ignored_file_and_skips_caches(tmp_path):
     assert br.changed_paths(before, br.snapshot(ws)) == [".env", "a.py", "new.py"]
 
 
+def test_test_file_changes_count_modified_added_and_deleted_once_each(tmp_path):
+    ws = tmp_path / "ws"
+    write(ws / "tests" / "test_a.py", "a\n")
+    write(ws / "tests" / "test_b.py", "b\n")
+    write(ws / "tests" / "test_c.py", "c\n")
+    write(ws / "calc.py", "x\n")
+    before = br.snapshot(ws)
+    assert br.count_test_changes(before, br.snapshot(ws)) == {"tests_changed": 0, "tests_added": 0, "tests_deleted": 0}
+    write(ws / "tests" / "test_a.py", "a2\n")
+    (ws / "tests" / "test_b.py").unlink()
+    write(ws / "tests" / "sub" / "test_new.py", "n\n")
+    write(ws / "calc.py", "y\n")
+    write(ws / "notes.txt", "n\n")
+    write(ws / "mytests" / "test_z.py", "z\n")
+    assert br.count_test_changes(before, br.snapshot(ws)) == {"tests_changed": 1, "tests_added": 1, "tests_deleted": 1}
+    only_outside = br.snapshot(ws)
+    write(ws / "calc.py", "z\n")
+    assert br.count_test_changes(only_outside, br.snapshot(ws)) == {"tests_changed": 0, "tests_added": 0, "tests_deleted": 0}
+
+
 # ---------------------------------------------------------------- the real bench: copies and scoring
 
 def apply_patch(ws: Path, task: str) -> None:
@@ -674,6 +694,41 @@ def test_an_unfixed_run_fails_and_every_change_outside_allowed_txt_is_counted(en
     assert kit["kit_layer_files"] == 1 and kit["kit_record_files"] == 1 and kit["kit_record_paths"] == ["TASKS.md"]
     totals = env.totals()
     assert totals["arms"]["kit"]["out_of_scope_files"] == 2 and totals["arms"]["plain"]["runs_with_out_of_scope"] == 1
+
+
+def test_visible_test_changes_are_counted_per_run_and_summed_in_the_totals(env):
+    def behave(call):
+        fix(call)
+        if call["arm"] == "plain":
+            write(call["cwd"] / "tests" / "test_calc.py", "def test_zero():\n    pass\n")  # modified
+            write(call["cwd"] / "tests" / "test_new.py", "def test_new():\n    pass\n")  # added
+            write(call["cwd"] / "notes.txt", "outside tests\n")
+        else:
+            write(call["cwd"] / "notes.txt", "outside tests\n")
+        return stream(call["arm"])
+
+    code, out = env.run(Fake(behave))
+    assert code == 0, out
+    by_arm = {r["arm"]: r for r in env.records()}
+    assert [by_arm["plain"][k] for k in ("tests_changed", "tests_added", "tests_deleted")] == [1, 1, 0]
+    assert [by_arm["kit"][k] for k in ("tests_changed", "tests_added", "tests_deleted")] == [0, 0, 0]
+    assert "tests edited" in out and "tests untouched" in out
+    totals = env.totals()
+    plain, kit = totals["arms"]["plain"], totals["arms"]["kit"]
+    assert (plain["tests_changed"], plain["tests_added"], plain["tests_deleted"], plain["runs_with_test_changes"]) == (1, 1, 0, 1)
+    assert (kit["tests_changed"], kit["tests_added"], kit["tests_deleted"], kit["runs_with_test_changes"]) == (0, 0, 0, 0)
+    assert totals["tasks"]["T1"]["plain"]["runs_with_test_changes"] == 1
+
+
+def test_a_deleted_visible_test_is_counted(env):
+    def behave(call):
+        fix(call)
+        (call["cwd"] / "tests" / "test_calc.py").unlink()
+        return stream(call["arm"])
+
+    assert env.run(Fake(behave), "--arms", "plain")[0] == 0
+    record = env.records()[0]
+    assert (record["tests_changed"], record["tests_added"], record["tests_deleted"]) == (0, 0, 1)
 
 
 def test_reads_of_the_hidden_tests_are_counted_per_run(env):
@@ -904,6 +959,7 @@ def test_totals_hold_numbers_labels_and_hashes_only(env):
     walk(totals)
     assert not [s for s in strings if "\\" in s or "/" in s or str(env.tmp) in s]
     assert "out_of_scope_paths" not in json.dumps(totals)
+    assert "runs_with_test_changes" in totals["arms"]["plain"] and "tests_changed" in totals["tasks"]["T1"]["kit"]
 
 
 def test_the_real_bench_dry_run_passes_the_hash_check_and_plans_twelve_runs(tmp_path):

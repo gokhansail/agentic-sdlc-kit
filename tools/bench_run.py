@@ -320,6 +320,17 @@ def changed_paths(before: dict[str, str], after: dict[str, str]) -> list[str]:
     return sorted(p for p in set(before) | set(after) if before.get(p) != after.get(p))
 
 
+def count_test_changes(before: dict[str, str], after: dict[str, str]) -> dict[str, int]:
+    """Counts of files under the copy's `tests/` that the run modified, added or deleted, from the same hashes
+    `changed_paths` uses. Both arms alike; the kit layer rule does not apply."""
+    paths = [p for p in set(before) | set(after) if p.startswith("tests/")]
+    return {
+        "tests_changed": sum(1 for p in paths if p in before and p in after and before[p] != after[p]),
+        "tests_added": sum(1 for p in paths if p not in before and p in after),
+        "tests_deleted": sum(1 for p in paths if p in before and p not in after),
+    }
+
+
 def classify_changes(paths: Iterable[str], allowed: Sequence[str], arm: str) -> dict[str, list[str]]:
     """allowed.txt first (fnmatch, `*` also matches `/`); then, in the kit arm only, the kit layer under
     `.sdlc/` and the kit record files at the root, listed apart; the rest is out of scope."""
@@ -763,6 +774,11 @@ def summarize(rows: Sequence[dict]) -> dict:
         "visible_ok": sum(1 for r in rows if r["visible_ok"]),
         "out_of_scope_files": sum(r["out_of_scope"] for r in rows),
         "runs_with_out_of_scope": sum(1 for r in rows if r["out_of_scope"]),
+        "tests_changed": sum(r.get("tests_changed", 0) for r in rows),
+        "tests_added": sum(r.get("tests_added", 0) for r in rows),
+        "tests_deleted": sum(r.get("tests_deleted", 0) for r in rows),
+        "runs_with_test_changes": sum(
+            1 for r in rows if r.get("tests_changed", 0) or r.get("tests_added", 0) or r.get("tests_deleted", 0)),
         "kit_layer_files": sum(r["kit_layer_files"] for r in rows),
         "kit_record_files": sum(r["kit_record_files"] for r in rows),
         "hidden_reads": sum(r["hidden_reads"] for r in rows),
@@ -830,7 +846,8 @@ def build_totals(cfg: Config, meta: dict, records: Sequence[dict], planned: int,
 
 
 def build_record(base: dict, res: er.InvokeResult, info: dict, error: str, wall_s: float, score: dict,
-                 classes: dict[str, list[str]], changed: list[str], guard: dict) -> dict:
+                 classes: dict[str, list[str]], changed: list[str], guard: dict,
+                 tests: dict[str, int] | None = None) -> dict:
     stats = info["subagent_stats"]
     by_type = stats.get("by_type") if isinstance(stats.get("by_type"), dict) else {}
     plugin_calls = sum(n for table in (info["tools_main"], info["tools_sub"]) for name, n in table.items()
@@ -862,6 +879,9 @@ def build_record(base: dict, res: er.InvokeResult, info: dict, error: str, wall_
         "kit_record_files": len(classes["kit_records"]),
         "out_of_scope_paths": classes["out_of_scope"],
         "kit_record_paths": classes["kit_records"],
+        "tests_changed": (tests or {}).get("tests_changed", 0),
+        "tests_added": (tests or {}).get("tests_added", 0),
+        "tests_deleted": (tests or {}).get("tests_deleted", 0),
         "hidden_reads": info["hidden_reads"],
         "subagents_spawned": int(er._num(stats.get("spawned"))),
         "subagents_by_type": {str(k): int(er._num(v)) for k, v in sorted(by_type.items())},
@@ -1046,7 +1066,9 @@ def run_bench(cfg: Config, invoke: Invoke | None, env: dict, out=None) -> int:
                 (cfg.out_dir / "raw" / f"{run_id}.jsonl").write_text(res.stdout, encoding="utf-8")
                 info = analyse_stream(res.stdout)
                 error = classify_error(res, info, arm)
-                changed = changed_paths(before, snapshot(ws))
+                after = snapshot(ws)
+                changed = changed_paths(before, after)
+                test_counts = count_test_changes(before, after)
                 classes = classify_changes(changed, allowed_patterns(bench, task), arm)
                 guard = guard_counts(ws)
                 _write_extras(ws, cfg.out_dir, run_id)
@@ -1059,7 +1081,7 @@ def run_bench(cfg: Config, invoke: Invoke | None, env: dict, out=None) -> int:
             if res.timed_out:
                 say(f"bench_run: {run_id} timed out after {cfg.timeout_s}s; the call and its child processes were stopped")
             base = {"run_id": run_id, "task": task, "arm": arm, "repeat": repeat, "attempt": attempt}
-            record = build_record(base, res, info, error, wall_s, score, classes, changed, guard)
+            record = build_record(base, res, info, error, wall_s, score, classes, changed, guard, test_counts)
             with runs_file.open("a", encoding="utf-8") as handle:
                 handle.write(json.dumps(record) + "\n")
             records.append(record)
@@ -1069,6 +1091,7 @@ def run_bench(cfg: Config, invoke: Invoke | None, env: dict, out=None) -> int:
             status = "full pass" if record["full_pass"] else ("error " + error if error else "not a full pass")
             say(f"[{len(effective)}/{planned}] {task} {arm} r{repeat}: {status}, hidden {record['hidden_passed']}/{record['hidden_total']}, "
                 f"visible {'ok' if record['visible_ok'] else 'broken'}, {record['out_of_scope']} out of scope, "
+                f"tests {'edited' if record['tests_changed'] + record['tests_added'] + record['tests_deleted'] else 'untouched'}, "
                 f"{record['hidden_reads']} hidden reads, {record['turns']} turns, {record['subagents_spawned']} sub-agents, "
                 f"{record['cost_usd']:.4f} USD, {record['wall_s'] / 60:.1f} min, ended by {record['ended_by']}, spent {spent:.4f}")
             if any(s not in ("", "none") for s in info["api_key_sources"]):

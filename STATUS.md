@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-16
-Now: B7 checked and frozen at set v3 (`e7f25782...2b4b`), `auditor-mini` ACCEPT 2026-11-16; next the pilot · repository private · code written, 1204 tests passed
+Now: T-59f done, runner counts visible test changes; next the pilot · repository private · code written, 1207 tests passed
 
 ## Phase
 
@@ -17,10 +17,11 @@ Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix r
 
 Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor` CONDITIONAL ACCEPT, fix round T-45a to T-45c, `auditor-mini` ACCEPT; `audits/`).
 
-Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-56b, T-56c, T-58, T-59b, T-59a, T-59c to T-59e done); bench of kit against plain prompt, 2 arms, 42 runs over 7 tasks (DEC-065, amended by DEC-072).
+Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-56b, T-56c, T-58, T-59b, T-59a, T-59c to T-59f done); bench of kit against plain prompt, 2 arms, 42 runs over 7 tasks (DEC-065, amended by DEC-072).
 
 ## Done
 
+- T-59f runner counts visible test changes: `tools/bench_run.py` (`count_test_changes`; per run `tests_changed`, `tests_added`, `tests_deleted`; totals per arm and task with `runs_with_test_changes`; console `tests edited` or `tests untouched`); 3 new tests, 61 in the file; set v3 hash unchanged; no model run; 1207 passed.
 - T-59c to T-59e B7 check, fix round and re-verify: `auditor-mini` CONDITIONAL ACCEPT (High 0, Medium 2, Low 5), fixes B7-1 to B7-3 in set v3 (`developer`, 47 hidden tests, hash `e7f25782...2b4b`), re-verify ACCEPT (`audits/2026-11-16_b7-reverify.md`); reference 47 of 47 hidden, 115 visible; unchanged project 20 of 47 pass; 1204 passed.
 - T-59a B7 large bench task: `budgetbook` output layer as bench task B7 (`bench/tasks/B7/`, 47 hidden tests in set v3, 45 in v2; 639-line reference patch; 27 fail on the unchanged project in both sets); set v2 hash `6b5154df...8a3e`; 2 review rounds; no model run; 1204 passed.
 - T-59b seat size and contract ID format: seat 18 lines (DEC-058 size line; check the contract before delegating); ID format in 3 texts; `check_contract` adds the format on a missing or broken contract (DEC-073); `check-1` 7 of 7 and still `T-FIX-1`; `check-2` 7 of 7, first write parsed; 1195 passed.
@@ -35,11 +36,10 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 - T-42 decision, lesson, finding, task and log tools; 10 tools in all; 868 tests green; live run works.
 - T-44 security pass: 17 findings, 3 High fixed, 0 High open, 2 Medium open in the guard (S-7, S-8); `docs/security.md`; 980 tests green.
 - T-44a guard match in bounded time: S-6, S-7, S-8 fixed, 0 security findings open; 992 tests green.
-- T-46d eval runner review items 3 to 5: process tree stop, resume refusal on changed settings, seeded condition order; 1052 tests green; committed and pushed (07672c8).
 
 ## Next
 
-- Maintainer decides the runner candidate (changed or deleted visible test files are not counted); pilot (B7 and B3, 2 arms, 1 run each); pre-registration; full run of 42 runs.
+- Pilot (B7 and B3, 2 arms, 1 run each, not scored) in the maintainer's terminal; pre-registration with the pass floor 20 of 47 and the test-change counts; full run of 42 runs.
 - T-53 Project C trial, once the maintainer names Project C (DEC-067 cited in TASKS.md but not written).
 
 ## Repository
@@ -56,5 +56,5 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 - R-1 rule question and the 2 lines in `.sdlc/project.md` wait for the maintainer.
 - CTO Q4 scoring rule waits for the pre-registration; Q5 server without the SDK waits for T-51.
 - DEC-067 (Project C choice) is cited in TASKS.md but missing from DECISIONS.md; asked again.
-- T-59 (B7, one large bench task, DEC-070 to DEC-072): checked and frozen at set v3 2026-11-16 (`auditor-mini` ACCEPT); 0 scored runs; runner candidate open (decide before the pre-registration); Low B7-4 to B7-7 open.
+- T-59 (B7, one large bench task, DEC-070 to DEC-072): checked and frozen at set v3 2026-11-16 (`auditor-mini` ACCEPT); 0 scored runs; Low B7-4 to B7-7 open.
 - Bare-word candidate (Low, not triaged): `check-worktree` without dashes still falls to the guard's hook mode and writes 1 event line.

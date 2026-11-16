@@ -2,6 +2,20 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-16 (3) - T-59f runner counts visible test changes
+
+- The maintainer chose to add the count before the pilot. The candidate came from the B7 check (CTO Q3, scoring risk 1): the runner did not count changed, added or deleted visible test files, so a green visible suite reached by editing tests did not show in the totals. The maintainer approved the commit on 2026-11-16.
+- T-59f, `developer` (Sonnet, medium):
+  - `tools/bench_run.py`: 26 lines added, 3 changed. `count_test_changes` counts files under the copy's `tests/` from the same before and after hashes as `changed_paths`. Per-run keys `tests_changed`, `tests_added`, `tests_deleted`. Totals per arm and per task get the 3 sums and `runs_with_test_changes` (numbers only). Console word `tests edited` or `tests untouched`. The out-of-scope and kit-layer classes are unchanged.
+  - `tests/test_bench_run.py`: 3 new tests, 61 in the file.
+  - `bench/README.md`: Scoring and Files bullets name the new fields; the set v3 hash is unchanged.
+  - `CHANGELOG.md`: 1 line.
+- TL checks: diff read; the error path builds the record the same way as before; 5 targeted tests passed. No model run.
+- The plugin extract takes `tools/` from HEAD, so it differs from f148c73 by this runner file only, which the plugin never calls (DEC-073 allows harness changes).
+- Full suite (TL): 1207 passed, 6 skipped.
+- Metrics (T-59f): review rounds 0; questions back 0; out-of-scope files 0; models Sonnet (developer), Haiku (scribe).
+- Next: pilot (B7 and B3, 2 arms, 1 run each, not scored) in the maintainer's terminal; pre-registration with the pass floor 20/47 and the new test-change counts; full run of 42.
+
 ## 2026-11-16 (2) - B7 check, fix round and re-verify (T-59c to T-59e)
 
 - The maintainer approved the commit on 2026-11-16 and asked for the B7 check before the pre-registration.
