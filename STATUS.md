@@ -41,6 +41,7 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 
 - Finish plan (`TASKS.md`): pilot (B7 and B3, 2 arms, 1 run each, not scored) in the maintainer's terminal next; pre-registration with the pass floor 20 of 47 and the test-change counts.
 - Then full run of 42 runs and render; T-50 README, T-51 v0.1.0 and marketplace; T-52 gate G5, then the maintainer says publish.
+- T-53 runs in the maintainer's terminal on their go (Project C, up to 3 tasks, DEC-067).
 
 ## Repository
 
@@ -54,7 +55,6 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 - N-5 and public git history (review item 32) wait for G5 (`TASKS.md`).
 - R-1 rule question and the 2 lines in `.sdlc/project.md` wait for the maintainer.
 - CTO Q4 scoring rule waits for the pre-registration; Q5 server without the SDK waits for T-51.
-- DEC-067 (Project C choice) is cited in TASKS.md but missing from DECISIONS.md; asked again.
-- T-53 kept in v0.1.0 or moved to v0.1.1 is open with the maintainer; two non-game projects of the maintainer are the candidates (not named).
+- T-53 on Project C decided (DEC-067), up to 3 tasks; starts on the maintainer's go; the 3 tasks are not yet named to the TL.
 - T-59 (B7, one large bench task, DEC-070 to DEC-072): checked and frozen at set v3 2026-11-16 (`auditor-mini` ACCEPT); 0 scored runs; Low B7-4 to B7-7 open.
 - Bare-word candidate (Low, not triaged): `check-worktree` without dashes still falls to the guard's hook mode and writes 1 event line.

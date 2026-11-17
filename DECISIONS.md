@@ -549,6 +549,15 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Consequences: the README says the bench ran on Sonnet only and is not the kit's default model mix. The Haiku server gap is tested apart (T-54).
 - Outcome:
 
+## DEC-067 Project C for T-53
+- Date: 2026-11-17 · Question: T-53 target project (DEC-063); cited in `TASKS.md` since 2026-11-14, written 2026-11-17
+- Facts: two non-game projects of the customer were read, nothing written. Candidate 1: Python, local server and browser interface, about 320 tests, under active development, its own Turkish TL process, the kit's pre-push guard installed; browser-side code has no tests. Candidate 2: TypeScript and React, 528 fast tests, idle since 2026-11-11, records in English, a hand copy of the kit's process with 6 role files named like the plugin's agents. The TL recommended candidate 2 (idle, clean tree, a stack new to the evidence). The customer has 3 real tasks lined up in candidate 1.
+- Options: a) candidate 1, the customer's 3 real tasks b) candidate 2, one task from its review backlog c) defer T-53 to v0.1.1 and state the limit.
+- Decision: a), the customer's choice. The TL recommendation was b), then a) once the customer had 3 tasks lined up, since the work happens anyway.
+- Reason: real work the customer does anyway; the added cost is the before and after notes and the rollback.
+- Consequences: Project C is candidate 1; its name stays out of the repository (DEC-006; private pattern added). T-53 widens from 1 task to up to 3, each recorded on its own. The customer's conditions: nothing in Project C may break, nothing is pushed from Project C during the trial, and the trial starts only on the customer's go. Its browser code has no tests, so part of each result rests on the customer's own check; stated as a limit. Project C already runs a TL process of the same author; the trial shows the plugin installed over that process, not the kit in a project without one; stated as a limit.
+- Outcome:
+
 ## DEC-068 Fix the guard's deny for the main session before the bench
 - Date: 2026-11-14 · Question: T-56a probe result
 - Facts: in 3 kit probe runs of bench task B1 (Sonnet, headless, go-ahead given) no run started a sub-agent; the main session edited code itself. The guard denied the edit with no contract in place. K2 and K3 stopped after that one deny, 2 of 7 hidden tests; K1 wrote the contract by hand, it parsed as broken 3 times, then passed, 7 of 7. The deny text tells the main session to "ask the technical lead", but the main session is the technical lead, and it names neither `/sdlc:contract` nor the contract format (`tools/scope_guard.py` lines 455 and 465). The plain run passed 7 of 7.

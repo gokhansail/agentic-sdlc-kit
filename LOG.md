@@ -2,6 +2,17 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-17 (3) - Project C chosen for T-53 (DEC-067)
+
+- The maintainer chose Project C for T-53: candidate 1, the maintainer's 3 real tasks. DEC-067 in `DECISIONS.md`.
+- The TL recommended candidate 2 (one task from the review backlog), then candidate 1 once 3 tasks were lined up, since that work happens anyway.
+- T-53 widens to up to 3 tasks.
+- Conditions: nothing in Project C may break; nothing is pushed from Project C during the trial; the trial starts only on the maintainer's go.
+- The project name stays out of the repository; the private pattern is added locally.
+- Reason: real work the maintainer does anyway. Added cost: before and after notes and the rollback.
+- Limits: browser code without tests; Project C already runs a TL process of the same author.
+- Next: T-53 run guide and contract update after the maintainer names the 3 tasks; pilot in the maintainer's terminal.
+
 ## 2026-11-17 (2) - T-50a PLAYBOOK matches the shipped kit
 
 - The finish plan (2026-11-17 (1)) put T-50a in the parallel session. The maintainer approved the change 2026-11-17.
