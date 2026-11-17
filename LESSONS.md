@@ -31,3 +31,10 @@ What is this file? General lessons from building agentic-sdlc-kit: problems met,
 - Cause: the recommendation followed two external reviews and the pilot numbers. The TL did not reread the phase gate and the decision that set up the eval before giving the option.
 - Fix: DEC-056 reruns the eval as `full-2` with 3 repeats; `full-1` stays as the first measurement; the gate criterion was not relaxed after the result.
 - Lesson: before an option changes how a task is measured, read the gate criterion and the decision that set the task up, and name them in the option. A cheaper option that fails the gate is stated as failing it.
+
+### 2026-11-17 - Records in Files out blocked the technical lead
+
+- Problem: during T-57 the TL could not write a task result into `TASKS.md`; the scope guard denied it with "the path is in Files out of T-57".
+- Cause: the TL listed the kit records in the contract's Files out to keep the developer away from them. Files out applies to the main session as well as to sub-agents, and it wins over everything else, so the TL locked its own records for the life of the contract.
+- Fix: the TL did not work around the guard; it wrote the record after the contract closed.
+- Lesson: keep the TL's own records out of Files out. A sub-agent already cannot write a file that Files in does not name, so listing the records in Files out adds nothing for the sub-agent and blocks the TL.

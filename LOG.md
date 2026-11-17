@@ -2,6 +2,21 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-17 (1) - Finish plan, T-52a history scan, T-57 bench results renderer
+
+- The maintainer asked for a finish plan. The TL wrote it in `TASKS.md` under phase 5: no new phase-5 task unless it blocks G5. Sessions: (1) pilot and pre-registration, with T-52a, T-57 and T-50a in parallel; (2) full run of 42 and render; (3) T-50 README, T-51 v0.1.0 and marketplace; (4) T-52 gate G5, then the maintainer says publish.
+- T-53 (Project C trial): kept or moved to v0.1.1 is open with the maintainer. Two non-game projects of the maintainer were looked at as candidates; not named here.
+- T-57 [M], `developer` (Sonnet, medium): bench results renderer.
+  - `tools/bench_table.py`: 150 lines, built like `tools/eval_table.py`. Marker block in `docs/bench-results.md`. One header line per totals file, a table per file and arm, a table per file, task and arm. No verdict or ratio. Exit 2 and nothing written on bad input.
+  - `docs/bench-results.md`: new; the marker block says "Not run yet."
+  - `tests/test_bench_table.py`: 23 tests, 3 fixture files.
+  - `CHANGELOG.md`: 1 line.
+- T-52a [E], `scout` (Haiku), read only, history scan (no entry of its own): 72 commits, 72 messages, 35,326 added lines, 268 added paths; public patterns 0 hits (TL rerun equal); built-in forbidden paths 0. The private pattern file read was refused to `scout` by the permission check; the maintainer ran the same script with the private file in their own terminal: 0 hits. Binary contents not scanned.
+- TL error, recorded in LESSONS (2026-11-17): the T-57 contract listed `TASKS.md` in Files out; the guard then denied the TL's own record write; the TL waited for the contract to close.
+- TL checks: diff read; `smoke-2` and `check-2` rendered to a scratch copy, numbers equal to the records; second render byte-equal. Full suite (TL): 1230 passed, 6 skipped. Approved by the maintainer 2026-11-17.
+- Metrics (T-57): review rounds 0; questions back 0; out-of-scope files 0; models Sonnet (developer), Haiku (scribe). Metrics (T-52a): questions back 1 (permission refusal).
+- Next: T-50a PLAYBOOK fixes (`tech-writer`); pilot (B7 and B3, 2 arms, 1 run each) in the maintainer's terminal; pre-registration.
+
 ## 2026-11-16 (3) - T-59f runner counts visible test changes
 
 - The maintainer chose to add the count before the pilot. The candidate came from the B7 check (CTO Q3, scoring risk 1): the runner did not count changed, added or deleted visible test files, so a green visible suite reached by editing tests did not show in the totals. The maintainer approved the commit on 2026-11-16.

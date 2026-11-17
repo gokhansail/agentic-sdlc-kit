@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "label": "fx-b",
+  "date": "2026-01-03",
+  "cli_version": "2.0.1 (Claude Code)",
+  "bench_sha256": "fedcba9876543210fedcba9876543210",
+  "kit_commit": "1234567abcdef890",
+  "planned_runs": 2,
+  "done_runs": 2,
+  "spent_usd": 0.4,
+  "complete": true,
+  "task_ids": ["B1", "B2"],
+  "arms": {
+    "plain": {
+      "runs": 1, "full_pass": 0, "hidden_passed": 3, "hidden_total": 7, "visible_ok": 0,
+      "runs_with_out_of_scope": 0, "hidden_reads": 1, "guard_deny": 0,
+      "subagents_spawned": 0, "cost_usd": 0.1, "cost_usd_per_run": 0.1, "wall_s_per_run": 10.0,
+      "turns_per_run": 4.0
+    },
+    "kit": {
+      "runs": 1, "full_pass": 1, "hidden_passed": 7, "hidden_total": 7, "visible_ok": 1,
+      "runs_with_out_of_scope": 0, "hidden_reads": 0, "guard_deny": 1,
+      "subagents_spawned": 1, "cost_usd": 0.3, "cost_usd_per_run": 0.3, "wall_s_per_run": 20.5,
+      "turns_per_run": 8.0
+    }
+  },
+  "tasks": {
+    "B1": {
+      "plain": {"runs": 1, "full_pass": 0, "hidden_passed": 3, "hidden_total": 7, "cost_usd_per_run": 0.1},
+      "kit": {"runs": 1, "full_pass": 1, "hidden_passed": 7, "hidden_total": 7, "cost_usd_per_run": 0.3}
+    },
+    "B2": {
+      "plain": {"runs": 0, "full_pass": 0, "hidden_passed": 0, "hidden_total": 0, "cost_usd_per_run": 0.0},
+      "kit": {"runs": 0, "full_pass": 0, "hidden_passed": 0, "hidden_total": 0, "cost_usd_per_run": 0.0}
+    }
+  }
+}
