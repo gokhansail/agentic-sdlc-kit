@@ -2,6 +2,18 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-17 (2) - T-50a PLAYBOOK matches the shipped kit
+
+- The finish plan (2026-11-17 (1)) put T-50a in the parallel session. The maintainer approved the change 2026-11-17.
+- T-50a [M], `tech-writer` (Sonnet, medium), English document, 2 rounds:
+  - `PLAYBOOK.md` line 3: the sentence "will be in a separate evidence report (phase 2)" replaced; it now names `EVIDENCE.md`, `docs/eval-results.md` and `docs/bench-results.md`.
+  - Appendix H: 2 new rows. "A session learns its seat" (session start hook; seat text only where `.sdlc/project.md` exists). "Read-only MCP server (optional)" (10 tools, read only; the user installs the `mcp` SDK; experimental and optional; tested with Claude Code only).
+  - The 438-token figure was left out of PLAYBOOK, because the file holds no measured numbers.
+  - Round 2: the CHANGELOG line moved into the existing `### Changed` list under [Unreleased].
+- TL checks: each fact checked against its source; `tests/test_scope_guard.py` 198 passed (run by the TL; `tech-writer` has no shell).
+- Metrics (T-50a): review rounds 1; questions back 0; out-of-scope files 0; models Sonnet (`tech-writer`), Haiku (scribe).
+- Next: pilot (B7 and B3, 2 arms, 1 run each, not scored) in the maintainer's terminal; pre-registration. T-53 on Project C is being discussed with the maintainer.
+
 ## 2026-11-17 (1) - Finish plan, T-52a history scan, T-57 bench results renderer
 
 - The maintainer asked for a finish plan. The TL wrote it in `TASKS.md` under phase 5: no new phase-5 task unless it blocks G5. Sessions: (1) pilot and pre-registration, with T-52a, T-57 and T-50a in parallel; (2) full run of 42 and render; (3) T-50 README, T-51 v0.1.0 and marketplace; (4) T-52 gate G5, then the maintainer says publish.

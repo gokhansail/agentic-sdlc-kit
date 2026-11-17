@@ -863,7 +863,7 @@ Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-4
 - Tests: `python -m pytest -q` summary pasted. Write or Edit only (DEV_RULES rule 5); no git state change; no commit. Report in Turkish, fixed format.
 - Result 2026-11-17 (approved): `tools/bench_table.py` 150 lines, `docs/bench-results.md`, 23 tests and 3 fixture files, 1 CHANGELOG line. TL: `smoke-2` and `check-2` rendered to a scratch copy, numbers equal to DEC-070 and the T-59b result line, second render byte-equal. The test-change cell uses `runs_with_test_changes` only. Developer full suite 1230 passed, 6 skipped. Review rounds 0. Questions back 0. Out-of-scope files 0. The TL's contract put `TASKS.md` in Files out, which also blocked the TL's own record write until the contract closed (LESSONS 2026-11-17).
 
-### [ ] T-50a [M] PLAYBOOK matches the shipped kit (`tech-writer`, Sonnet, medium; after T-57)
+### [x] T-50a [M] PLAYBOOK matches the shipped kit (`tech-writer`, Sonnet, medium; after T-57)
 - Goal: `PLAYBOOK.md` has no future-tense phase sentence and names what the kit ships today (G5-8), before the README work.
 - Line 3: replace "will be in a separate evidence report (phase 2)" with where measured numbers are now: `EVIDENCE.md`, `docs/eval-results.md`, `docs/bench-results.md`.
 - Appendix H: a row for the read-only server (10 tools, optional, needs the `mcp` SDK, tested with Claude Code only) [DEC-050, DEC-051, DEC-057, DEC-059].
@@ -871,6 +871,7 @@ Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-4
 - Not in scope: line 17 ("no claim of speed or quality") waits for the bench category (T-50).
 - Files in: `PLAYBOOK.md`, one `CHANGELOG.md` line. Files out: everything else.
 - Acceptance: every new row ends with IDs that exist in `docs/source-map.md` or `DECISIONS.md`; every fact checked against the named source; the writing-style list in the brief; `tests/test_scope_guard.py` green.
+- Result 2026-11-17 (approved): line 3 names `EVIDENCE.md`, `docs/eval-results.md`, `docs/bench-results.md`; Appendix H rows "A session learns its seat" [DEC-058, DEC-064, DEC-073] and "Read-only MCP server (optional)" [DEC-011, DEC-050, DEC-051, DEC-057, DEC-059]; the 438-token figure left out (the file holds no measured numbers; it is in `docs/toolchain.md`). TL: each fact checked against its source; `tests/test_scope_guard.py` 198 passed (TL; `tech-writer` has no shell). Round 2: CHANGELOG line moved into the existing `### Changed` list. Review rounds 1. Questions back 0. Out-of-scope files 0.
 
 ## Later phases (headlines; contracts are written when the phase opens)
 - Phase 4: T-39 scope guard: memory folder for the main session (DEC-046) and exact path for the rules file (DEC-048) · T-39a the kit opts in to its own guard (DEC-047) · T-40 server skeleton · T-41 `scope_check` and metrics tools · T-42 decision, lesson, gate and log tools, `.mcp.json` in the plugin · T-44 security pass, incl. the C-26 public endpoint checklist if the kit has a public endpoint by then · T-46 eval with and without the server (DEC-012), plus the G0 leftover: an isolated session in a clean clone without the local instruction file resumes from the records · T-45 gate G4. T-43 dropped (DEC-011).
