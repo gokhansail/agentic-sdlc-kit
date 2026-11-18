@@ -620,3 +620,42 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: a) keeps DEC-067 without changing Project C's rules; c) measures the plugin over the process as it runs, the case DEC-067 names; the guard covers any sub-agent. e) does not block the first two tasks.
 - Consequences: commits stay local on main, one push at the end; no branch needed. Each contract names every path, incl. `pyproject.toml` and `uv.lock`. `/sdlc:install-hooks` is skipped. The trial measures Project C's developer role, not `sdlc:developer`; stated as a limit.
 - Outcome:
+
+## DEC-075 Shell writes the scope guard does not see
+- Date: 2026-11-18 · Question: what v0.1.0 does about the shell-write gap found in T-53 (`docs/dogfood-2.md` finding 1)
+- Facts: the guard checks Edit and Write calls only. In T-53 it saw 1 of 23 developer-written files; a history scan found shell-write candidates in 39 of 50 of this kit's own developer runs. The kit is frozen at f148c73 for the bench; a guard change before the full run changes the measured kit.
+- Options: a) state it as a limit in v0.1.0, fix in v0.1.1 b) fix before the bench full run.
+- Decision: a), the TL recommendation, the customer's word.
+- Reason: b) needs a new freeze and a new pilot; a) keeps the bench valid and says the limit where users read it.
+- Consequences: T-50 README names the gap under limits, with the T-53 numbers. A v0.1.1 task covers shell writes (a Bash write check or a worktree check at review).
+- Outcome:
+
+## DEC-076 Plugin user without the MCP SDK
+- Date: 2026-11-18 · Question: CTO Q5, DEC-051 options b) and c): what happens when the plugin starts the server and the `mcp` package is missing
+- Facts: today a missing or out-of-range `mcp` package stops the server with one install line (DEC-051); the server is experimental and optional (DEC-059).
+- Options: a) the server exits quietly and shows one install line; the rest of the plugin works b) the release ships without the server.
+- Decision: a), the TL recommendation, the customer's word.
+- Reason: the guard, skills and roles need no SDK; b) drops a tested part.
+- Consequences: T-51 checks that a session without the SDK shows no failing server beyond the one line, and the README says how to install it.
+- Outcome:
+
+## DEC-077 No internal IDs in public-facing text
+- Date: 2026-11-18 · Question: where task, decision and bench IDs (T-nn, DEC-nnn, Bn) may appear
+- Facts: the customer finds the IDs hard to follow in conversation and in reading; the records use them for tracing.
+- Options: a) none in conversation and in public-facing text (`README.md`, `PLAYBOOK.md`, `EVIDENCE.md`, `docs/`); records keep them b) none anywhere in the repository c) conversation only.
+- Decision: a), the TL recommendation, the customer's word. The customer also chose to publish after the bench full run, as the finish plan says.
+- Reason: a reader of the public text needs words, not IDs; the records need the IDs to trace decisions; b) rewrites hundreds of record lines.
+- Consequences: T-50 rewrites the public-facing text in words, an ID only where a reader must find the record, in parentheses. Briefs to `tech-writer` say so.
+- Outcome:
+
+## DEC-078 Bench pre-registration (before the first scored run)
+- Date: 2026-11-18 · Question: the rule, commands and caps of the bench full run (CTO plan 3.6, `cto/2026-11-15_bench-large-task.md`, DEC-065, DEC-070 to DEC-072)
+- Fixed before any scored run: bench set v3 (`e7f25782...2b4b`; v2 was `6b5154df...8a3e`); kit paths unchanged since f148c73 (`git diff f148c73 HEAD` on `.claude-plugin agents skills hooks server templates` empty); 2 arms, plain and kit, Sonnet in every role (DEC-066); seed 0. Changes after a result was seen: DEC-068 (guard deny text) and DEC-073 (seat size line), both before this record. B7 was written and frozen before any model run on it. The pilot set only B7's caps; it changed no task and no kit file.
+- Pilot (not scored, labels `pilot-b3`, `pilot-b7`): B3 plain 23 of 23, 47 s, 0.19 USD; kit 23 of 23, 88 s, 0.40 USD. B7 plain 47 of 47, 122 s, 0.32 USD; kit 47 of 47, 259 s, 0.68 USD.
+- B7 caps (DEC-072 rule): per-run cap 3 x 0.68 = 2.1 USD; timeout the larger of 2,700 s and 3 x 259 s = 2,700 s; max turns 60.
+- Commands, kit folder, customer's terminal: `python tools/bench_run.py --label full-1 --tasks B1,B2,B3,B4,B5,B6 --repeats 3 --budget-usd 40` and `python tools/bench_run.py --label full-1-b7 --tasks B7 --repeats 3 --budget-usd 15 --max-run-usd 2.1`. The two labels may run at the same time in 2 windows; wall time is then a limit, as in T-54c.
+- H1, primary, B1 to B6: full passes kit against plain, out of 18 runs each. Kit better: kit minus plain is 3 or more and the kit has no more regressions. No difference: within 2. Plain better: plain minus kit is 3 or more. The README uses the wording of CTO plan 3.6 for the category that comes out; the kit claims better work only in the first case.
+- H2: cost ratio kit to plain in USD, tokens and wall time, reported, no threshold. H3: out-of-scope files and visible test changes per arm, reported. H5, B7 apart: full passes out of 3 per arm, and the cost ratio on B7 against the ratio on the easy tasks (B1, B2), no threshold; B7 is reported whatever happens, including "kit failed by cap"; the tables of B1 to B6 and B7 are not merged.
+- Scoring: machine only for H1 to H5 (CTO Q4 a). Secondary, B7 only (DEC-071): the customer's blind review of 3 diff pairs, form "which would you merge: X, Y, either, neither" plus one line why; reported apart, cannot change H1 or H5.
+- Stop rule: the runner stops at the budget; cells done are reported as they are; no runs added after results are seen; only harness errors (timeout, crash, no result, usage limit, API error, server not connected) are rerun with `--resume --rerun-errors`, and counted. No task is dropped. The result is published in whichever category it falls. After G5 the bench is not rerun to change a published category (DEC-059).
+- Outcome:

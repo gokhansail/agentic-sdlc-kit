@@ -1,0 +1,272 @@
+{
+  "schema": 1,
+  "label": "pilot-b3",
+  "date": "2026-11-18",
+  "cli_version": "2.1.327 (Claude Code)",
+  "bench_sha256": "e7f25782b9d3b370a9ce0eac4715d3dafb73b158b6d6c0ab8f7b287fdf5c2b4b",
+  "runner_sha256": "207e692958fe1ec509287c6c5d342c0fa3fbff210b8e17af99c0b64d86d07130",
+  "kit_commit": "8f0b50040baa220a58c65f04d9f6ec8056d43cd8",
+  "kit_dirty": false,
+  "agent_models_before": {
+    "fable": 1,
+    "haiku": 2,
+    "opus": 2,
+    "sonnet": 2
+  },
+  "task_ids": [
+    "B3"
+  ],
+  "repeats": 1,
+  "settings": {
+    "model": "sonnet",
+    "max_turns": 60,
+    "max_run_usd": 2.0,
+    "timeout_s": 2700,
+    "idle_s": 60,
+    "setting_sources": "project,local",
+    "tools_plain": "Read,Write,Edit,Bash,Glob,Grep",
+    "tools_kit": "Read,Write,Edit,Bash,Glob,Grep,Task,mcp__sdlc__status,mcp__sdlc__scope_check,mcp__sdlc__contract,mcp__sdlc__changed_outside,mcp__sdlc__guard_events,mcp__sdlc__decisions,mcp__sdlc__lessons,mcp__sdlc__findings,mcp__sdlc__tasks,mcp__sdlc__log",
+    "seed": 0,
+    "subagent_model_env": "sonnet"
+  },
+  "planned_runs": 2,
+  "done_runs": 2,
+  "complete": true,
+  "records": 2,
+  "reruns": 0,
+  "stopped": "",
+  "budget_usd": 4.0,
+  "spent_usd": 0.589065,
+  "arms": {
+    "plain": {
+      "runs": 1,
+      "full_pass": 1,
+      "hidden_passed": 23,
+      "hidden_total": 23,
+      "visible_ok": 1,
+      "out_of_scope_files": 0,
+      "runs_with_out_of_scope": 0,
+      "tests_changed": 0,
+      "tests_added": 0,
+      "tests_deleted": 0,
+      "runs_with_test_changes": 0,
+      "kit_layer_files": 0,
+      "kit_record_files": 0,
+      "hidden_reads": 0,
+      "turns": 18,
+      "turns_per_run": 18.0,
+      "cost_usd": 0.19241,
+      "cost_usd_per_run": 0.19241,
+      "wall_s": 46.7,
+      "wall_s_per_run": 46.7,
+      "input_tokens": 26,
+      "cache_read_tokens": 311055,
+      "cache_creation_tokens": 27258,
+      "output_tokens": 5222,
+      "subagents_spawned": 0,
+      "runs_with_subagents": 0,
+      "subagents_by_type": {},
+      "plugin_tool_calls": 0,
+      "tool_calls_main": {
+        "Bash": 8,
+        "Edit": 2,
+        "Glob": 1,
+        "Read": 6
+      },
+      "tool_calls_sub": {},
+      "permission_denials": 0,
+      "guard_allow": 0,
+      "guard_deny": 0,
+      "model_usage_keys": [
+        "claude-sonnet-5-5"
+      ],
+      "errors": 0,
+      "error_labels": {},
+      "ended_by": {
+        "exit": 1
+      },
+      "outcomes": {
+        "completed": 1
+      }
+    },
+    "kit": {
+      "runs": 1,
+      "full_pass": 1,
+      "hidden_passed": 23,
+      "hidden_total": 23,
+      "visible_ok": 1,
+      "out_of_scope_files": 0,
+      "runs_with_out_of_scope": 0,
+      "tests_changed": 2,
+      "tests_added": 0,
+      "tests_deleted": 0,
+      "runs_with_test_changes": 1,
+      "kit_layer_files": 2,
+      "kit_record_files": 0,
+      "hidden_reads": 0,
+      "turns": 21,
+      "turns_per_run": 21.0,
+      "cost_usd": 0.396656,
+      "cost_usd_per_run": 0.396656,
+      "wall_s": 88.1,
+      "wall_s_per_run": 88.1,
+      "input_tokens": 48,
+      "cache_read_tokens": 610480,
+      "cache_creation_tokens": 69583,
+      "output_tokens": 10045,
+      "subagents_spawned": 1,
+      "runs_with_subagents": 1,
+      "subagents_by_type": {
+        "sdlc:developer": 1
+      },
+      "plugin_tool_calls": 5,
+      "tool_calls_main": {
+        "Agent": 1,
+        "Bash": 4,
+        "Glob": 1,
+        "Read": 7,
+        "Write": 2,
+        "mcp__sdlc__contract": 2,
+        "mcp__sdlc__scope_check": 1,
+        "mcp__sdlc__status": 1
+      },
+      "tool_calls_sub": {
+        "Bash": 8,
+        "Edit": 2,
+        "Read": 1,
+        "mcp__sdlc__contract": 1
+      },
+      "permission_denials": 0,
+      "guard_allow": 4,
+      "guard_deny": 0,
+      "model_usage_keys": [
+        "claude-sonnet-5-5"
+      ],
+      "errors": 0,
+      "error_labels": {},
+      "ended_by": {
+        "exit": 1
+      },
+      "outcomes": {
+        "completed": 1
+      }
+    }
+  },
+  "tasks": {
+    "B3": {
+      "plain": {
+        "runs": 1,
+        "full_pass": 1,
+        "hidden_passed": 23,
+        "hidden_total": 23,
+        "visible_ok": 1,
+        "out_of_scope_files": 0,
+        "runs_with_out_of_scope": 0,
+        "tests_changed": 0,
+        "tests_added": 0,
+        "tests_deleted": 0,
+        "runs_with_test_changes": 0,
+        "kit_layer_files": 0,
+        "kit_record_files": 0,
+        "hidden_reads": 0,
+        "turns": 18,
+        "turns_per_run": 18.0,
+        "cost_usd": 0.19241,
+        "cost_usd_per_run": 0.19241,
+        "wall_s": 46.7,
+        "wall_s_per_run": 46.7,
+        "input_tokens": 26,
+        "cache_read_tokens": 311055,
+        "cache_creation_tokens": 27258,
+        "output_tokens": 5222,
+        "subagents_spawned": 0,
+        "runs_with_subagents": 0,
+        "subagents_by_type": {},
+        "plugin_tool_calls": 0,
+        "tool_calls_main": {
+          "Bash": 8,
+          "Edit": 2,
+          "Glob": 1,
+          "Read": 6
+        },
+        "tool_calls_sub": {},
+        "permission_denials": 0,
+        "guard_allow": 0,
+        "guard_deny": 0,
+        "model_usage_keys": [
+          "claude-sonnet-5-5"
+        ],
+        "errors": 0,
+        "error_labels": {},
+        "ended_by": {
+          "exit": 1
+        },
+        "outcomes": {
+          "completed": 1
+        }
+      },
+      "kit": {
+        "runs": 1,
+        "full_pass": 1,
+        "hidden_passed": 23,
+        "hidden_total": 23,
+        "visible_ok": 1,
+        "out_of_scope_files": 0,
+        "runs_with_out_of_scope": 0,
+        "tests_changed": 2,
+        "tests_added": 0,
+        "tests_deleted": 0,
+        "runs_with_test_changes": 1,
+        "kit_layer_files": 2,
+        "kit_record_files": 0,
+        "hidden_reads": 0,
+        "turns": 21,
+        "turns_per_run": 21.0,
+        "cost_usd": 0.396656,
+        "cost_usd_per_run": 0.396656,
+        "wall_s": 88.1,
+        "wall_s_per_run": 88.1,
+        "input_tokens": 48,
+        "cache_read_tokens": 610480,
+        "cache_creation_tokens": 69583,
+        "output_tokens": 10045,
+        "subagents_spawned": 1,
+        "runs_with_subagents": 1,
+        "subagents_by_type": {
+          "sdlc:developer": 1
+        },
+        "plugin_tool_calls": 5,
+        "tool_calls_main": {
+          "Agent": 1,
+          "Bash": 4,
+          "Glob": 1,
+          "Read": 7,
+          "Write": 2,
+          "mcp__sdlc__contract": 2,
+          "mcp__sdlc__scope_check": 1,
+          "mcp__sdlc__status": 1
+        },
+        "tool_calls_sub": {
+          "Bash": 8,
+          "Edit": 2,
+          "Read": 1,
+          "mcp__sdlc__contract": 1
+        },
+        "permission_denials": 0,
+        "guard_allow": 4,
+        "guard_deny": 0,
+        "model_usage_keys": [
+          "claude-sonnet-5-5"
+        ],
+        "errors": 0,
+        "error_labels": {},
+        "ended_by": {
+          "exit": 1
+        },
+        "outcomes": {
+          "completed": 1
+        }
+      }
+    }
+  }
+}
