@@ -2,6 +2,46 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-18 (2) - T-53 task 2 on Project C and trial close
+
+- Source: the Task 2 and Close lines under T-53 in `TASKS.md`.
+- Task 2 (16th grid cells) ran in Project C's own TL session (CLI 2.1.326, auto mode). Contract 9 Files in (incl. `uv.lock`, `pyproject.toml`), 6 Files out. Developer 9 min, TL session 15 min.
+- Result: 1 local commit, 10 paths, all in Files in or always allowed. 342 passed, 1 deselected; node tests 6 of 6; lint green (Project C TL's run). Review rounds 1. Questions back 0. Customer test passed. Contract closed.
+- Scope events 7, all allow: no contract 2, active 5 (main session). The developer produced 0 events for 7 developer-written files. Over both tasks the guard saw 1 of 23 developer-written files.
+- Project C's TL took its own default on one open design question and told the customer, who agreed.
+- Task 3 not run (customer's choice: hard task, open shortcut question).
+- Close: 1 push of 2 commits through the chained hook, passed. Rollback equal to the noted state (hooks, exclude file, `.sdlc/` file list, `git status` empty).
+- Report: `docs/dogfood-2.md` (`tech-writer`, Sonnet, 2 rounds), 5 findings not yet triaged; CHANGELOG line under Added.
+- Metrics (T-53 report): review rounds 2; questions back 0; out-of-scope files 0; models Sonnet (`tech-writer`), Haiku (scribe).
+- Next: pilot (B7 and B3, 2 arms, 1 run each, not scored) in the maintainer's terminal; pre-registration.
+
+## 2026-11-18 (1) - T-53 task 1 on Project C: range render
+
+- Source: the result line "Task 1 (range render)" under T-53 in `TASKS.md`.
+- Task 1 ran in Project C's own TL session (CLI 2.1.319, auto mode). Contract 14 Files in (incl. `uv.lock`, `pyproject.toml`), 5 Files out. Project C's developer (Sonnet, effort high), 20 min.
+- Result: local commit 24ee961, 17 paths, all in Files in or always allowed; origin unchanged (no push). 341 tests and lint green (Project C TL's run). Review rounds 1. Questions back 0. Maintainer's test passed. Contract closed.
+- Main finding: the developer changed 15 of 16 files through Bash (Python heredoc replace scripts, `sed -i`), 0 Edit calls, though the brief said file tools only. The guard saw 1 of 16 developer-written files. Project C's role file has no file-tools rule.
+- Scope still held: all 17 committed paths were in Files in or always allowed (TL check of the commit). Scope events 11, all allow: main 10 (no contract 2, active 8), developer 1 (Write).
+- History scan (read only, local script, upper bound): developer runs with a shell-write candidate: Project C 33 of 34, another project of the maintainer 12 of 13, this kit 39 of 50. The Bash gap is general.
+- The maintainer decided not to intervene in task 2, to measure the same thing again.
+- A second candidate project of the maintainer was read: not chosen now (uncommitted work, schema change on real data, no test project); possible after T-53.
+- Next: task 2 (16th grid cells) in the maintainer's terminal; CLI 2.1.326 at restart (task 1 ran on 2.1.319).
+
+## 2026-11-17 (4) - T-53 setup on Project C (DEC-074)
+
+- The TL read Project C (read only, nothing written there): main, HEAD 62e48b4, clean tree, pre-push hook SHA-256 61d5618d...1039 (the kit's chained guard from an earlier install), exclude file 1 line `.sdlc/`, no `.sdlc/project.md`.
+- Project C's handoff lists 3 tasks: range render (medium, tests), 16th grid cells (medium, JS only, no automated test), listen to a selection (hard, open shortcut question in Project C).
+- Conflicts found before the run:
+  - Project C's rules push on approval, while DEC-067 forbids pushes in the trial.
+  - The tasks have no explicit file list; a version bump changes `pyproject.toml` and `uv.lock`.
+  - The listening record must be in the always-allowed list.
+- The maintainer decided as the TL recommended (DEC-074):
+  - no push until the trial ends, through Project C's own "no push" word;
+  - Project C's own developer role;
+  - the shortcut question is asked when its task comes.
+- T-53 contract rewritten in `TASKS.md` for up to 3 tasks. Local runbook `.sdlc/local/t53-runbook.md` (ignored).
+- Next: the maintainer runs the runbook in their own terminal.
+
 ## 2026-11-17 (3) - Project C chosen for T-53 (DEC-067)
 
 - The maintainer chose Project C for T-53: candidate 1, the maintainer's 3 real tasks. DEC-067 in `DECISIONS.md`.

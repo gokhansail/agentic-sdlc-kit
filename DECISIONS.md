@@ -611,3 +611,12 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: DEC-058 was decided on 2026-11-11; b) would measure a seat that v0.1.0 does not ship. Expected effect is small (CTO opinion): the overhead comes from delegation and the sequencing fault, and DEC-066 keeps every role on Sonnet.
 - Consequences: T-59b before the pilot. It is the second change after a result was seen (after DEC-068); the pre-registration states both. After the check run the kit does not change before the full run except for harness errors.
 - Outcome:
+
+## DEC-074 T-53 run setup on Project C
+- Date: 2026-11-17 · Question: how T-53 runs inside Project C's existing process (DEC-067)
+- Facts: Project C's rules commit and push when the customer approves a task, unless the customer says not to push; DEC-067 forbids pushes during the trial. Project C's TL delegates to its own developer role; the plugin adds its own. Project C's 3 tasks have no explicit file list, and a version bump there changes `pyproject.toml` and `uv.lock`. The kit's chained pre-push guard is already installed in Project C. The third task has an open shortcut question in Project C.
+- Options: push a) none until the trial ends, through Project C's own "no push" word b) per task, changing DEC-067; developer c) Project C's own role d) the plugin's role; shortcut question e) when its task comes f) now.
+- Decision: a), c), e), the TL recommendation, the customer's word.
+- Reason: a) keeps DEC-067 without changing Project C's rules; c) measures the plugin over the process as it runs, the case DEC-067 names; the guard covers any sub-agent. e) does not block the first two tasks.
+- Consequences: commits stay local on main, one push at the end; no branch needed. Each contract names every path, incl. `pyproject.toml` and `uv.lock`. `/sdlc:install-hooks` is skipped. The trial measures Project C's developer role, not `sdlc:developer`; stated as a limit.
+- Outcome:
