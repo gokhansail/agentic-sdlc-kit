@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-19
-Now: T-60 done (bench results page, category "no difference"); README next · repository private · code written, last full run 1230 passed
+Now: T-50 README done 2026-11-19; v0.1.0 and marketplace next (T-51) · repository private · code written, last full run 1230 passed
 
 ## Phase
 
@@ -17,10 +17,11 @@ Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix r
 
 Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor` CONDITIONAL ACCEPT, fix round T-45a to T-45c, `auditor-mini` ACCEPT; `audits/`).
 
-Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-56b, T-56c, T-58, T-59b, T-59a, T-59c to T-59f done; T-52a, T-57 and T-50a done 2026-11-17; T-53 done 2026-11-18; pilot, pre-registration, full run of 42 and T-60 done 2026-11-18 and 2026-11-19); bench of kit against plain prompt, 2 arms, 42 runs over 7 tasks (DEC-065, amended by DEC-072).
+Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-56b, T-56c, T-58, T-59b, T-59a, T-59c to T-59f done; T-52a, T-57 and T-50a done 2026-11-17; T-53 done 2026-11-18; pilot, pre-registration, full run of 42 and T-60 done 2026-11-18 and 2026-11-19; T-50 README done 2026-11-19); bench of kit against plain prompt, 2 arms, 42 runs over 7 tasks (DEC-065, amended by DEC-072).
 
 ## Done
 
+- T-50 README (`tech-writer`): `README.md` 103 lines, engineer's note; bench "no difference" wording, scope 2 of 18 per arm, shell-write gap; TL fixed 2 points (role exceeded); approved 2026-11-19.
 - T-60 bench results page: `docs/bench-results.md` from `tools/bench_table.py`; category "no difference" on B1 to B6 (18 of 18 full passes per arm, kit to plain 2.51x USD); B7 3 of 3 per arm, 2.15x USD; approved 2026-11-19.
 - Bench full run (DEC-078, maintainer's terminal): `full-1` 36 of 36 full passes, 6.48 USD; `full-1-b7` 6 of 6, 3.31 USD; 42 runs, 0 harness errors, 0 reruns.
 - T-53 trial on Project C: 2 of 3 tasks (range render, 16th grid cells), 27 committed paths all in contract, 18 scope events all allow, guard saw 1 of 23 developer-written files (shell writes); 1 push passed; rollback equal; `docs/dogfood-2.md` 5 findings.
@@ -39,8 +40,8 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 
 ## Next
 
-- T-50 README: states the category, the cost ratios, the scope result and the shell-write gap (DEC-075 limit).
-- T-51 v0.1.0 and marketplace; T-52 gate G5; then the maintainer says publish.
+- T-51 v0.1.0 and marketplace: version in `plugin.json` and CHANGELOG, marketplace entry checked against current Claude Code docs, no-SDK check (DEC-076), install from the entry in a clean folder.
+- T-52 gate G5; then the maintainer says publish.
 
 ## Repository
 

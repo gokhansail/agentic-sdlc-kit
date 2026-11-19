@@ -2,6 +2,18 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-19 (2) - T-50 README
+
+- Source: the T-50 block and its Result line in `TASKS.md`.
+- Customer: approved the README on 2026-11-19.
+- `tech-writer` (Sonnet, medium) rewrote `README.md` (103 lines) from the T-50 brief. The CHANGELOG line is under Unreleased > Added.
+- What the README holds: intro and status, with the result first (no difference; 3.30x tokens, 2.42x time, 2.51x USD; scope 2 of 18 per arm; the guard saw 1 of 23 trial files); what ships; install from a clone with `--plugin-dir` (no marketplace section yet); what was measured (bench, server eval with Haiku guidance from T-54c, before and after numbers, a game and a non-game trial); 9 limits, incl. the shell-write gap; repository layout, tests and license. 2 IDs in parentheses.
+- TL checks: every number checked against its source. Role exceeded: the TL fixed 2 points itself: "Python 3.10 or later" changed to "tested with 3.10.4 only"; NotebookEdit added to the guard limit.
+- Tests: `tests/test_pre_push.py` 31 passed (TL run).
+- Not done: marketplace section and version bump (`plugin.json` still 0.0.1) wait for T-51.
+- Metrics: review rounds 1; questions back 0; out-of-scope files 0; models Sonnet (`tech-writer`), Haiku (scribe).
+- Next: T-51 v0.1.0 and marketplace, then T-52 gate G5.
+
 ## 2026-11-19 (1) - T-60 bench results page
 
 - Source: the T-60 block and its Result line in `TASKS.md`.
