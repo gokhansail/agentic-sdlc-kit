@@ -2,6 +2,42 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-19 (1) - T-60 bench results page
+
+- Source: the T-60 block and its Result line in `TASKS.md`.
+- Customer: approved the bench results page after the full run.
+- `tech-writer` (Sonnet, medium) wrote `docs/bench-results.md` from the render of `tools/bench_table.py` for `full-1` and `full-1-b7`. Both totals files are committed. The CHANGELOG line is under Unreleased > Added.
+- Sections: "What was run", "What the tables show", "Limits".
+- Category on B1 to B6: "no difference" (DEC-078 H1). 18 of 18 full passes per arm. Kit to plain: 2.51x USD, 3.30x tokens, 2.42x wall.
+- B7, apart from B1 to B6: 3 of 3 full passes per arm. Kit to plain: 2.15x USD, 3.78x tokens, 2.83x wall. On B1 and B2 together the same ratios were 3.00x USD, 4.36x tokens, 4.39x wall, so all three were lower on B7.
+- Out-of-scope runs: 2 of 18 per arm, all on B4, same file.
+- Hidden reads: 1 in plain, a word match (`<hidden>` in a `sed` mask of `.env`), 0 real.
+- Guard denies: 8, all in the main session before a contract.
+- Checks: second render byte-equal; full suite 1230 passed, 6 skipped (TL run).
+- TL: after round 1 the TL fixed 3 points itself (role exceeded): its own brief compared B7 with all 6 tasks instead of B1 and B2; the wording of plan 3.6; bold labels. The TL's brief error is one of the 3.
+- Not done: blind review of B7 (DEC-071). The diff pairs exist only in the local temp folder, outside the repository.
+- Metrics: review rounds 1; questions back 0; out-of-scope files 0; models Sonnet (`tech-writer`), Haiku (scribe).
+- Next: README (T-50), then v0.1.0 and marketplace (T-51).
+
+## 2026-11-18 (3) - Pilot, pre-registration and bench full run
+
+- Source: the finish plan under phase 5 in `TASKS.md`, DEC-075 to DEC-078 in `DECISIONS.md`, commit c99c9fe.
+- Customer: asked for the pilot and the pre-registration, then the full run in the maintainer's terminal.
+- Pilot, 4 runs, not scored (labels `pilot-b3`, `pilot-b7`):
+  - B3: plain 23 of 23, 0.19 USD; kit 23 of 23, 0.40 USD.
+  - B7: plain 47 of 47, 0.32 USD; kit 47 of 47, 0.68 USD.
+  - The pilot set only the B7 caps (per-run cap 2.1 USD, timeout 2,700 s, max turns 60). It changed no task and no kit file.
+- Decisions:
+  - DEC-075: the shell-write gap (the guard does not see writes made through Bash) is a limit of v0.1.0, fixed in v0.1.1. The bench kit stays frozen.
+  - DEC-076: without the `mcp` SDK the server exits with one install line; the rest of the plugin works.
+  - DEC-077: no task, decision or bench IDs in public-facing text; the records keep them.
+  - DEC-078: pre-registration, committed c99c9fe before the first scored run. It fixes bench set v3, the kit paths, Sonnet in every role, seed 0, the H1 categories and the stop rule.
+- Full run, in the maintainer's terminal, Claude Code CLI 2.1.327:
+  - `full-1` (B1 to B6, 3 repeats): 36 of 36 full passes, 6.48 USD.
+  - `full-1-b7` (B7, 3 repeats): 6 of 6, 3.31 USD.
+  - 42 runs, 9.79 USD, 0 harness errors, 0 reruns.
+- Next: T-60 bench results page.
+
 ## 2026-11-18 (2) - T-53 task 2 on Project C and trial close
 
 - Source: the Task 2 and Close lines under T-53 in `TASKS.md`.
