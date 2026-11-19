@@ -807,6 +807,35 @@ def test_plugin_manifest_registers_the_stdio_server() -> None:
     assert not (ROOT / ".mcp.json").exists()  # this folder's own sessions would read it as project config
 
 
+def test_marketplace_entry_matches_the_plugin_manifest() -> None:
+    plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+    market = json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8"))
+    assert market["name"] == "agentic-sdlc-kit"
+    assert market["owner"]["name"]
+    assert plugin["version"] == "0.1.0"
+    (entry,) = market["plugins"]
+    assert entry["name"] == plugin["name"]
+    assert entry["source"] == "./"
+    assert "version" not in entry
+    assert b"\r" not in (ROOT / ".claude-plugin" / "marketplace.json").read_bytes()
+
+
+def test_ci_workflow_has_the_expected_steps() -> None:
+    text = (ROOT / ".github" / "workflows" / "tests.yml").read_text(encoding="utf-8")
+    assert "\t" not in text  # YAML forbids tabs for indentation
+    try:
+        import yaml
+    except ImportError:
+        yaml = None
+    if yaml is not None:
+        data = yaml.safe_load(text)
+        assert data["jobs"]["pytest"]["runs-on"] == "windows-latest"
+    for line in ("runs-on: windows-latest", "uses: actions/checkout@v4", "uses: actions/setup-python@v5",
+                 'python-version: "3.10"', "python -m pip install -r requirements-dev.txt", "python -m pytest -q"):
+        assert line in text
+    assert "secrets" not in text
+
+
 def test_json_files_use_lf() -> None:
     lines = (ROOT / ".gitattributes").read_text(encoding="utf-8").splitlines()
     assert "*.json text eol=lf" in lines

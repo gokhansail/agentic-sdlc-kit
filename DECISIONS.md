@@ -659,3 +659,12 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Scoring: machine only for H1 to H5 (CTO Q4 a). Secondary, B7 only (DEC-071): the customer's blind review of 3 diff pairs, form "which would you merge: X, Y, either, neither" plus one line why; reported apart, cannot change H1 or H5.
 - Stop rule: the runner stops at the budget; cells done are reported as they are; no runs added after results are seen; only harness errors (timeout, crash, no result, usage limit, API error, server not connected) are rerun with `--resume --rerun-errors`, and counted. No task is dropped. The result is published in whichever category it falls. After G5 the bench is not rerun to change a published category (DEC-059).
 - Outcome:
+
+## DEC-079 B7 blind review not done
+- Date: 2026-11-19 · Question: the secondary blind review of the 3 B7 diff pairs (DEC-071, DEC-078) before publishing
+- Facts: the pairs were prepared blind in the local, ignored folder; the review needs 30 to 45 minutes of the customer's time; it cannot change H1 or H5.
+- Options: a) close it as not done and say so on the results page b) do it before G5.
+- Decision: a), the customer's word.
+- Reason: it is secondary and descriptive (n = 1 judge, 3 pairs); the publish plan has no slot for it.
+- Consequences: `docs/bench-results.md` says the review was not done and will not be done for this bench; the local pairs may stay or be deleted.
+- Outcome:

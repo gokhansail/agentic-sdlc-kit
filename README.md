@@ -4,7 +4,15 @@ A Claude Code plugin and a written method for running software work with several
 
 One maintainer built it. The text and the code were written by AI agents under this process. The repository is built with its own process, and its task, decision, audit and log records are in the repository.
 
-Status: version 0.1, experimental. The plugin was used on 2 real projects and measured on one synthetic project. The limits are listed below.
+Status: version 0.1.0, experimental. The plugin was used on 2 real projects and measured on one synthetic project. The limits are listed below.
+
+## Who did what
+
+The maintainer set the rules, the roles and the gates, ran the trials on their own projects and in their own terminal, and approved every task before it was committed. Other points from the records:
+- After a small test looked bad for the kit, the maintainer asked for a large rebuild task, and the rule for it was fixed before any run on it (DEC-070, DEC-078).
+- The maintainer asked why a limit in a contract had no reason behind it. The limit was removed and the lesson is in `LESSONS.md`.
+- The maintainer commissioned two external read-only reviews. Their 35 items and the decision on each are in `docs/review-items.md`.
+- The maintainer decided against the lead's recommendation, for example on the eval login (DEC-054) and on the non-game trial project, where the lead first proposed another candidate (DEC-067).
 
 ## Result
 
@@ -15,6 +23,8 @@ No difference in task results on this set; the kit cost 3.30 times the tokens an
 The kit did not reduce out-of-scope writes on this set. 2 of 18 runs had a file outside the task's allowed list in each arm, the same file, on the same task. What the kit adds is a written contract and records for each task, at that cost.
 
 The main limit: the scope guard sees only Edit and Write calls. In the second real trial it saw 1 of 23 files that the developer role wrote. The rest went through the shell.
+
+What was learned. The pilot of 4 runs before the scored runs had already shown both arms at 100%, so this set could not separate them. A next bench needs harder tasks, chosen by a pilot before the set is frozen. The scope guard missed shell writes, so the working-tree check at review (`/sdlc:review`) is the step that catches them, not the file-tool hook.
 
 Full tables and limits: `docs/bench-results.md`.
 
@@ -29,13 +39,31 @@ Full tables and limits: `docs/bench-results.md`.
 
 ## Install and first steps
 
-Requirements: Claude Code, git, Python 3 as `python` (tested with 3.10.4 only), and `sh` (on Windows, Git Bash). The hooks run through `sh`.
+Requirements: Claude Code, git, Python 3.10 or newer as `python`, `python3` or `py -3` (the hook checks for it; tested with 3.10.4 only), and `sh` (on Windows, Git Bash). The hooks run through `sh`.
 
-Load the plugin from a clone for one session:
+This repository is its own plugin marketplace. In a Claude Code session, add it and install the plugin:
+
+```
+/plugin marketplace add gokhansail/agentic-sdlc-kit
+/plugin install sdlc@agentic-sdlc-kit
+```
+
+The same from the shell. The default scope is `user`, which enables the plugin in every project; `--scope project` writes `.claude/settings.json` of the current project instead:
+
+```
+claude plugin marketplace add gokhansail/agentic-sdlc-kit
+claude plugin install sdlc@agentic-sdlc-kit [--scope user|project|local]
+```
+
+Users get an update only when the plugin version is raised.
+
+From a clone, load the plugin for one session:
 
 ```
 claude --plugin-dir <path to the clone>
 ```
+
+A clone can also be added as a marketplace with `/plugin marketplace add ./path/to/clone` (a local path starts with `./` or `../`).
 
 The server needs the `mcp` Python package. Install it with:
 
@@ -43,7 +71,7 @@ The server needs the `mcp` Python package. Install it with:
 python -m pip install "mcp>=2.3,<3"
 ```
 
-Without the package the server exits with that one install line. The guard, the skills and the roles work without it.
+Without the package the server exits at start with that one install line. `/mcp` then shows `sdlc` as failed to connect, and the install line explains why. The guard, the skills and the roles work without it.
 
 Then, in the project you want to work on:
 

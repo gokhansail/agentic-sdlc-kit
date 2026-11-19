@@ -2,6 +2,37 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-19 (4) - T-61 README who did what; T-51 v0.1.0, marketplace entry, CI
+
+- Source: the T-61 and T-51 blocks and their Result lines in `TASKS.md`; DEC-079 in `DECISIONS.md`.
+- Customer: approved both tasks on 2026-11-19. Asked for the README part on who did what and what was learned, and for v0.1.0 with a marketplace entry and CI.
+- T-61, `tech-writer` (Sonnet, medium): `README.md` gained "Who did what" (1 sentence, 4 points) and "What was learned" (3 sentences); `docs/bench-results.md` gained the review line of DEC-079 in the secondary review paragraph. The CHANGELOG line is under Unreleased.
+  - TL fixed 3 points itself (role exceeded): "twice" dropped (DEC-067: the TL first proposed b), then a)); the review lesson names `/sdlc:review`, which already checks the working tree; "Python 3.10 or newer", as the hook launcher checks.
+  - Tests: `tests/test_pre_push.py` and `tests/test_bench_table.py` 54 passed (TL run).
+  - Contract closed early to place T-51 (one contract at a time).
+- T-51, `developer` (Sonnet, medium):
+  - `.claude-plugin/plugin.json` version 0.1.0; new `.claude-plugin/marketplace.json` (marketplace name `agentic-sdlc-kit`, entry `sdlc`, source `./`, no version field).
+  - New `.github/workflows/tests.yml`: Windows runner, Python 3.10, `requirements-dev.txt`, `pytest -q`.
+  - CHANGELOG `[Unreleased]` became `[0.1.0] - 2026-11-19` with an empty `[Unreleased]` above.
+  - README status and install section: marketplace install, shell form, clone with `--plugin-dir`; without the `mcp` SDK `/mcp` shows `sdlc` as failed with the install line (stated in the README, DEC-076).
+  - `docs/toolchain.md` V-10 and V-11 from the Claude Code docs, not measured; review item 20 partly closed. 2 new tests.
+  - `claude plugin validate .` passed with the known warnings (root CLAUDE files, icon).
+  - Tests: full suite 1232 passed, 6 skipped (TL run). The developer's own full runs did not finish while another project's tests ran on the machine; the developer repeated its report and was stopped.
+- DEC-076 expected no failing server; the docs say `/mcp` shows one, so the README states it.
+- Metrics, each task: review rounds 1; questions back 0; out-of-scope files 0; models Sonnet (`tech-writer`, `developer`), Haiku (scribe).
+- Next: the maintainer's install test from the marketplace entry (clean folder), then T-52 gate G5.
+
+## 2026-11-19 (3) - Independent opinion on publishing, B7 blind review closed
+
+- Source: the customer's request for an independent opinion before publishing; DEC-079 in `DECISIONS.md`.
+- Customer: asked for the opinion before publishing, and closed the B7 blind review as not done.
+- `auditor` (Fable) read the repository and wrote no file. The opinion is kept outside the repository.
+  - Verdict: publishing helps, medium, if presented as a measured evaluation and not as a process product.
+  - No item that stops publishing was found.
+  - 3 privacy points for the maintainer to decide at G5: source-project commit hashes in `evidence/*.json`; the list of scanned term kinds in `audits/2026-11-02_gate1.md`; the game engine visible from a metric profile.
+  - 5 suggested changes; T-61 and T-51 cover the README, version and CI among them.
+- DEC-079: the B7 blind review is not done (customer's word). It is secondary and descriptive; the publish plan has no slot for it. `docs/bench-results.md` says so.
+
 ## 2026-11-19 (2) - T-50 README
 
 - Source: the T-50 block and its Result line in `TASKS.md`.

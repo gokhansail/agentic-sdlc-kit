@@ -1,0 +1,12 @@
+{
+  "name": "agentic-sdlc-kit",
+  "owner": { "name": "gokhansail" },
+  "description": "A kit for running software work with several AI agents: roles, contract-based delegation, a review gate and independent audits.",
+  "plugins": [
+    {
+      "name": "sdlc",
+      "source": "./",
+      "description": "Run software work with several AI agents: roles, contract-based delegation, a review gate and independent audits."
+    }
+  ]
+}

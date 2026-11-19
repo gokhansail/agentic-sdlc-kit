@@ -71,7 +71,7 @@ Hidden reads. The table shows 1 for the plain arm. It is a word match, not a rea
 
 Guard and sub-agents. The guard denied 8 calls, all in the kit arm. All 8 came from the lead (main) session writing before it had placed a contract, in 3 runs (B1, B2, B6). All 3 runs then passed. The kit spawned 19 sub-agents in 18 runs on the 6 tasks and 3 in 3 runs on the large task, all of the developer role. Plain spawned 0.
 
-Secondary review. The blind review of the 3 large-task diff pairs by the maintainer (DEC-071) was not done when this page was written. It is reported apart and cannot change the category.
+Secondary review. The blind review of the 3 large-task diff pairs (DEC-071) was not done and will not be done for this bench (DEC-079). It could not change the category.
 
 ## Limits
 - One synthetic project and 7 tasks, written by the author of the kit. The tasks were not changed after looking at any model result.

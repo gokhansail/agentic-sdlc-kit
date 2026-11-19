@@ -24,7 +24,7 @@ What is this file? The list of the 35 items (item 19 has 2 rows, 19a and 19b, so
 | 18 | The server is experimental and optional; no growth | DEC-059, T-50 | decided; README wording open (T-50) |
 | 19a | The scope guard is an early warning, optional if it catches nothing in 4 weeks | none | no record |
 | 19b | A file check when a sub-agent ends | DEC-059 | deferred, not planned |
-| 20 | CI on two operating systems with a fixed skipped-test count | none | no record |
+| 20 | CI on two operating systems with a fixed skipped-test count | none | partly: Windows only in `.github/workflows/tests.yml` (T-51) |
 | 21 | Push guard in CI and a dependency scan once public | none | no record |
 | 22 | Remove unused code | none | no record |
 | 23 | No new capability and no new feature task | DEC-059 | decided |
