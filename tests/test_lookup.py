@@ -677,7 +677,8 @@ def test_a_record_file_that_is_a_link_pointing_outside_is_refused(tmp_path: Path
     except (OSError, NotImplementedError):
         pytest.skip("cannot create a symlink here")
     got = lookup.decisions(root)
-    assert got["items"] == [] and got["error"] == "the decisions file could not be read"
+    # the link resolves outside the project root: the path guard refuses it (lookup.py, resolve_in_root)
+    assert got["items"] == [] and got["error"] == "decisions: the record path resolves outside the project root"
     assert "Secret" not in json.dumps(got)
 
 

@@ -69,6 +69,16 @@ def test_log_extract_has_hash_author_and_committer_dates(extracts) -> None:
     assert oldest.author_day == date(2026, 1, 5) and oldest.committer_day == date(2026, 10, 12)
 
 
+def test_parse_log_reads_a_z_suffix_like_a_zero_offset() -> None:
+    # newer git prints UTC as Z; Python 3.10 fromisoformat rejects it on its own
+    z = gitstats.parse_log(f"{HASH} 2026-11-02T23:30:00Z 2026-11-03T08:00:00Z\n")
+    plus = gitstats.parse_log(f"{HASH} 2026-11-02T23:30:00+00:00 2026-11-03T08:00:00+00:00\n")
+    assert len(z) == 1 and z == plus
+    assert z[0].hash == HASH and z[0].author_day == date(2026, 11, 2) and z[0].committer_day == date(2026, 11, 3)
+    assert z[0].author.utcoffset().total_seconds() == 0
+    assert gitstats.parse_log(f"{HASH} 2026-11-02T23:30:00Zx 2026-11-03T08:00:00Z\n") == []  # other bad lines still skipped
+
+
 def test_m3_counts_attributes_at_the_last_commit_of_each_week(extracts) -> None:
     result = gitstats.m3(extracts["git_tests"])
     assert result == {

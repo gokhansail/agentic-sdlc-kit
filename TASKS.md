@@ -885,6 +885,15 @@ Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-4
 - Files in: `.github/workflows/tests.yml`, `CHANGELOG.md`. Files out: everything else.
 - Acceptance: valid YAML; `tests/` that read the workflow still pass.
 
+### [x] T-52f [M] Hosted CI green (`developer`, Sonnet, medium)
+- Result 2026-11-21: cause from the run log: the runner's git prints UTC as `Z`, Python 3.10 `fromisoformat` refuses it, `parse_log` dropped every line (7 tests); the symlink test ran for the first time and expected the wrong error text (1 test, code correct). `_parse_iso` in `tools/metrics/gitstats.py`, 1 new test; full suite 1233 passed, 6 skipped (developer), `tests/metrics` and `tests/test_lookup.py` 417 passed (TL). Run 44816304534 (80f7bc3) failed on the same 8. Review rounds 1; questions back 1 (scope widened with the customer's word). Hosted run of the fix: pending.
+- Goal: the tests workflow passes on the hosted Windows runner. Run 44613009129 (38ec86e): 8 failed, 1230 passed; local: 1232 passed, 6 skipped.
+- Failures: 7 in `tests/metrics/` (`git log` extract empty, tag keys missing in the temp repositories); 1 in `tests/test_lookup.py` (symlink test runs there for the first time; the link is refused by the root lock, with another error text).
+- Files in: `tests/metrics/conftest.py`, `tests/metrics/test_gitstats.py`, `tests/metrics/test_cli_records.py`, `tests/test_lookup.py`, `.github/workflows/tests.yml`, `CHANGELOG.md`.
+- Files out: everything else, incl. `tools/`, `server/`, `hooks/`, `skills/`, `agents/`, `evidence/`, `eval/`, `bench/`. If the cause is in `tools/`, stop and return the question.
+- Widened 2026-11-20 with the customer's word: cause found in `tools/metrics/gitstats.py` (`datetime.fromisoformat` on Python 3.10 refuses the `Z` suffix the runner's git writes; lines are dropped silently). Files in adds `tools/metrics/gitstats.py`.
+- Acceptance: cause named with evidence from the run log; the fix keeps each test's check (no skip, no weaker assertion unless the old one was wrong); full local suite green.
+
 ### [x] T-57 [M] Bench results renderer (`developer`, Sonnet, medium)
 - Goal: after the full run, the bench numbers in `docs/bench-results.md` come from the totals files by one command, with no hand copy (G5-2).
 - `python tools/bench_table.py --doc docs/bench-results.md <totals.json> [...]`, built like `tools/eval_table.py`: only the text between `<!-- bench-table:start -->` and `<!-- bench-table:end -->` changes; a second run gives the same bytes; exit 2 and nothing written on bad JSON, a schema other than 1, `complete` not true, a missing key, or not exactly one marker pair.

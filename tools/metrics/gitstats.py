@@ -70,6 +70,13 @@ class Commit:
     committer_day: date
 
 
+def _parse_iso(text: str) -> datetime:
+    """fromisoformat of Python 3.10 rejects a final Z, which newer git prints for UTC."""
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    return datetime.fromisoformat(text)
+
+
 def parse_log(text: str) -> list[Commit]:
     commits: list[Commit] = []
     for line in text.splitlines():
@@ -77,8 +84,8 @@ def parse_log(text: str) -> list[Commit]:
         if not hit:
             continue
         try:
-            author = datetime.fromisoformat(hit.group(2))
-            committer = datetime.fromisoformat(hit.group(3))
+            author = _parse_iso(hit.group(2))
+            committer = _parse_iso(hit.group(3))
         except ValueError:
             continue
         commits.append(Commit(hit.group(1), author, author.date(), committer.date()))
