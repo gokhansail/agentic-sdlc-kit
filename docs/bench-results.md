@@ -74,10 +74,15 @@ Guard and sub-agents. The guard denied 8 calls, all in the kit arm. All 8 came f
 Secondary review. The blind review of the 3 large-task diff pairs (DEC-071) was not done and will not be done for this bench (DEC-079). It could not change the category.
 
 ## Limits
-- One synthetic project and 7 tasks, written by the author of the kit. The tasks were not changed after looking at any model result.
+- One synthetic project and 7 tasks. The task set was not changed after any model result was seen: the sandbox and B1 to B6 have no changed line since they were frozen, and B7 was frozen before any model ran on it.
+- The kit was changed twice after a model result was seen on B1, a task of the scored set. After 3 probe runs on B1, 2 of them stopped at 2 of 7 hidden tests, the guard's deny text was changed (DEC-068). After a smoke run, the seat text and the guard's contract check text were changed (DEC-073). Both changes were made before the pre-registration (DEC-078), and the kit did not change between them and the scored runs. The kit's 18 of 18 and its cost ratio are measured after both changes.
+- Before the scored run, B1 was run 8 times in the kit arm and 2 times in the plain arm, unscored. These runs are not in the tables.
 - One model (Sonnet) and one CLI version (2.1.327). Other models and other versions are not measured.
 - 3 repeats per task and arm. There is no significance test. The threshold of 3 is a rule chosen beforehand.
 - Both arms passed every task, so the set did not separate the arms. The result is at the ceiling of the tests.
+- A Sonnet `developer` agent wrote the sandbox, the tasks, the hidden tests and the reference patches, from the lead's contract. The maintainer approved them. No bench run was used to build them. Both arms ran the same Sonnet model. A reader can expect a ceiling result from this setting.
+- The unchanged project already passes 20 of 47 hidden tests on B7, so the share of hidden tests passed on B7 has a floor. Both arms passed all 47 on every run, so no number on this page changes.
+- The pre-registration (CTO plan 3.6) gave a second sentence for the result: "What it adds is control: N out-of-scope writes against M, and the records". It was replaced by "did not reduce out-of-scope writes", because N equals M (2 of 18 in each arm). The first registered sentence is used as written.
 - The large task is the only one of its size. Its tests judge printed text, JSON and CSV, exit codes and the ledger file. Machine scoring judges behaviour, not design or readability.
 - The scope measure is against `allowed.txt`, which neither arm sees.
 - The kit's scope guard checks Edit and Write calls only. Writes through the shell are outside its view (DEC-075).

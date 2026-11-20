@@ -863,6 +863,28 @@ Plan: `cto/2026-11-07_phase4-plan.md`. Order: T-39, T-39a, T-40, T-41, T-42, T-4
 - Report: per pattern name: hit count, short commit hash, path or "message"; never the matched text. Totals: commits scanned, lines scanned, hits. In Turkish.
 - Result 2026-11-17: 72 commits, 72 messages, 35,326 added lines, 268 added paths; public patterns 0 hits (`scout`, TL rerun equal); built-in forbidden paths 0. The private pattern file read was refused to `scout` by the permission check; the customer ran the same script with the private file in their own terminal: 0 hits. Binary file contents not scanned (the guard does not scan them either). Review rounds 0. Questions back 1.
 
+### [ ] T-52 [H] Gate G5 publish-readiness audit (`auditor`, Fable, xhigh)
+- Goal: before the install test, an independent verdict on G5-1 to G5-5 and G5-8 (`cto/2026-11-14_phase5-plan.md`), plus a public-exposure security pass the maintainer asked for 2026-11-20.
+- Security pass: secrets and personal data in the tree and the full history (all refs, deleted files); code that runs on a user's machine (hooks, server, tools); the CI workflow; license and third-party content; README claims a reader could attack.
+- Also: an opinion with options on the 3 privacy points (LOG 2026-11-19 (3)), N-5 and review item 32; open Low items sorted into blocking or not.
+- Out of reach of the auditor: G5-6, G5-7 (maintainer's terminal), G5-9; GitHub settings; private-pattern scan if the permission check refuses the file.
+- Files in: `audits/2026-11-20_gate5.md`. Files out: everything else.
+- No model runs, no network, no git command that changes state. Report in English; summary to the TL in Turkish.
+- Audit 2026-11-20: CONDITIONAL ACCEPT, 1 High, 7 Medium, 7 Low (`audits/2026-11-20_gate5.md`); 80 commits, 0 pattern hits; tests 1232 passed here and in a fresh clone. Condition 1 closed by DEC-080. Fix round T-52b, T-52c; then `auditor-mini`.
+
+### [x] T-52b [M] G5 fix round, public pages (`tech-writer`, Sonnet, medium)
+- Result 2026-11-20: 7 files; review rounds 1; TL fixed 4 points itself (role exceeded): README review-item count, review-items row 32, DEC-073 wording in README and bench page, eval set authorship (re-verify candidates 1 and 2). Re-verify (`audits/2026-11-20_gate5-reverify.md`): conditions 1 to 3 CLOSED, 4 PARTIAL (hosted run pending). Not done: `skills/review/SKILL.md` still says "read only" (kit file, v0.1.1).
+- Goal: close G5-F3, G5-F4, G5-F5, G5-F6 and G5-F7 (as limits, DEC-080), and the cheap Low ones (G5-F9 sentence, G5-F10, G5-F12, B7-7 line) of `audits/2026-11-20_gate5.md`.
+- Files in: `README.md`, `docs/eval-results.md`, `docs/bench-results.md`, `bench/README.md`, `docs/security.md`, `docs/review-items.md`, `CHANGELOG.md`.
+- Files out: everything else, incl. code, tests, `audits/`, `evidence/`, the kit's records; the marker block in `docs/bench-results.md` and the eval table block stay byte-equal.
+- Acceptance: every new number traces to a totals file or a record line; no claim added beyond the audit and records; plain-English list in the brief.
+
+### [x] T-52c [E] CI token rights (`developer`, Haiku)
+- Result 2026-11-20: `permissions: contents: read`, `timeout-minutes: 20`; 15 workflow tests passed; PyYAML not installed, YAML not parsed separately. TL renamed the 15 finding headings of the G5 report to `F-n (G5-Fn)` so `tools/lookup.py` parses them (role exceeded); full suite then 1232 passed, 6 skipped.
+- Goal: G5-F8: `.github/workflows/tests.yml` gets `permissions: contents: read` and a job timeout.
+- Files in: `.github/workflows/tests.yml`, `CHANGELOG.md`. Files out: everything else.
+- Acceptance: valid YAML; `tests/` that read the workflow still pass.
+
 ### [x] T-57 [M] Bench results renderer (`developer`, Sonnet, medium)
 - Goal: after the full run, the bench numbers in `docs/bench-results.md` come from the totals files by one command, with no hand copy (G5-2).
 - `python tools/bench_table.py --doc docs/bench-results.md <totals.json> [...]`, built like `tools/eval_table.py`: only the text between `<!-- bench-table:start -->` and `<!-- bench-table:end -->` changes; a second run gives the same bytes; exit 2 and nothing written on bad JSON, a schema other than 1, `complete` not true, a missing key, or not exactly one marker pair.

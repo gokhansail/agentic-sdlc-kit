@@ -2,6 +2,26 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-20 (1) - Gate G5 audit, DEC-080, fix round T-52b and T-52c
+
+- Source: the T-52 block, the Result lines of T-52b and T-52c in `TASKS.md`; DEC-080 in `DECISIONS.md`; `audits/2026-11-20_gate5.md` (Summary, VERDICT); `audits/2026-11-20_gate5-reverify.md`.
+- Customer: asked for an independent publish-readiness audit before the install test, with concerns about going public. Agreed to the recommendations, recorded in DEC-080.
+- `auditor` (Fable, xhigh) read the tree, the 80 commits, the hooks, the server, the skills and the workflow; wrote the report and changed no file in the repository.
+  - Verdict: CONDITIONAL ACCEPT, 1 High, 7 Medium, 7 Low. Publish line: DO NOT PUBLISH yet.
+  - 80 commits: 0 pattern hits, public and private. Tests 1232 passed, 6 skipped, here and in a fresh clone.
+  - Conditions: 1 one decision on review item 32, N-5 and the 3 privacy points; 2 public pages fixed; 3 limit lines or fixes for the skill patterns and the second remote; 4 a green hosted run read by the maintainer; 5 G5-6, G5-7 and G5-9 by the maintainer.
+- DEC-080, the customer's word: option a), the 80 commits published as they are, with the 5 line groups named and accepted. N-5, the gate 1 report line and the source hashes in `evidence/` stay. Account amounts stay. G5-F6 and G5-F7 are limit lines in v0.1.0, fixes in v0.1.1. The 9 G5 criteria (G5-1 to G5-9) are adopted.
+- T-52b, `tech-writer` (Sonnet, medium): 7 files. Public pages fixed: Haiku follow-up section in `docs/eval-results.md`, limits on the bench authorship and the 2 unrecorded kit changes, skill and second-remote limits, bare `python` sentence, 6 README statements, the changed registered sentence named.
+  - TL fixed 4 points itself (role exceeded): README review-item count; review-items row 32; DEC-073 wording in the README and bench page; eval set authorship.
+  - Not done: `skills/review/SKILL.md` still says "read only" (v0.1.1).
+- T-52c, `developer` (Haiku): `.github/workflows/tests.yml` gained `permissions: contents: read` and `timeout-minutes: 20`. 15 workflow tests passed. PyYAML not installed, so the YAML was not parsed separately.
+  - TL renamed the 15 finding headings of the G5 report to `F-n (G5-Fn)` so `tools/lookup.py` parses them (role exceeded).
+- `auditor-mini` (Opus, high) re-verify, `audits/2026-11-20_gate5-reverify.md`: conditions 1 to 3 CLOSED; condition 4 PARTIAL (the hosted run of the commit with the fixes is not read yet); condition 5 with the maintainer. F-14 and F-15 partly done (Low, not gate-blocking).
+- Tests: full suite 1232 passed, 6 skipped (TL run).
+- Metrics, each task: review rounds 1; questions back 0; out-of-scope files 0; models Fable (`auditor`), Sonnet (`tech-writer`), Haiku (`developer`, scribe), Opus (`auditor-mini`).
+- Commit: none yet. Not pushed.
+- Next: commit and push (TL, after the maintainer's go-ahead); the maintainer reads the hosted run of that commit; GitHub settings from the audit; install test (G5-7); seat check (G5-6); then publish (G5-9).
+
 ## 2026-11-19 (4) - T-61 README who did what; T-51 v0.1.0, marketplace entry, CI
 
 - Source: the T-61 and T-51 blocks and their Result lines in `TASKS.md`; DEC-079 in `DECISIONS.md`.

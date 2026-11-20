@@ -2,16 +2,16 @@
 
 A Claude Code plugin and a written method for running software work with several AI agents. The method has fixed roles, a written task contract for each task, a review of every diff, records in plain files, and an independent audit at phase gates.
 
-One maintainer built it. The text and the code were written by AI agents under this process. The repository is built with its own process, and its task, decision, audit and log records are in the repository.
+One maintainer ran the work. The text, the code and the bench tasks were written by AI agents under this process. The repository is built with its own process, and its task, decision, audit and log records are in the repository.
 
-Status: version 0.1.0, experimental. The plugin was used on 2 real projects and measured on one synthetic project. The limits are listed below.
+Status: version 0.1.0, experimental. The plugin was used on 2 real projects and measured on 2 synthetic projects, the bench sandbox and the eval repository. The limits are listed below.
 
 ## Who did what
 
 The maintainer set the rules, the roles and the gates, ran the trials on their own projects and in their own terminal, and approved every task before it was committed. Other points from the records:
 - After a small test looked bad for the kit, the maintainer asked for a large rebuild task, and the rule for it was fixed before any run on it (DEC-070, DEC-078).
 - The maintainer asked why a limit in a contract had no reason behind it. The limit was removed and the lesson is in `LESSONS.md`.
-- The maintainer commissioned two external read-only reviews. Their 35 items and the decision on each are in `docs/review-items.md`.
+- The maintainer commissioned two external read-only reviews. Their 35 items (36 rows) are in `docs/review-items.md`, with the decision or task that covers each. For 12 rows no record names the item.
 - The maintainer decided against the lead's recommendation, for example on the eval login (DEC-054) and on the non-game trial project, where the lead first proposed another candidate (DEC-067).
 
 ## Result
@@ -32,14 +32,14 @@ Full tables and limits: `docs/bench-results.md`.
 
 - `agents/`: 7 role files (`cto`, `developer`, `tech-writer`, `scout`, `scribe`, `auditor`, `auditor-mini`). Each has a model and an effort level.
 - `skills/`: 5 commands. `init` opts a project in. `contract` writes or closes the task contract. `review` compares the working tree with the contract. `status` reports the phase, the open task and the next step. `install-hooks` installs the pre-push guard.
-- `hooks/`: `hooks.json` registers the scope guard on file writes and a session start hook. The session start hook adds a short text about the lead's role in a project that has `.sdlc/project.md`. `hooks/git/pre-push` rejects secrets and private patterns in outgoing commits. The `install-hooks` command installs it.
+- `hooks/`: `hooks.json` registers the scope guard on file writes and a session start hook. The session start hook adds a short text about the lead's role in a project that has `.sdlc/project.md`. `hooks/git/pre-push` is the pre-push guard. It rejects secrets and private patterns in the commits that no remote has yet. The `install-hooks` command installs a wrapper in the project's hooks folder and a copy of the guard script. It does not copy `hooks/git/pre-push` itself.
 - `server/`: a read-only MCP server with 10 tools for records, scope and guard events. It is experimental and optional. It was tested with Claude Code only.
 - `templates/`: the task contract, decision record, lesson entry, audit report and other templates.
 - `PLAYBOOK.md`: the method itself, not tied to one tool.
 
 ## Install and first steps
 
-Requirements: Claude Code, git, Python 3.10 or newer as `python`, `python3` or `py -3` (the hook checks for it; tested with 3.10.4 only), and `sh` (on Windows, Git Bash). The hooks run through `sh`.
+Requirements: Claude Code, git, Python 3.10 or newer as `python`, `python3` or `py -3` (the hook checks for it; tested with 3.10.4 only), and `sh` (on Windows, Git Bash). The hooks run through `sh`. The 7 roles use the model aliases `opus`, `sonnet`, `haiku` and `fable`. `auditor` uses `fable`, which not every account has. A fallback for an account without it is not documented.
 
 This repository is its own plugin marketplace. In a Claude Code session, add it and install the plugin:
 
@@ -73,11 +73,13 @@ python -m pip install "mcp>=2.3,<3"
 
 Without the package the server exits at start with that one install line. `/mcp` then shows `sdlc` as failed to connect, and the install line explains why. The guard, the skills and the roles work without it.
 
+The server is started as bare `python`. Where that name is missing, or is another interpreter than the one that holds `mcp`, the server fails to start, or fails although the package is installed. The hooks try `python`, `python3` and `py -3`; the server does not.
+
 Then, in the project you want to work on:
 
 1. `/sdlc:init` opts the project in. It writes `.sdlc/project.md`, which maps the kit's record names to the project's own. It runs only when you type it, and it asks before writing.
 2. `/sdlc:contract <task>` writes the active contract: the files in scope and the files out of scope. The scope guard allows or denies each Edit and Write call against it. A write outside the contract is denied.
-3. `/sdlc:review` lists the files changed outside the contract and checks each acceptance line. It reads only.
+3. `/sdlc:review` lists the files changed outside the contract and checks each acceptance line. It reads the working tree and runs the test command that the contract names.
 4. `/sdlc:status` reports the phase, the open task and the open questions from the project records.
 5. `/sdlc:install-hooks` installs the pre-push guard in the project's git repository. It runs only when you type it. `--refresh` replaces a stale copy and `--uninstall` restores the old hook folder.
 6. `/sdlc:contract close` closes the contract when the task is approved.
@@ -97,9 +99,13 @@ Two real-project trials. The first ran on a game project (`docs/dogfood-1.md`): 
 - The scope guard checks the file-tool calls (Write, Edit, NotebookEdit) only. A write through the shell is outside its view. In the non-game trial it saw 1 of 23 files the developer wrote. A scan of past runs found a shell-write candidate in 39 of 50 of this kit's own developer runs. A fix is planned for the next version.
 - The guard checks against the contract that the lead session itself writes. It does not know the task's real scope. It catches a mistake and is not a security boundary.
 - A hook timeout lets the write through. Without Git Bash on Windows the hook does not run.
-- The bench used one synthetic project and one model (Sonnet). Everything was run on one Windows machine with Claude Code versions 2.1.319 to 2.1.327. Other platforms and versions are not tested.
+- The pre-push guard scans the commits that no remote has yet. A first push of existing history to a second remote is not scanned, because the commits another remote already has are skipped. A fix is planned for version 0.1.1 (DEC-080).
+- 3 skills (`contract`, `review`, `install-hooks`) approve command patterns wider than the scripts they name. While such a skill is active, a `python` command that holds the script path as text could run without a permission prompt. This was not tried live. The patterns are to be narrowed in version 0.1.1 (DEC-080). See `docs/security.md`.
+- The bench used one synthetic project and one model (Sonnet). Everything was run on one Windows machine with Claude Code versions 2.1.296 to 2.1.327. Other platforms and versions are not tested.
 - Both bench arms passed every task, so the set did not separate them. The scope measure uses a list of allowed files that neither arm sees.
-- One maintainer wrote the tasks, the bench and the trials. Both trial projects belong to the same maintainer.
+- A Sonnet `developer` agent wrote the bench sandbox, tasks, hidden tests and reference patches from the lead's contract. The maintainer approved them. No bench run was used to build them. Both arms ran the same Sonnet model.
+- The kit was changed twice after a result was seen on B1, a task of the scored set (DEC-068 guard deny text, DEC-073 seat text and contract check text). 8 kit-arm runs and 2 plain runs on B1 came before the scored run and are not scored. The task set was not changed.
+- The maintainer ran the trials. Both trial projects belong to the same maintainer.
 - The server is experimental and optional, read only, and tested with Claude Code only. In the eval, Haiku with the default prompt answered fewer questions correctly with the server than without.
 - Two findings of the first trial are not fixed in this version: `/sdlc:contract` writes English field names into a tasks file in another language and places the entry under the previous step; and in default permission mode the developer role triggered a prompt for each new command shape, which the maintainer found tiring. Details are in `docs/dogfood-1.md`.
 - After the public release the bench and the eval are not rerun to change a published result (DEC-059).

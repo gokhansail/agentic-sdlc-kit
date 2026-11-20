@@ -4,6 +4,11 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 
 ## [Unreleased]
 
+### Changed
+
+- Public pages after the G5 audit (T-52b, `README.md`, `docs/eval-results.md`, `docs/bench-results.md`, `bench/README.md`, `docs/security.md`, `docs/review-items.md`): a Haiku follow-up section from the 4 `haiku-scope-*.json` totals; limit lines for the 2 kit changes after a result on B1 (DEC-068, DEC-073), who wrote the bench, the pre-push guard and a second remote, the 3 skills' wide command patterns, bare `python` for the server, the 20 of 47 B7 floor and the replaced registered sentence; README statements corrected to the records (review items, CLI versions, `/sdlc:review`, what `install-hooks` installs, model aliases); 3 rows of `docs/review-items.md` set to done.
+- Tests workflow: read-only token rights (`permissions: contents: read`) and a 20-minute job timeout (T-52c, G5 audit G5-F8).
+
 ## [0.1.0] - 2026-11-19
 
 ### Added

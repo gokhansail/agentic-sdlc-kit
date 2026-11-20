@@ -53,6 +53,11 @@ Not applicable while the server is stdio only. The source line (C-26) lists 9 it
 | h a closing path | Nothing to close; the process ends when the host closes stdin. |
 | i local tests with mutation checks | No endpoint to test; the filter, fsmonitor and index tests each run the unguarded call first and skip if it is harmless. |
 
+# Skills and hooks (gate G5 finding G5-F6)
+This check covers the server. It does not cover the skills or the hooks. The G5 audit (2026-11-20) read them and found one gap. 3 skills (`contract`, `review` and `install-hooks`) approve command patterns of the form `Bash(python *tools/<script>.py*)`, with a wildcard on both sides. Such a pattern matches any `python` command line that holds the script path as text, for example a `-c` program followed by that path. While one of these skills is active, such a command could run without a permission prompt. The `contract` skill also approves `Write` and `Edit`, and a session can start it itself; `install-hooks` is typed only. In a project that has not opted in, the scope guard is silent, so nothing else checks those writes.
+
+Status: not tried live. The finding is read from the pattern text, so it is an opinion until it is tried. It is stated as a limit in version 0.1.0 and to be narrowed in version 0.1.1 (DEC-080).
+
 # Limits of this check
 - A change inside a nested repository (a gitlink or a submodule) is not reported by `changed_outside` or `--check-worktree`, and a changed gitlink commit is not either (S-18). Only the outer repository is checked.
 - The folder-as-git-folder refusal (S-18) is in the server path only. `--check-worktree` run from a terminal in such a folder still starts git with no config check, as it does for a plain repository with a filter in `.git/config` (S-3): it is the user's own command. The refusal tests `HEAD` together with `objects`, `refs` or `commondir`, not git's full validity rule; a folder git accepts by another route (an environment variable such as `GIT_DIR`) is not looked at.

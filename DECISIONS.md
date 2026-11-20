@@ -668,3 +668,12 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: it is secondary and descriptive (n = 1 judge, 3 pairs); the publish plan has no slot for it.
 - Consequences: `docs/bench-results.md` says the review was not done and will not be done for this bench; the local pairs may stay or be deleted.
 - Outcome:
+
+## DEC-080 Public history and the G5 privacy points
+- Date: 2026-11-20 · Question: G5-F1 and G5-F2 of `audits/2026-11-20_gate5.md`: review item 32 (public history), N-5, the 3 privacy points (LOG 2026-11-19 (3)); and G5-F6, G5-F7 (limit or fix before v0.1.0).
+- Facts: 80 commits, 0 pattern hits public and private. The history holds 5 line groups the tree dropped, none a secret or a name; 1 names an intended reader group of the personal-goal kind. 55 of 80 commits are cited by hash in 38 tracked files; the bench registration rests on c99c9fe. The repositories of Project A, B, C and the unchosen candidate are private on the account (checked 2026-11-20).
+- Options: a) publish the 80 commits as they are, with this record b) 1 squashed commit c) rewrite the 2 early commits.
+- Decision: a), the customer's word. N-5, `audits/2026-11-02_gate1.md` line 127 and the source hashes in `evidence/` stay as they are; the account amounts in `DECISIONS.md` and `LOG.md` stay. G5-F6 and G5-F7: limit lines in v0.1.0, fixes in v0.1.1. G5 criteria are G5-1 to G5-9 of `cto/2026-11-14_phase5-plan.md` section 6.
+- Reason: a squash breaks 55 hash citations and the check that the registration came before the scored runs; no group is a secret or identifies a project or person. Fixing the guard and skills now would ship a kit that differs from the measured one.
+- Consequences: the 5 groups of G5-F1 are public with the history. Making Project A, B or C public later ends its label's anonymity (hashes in `evidence/`, descriptions in DEC-067 and `docs/dogfood-2.md`). The personal-goal rule has this one recorded exception, in history only.
+- Outcome:
