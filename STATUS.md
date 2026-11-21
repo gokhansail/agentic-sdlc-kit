@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-21
-Now: G5 closed 2026-11-21; v0.1.0 tagged and pushed; visibility change and GitHub settings with the maintainer · repository private · code written, last full run 1233 passed, 6 skipped
+Now: G5 closed 2026-11-21; v0.1.0 tagged and pushed; repository public 2026-11-21, GitHub settings set · repository public · code written, last full run 1233 passed, 6 skipped
 
 ## Phase
 
@@ -21,6 +21,7 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 
 ## Done
 
+- Repository public 2026-11-21 (maintainer): secret scanning, push protection, private vulnerability reporting, fork PR approval for all external contributors, read-only workflow token; rulesets `main` (no deletion, no force push) and `release tags` (`v*`, no deletion, no update), read back through the GitHub API.
 - T-52 gate G5 closed (maintainer and TL): install test G5-7 passed, seat check G5-6 passed with a limit (user-level instructions also name the seat), publish word G5-9 given; CHANGELOG `[0.1.0] - 2026-11-21`; tagged `v0.1.0` and pushed 2026-11-21.
 - T-52f hosted CI green (`developer`): `tools/metrics/gitstats.py` reads the `Z` suffix that Python 3.10 refused (7 tests), symlink test expects the right error text (1 test); hosted run 44820472971 on bd69407: success, 1239 passed, 0 skipped; approved and pushed 2026-11-21.
 - Gate G5 publish-readiness audit (`auditor`, Fable): CONDITIONAL ACCEPT, 1 High, 7 Medium, 7 Low; DEC-080 (80 commits published as they are, 5 line groups accepted); fix round T-52b (`tech-writer`, public pages) and T-52c (`developer`, workflow `permissions` and timeout); `auditor-mini` re-verify: conditions 1 to 3 CLOSED, 4 PARTIAL; 1232 passed, 6 skipped (TL run); committed 80f7bc3.
@@ -38,13 +39,11 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 
 ## Next
 
-- The maintainer makes the repository public (only the maintainer changes visibility).
-- GitHub settings after the switch: secret scanning, push protection, private vulnerability reporting, fork PR approval, rulesets for `main` and `v*`.
 - v0.1.1 triage: G5-F6 skill patterns, G5-F7 second remote, `skills/review/SKILL.md` read-only wording, T-53 findings, R-1, `docs/toolchain.md` V-10 after the install test.
 
 ## Repository
 
-- Private (DEC-007). Only the maintainer changes visibility.
+- Public since 2026-11-21 (DEC-007: only the maintainer changes visibility).
 - Every push goes through the pre-push guard. Do not use `--no-verify`.
 - Tests: `python -m pip install -r requirements-dev.txt`, then `python -m pytest -q`.
 - Language: English for every file (DEC-003, DEC-015).

@@ -2,6 +2,16 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-21 (3) - Repository public, GitHub settings
+
+- Source: GitHub repository settings read 2026-11-21 by the TL through the GitHub API (GET only) and the settings pages; nothing changed by the TL.
+- Customer: made the repository public after the v0.1.0 tag (G5-9), then set the settings the G5 audit listed.
+- Read state: visibility public; secret scanning enabled; push protection enabled; private vulnerability reporting enabled; fork pull request workflows need approval for all external contributors; default workflow token read only, Actions cannot approve pull requests.
+- Rulesets, both active, no bypass actors: `main` (default branch: deletion and force push blocked); `release tags` (`refs/tags/v*`: deletion and update blocked).
+- Not set: Dependabot alerts and dependency graph are off (not in the audit list; left to the maintainer).
+- Metrics: review rounds 0, questions back 0, out-of-scope files 0, models Haiku (scribe).
+- Next: v0.1.1 triage.
+
 ## 2026-11-21 (2) - G5 closed, v0.1.0 release
 
 - Source: the T-52 block and its Result line in `TASKS.md`; `CHANGELOG.md` `[0.1.0] - 2026-11-21`.
