@@ -8,10 +8,14 @@
     body { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 48rem; padding: 0 1rem; }
     [data-testid="fretboard"] { background: #3b2a1a; padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0; }
     .string { position: relative; height: 2rem; border-bottom: 2px solid #c9c2b8; }
+    .string[hidden] { display: none; }
     .string .label { position: absolute; left: -0.9rem; color: #c9c2b8; font-size: 0.8rem; }
     .dot { position: absolute; top: 0.25rem; left: calc(var(--fret, 0) * 4.4%); min-width: 1.4rem; text-align: center;
            background: #e8b64a; color: #222; border-radius: 50%; font-size: 0.85rem; line-height: 1.4rem; }
     [data-testid="chord-name"] { font-size: 2rem; min-height: 2.5rem; }
+    [data-testid="pitch-readout"] { font-size: 1.2rem; min-height: 1.6rem; font-variant-numeric: tabular-nums; }
+    .controls, .row { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; align-items: center; margin: 0.75rem 0; }
+    .note { color: #555; font-size: 0.9rem; }
     ul { line-height: 1.6; }
   </style>
 </head>
@@ -19,6 +23,7 @@
   <h1>Guitar</h1>
   <button type="button" data-testid="start-audio">Start audio</button>
   <div data-testid="chord-name"></div>
+  <div data-testid="pitch-readout" aria-label="Pitch the app hears"></div>
   <div data-testid="fretboard">
     <div class="string" data-testid="string-1"><span class="label">1</span><span class="dot" data-testid="dot-1" data-fret="0">0</span></div>
     <div class="string" data-testid="string-2"><span class="label">2</span><span class="dot" data-testid="dot-2" data-fret="0">0</span></div>
@@ -26,11 +31,54 @@
     <div class="string" data-testid="string-4"><span class="label">4</span><span class="dot" data-testid="dot-4" data-fret="0">0</span></div>
     <div class="string" data-testid="string-5"><span class="label">5</span><span class="dot" data-testid="dot-5" data-fret="0">0</span></div>
     <div class="string" data-testid="string-6"><span class="label">6</span><span class="dot" data-testid="dot-6" data-fret="0">0</span></div>
+    <div class="string" data-testid="string-7" hidden><span class="label">7</span><span class="dot" data-testid="dot-7" data-fret="x">x</span></div>
   </div>
+
+  <div class="controls">
+    <label>Strum spread <input type="range" min="0" max="100" step="1" value="30" data-testid="strum-spread"> <output id="spread-value">30 ms</output></label>
+    <label>Capo
+      <select data-testid="capo">
+        <option value="0" selected>0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option>
+        <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
+      </select>
+    </label>
+    <label>Tuning
+      <select data-testid="tuning">
+        <option value="standard" selected>Standard</option><option value="dropD">Drop D</option><option value="openG">Open G</option>
+      </select>
+    </label>
+    <label>Sustain
+      <select data-testid="sustain">
+        <option value="short">Short</option><option value="normal" selected>Normal</option><option value="long">Long</option>
+      </select>
+    </label>
+    <label>Strings
+      <select data-testid="strings"><option value="6" selected>6</option><option value="7">7</option></select>
+    </label>
+  </div>
+
+  <div class="row">
+    <label><input type="checkbox" data-testid="metronome"> Metronome</label>
+    <label>Tempo <input type="number" min="40" max="220" step="1" value="100" data-testid="tempo"> BPM</label>
+  </div>
+
+  <div class="row">
+    <label>Song <input type="text" size="28" value="C:4 G:4 Am:2 F:2" data-testid="song-input"></label>
+    <button type="button" data-testid="song-play">Play song</button>
+    <span class="note" id="song-status"></span>
+  </div>
+
+  <div class="row">
+    <button type="button" data-testid="share">Share settings</button>
+    <strong data-testid="share-code"></strong>
+    <span class="note" id="share-status"></span>
+  </div>
+
   <ul>
     <li>Chords: Q C, W G, E D, R Em, A Am, S F, D A, F E. Z: no chord, open strings.</li>
     <li>Spacebar strums down, M strums up, the period key mutes.</li>
-    <li>Single strings: H 6, J 5, K 4, L 3, semicolon 2, apostrophe 1.</li>
+    <li>Single strings: H 6, J 5, K 4, L 3, semicolon 2, apostrophe 1, Y 7 (7-string mode).</li>
+    <li>A song is chord:beats pairs such as C:4 G:4 Am:2 F:2; each chord is strummed down on its first beat at the tempo.</li>
   </ul>
   <script type="module" src="src/app.js"></script>
 </body>

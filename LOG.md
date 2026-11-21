@@ -2,6 +2,30 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-22 (2) - T-64c reference and engine tests for steps 2 to 8 and the handoff
+
+- Source: the T-64c block and its Result line in `TASKS.md`; NOW NEXT in `TASKS.md`.
+- Customer: tried the reference in Chrome and approved T-64c on 2026-11-22.
+- TL: checked the Result line numbers:
+  - `node --test` on the reference: 93 of 93 pass.
+  - `node --test` on a folder with `SPEC.md` only: 8 pass, 85 fail as test failures, 0 load errors.
+  - Arch check: 0 on the reference.
+  - Frozen texts and step 1 tests unchanged; 50 tests in `tests/test_build_bench.py` pass; scans 0 hits.
+- Fairness rule: where a sentence allows two readings, the test accepts both or checks only what both share. The developer listed 13 reading choices and the TL read them. Examples: strum span, click start, accent type, cents rounding, decay rate.
+- Pilot watch item: the decay test passes the reference at about -10% of a 20% band. The pilot checks this.
+- Handoff engine tests leave out capo and 7-string, because the handoff prompt names neither for the engine.
+- Developer (`developer`, Sonnet, high):
+  - `bench/build/prompts/handoff.txt`, byte-equal to plan section 11.
+  - Reference grown to the step 8 state plus song mode (5 new modules); the spectrum view is removed at step 6, the engine `spectrum` is kept.
+  - Engine tests `step2` to `step7` and `handoff/song.test.mjs`; a decay estimator with its own known-answer test.
+  - `spec-map.json` at 85 entries; the 2 spectrum tests retire at step 6.
+  - 1 CHANGELOG line.
+  - No package install, no network, no commit by the developer.
+- Tests: `python -m pytest -q` 1337 passed, 6 skipped (last full run).
+- Metrics: review rounds 0, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- Commit: the commit that carries this entry.
+- Next: T-64b browser tests (Playwright download after the install go-ahead and the install folder decision), then the scorer.
+
 ## 2026-11-22 (1) - T-64a frozen texts and reference guitar
 
 - Source: the T-64a block and its Result line in `TASKS.md`; `cto/2026-11-21_build-bench-plan.md` sections 2 to 5 and 15; DEC-083.

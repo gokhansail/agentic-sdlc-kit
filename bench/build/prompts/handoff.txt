@@ -1,0 +1,2 @@
+Add a song mode. A song is typed as text, for example "C:4 G:4 Am:2 F:2": chord name and beats. The play button strums each chord down on its first beat at the metronome tempo, and the chord name shows while it plays.
+Names: text field data-testid song-input, button data-testid song-play; engine parseSong(text) returns [{chord, beats}] and throws on a chord it does not know; songSchedule(song, bpm, startTime) returns [{time, chord}].

@@ -4,7 +4,7 @@ import { makeRandom } from "./prng.js";
 // two-point average (a lowpass with a delay of exactly 0.5 sample) and a first-order allpass that
 // supplies the fractional part of the loop delay, so the loop length is fs / frequency to a
 // small fraction of a sample at every pitch.
-const LOOP_T60_SECONDS = 3; // the fundamental falls by 60 dB in about this time
+const DEFAULT_DECAY_SECONDS = 3; // the fundamental falls by 60 dB in this time unless decaySeconds says otherwise
 const PICK_POSITION = 0.2; // fraction of the string where the pick lifts it (a comb on the burst)
 const PEAK = 0.8;
 
@@ -27,9 +27,12 @@ function allpassCoefficient(delay, w) {
   return (low + high) / 2;
 }
 
-export function renderPluck({ frequency, sampleRate, durationSeconds, seed }) {
+export function renderPluck({ frequency, sampleRate, durationSeconds, seed, decaySeconds = DEFAULT_DECAY_SECONDS }) {
   if (!(frequency > 0) || !(sampleRate > 0) || !(frequency < sampleRate / 4)) {
     throw new RangeError("frequency must be above 0 and below a quarter of the sample rate");
+  }
+  if (!(decaySeconds > 0)) {
+    throw new RangeError("decaySeconds must be above 0");
   }
   const length = Math.round(sampleRate * durationSeconds);
   const out = new Float32Array(Math.max(length, 0));
@@ -40,7 +43,7 @@ export function renderPluck({ frequency, sampleRate, durationSeconds, seed }) {
   const wholeDelay = Math.floor(period - 0.5 - 1);
   const apDelay = period - 0.5 - wholeDelay; // in [1, 2)
   const a = allpassCoefficient(apDelay, w);
-  const gain = Math.min(0.9999, Math.pow(10, -3 / (frequency * LOOP_T60_SECONDS)));
+  const gain = Math.min(0.9999, Math.pow(10, -3 / (frequency * decaySeconds)));
 
   // The first wholeDelay + 1 samples are the noise burst; the rest is the loop.
   const total = out.length;

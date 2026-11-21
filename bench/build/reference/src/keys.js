@@ -17,6 +17,7 @@ const STRING_KEYS = {
   KeyL: 3,
   Semicolon: 2,
   Quote: 1,
+  KeyY: 7,
 };
 
 export function keyToAction(code) {
