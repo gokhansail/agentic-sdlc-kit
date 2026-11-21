@@ -2,6 +2,18 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-21 (5) - Build bench decided and planned (DEC-082, DEC-083, T-62)
+
+- Source: DEC-082 and DEC-083 in `DECISIONS.md`; the T-62 block and Phase 6 section in `TASKS.md`; `cto/2026-11-21_build-bench-plan.md`.
+- Customer: disagreed with reading the first bench as "the kit does not help". The tasks were short; the kit should pay off on longer multi-file work and on a handoff to another model. Asked for a final test and for an independent review of the design.
+- `auditor` (Fable) design review, no file in the repository (private copy kept outside it): infrastructure usable but not ready; 5 High findings (TL in the loop, ceiling risk, weak handoff, transcript lines counted twice without deduplication by message id, model mix); 4 candidate projects compared, the guitar app chosen. The TL checked 6 of its claims; all held.
+- DEC-082 (customer, every recommendation): guitar app; 2 arms (kit lead Opus medium with its own sub-agents, plain Opus medium); 8 steps; 1 build per arm as a case study; handoff 3 conditions x 3 headless Sonnet runs; the maintainer pastes only frozen texts, the TL watches and gives no direction; subscription, no API key; may span days; ceiling 65 USD at list price; third arm required before any claim that the plugin helps; result published whatever it is, not without the blind step.
+- T-62, `cto` (Opus, high): plan of 549 lines, 16 sections (spec and seam, 8 prompts word for word, answer sheet, fix template, hidden tests, meter, environment, dev test D1 to D16, pilot and freeze, runbook, handoff, blind step, criteria and README sentences, budget, task drafts T-63 to T-72, 9 to 11 sessions).
+- DEC-083 (customer): English prompts; a minimal reference app for all 8 steps and the handoff; default answer "Decide yourself."; permission mode decided in the dev test.
+- Metrics: review rounds 1, questions back 3, out-of-scope files 0, models Fable (auditor), Opus (cto), Haiku (scribe).
+- Commit: none yet.
+- Next: T-63 transcript meter in a fresh session.
+
 ## 2026-11-21 (4) - Phase 5 closed, project frozen at v0.1.0
 
 - Source: DEC-081 in `DECISIONS.md`; NOW NEXT in `TASKS.md`.
