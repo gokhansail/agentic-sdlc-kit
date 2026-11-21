@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "source": "synthetic fixture",
+  "read_on": "2026-01-01",
+  "unit": "USD per MTok",
+  "models": {
+    "claude-sonnet-5-5": {"input": 2, "cache_write_5m": 2.50, "cache_write_1h": 4, "cache_read": 0.10, "output": 10},
+    "claude-haiku-5-5": {
+      "input": 0.10, "cache_write_5m": 0.125, "cache_write_1h": 0.20, "cache_read": 0.01, "output": 0.50,
+      "long_context": {
+        "threshold_prompt_tokens": 100000,
+        "prices": {"input": 0.50, "cache_write_5m": 0.625, "cache_write_1h": 1, "cache_read": 0.05, "output": 2.50}
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+  "read_on": "2026-11-21",
+  "unit": "USD per MTok",
+  "note": "List prices. The date is the version of this file; it is printed in every meter output. A model that is not listed here has usd null.",
+  "models": {
+    "claude-opus-5-5": {"input": 4, "cache_write_5m": 5, "cache_write_1h": 8, "cache_read": 0.20, "output": 20},
+    "claude-sonnet-5-5": {"input": 2, "cache_write_5m": 2.50, "cache_write_1h": 4, "cache_read": 0.10, "output": 10},
+    "claude-fable-5-2": {"input": 8, "cache_write_5m": 10, "cache_write_1h": 16, "cache_read": 0.20, "output": 40},
+    "claude-haiku-5-5": {
+      "input": 0.10, "cache_write_5m": 0.125, "cache_write_1h": 0.20, "cache_read": 0.01, "output": 0.50,
+      "long_context": {
+        "threshold_prompt_tokens": 100000,
+        "prices": {"input": 0.50, "cache_write_5m": 0.625, "cache_write_1h": 1, "cache_read": 0.05, "output": 2.50}
+      }
+    }
+  }
+}

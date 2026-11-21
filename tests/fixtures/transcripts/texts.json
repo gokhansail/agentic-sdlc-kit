@@ -1,0 +1,9 @@
+{
+  "A1": {"type": "approval", "text": "Approved, go on."},
+  "A2": {"type": "answer", "text": "Use option two."},
+  "A3": {"type": "answer", "text": "Keep the current names."},
+  "A9": {"type": "resume", "text": "Please continue where you stopped."},
+  "F1": {"type": "fix", "text": "Fix the failing tests."},
+  "S1": {"type": "step", "text": "Build the thing, step one."},
+  "S2": {"type": "step", "text": "Now do step two."}
+}

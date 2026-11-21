@@ -2,6 +2,19 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-21 (6) - T-63 transcript meter
+
+- Source: the T-63 block and its Result line in `TASKS.md`; `cto/2026-11-21_build-bench-plan.md` sections 6 and 15 (contract draft).
+- Customer: approved T-63 on 2026-11-21. No customer test in this task; the dev test (T-67) checks the meter against the CLI total.
+- TL: wrote the contract from plan section 15; reviewed the diff; ran the tests (54 passed); ran the meter on the synthetic fixtures: 17 assistant lines counted to 10 messages, 0.037206 USD; `--raw-out` inside the repository refused with exit 2; privacy scan 0 hits; read the dedup and price code. Added flags `--model` and `--prices`; a broken JSON line exits 2.
+- Developer (`developer`, Sonnet, high): built `tools/transcript_meter.py` (934 lines), `bench/build/prices.json` (price file, source and read date in the file), `tests/test_transcript_meter.py` (54 tests), 13 synthetic fixture files in `tests/fixtures/transcripts/`, 1 CHANGELOG line. Full suite 1287 passed, 6 skipped.
+- Open for the dev test (T-67): the cost-state field map is unverified; 9 automated user lines in real transcripts count as `other`; permission waits are not separated.
+- Scope: no real transcript text used; no network; no commit by the developer.
+- Note: the T-62 records were already committed in 65a7320 (entry 5 below says "Commit: none yet").
+- Metrics: review rounds 0, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- Commit: the commit that carries this entry.
+- Next: T-64a reference guitar and engine tests (no download); T-64b browser tests after the install go-ahead.
+
 ## 2026-11-21 (5) - Build bench decided and planned (DEC-082, DEC-083, T-62)
 
 - Source: DEC-082 and DEC-083 in `DECISIONS.md`; the T-62 block and Phase 6 section in `TASKS.md`; `cto/2026-11-21_build-bench-plan.md`.

@@ -1,0 +1,9 @@
+{
+  "type": "cost-state",
+  "sessionId": "cs-1",
+  "totalCostUSD": 0.04,
+  "modelUsage": {
+    "claude-sonnet-5-5": {"inputTokens": 45, "outputTokens": 108, "cacheReadInputTokens": 3310, "cacheCreationInputTokens": 220, "costUSD": 0.002},
+    "claude-haiku-5-5": {"inputTokens": 61000, "outputTokens": 1100, "cacheReadInputTokens": 52000, "cacheCreationInputTokens": 0, "costUSD": 0.0352}
+  }
+}

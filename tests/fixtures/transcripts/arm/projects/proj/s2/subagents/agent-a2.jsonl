@@ -1,0 +1,1 @@
+{"type":"assistant","uuid":"sb1","timestamp":"2026-01-01T09:23:00Z","sessionId":"sess-2","isSidechain":true,"agentId":"a2","message":{"id":"msg-s3","model":"claude-sonnet-5-5","role":"assistant","content":[{"type":"text","text":"fixture"}],"usage":{"input_tokens":20,"output_tokens":10}}}

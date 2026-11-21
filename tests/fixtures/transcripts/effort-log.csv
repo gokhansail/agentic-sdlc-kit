@@ -1,0 +1,12 @@
+ts_start,ts_end,arm,step,action,text_id,count,minutes,note
+2026-01-01T08:59:00Z,,,,setup,,,,
+2026-01-01T09:00:30Z,2026-01-01T09:00:35Z,plain,1,launch,,,,
+2026-01-01T09:01:00Z,,plain,1,paste_step,S1,,,
+2026-01-01T09:05:00Z,,plain,1,paste_answer,A2,,,
+2026-01-01T09:05:30Z,,plain,1,permission_click,,2,,
+2026-01-01T09:09:30Z,,plain,1,score,,,,
+2026-01-01T09:10:00Z,,plain,1,end_step,,,6.5,self reported
+2026-01-01T09:20:00Z,,plain,2,launch,,,,
+2026-01-01T09:21:00Z,,plain,2,paste_step,S2,,,
+2026-01-01T09:31:00Z,,plain,2,end_step,,,4,
+2026-01-01T09:40:00Z,,kit,1,paste_step,S1,,,

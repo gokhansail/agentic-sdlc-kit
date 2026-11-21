@@ -4,6 +4,10 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 
 ## [Unreleased]
 
+### Added
+
+- Transcript meter (T-63, `tools/transcript_meter.py`, `bench/build/prices.json`, `tests/test_transcript_meter.py`, `tests/fixtures/transcripts/`): `python tools/transcript_meter.py --transcripts <dir> --effort-log <csv> --texts <json> --arm <label> --out <json> --raw-out <dir>` reads Claude Code transcripts (main, resumed and sub-agent files) and gives tokens and list-price USD per step, agent and model, counting each `message.id` once; wall, active and maintainer minutes per step from the effort log; human turns by type from verbatim matches to the frozen texts; sub-agents by type, compactions, session starts, Edit and Write calls by actor and the main messages off the fixed model. An unpriced model or fast speed gives `usd: null`; a Haiku message over 100,000 prompt tokens uses the higher price row. The committed output holds numbers, labels and hashes (sorted keys, byte-equal on a second run); raw tables go outside the repository; exit 2 and nothing written on bad input. `--cost-state` prints the CLI's own per-model totals beside the meter's, with an unverified field map until the dev test. 54 new tests on synthetic transcripts; no model run.
+
 ## [0.1.0] - 2026-11-21
 
 ### Added
