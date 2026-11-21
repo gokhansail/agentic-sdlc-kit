@@ -4,16 +4,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 
 ## [Unreleased]
 
-### Changed
-
-- Public pages after the G5 audit (T-52b, `README.md`, `docs/eval-results.md`, `docs/bench-results.md`, `bench/README.md`, `docs/security.md`, `docs/review-items.md`): a Haiku follow-up section from the 4 `haiku-scope-*.json` totals; limit lines for the 2 kit changes after a result on B1 (DEC-068, DEC-073), who wrote the bench, the pre-push guard and a second remote, the 3 skills' wide command patterns, bare `python` for the server, the 20 of 47 B7 floor and the replaced registered sentence; README statements corrected to the records (review items, CLI versions, `/sdlc:review`, what `install-hooks` installs, model aliases); 3 rows of `docs/review-items.md` set to done.
-- Tests workflow: read-only token rights (`permissions: contents: read`) and a 20-minute job timeout (T-52c, G5 audit G5-F8).
-
-### Fixed
-
-- `gitstats` parses `Z`-suffixed git dates on Python 3.10 (newer git prints UTC as `Z`; the commit lines were dropped and M3/M12 gave no data); the lookup test expects the path-guard message for a record file that is a link pointing outside (T-52f).
-
-## [0.1.0] - 2026-11-19
+## [0.1.0] - 2026-11-21
 
 ### Added
 
@@ -89,3 +80,9 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 - Developer rules and role (`DEV_RULES.md`, `agents/developer.md`, `.claude/agents/developer.md`): files are written with the file tools only; no git command that changes state (DEC-052).
 - Scope guard match in bounded time (`tools/scope_guard.py`, `server/inputs.py`, `docs/security.md`, T-44a): the heading parse is one pass over the line and `matches` moves a bit set over the path instead of a backtracking regex (same answers as `glob_to_regex` on 6,000 generated pairs); the 2,000-blank heading took 13 s and 9 `**/` against 30 segments took 4.6 s, both now under 1 ms; the server no longer refuses a long blank run; S-6, S-7 and S-8 are FIXED.
 - Playbook matches the shipped kit (T-50a, `PLAYBOOK.md`): line 3 names where measured numbers are (`EVIDENCE.md`, `docs/eval-results.md`, `docs/bench-results.md`); Appendix H has 2 new rows, the session start hook with the seat text (DEC-058, DEC-064, DEC-073) and the optional read-only server (DEC-011, DEC-050, DEC-051, DEC-057, DEC-059); no other text changed.
+- Public pages after the G5 audit (T-52b, `README.md`, `docs/eval-results.md`, `docs/bench-results.md`, `bench/README.md`, `docs/security.md`, `docs/review-items.md`): a Haiku follow-up section from the 4 `haiku-scope-*.json` totals; limit lines for the 2 kit changes after a result on B1 (DEC-068, DEC-073), who wrote the bench, the pre-push guard and a second remote, the 3 skills' wide command patterns, bare `python` for the server, the 20 of 47 B7 floor and the replaced registered sentence; README statements corrected to the records (review items, CLI versions, `/sdlc:review`, what `install-hooks` installs, model aliases); 3 rows of `docs/review-items.md` set to done.
+- Tests workflow: read-only token rights (`permissions: contents: read`) and a 20-minute job timeout (T-52c, G5 audit G5-F8).
+
+### Fixed
+
+- `gitstats` parses `Z`-suffixed git dates on Python 3.10 (newer git prints UTC as `Z`; the commit lines were dropped and M3/M12 gave no data); the lookup test expects the path-guard message for a record file that is a link pointing outside (T-52f).

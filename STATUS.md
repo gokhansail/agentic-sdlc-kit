@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-20
-Now: G5 audit CONDITIONAL ACCEPT, conditions 1 to 3 closed; hosted run, install test and publish word with the maintainer · repository private · code written, last full run 1232 passed
+Last updated: 2026-11-21
+Now: G5 closed 2026-11-21; v0.1.0 tagged and pushed; visibility change and GitHub settings with the maintainer · repository private · code written, last full run 1233 passed, 6 skipped
 
 ## Phase
 
@@ -17,11 +17,13 @@ Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix r
 
 Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor` CONDITIONAL ACCEPT, fix round T-45a to T-45c, `auditor-mini` ACCEPT; `audits/`).
 
-Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-56b, T-56c, T-58, T-59b, T-59a, T-59c to T-59f done; T-52a, T-57 and T-50a done 2026-11-17; T-53 done 2026-11-18; pilot, pre-registration, full run of 42 and T-60 done 2026-11-18 and 2026-11-19; T-50 README done 2026-11-19; T-61 and T-51 done 2026-11-19; T-52 gate G5 done 2026-11-20, T-52b and T-52c done 2026-11-20); bench of kit against plain prompt, 2 arms, 42 runs over 7 tasks (DEC-065, amended by DEC-072).
+Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-56b, T-56c, T-58, T-59b, T-59a, T-59c to T-59f done; T-52a, T-57 and T-50a done 2026-11-17; T-53 done 2026-11-18; pilot, pre-registration, full run of 42 and T-60 done 2026-11-18 and 2026-11-19; T-50 README done 2026-11-19; T-61 and T-51 done 2026-11-19; T-52 gate G5 done 2026-11-20, T-52b and T-52c done 2026-11-20); bench of kit against plain prompt, 2 arms, 42 runs over 7 tasks (DEC-065, amended by DEC-072). G5 closed 2026-11-21 (install test, seat check with a limit, publish word); v0.1.0 tagged 2026-11-21.
 
 ## Done
 
-- Gate G5 publish-readiness audit (`auditor`, Fable): CONDITIONAL ACCEPT, 1 High, 7 Medium, 7 Low; DEC-080 (80 commits published as they are, 5 line groups accepted); fix round T-52b (`tech-writer`, public pages) and T-52c (`developer`, workflow `permissions` and timeout); `auditor-mini` re-verify: conditions 1 to 3 CLOSED, 4 PARTIAL; 1232 passed, 6 skipped (TL run); not committed yet.
+- T-52 gate G5 closed (maintainer and TL): install test G5-7 passed, seat check G5-6 passed with a limit (user-level instructions also name the seat), publish word G5-9 given; CHANGELOG `[0.1.0] - 2026-11-21`; tagged `v0.1.0` and pushed 2026-11-21.
+- T-52f hosted CI green (`developer`): `tools/metrics/gitstats.py` reads the `Z` suffix that Python 3.10 refused (7 tests), symlink test expects the right error text (1 test); hosted run 44820472971 on bd69407: success, 1239 passed, 0 skipped; approved and pushed 2026-11-21.
+- Gate G5 publish-readiness audit (`auditor`, Fable): CONDITIONAL ACCEPT, 1 High, 7 Medium, 7 Low; DEC-080 (80 commits published as they are, 5 line groups accepted); fix round T-52b (`tech-writer`, public pages) and T-52c (`developer`, workflow `permissions` and timeout); `auditor-mini` re-verify: conditions 1 to 3 CLOSED, 4 PARTIAL; 1232 passed, 6 skipped (TL run); committed 80f7bc3.
 - T-61 README who did what and what was learned (`tech-writer`), and T-51 v0.1.0, marketplace entry, CI (`developer`): `plugin.json` 0.1.0; marketplace entry `sdlc`; tests workflow on Windows, Python 3.10; `claude plugin validate .` passed; 1232 passed, 6 skipped (TL run); approved 2026-11-19.
 - T-50 README (`tech-writer`): `README.md` 103 lines, engineer's note; bench "no difference" wording, scope 2 of 18 per arm, shell-write gap; TL fixed 2 points (role exceeded); approved 2026-11-19.
 - T-60 bench results page: `docs/bench-results.md` from `tools/bench_table.py`; category "no difference" on B1 to B6 (18 of 18 full passes per arm, kit to plain 2.51x USD); B7 3 of 3 per arm, 2.15x USD; approved 2026-11-19.
@@ -33,14 +35,12 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 - T-59f runner counts visible test changes: `tools/bench_run.py` (`count_test_changes`; per run `tests_changed`, `tests_added`, `tests_deleted`; totals per arm and task with `runs_with_test_changes`; console `tests edited` or `tests untouched`); 3 new tests, 61 in the file; set v3 hash unchanged; no model run; 1207 passed.
 - T-59c to T-59e B7 check, fix round and re-verify: `auditor-mini` CONDITIONAL ACCEPT (High 0, Medium 2, Low 5), fixes B7-1 to B7-3 in set v3 (`developer`, 47 hidden tests, hash `e7f25782...2b4b`), re-verify ACCEPT (`audits/2026-11-16_b7-reverify.md`); reference 47 of 47 hidden, 115 visible; unchanged project 20 of 47 pass; 1204 passed.
 - T-59a B7 large bench task: `budgetbook` output layer as bench task B7 (`bench/tasks/B7/`, 47 hidden tests in set v3, 45 in v2; 639-line reference patch; 27 fail on the unchanged project in both sets); set v2 hash `6b5154df...8a3e`; 2 review rounds; no model run; 1204 passed.
-- T-59b seat size and contract ID format: seat 18 lines (DEC-058 size line; check the contract before delegating); ID format in 3 texts; `check_contract` adds the format on a missing or broken contract (DEC-073); `check-1` 7 of 7 and still `T-FIX-1`; `check-2` 7 of 7, first write parsed; 1195 passed.
 
 ## Next
 
-- Hosted run of the pushed commit (the one with the fixes) read by the maintainer, and the GitHub settings from the audit checked before the visibility change (G5 condition 4).
-- Install test from the marketplace entry in a clean folder (G5-7): plugin loads, guard denies a write with no contract, `/mcp` state.
-- Seat check in a fresh session in the maintainer's terminal (G5-6).
-- Publish word from the maintainer (G5-9); then the TL tags v0.1.0.
+- The maintainer makes the repository public (only the maintainer changes visibility).
+- GitHub settings after the switch: secret scanning, push protection, private vulnerability reporting, fork PR approval, rulesets for `main` and `v*`.
+- v0.1.1 triage: G5-F6 skill patterns, G5-F7 second remote, `skills/review/SKILL.md` read-only wording, T-53 findings, R-1, `docs/toolchain.md` V-10 after the install test.
 
 ## Repository
 

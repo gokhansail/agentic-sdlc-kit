@@ -2,6 +2,37 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-21 (2) - G5 closed, v0.1.0 release
+
+- Source: the T-52 block and its Result line in `TASKS.md`; `CHANGELOG.md` `[0.1.0] - 2026-11-21`.
+- Customer checks 2026-11-21, clean folder, CLI 2.1.327:
+  - G5-7 passed: install by GitHub name from the private repository; plugin with 5 skills and the MCP server connected; the guard denied a write with no contract (`[no-contract]`), and the session did not work around it.
+  - G5-6 passed with a limit: a fresh session named the lead seat, found no records and asked before writing. The maintainer's user-level instruction file also names the seat, so the kit's part is not separated.
+  - Plugin uninstalled after the test.
+- Customer: had moved publish to 2026-11-22, brought it back to 2026-11-21 and gave the go-ahead for records, tests, commit, tag and push (G5-9).
+- TL: `[Unreleased]` folded into `[0.1.0]`, date changed from 2026-11-19 to 2026-11-21 (the tag day); T-52 closed in `TASKS.md`.
+- Tests: full suite before the commit (TL run): 1233 passed, 6 skipped.
+- Metrics: review rounds 0, questions back 0, out-of-scope files 0, models Haiku (scribe).
+- Commit: the commit that carries this entry, tagged `v0.1.0`, pushed.
+- Next: the maintainer makes the repository public, then sets secret scanning, push protection, private vulnerability reporting, fork PR approval, rulesets for `main` and `v*`; then v0.1.1 triage.
+
+## 2026-11-21 (1) - T-52f hosted CI green
+
+- Source: the T-52f block and its Result line in `TASKS.md`; commits 80f7bc3 and bd69407 (`git log -2`).
+- Customer: saw both hosted runs red and asked for the fix. Approved widening the scope to `tools/metrics/gitstats.py`. Approved the commit and push.
+- Cause, from the run log:
+  - The runner's git prints UTC dates with a `Z` suffix. Python 3.10 `datetime.fromisoformat` refuses it, `parse_log` dropped every line: 7 tests in `tests/metrics/`.
+  - The symlink test in `tests/test_lookup.py` ran on the hosted runner for the first time. It expected the wrong error text: 1 test. The refusal itself was correct.
+- Fix and test, `developer` (Sonnet, medium): `_parse_iso` in `tools/metrics/gitstats.py` reads the `Z` suffix; 1 new test in `tests/metrics/test_gitstats.py`; the symlink test in `tests/test_lookup.py` checks the right error text. Files in commit bd69407: `tools/metrics/gitstats.py`, `tests/metrics/test_gitstats.py`, `tests/test_lookup.py`, `CHANGELOG.md`, `TASKS.md`. The Result line records no skip added and no assertion weakened.
+- Runs:
+  - 44613009129 (38ec86e): failed, 8 tests.
+  - 44816304534 (80f7bc3): failed, the same 8 tests.
+  - 44820472971 (bd69407): success, 1239 passed, 0 skipped; the 6 symlink tests ran there.
+- Tests: local full suite 1233 passed, 6 skipped (developer); `tests/metrics` and `tests/test_lookup.py` 417 passed (TL run).
+- Metrics: review rounds 1, questions back 1, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- Commit: bd69407, pushed.
+- Next: maintainer's GitHub settings, install test (G5-7), seat check (G5-6), publish word (G5-9).
+
 ## 2026-11-20 (1) - Gate G5 audit, DEC-080, fix round T-52b and T-52c
 
 - Source: the T-52 block, the Result lines of T-52b and T-52c in `TASKS.md`; DEC-080 in `DECISIONS.md`; `audits/2026-11-20_gate5.md` (Summary, VERDICT); `audits/2026-11-20_gate5-reverify.md`.
