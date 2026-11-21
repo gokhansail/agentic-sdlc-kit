@@ -2,6 +2,15 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-21 (4) - Phase 5 closed, project frozen at v0.1.0
+
+- Source: DEC-081 in `DECISIONS.md`; NOW NEXT in `TASKS.md`.
+- Customer: asked whether the plan was done. The TL read `TASKS.md` (no open task), the finish plan (4 sessions done) and G5-1 to G5-9 (met; G5-6 met with a limit). The customer said to close it.
+- Decision: DEC-081, phase 5 closed and the project frozen at v0.1.0. Open items wait for a v0.1.1 triage in phase 6, only on the customer's go-ahead.
+- Open items carried: G5-F6 skill patterns, G5-F7 second remote, `skills/review/SKILL.md` read-only wording, T-53 findings (`docs/dogfood-2.md`), R-1 and 2 lines in `.sdlc/project.md`, bare-word candidate, B7-4 to B7-7, F-14 and F-15 partly open, `docs/toolchain.md` V-10 still says the install test is pending.
+- Metrics: review rounds 0, questions back 0, out-of-scope files 0, models Haiku (scribe).
+- Next: none planned.
+
 ## 2026-11-21 (3) - Repository public, GitHub settings
 
 - Source: GitHub repository settings read 2026-11-21 by the TL through the GitHub API (GET only) and the settings pages; nothing changed by the TL.

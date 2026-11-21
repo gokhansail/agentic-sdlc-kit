@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-21
-Now: G5 closed 2026-11-21; v0.1.0 tagged and pushed; repository public 2026-11-21, GitHub settings set · repository public · code written, last full run 1233 passed, 6 skipped
+Now: Phase 5 closed 2026-11-21 (DEC-081); v0.1.0 tagged, repository public; project frozen, phase 6 has no task planned · repository public · code written, last full run 1233 passed, 6 skipped
 
 ## Phase
 
@@ -17,10 +17,13 @@ Phase 3 Plugin closed: G3 passed 2026-11-07 (`auditor` CONDITIONAL ACCEPT, fix r
 
 Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor` CONDITIONAL ACCEPT, fix round T-45a to T-45c, `auditor-mini` ACCEPT; `audits/`).
 
-Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-56b, T-56c, T-58, T-59b, T-59a, T-59c to T-59f done; T-52a, T-57 and T-50a done 2026-11-17; T-53 done 2026-11-18; pilot, pre-registration, full run of 42 and T-60 done 2026-11-18 and 2026-11-19; T-50 README done 2026-11-19; T-61 and T-51 done 2026-11-19; T-52 gate G5 done 2026-11-20, T-52b and T-52c done 2026-11-20); bench of kit against plain prompt, 2 arms, 42 runs over 7 tasks (DEC-065, amended by DEC-072). G5 closed 2026-11-21 (install test, seat check with a limit, publish word); v0.1.0 tagged 2026-11-21.
+Phase 5 Release closed: G5 passed 2026-11-21 (DEC-081). Planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-56b, T-56c, T-58, T-59b, T-59a, T-59c to T-59f done; T-52a, T-57 and T-50a done 2026-11-17; T-53 done 2026-11-18; pilot, pre-registration, full run of 42 and T-60 done 2026-11-18 and 2026-11-19; T-50 README done 2026-11-19; T-61 and T-51 done 2026-11-19; T-52 gate G5 done 2026-11-20, T-52b and T-52c done 2026-11-20); bench of kit against plain prompt, 2 arms, 42 runs over 7 tasks (DEC-065, amended by DEC-072). G5 closed 2026-11-21 (install test, seat check with a limit, publish word); v0.1.0 tagged 2026-11-21.
+
+Phase 6 Ongoing: started 2026-11-21, no gate, no task planned.
 
 ## Done
 
+- Phase 5 closed 2026-11-21 (DEC-081): finish plan done, G5-1 to G5-9 met, project frozen at v0.1.0.
 - Repository public 2026-11-21 (maintainer): secret scanning, push protection, private vulnerability reporting, fork PR approval for all external contributors, read-only workflow token; rulesets `main` (no deletion, no force push) and `release tags` (`v*`, no deletion, no update), read back through the GitHub API.
 - T-52 gate G5 closed (maintainer and TL): install test G5-7 passed, seat check G5-6 passed with a limit (user-level instructions also name the seat), publish word G5-9 given; CHANGELOG `[0.1.0] - 2026-11-21`; tagged `v0.1.0` and pushed 2026-11-21.
 - T-52f hosted CI green (`developer`): `tools/metrics/gitstats.py` reads the `Z` suffix that Python 3.10 refused (7 tests), symlink test expects the right error text (1 test); hosted run 44820472971 on bd69407: success, 1239 passed, 0 skipped; approved and pushed 2026-11-21.
@@ -34,12 +37,10 @@ Phase 5 Release: planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2
 - T-57 bench results renderer: `tools/bench_table.py` (150 lines; header line per totals file, table per file and arm, table per file, task and arm; no verdict or ratio; exit 2 and nothing written on bad input); `docs/bench-results.md` marker block "Not run yet."; `tests/test_bench_table.py` 23 tests, 3 fixture files; `smoke-2` and `check-2` render equal to the records; 1230 passed, 6 skipped.
 - T-52a history scan (`scout`, read only): 72 commits, 72 messages, 35,326 added lines, 268 added paths; public patterns 0 hits; built-in forbidden paths 0; private patterns 0 hits (maintainer's terminal); binary contents not scanned.
 - T-59f runner counts visible test changes: `tools/bench_run.py` (`count_test_changes`; per run `tests_changed`, `tests_added`, `tests_deleted`; totals per arm and task with `runs_with_test_changes`; console `tests edited` or `tests untouched`); 3 new tests, 61 in the file; set v3 hash unchanged; no model run; 1207 passed.
-- T-59c to T-59e B7 check, fix round and re-verify: `auditor-mini` CONDITIONAL ACCEPT (High 0, Medium 2, Low 5), fixes B7-1 to B7-3 in set v3 (`developer`, 47 hidden tests, hash `e7f25782...2b4b`), re-verify ACCEPT (`audits/2026-11-16_b7-reverify.md`); reference 47 of 47 hidden, 115 visible; unchanged project 20 of 47 pass; 1204 passed.
-- T-59a B7 large bench task: `budgetbook` output layer as bench task B7 (`bench/tasks/B7/`, 47 hidden tests in set v3, 45 in v2; 639-line reference patch; 27 fail on the unchanged project in both sets); set v2 hash `6b5154df...8a3e`; 2 review rounds; no model run; 1204 passed.
 
 ## Next
 
-- v0.1.1 triage: G5-F6 skill patterns, G5-F7 second remote, `skills/review/SKILL.md` read-only wording, T-53 findings, R-1, `docs/toolchain.md` V-10 after the install test.
+- None planned. A v0.1.1 triage starts only on the maintainer's go-ahead (items under Open questions, plus `docs/toolchain.md` V-10).
 
 ## Repository
 

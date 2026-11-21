@@ -677,3 +677,12 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: a squash breaks 55 hash citations and the check that the registration came before the scored runs; no group is a secret or identifies a project or person. Fixing the guard and skills now would ship a kit that differs from the measured one.
 - Consequences: the 5 groups of G5-F1 are public with the history. Making Project A, B or C public later ends its label's anonymity (hashes in `evidence/`, descriptions in DEC-067 and `docs/dogfood-2.md`). The personal-goal rule has this one recorded exception, in history only.
 - Outcome:
+
+## DEC-081 Phase 5 closed, project frozen at v0.1.0
+- Date: 2026-11-21 · Question: is the planned work done, and what happens to the open items.
+- Facts: G5-1 to G5-9 met (G5-6 with a limit); `v0.1.0` tagged on 6eda269; repository public 2026-11-21 with the audit's GitHub settings read back; no open task in `TASKS.md`; open items are Low findings, the T-53 findings, R-1 and G5-F6, G5-F7 (limit lines in v0.1.0).
+- Options: a) close phase 5 and freeze; open items wait for a v0.1.1 triage in phase 6 b) keep phase 5 open until v0.1.1.
+- Decision: a), the customer's word.
+- Reason: the finish plan is done; no open item blocks a user of v0.1.0, each is stated as a limit or listed for triage.
+- Consequences: phase 6 (ongoing, no gate) starts with no task planned; a v0.1.1 starts only with a triage session and the customer's go-ahead.
+- Outcome:
