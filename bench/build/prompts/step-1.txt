@@ -1,0 +1,7 @@
+I want a guitar I can play in the browser with my computer keyboard: left hand picks chords, right hand strums or plucks single strings, and it should sound like a real plucked string, not a beep. SPEC.md in this folder has the details and the names the tests use.
+
+One rule for the whole project: the sound engine is pure. src/engine.js and every file it imports use no browser API (no window, document, navigator, AudioContext, OfflineAudioContext, requestAnimationFrame, localStorage), and key codes appear only in the engine's key map, nowhere else in the code.
+
+This folder is a git repository with a remote called origin. Commit and push when a step is done.
+
+Build it.

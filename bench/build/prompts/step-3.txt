@@ -1,0 +1,2 @@
+I want to see the sound. Show the spectrum of the last note, and next to it the pitch the app hears in that note as note name and cents, like "E4 +0". The pitch comes from analysing the rendered note, not from the formula.
+Names: canvas data-testid spectrum, text data-testid pitch-readout; engine spectrum(samples, sampleRate) returns {frequencies, magnitudes}, detectPitch(samples, sampleRate) returns Hz, noteName(frequency) returns {name, cents} with cents a whole number.

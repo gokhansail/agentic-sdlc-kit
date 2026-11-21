@@ -2,6 +2,31 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-22 (1) - T-64a frozen texts and reference guitar
+
+- Source: the T-64a block and its Result line in `TASKS.md`; `cto/2026-11-21_build-bench-plan.md` sections 2 to 5 and 15; DEC-083.
+- Customer: approved T-64a on 2026-11-22 after playing the reference guitar in Chrome. It sounds like a guitar; the page is plain, with no guitar shape. The reference is a measuring stick and is never shown to the arms.
+- TL: wrote the contract from plan sections 2 to 5 and 15; checked the Result line numbers:
+  - `node --test` on the reference: 40 of 40 pass.
+  - `node --test` on a folder with `SPEC.md` only: 5 pass, 35 fail as test failures, 0 load errors.
+  - Pitch: worst error 0.0026 cent over 6 strings, frets 0 to 19, 2 sample rates.
+  - Arch check: 0 on the reference, 1 on a planted case.
+  - Non-ASCII and privacy scans: 0 hits.
+- Decisions taken:
+  - The arch check skips the arms' own test files when it looks for key codes.
+  - Pitch is tested on every fret 0 to 19, as `SPEC.md` says.
+- TL error: the brief gave 1976 Hz for fret 19; the correct value is 988 Hz. The developer caught it and used the correct value.
+- Developer (`developer`, Sonnet, high):
+  - Frozen texts in `bench/build/`: `SPEC.md`, 8 step prompts, `answers.md`, `fix-template.txt`, `texts.json` (17 ids), `spec-map.json`.
+  - Reference guitar in `bench/build/reference/` (engine 6 files, browser side 2 files).
+  - Engine tests in `bench/build/hidden/engine/` (4 files: 35 project tests, 5 estimator tests); `bench/build/arch_check.py` (207 lines).
+  - `tests/test_build_bench.py` (33 tests), 16 fixture files in `tests/fixtures/arch_check/`, 1 CHANGELOG line.
+  - No package install, no network, no commit by the developer.
+- Tests: `python -m pytest -q` 1320 passed, 6 skipped (developer run).
+- Metrics: review rounds 0, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- Commit: the commit that carries this entry.
+- Next: T-64c reference and engine tests for steps 2 to 8 and the handoff (no download), or T-64b browser tests after the install go-ahead.
+
 ## 2026-11-21 (6) - T-63 transcript meter
 
 - Source: the T-63 block and its Result line in `TASKS.md`; `cto/2026-11-21_build-bench-plan.md` sections 6 and 15 (contract draft).

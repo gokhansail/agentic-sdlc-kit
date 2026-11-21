@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-21
-Now: Phase 6: T-63 transcript meter done 2026-11-21 (build bench, DEC-082, DEC-083); next T-64a reference guitar and engine tests (no download) · repository public · code written, last full run 1287 passed, 6 skipped
+Last updated: 2026-11-22
+Now: Phase 6: T-64a frozen texts and reference guitar done 2026-11-22 (build bench, DEC-082, DEC-083); next T-64c reference and engine tests for steps 2 to 8 and the handoff (no download), or T-64b after the install go-ahead · repository public · code written, last full run 1320 passed, 6 skipped
 
 ## Phase
 
@@ -23,6 +23,7 @@ Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): pl
 
 ## Done
 
+- T-64a frozen texts and reference guitar (`developer`, Sonnet, high): `bench/build/` frozen texts (`SPEC.md`, 8 prompts, `answers.md`, `fix-template.txt`, `texts.json` with 17 ids, `spec-map.json`), reference guitar in `bench/build/reference/`, 40 engine tests (35 project, 5 estimator), `arch_check.py`, 33 tests in `tests/test_build_bench.py`; TL checks: 40 of 40 on the reference; 5 pass and 35 fail on a folder with `SPEC.md` only, 0 load errors; worst pitch error 0.0026 cent; customer played it in Chrome; approved 2026-11-22.
 - T-63 transcript meter (`developer`, Sonnet, high): `tools/transcript_meter.py` 934 lines, `bench/build/prices.json`, `tests/test_transcript_meter.py` 54 tests, 13 synthetic fixture files, 1 CHANGELOG line; full suite 1287 passed, 6 skipped; TL checks: fixture run 17 lines to 10 messages, 0.037206 USD, `--raw-out` inside the repository refused; review rounds 0; approved 2026-11-21.
 - T-62 build bench plan (`cto`): 549 lines, 16 sections; design review by `auditor` (5 High findings, guitar app chosen); DEC-082 and DEC-083 by the customer.
 - Phase 5 closed 2026-11-21 (DEC-081): finish plan done, G5-1 to G5-9 met, project frozen at v0.1.0.
@@ -35,11 +36,10 @@ Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): pl
 - T-60 bench results page: `docs/bench-results.md` from `tools/bench_table.py`; category "no difference" on B1 to B6 (18 of 18 full passes per arm, kit to plain 2.51x USD); B7 3 of 3 per arm, 2.15x USD; approved 2026-11-19.
 - Bench full run (DEC-078, maintainer's terminal): `full-1` 36 of 36 full passes, 6.48 USD; `full-1-b7` 6 of 6, 3.31 USD; 42 runs, 0 harness errors, 0 reruns.
 - T-53 trial on Project C: 2 of 3 tasks (range render, 16th grid cells), 27 committed paths all in contract, 18 scope events all allow, guard saw 1 of 23 developer-written files (shell writes); 1 push passed; rollback equal; `docs/dogfood-2.md` 5 findings.
-- T-50a PLAYBOOK matches the shipped kit (`tech-writer`): line 3 names `EVIDENCE.md`, `docs/eval-results.md`, `docs/bench-results.md`; Appendix H 2 new rows (session start hook, read-only MCP server, optional); CHANGELOG line under `### Changed`; `tests/test_scope_guard.py` 198 passed (TL run).
 
 ## Next
 
-- T-64a reference guitar and engine tests (`developer`), no download; then T-64b browser tests after the install go-ahead.
+- T-64c reference and engine tests for steps 2 to 8 and the handoff (`developer`, no download), or T-64b browser tests after the install go-ahead.
 - Then T-65 environment kit; T-66 handoff runner; T-67 dev test (checks the meter against the CLI total; open from T-63: cost-state field map, 9 automated user lines count as `other`, permission waits not separated).
 - v0.1.1 triage waits (items under Open questions, plus `docs/toolchain.md` V-10).
 

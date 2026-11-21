@@ -1,0 +1,2 @@
+Strumming feels like a chord stab. Make it feel like a hand: the notes of a strum come one after another, spread over a time I set with a slider, 0 to 100 ms, default 30. Down goes from string 6 to string 1, up the other way, muted strings are skipped. A string plucked again stops its old note first, like a real string.
+Names: slider data-testid strum-spread; engine strumSchedule(frets, direction, startTime, spreadMs) returns [{string, fret, time}] with time in seconds; a stopped note fires "guitar:stop" with {string}.

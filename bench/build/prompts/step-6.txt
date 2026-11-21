@@ -1,0 +1,2 @@
+Change of plan: we are aiming at metal players now. Drop the spectrum view, it takes space and nobody looks at it; keep the pitch readout. And support 7-string guitars: string 7 is a low B (B1), played with the Y key. In 7-string mode chords leave string 7 muted, and drop D lowers string 7 to A1 as well.
+Names: select data-testid strings with values 6 and 7; string-7 and dot-7 on the page; chordShape(name, strings) returns 7 frets starting with string 7 when strings is 7; keyToAction("KeyY") plucks string 7.

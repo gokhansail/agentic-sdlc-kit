@@ -1,0 +1,2 @@
+Add a capo, frets 0 to 7, and three tunings: standard, drop D (string 6 down to D2) and open G (D2 G2 D3 G3 B3 D4). Chord shapes stay the same and move up with the capo.
+Names: select data-testid capo, select data-testid tuning with values standard, dropD, openG; engine noteFrequency(string, fret, tuning) with tuning standard when left out. The capo is added to the fret by the caller.

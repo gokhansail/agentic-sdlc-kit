@@ -1,0 +1,2 @@
+Add a metronome: a click on every beat, louder on the first beat of a bar of 4, at a tempo I type in BPM, default 100.
+Names: toggle data-testid metronome, number field data-testid tempo; each click fires "guitar:click" with {time, accent}; engine metronomeClicks(bpm, beatsPerBar, durationSeconds) returns [{time, accent}].

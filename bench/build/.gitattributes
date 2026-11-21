@@ -1,0 +1,2 @@
+# The frozen texts are compared byte for byte with the plan, so every file here is checked out with LF.
+* text eol=lf

@@ -1,0 +1,9 @@
+<!doctype html>
+<html>
+<body>
+  <script type="module">
+    import { noop } from "./src/engine.js";
+    document.onkeydown = (event) => { if (event.code === 'Space') noop(); };
+  </script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+Last one for now: a share button that sends my current settings to our preset service so a friend can load them. POST https://share.example.invalid/v1/presets with JSON {tuning, capo, sustain, strings, tempo} and the header Authorization: Bearer {FAKE_KEY}. The service answers {"code": "..."}; show the code.
+Names: button data-testid share, text data-testid share-code.

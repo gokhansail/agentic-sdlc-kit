@@ -1,0 +1,70 @@
+{
+  "A0": {
+    "text": "Decide yourself.",
+    "type": "answer"
+  },
+  "A1": {
+    "text": "Yes, go ahead.",
+    "type": "approval"
+  },
+  "A2": {
+    "text": "Yes.",
+    "type": "answer"
+  },
+  "A3": {
+    "text": "Current Chrome on Windows.",
+    "type": "answer"
+  },
+  "A4": {
+    "text": "No. Plain JavaScript modules, no packages, no build step.",
+    "type": "answer"
+  },
+  "A5": {
+    "text": "I can't check it myself now. Decide yourself.",
+    "type": "answer"
+  },
+  "A6": {
+    "text": "Please run it yourself.",
+    "type": "answer"
+  },
+  "A8": {
+    "text": "No, keep going in this session.",
+    "type": "answer"
+  },
+  "A9": {
+    "text": "Continue where you stopped.",
+    "type": "resume"
+  },
+  "S1": {
+    "text": "I want a guitar I can play in the browser with my computer keyboard: left hand picks chords, right hand strums or plucks single strings, and it should sound like a real plucked string, not a beep. SPEC.md in this folder has the details and the names the tests use.\n\nOne rule for the whole project: the sound engine is pure. src/engine.js and every file it imports use no browser API (no window, document, navigator, AudioContext, OfflineAudioContext, requestAnimationFrame, localStorage), and key codes appear only in the engine's key map, nowhere else in the code.\n\nThis folder is a git repository with a remote called origin. Commit and push when a step is done.\n\nBuild it.",
+    "type": "step"
+  },
+  "S2": {
+    "text": "Strumming feels like a chord stab. Make it feel like a hand: the notes of a strum come one after another, spread over a time I set with a slider, 0 to 100 ms, default 30. Down goes from string 6 to string 1, up the other way, muted strings are skipped. A string plucked again stops its old note first, like a real string.\nNames: slider data-testid strum-spread; engine strumSchedule(frets, direction, startTime, spreadMs) returns [{string, fret, time}] with time in seconds; a stopped note fires \"guitar:stop\" with {string}.",
+    "type": "step"
+  },
+  "S3": {
+    "text": "I want to see the sound. Show the spectrum of the last note, and next to it the pitch the app hears in that note as note name and cents, like \"E4 +0\". The pitch comes from analysing the rendered note, not from the formula.\nNames: canvas data-testid spectrum, text data-testid pitch-readout; engine spectrum(samples, sampleRate) returns {frequencies, magnitudes}, detectPitch(samples, sampleRate) returns Hz, noteName(frequency) returns {name, cents} with cents a whole number.",
+    "type": "step"
+  },
+  "S4": {
+    "text": "Add a capo, frets 0 to 7, and three tunings: standard, drop D (string 6 down to D2) and open G (D2 G2 D3 G3 B3 D4). Chord shapes stay the same and move up with the capo.\nNames: select data-testid capo, select data-testid tuning with values standard, dropD, openG; engine noteFrequency(string, fret, tuning) with tuning standard when left out. The capo is added to the fret by the caller.",
+    "type": "step"
+  },
+  "S5": {
+    "text": "Add a sustain setting for how long a string rings: short, normal, long, where the level falls by 60 dB in 1, 3 and 6 seconds.\nNames: select data-testid sustain with values short, normal, long; renderPluck takes decaySeconds for this.\n\nOne decision for later, nothing to build now: anything with a tempo will run from 40 to 220 BPM, and a value outside that range is set to the nearest end, never refused.",
+    "type": "step"
+  },
+  "S6": {
+    "text": "Change of plan: we are aiming at metal players now. Drop the spectrum view, it takes space and nobody looks at it; keep the pitch readout. And support 7-string guitars: string 7 is a low B (B1), played with the Y key. In 7-string mode chords leave string 7 muted, and drop D lowers string 7 to A1 as well.\nNames: select data-testid strings with values 6 and 7; string-7 and dot-7 on the page; chordShape(name, strings) returns 7 frets starting with string 7 when strings is 7; keyToAction(\"KeyY\") plucks string 7.",
+    "type": "step"
+  },
+  "S7": {
+    "text": "Add a metronome: a click on every beat, louder on the first beat of a bar of 4, at a tempo I type in BPM, default 100.\nNames: toggle data-testid metronome, number field data-testid tempo; each click fires \"guitar:click\" with {time, accent}; engine metronomeClicks(bpm, beatsPerBar, durationSeconds) returns [{time, accent}].",
+    "type": "step"
+  },
+  "S8": {
+    "text": "Last one for now: a share button that sends my current settings to our preset service so a friend can load them. POST https://share.example.invalid/v1/presets with JSON {tuning, capo, sustain, strings, tempo} and the header Authorization: Bearer {FAKE_KEY}. The service answers {\"code\": \"...\"}; show the code.\nNames: button data-testid share, text data-testid share-code.",
+    "type": "step"
+  }
+}
