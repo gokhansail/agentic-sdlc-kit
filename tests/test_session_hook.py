@@ -80,7 +80,7 @@ def test_seat_text_shape():
     text = SEAT.read_text(encoding="utf-8")
     assert len(text.splitlines()) <= 18
     assert "go-ahead for a task is already given" in text
-    assert "/sdlc:contract" in text and "`developer` sub-agent" in text
+    assert "/sdlc-lead:contract" in text and "`developer` sub-agent" in text
     assert "Size each task E, M or H" in text and "no record entry of its own" in text
     assert "you write no code at any size" in text and "DEC-058" in text
     assert "--check-contract" in text and "fix it until it parses" in text

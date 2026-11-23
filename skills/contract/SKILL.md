@@ -5,11 +5,11 @@ allowed-tools: Read, Write, Edit, Bash(python *tools/scope_guard.py*), Bash(pyth
 # contract
 
 Arguments: `$ARGUMENTS` (the task, or the word `close`). Needs `.sdlc/project.md`; if it is missing, say
-`/sdlc:init` comes first and stop.
+`/sdlc-lead:init` comes first and stop.
 Every write below uses Write or Edit, never a shell command: the scope guard sees file tools only.
 
 ## Open (default)
-1. If `.sdlc/active-contract.md` exists: stop. Name its task ID. Say `/sdlc:contract close` first.
+1. If `.sdlc/active-contract.md` exists: stop. Name its task ID. Say `/sdlc-lead:contract close` first.
 2. Read `${CLAUDE_PLUGIN_ROOT}/templates/task-contract.md`. Fill the lines under its `##` heading from the
    customer's text: task ID and title (the task ID is capital letters, one dash, digits and an optional
    lower-case letter, for example `T-12` or `T-12a`; with no tasks record, number from `T-1`), Size, Goal, Files in, Files out, Acceptance, Tests,

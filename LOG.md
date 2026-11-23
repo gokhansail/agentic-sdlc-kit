@@ -2,6 +2,22 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-24 (1) - T-73 plugin renamed sdlc-lead
+
+- Source: the T-73 block and its Result line in `TASKS.md`; NOW NEXT in `TASKS.md`; DEC-085 in `DECISIONS.md`.
+- Customer: on 2026-11-23 asked for the plugin to be listed in Anthropic's plugin directory under the customer's name. A check found at least 5 other plugins named `sdlc` and none named `sdlc-lead`. The customer chose `sdlc-lead` (DEC-085) and asked for all names to be changed and pushed.
+- Earlier on 2026-11-23 the plugin had been installed at project scope in this repository from the app. The TL uninstalled it on the customer's word and restored `.claude/settings.json` to the committed version (the install had added an `enabledPlugins` key).
+- TL checks:
+  - Remaining `/sdlc:` and `sdlc@` hits outside history, bench, eval and dated toolchain lines: README line 27 only (a past bench lesson).
+  - `claude plugin validate .` passed with 1 warning (no icon).
+  - Full suite: 1399 passed, 6 skipped.
+- Review round 1: the rename dropped a space in the scope guard message; fixed with a test. README line 110 renamed. The scope guard refused the developer's write to `.sdlc/project.md`; the TL changed that one line (role exceeded).
+- Developer (`developer`, Sonnet, medium): 17 files, as the Result line in `TASKS.md` lists. No install, no network, no commit.
+- Also from 2026-11-23: the full suite run before the T-64d commit had 1 browser failure on the reference under load (1398 passed). The test passed alone in 23 s. Watch item for the next full run: score alone, not beside other load.
+- Metrics: review rounds 1, questions back 1, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- Commit: the commit that carries this entry.
+- Next: T-65 environment kit. For the directory listing: v0.1.1 with the `fable` fallback and the optional MCP server, then the customer submits.
+
 ## 2026-11-23 (2) - T-64d build scorer
 
 - Source: the T-64d block and its Result line in `TASKS.md`; NOW NEXT in `TASKS.md`; DEC-084 in `DECISIONS.md`.

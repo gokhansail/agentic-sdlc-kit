@@ -61,7 +61,7 @@ Status: not tried live. The finding is read from the pattern text, so it is an o
 # Limits of this check
 - A change inside a nested repository (a gitlink or a submodule) is not reported by `changed_outside` or `--check-worktree`, and a changed gitlink commit is not either (S-18). Only the outer repository is checked.
 - The folder-as-git-folder refusal (S-18) is in the server path only. `--check-worktree` run from a terminal in such a folder still starts git with no config check, as it does for a plain repository with a filter in `.git/config` (S-3): it is the user's own command. The refusal tests `HEAD` together with `objects`, `refs` or `commondir`, not git's full validity rule; a folder git accepts by another route (an environment variable such as `GIT_DIR`) is not looked at.
-- `/sdlc:review` runs `git status` from the CLI with no config check (outside T-44 and T-45a). Any other `git status` in a crafted folder, by a person or a tool, starts the same filters.
+- `/sdlc-lead:review` runs `git status` from the CLI with no config check (outside T-44 and T-45a). Any other `git status` in a crafted folder, by a person or a tool, starts the same filters.
 - No network vulnerability scan (S-17). Importing `mcp` loads `httpx2`, `starlette`, `uvicorn` and `ssl`; no socket is opened (`test_every_tool_runs_with_socket_creation_blocked`).
 - A file can change between the check and the read; an attacker would need write access to the folder.
 - Answers carry project text. The server labels it as data; it cannot stop a model from following text inside it.

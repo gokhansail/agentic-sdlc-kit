@@ -1,5 +1,5 @@
 ---
-description: Opt this project in to the sdlc plugin by writing .sdlc/project.md (typed command only).
+description: Opt this project in to the sdlc-lead plugin by writing .sdlc/project.md (typed command only).
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Write
 ---
@@ -21,7 +21,7 @@ Opt the current project in. Typed by the customer only. Arguments: `$ARGUMENTS`.
 5. After a yes, write `.sdlc/project.md` with the Write tool, never a shell command: the scope
    guard sees file tools only.
 6. Tell the customer, in 3 lines:
-   - the scope guard is now on: a write needs an active contract (`/sdlc:contract`) or a path in the
+   - the scope guard is now on: a write needs an active contract (`/sdlc-lead:contract`) or a path in the
      always-allowed list;
    - deleting `.sdlc/project.md` turns it off;
-   - `/sdlc:install-hooks` adds the `.sdlc/` line to the git exclude file, so `.sdlc/` is not committed.
+   - `/sdlc-lead:install-hooks` adds the `.sdlc/` line to the git exclude file, so `.sdlc/` is not committed.

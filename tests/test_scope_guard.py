@@ -260,9 +260,10 @@ def test_main_session_no_contract_text_names_the_command_and_the_format(tmp_path
     code, err = write_in(root, "src/a.py")
     assert code == 2 and "[no-contract]" in err
     assert sg.MAIN_NO_CONTRACT_NEXT in err
-    for part in ("technical lead", "/sdlc:contract <task>", "## <ID> <title>", "Files in:", "Files out:",
+    for part in ("technical lead", "/sdlc-lead:contract <task>", "## <ID> <title>", "Files in:", "Files out:",
                  "backticks", "developer sub-agent"):
         assert part in sg.MAIN_NO_CONTRACT_NEXT
+    assert "or write .sdlc/active-contract.md" in sg.MAIN_NO_CONTRACT_NEXT
     assert len(sg.MAIN_NO_CONTRACT_NEXT) <= 450
     assert SUB_NO_CONTRACT not in err
 
@@ -273,7 +274,7 @@ def test_main_session_broken_text_keeps_the_reason_and_adds_the_format(tmp_path:
     assert code == 2 and "[broken]" in err
     assert "line 7: `Files in` is repeated (first at line 4)" in err
     assert sg.MAIN_BROKEN_NEXT in err
-    for part in ("/sdlc:contract <task>", "## <ID> <title>", "Files in:", "Files out:", "backticks",
+    for part in ("/sdlc-lead:contract <task>", "## <ID> <title>", "Files in:", "Files out:", "backticks",
                  "developer sub-agent"):
         assert part in sg.MAIN_BROKEN_NEXT
     assert len(sg.MAIN_BROKEN_NEXT) <= 450
@@ -301,10 +302,10 @@ def test_sub_agent_deny_texts_do_not_carry_the_id_format(tmp_path: Path) -> None
 def test_sub_agent_deny_texts_are_unchanged(tmp_path: Path) -> None:
     root = make_project(tmp_path, contract=None)
     code, err = run(root, payload("write-subagent", root, str(root / "src" / "a.py")))
-    assert code == 2 and SUB_NO_CONTRACT in err and "/sdlc:contract" not in err
+    assert code == 2 and SUB_NO_CONTRACT in err and "/sdlc-lead:contract" not in err
     root = make_project(tmp_path / "b", contract="not a contract")
     code, err = run(root, payload("write-subagent", root, str(root / "src" / "a.py")))
-    assert code == 2 and SUB_BROKEN in err and "/sdlc:contract" not in err
+    assert code == 2 and SUB_BROKEN in err and "/sdlc-lead:contract" not in err
 
 
 def test_sub_agent_next_steps_are_byte_equal_to_the_old_texts() -> None:

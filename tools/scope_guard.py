@@ -435,11 +435,11 @@ def _under_sdlc(rel: str, casefold: bool) -> bool:
 _CONTRACT_FORMAT = ("one '## <ID> <title>' heading (the ID is capital letters, one dash, digits and an optional "
                     "lower-case letter, for example T-12 or T-12a; with no tasks record, number from T-1), "
                     "one '- Files in:' line and one '- Files out:' line, every path in backticks")
-MAIN_NO_CONTRACT_NEXT = (f"You are the technical lead. Place the contract with /sdlc:contract <task>, or write "
+MAIN_NO_CONTRACT_NEXT = (f"You are the technical lead. Place the contract with /sdlc-lead:contract <task>, or write "
                          f".sdlc/active-contract.md yourself: {_CONTRACT_FORMAT}. "
                          "Then hand the code work to the developer sub-agent.")
 MAIN_BROKEN_NEXT = (f"You are the technical lead. Fix .sdlc/active-contract.md or place a new one with "
-                    f"/sdlc:contract <task>: {_CONTRACT_FORMAT}. Then hand the code work to the developer sub-agent.")
+                    f"/sdlc-lead:contract <task>: {_CONTRACT_FORMAT}. Then hand the code work to the developer sub-agent.")
 
 def decide(
     rel: str,

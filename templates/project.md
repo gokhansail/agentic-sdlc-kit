@@ -1,6 +1,6 @@
 # Project file
 
-What is this file? The opt-in and the one config file of the sdlc plugin for this project (`.sdlc/project.md`). While it exists, the scope guard runs: a write needs an active contract or a path in the always-allowed list. Delete the file to turn the guard off. `/sdlc:init` fills the angle-bracket parts and writes it after the customer's word.
+What is this file? The opt-in and the one config file of the sdlc-lead plugin for this project (`.sdlc/project.md`). While it exists, the scope guard runs: a write needs an active contract or a path in the always-allowed list. Delete the file to turn the guard off. `/sdlc-lead:init` fills the angle-bracket parts and writes it after the customer's word.
 
 ## Records
 - Status: `STATUS.md`

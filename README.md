@@ -45,14 +45,14 @@ This repository is its own plugin marketplace. In a Claude Code session, add it 
 
 ```
 /plugin marketplace add gokhansail/agentic-sdlc-kit
-/plugin install sdlc@agentic-sdlc-kit
+/plugin install sdlc-lead@agentic-sdlc-kit
 ```
 
 The same from the shell. The default scope is `user`, which enables the plugin in every project; `--scope project` writes `.claude/settings.json` of the current project instead:
 
 ```
 claude plugin marketplace add gokhansail/agentic-sdlc-kit
-claude plugin install sdlc@agentic-sdlc-kit [--scope user|project|local]
+claude plugin install sdlc-lead@agentic-sdlc-kit [--scope user|project|local]
 ```
 
 Users get an update only when the plugin version is raised.
@@ -77,12 +77,12 @@ The server is started as bare `python`. Where that name is missing, or is anothe
 
 Then, in the project you want to work on:
 
-1. `/sdlc:init` opts the project in. It writes `.sdlc/project.md`, which maps the kit's record names to the project's own. It runs only when you type it, and it asks before writing.
-2. `/sdlc:contract <task>` writes the active contract: the files in scope and the files out of scope. The scope guard allows or denies each Edit and Write call against it. A write outside the contract is denied.
-3. `/sdlc:review` lists the files changed outside the contract and checks each acceptance line. It reads the working tree and runs the test command that the contract names.
-4. `/sdlc:status` reports the phase, the open task and the open questions from the project records.
-5. `/sdlc:install-hooks` installs the pre-push guard in the project's git repository. It runs only when you type it. `--refresh` replaces a stale copy and `--uninstall` restores the old hook folder.
-6. `/sdlc:contract close` closes the contract when the task is approved.
+1. `/sdlc-lead:init` opts the project in. It writes `.sdlc/project.md`, which maps the kit's record names to the project's own. It runs only when you type it, and it asks before writing.
+2. `/sdlc-lead:contract <task>` writes the active contract: the files in scope and the files out of scope. The scope guard allows or denies each Edit and Write call against it. A write outside the contract is denied.
+3. `/sdlc-lead:review` lists the files changed outside the contract and checks each acceptance line. It reads the working tree and runs the test command that the contract names.
+4. `/sdlc-lead:status` reports the phase, the open task and the open questions from the project records.
+5. `/sdlc-lead:install-hooks` installs the pre-push guard in the project's git repository. It runs only when you type it. `--refresh` replaces a stale copy and `--uninstall` restores the old hook folder.
+6. `/sdlc-lead:contract close` closes the contract when the task is approved.
 
 ## What was measured
 
@@ -107,7 +107,7 @@ Two real-project trials. The first ran on a game project (`docs/dogfood-1.md`): 
 - The kit was changed twice after a result was seen on B1, a task of the scored set (DEC-068 guard deny text, DEC-073 seat text and contract check text). 8 kit-arm runs and 2 plain runs on B1 came before the scored run and are not scored. The task set was not changed.
 - The maintainer ran the trials. Both trial projects belong to the same maintainer.
 - The server is experimental and optional, read only, and tested with Claude Code only. In the eval, Haiku with the default prompt answered fewer questions correctly with the server than without.
-- Two findings of the first trial are not fixed in this version: `/sdlc:contract` writes English field names into a tasks file in another language and places the entry under the previous step; and in default permission mode the developer role triggered a prompt for each new command shape, which the maintainer found tiring. Details are in `docs/dogfood-1.md`.
+- Two findings of the first trial are not fixed in this version: `/sdlc-lead:contract` writes English field names into a tasks file in another language and places the entry under the previous step; and in default permission mode the developer role triggered a prompt for each new command shape, which the maintainer found tiring. Details are in `docs/dogfood-1.md`.
 - After the public release the bench and the eval are not rerun to change a published result (DEC-059).
 
 ## Repository layout

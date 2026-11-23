@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-23
-Now: Phase 6: T-64d build scorer done 2026-11-23, T-64 complete (build bench, DEC-082 to DEC-084); next T-65 environment kit · repository public · code written, last full run 1399 passed, 6 skipped
+Last updated: 2026-11-24
+Now: Phase 6: T-73 plugin renamed sdlc-lead 2026-11-24 (DEC-085); next T-65 environment kit · repository public · code written, last full run 1399 passed, 6 skipped.
 
 ## Phase
 
@@ -23,6 +23,7 @@ Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): pl
 
 ## Done
 
+- T-73 plugin renamed `sdlc` to `sdlc-lead` (`developer`, Sonnet, medium): 17 files, DEC-085; commands `/sdlc-lead:*`, install `sdlc-lead@agentic-sdlc-kit`; TL checks: `claude plugin validate .` passed with 1 warning (no icon); full suite 1399 passed, 6 skipped; review rounds 1; customer check pending.
 - T-64d build scorer (`developer`, Sonnet, medium): `tools/build_score.py` 417 lines, `tests/test_build_score.py` 38 tests, `tests/fixtures/build_score/`; TL checks: reference at handoff 152 of 152; folder with `SPEC.md` only at step 1: 0 of 59, 0 load errors; blocking-script page at step 1: 0 of 59, 408 s against a 900 s limit (T-64b watch item closed); full suite 1399 passed, 6 skipped; approved 2026-11-23.
 - T-64b hidden browser tests (`developer`, Sonnet, high): 71 Playwright tests in `bench/build/hidden/browser/` (69 not retired), `run_browser.py` 228 lines, harness pinned to `@playwright/test` 1.65.1; TL checks: 69 of 69 on the reference; 0 pass, 69 fail, 0 load errors on a folder with `SPEC.md` only; under load 9 of 9 runs 69 of 69 after 1 review round (timeouts, upper bounds from `SPEC.md` stamps); full suite 1361 passed, 6 skipped; approved 2026-11-23.
 - T-64c reference and engine tests for steps 2 to 8 and the handoff (`developer`, Sonnet, high): `prompts/handoff.txt` byte-equal to plan section 11; engine tests `step2` to `step7` and `handoff/song.test.mjs`; `spec-map.json` 85 entries, spectrum tests retired at step 6; reference grown to step 8 plus song mode (5 new modules); `tests/test_build_bench.py` 50 tests; TL checks: 93 of 93 on the reference; 8 pass and 85 fail on a folder with `SPEC.md` only, 0 load errors; arch check 0; customer played it in Chrome; approved 2026-11-22.
@@ -33,13 +34,11 @@ Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): pl
 - Repository public 2026-11-21 (maintainer): secret scanning, push protection, private vulnerability reporting, fork PR approval for all external contributors, read-only workflow token; rulesets `main` (no deletion, no force push) and `release tags` (`v*`, no deletion, no update), read back through the GitHub API.
 - T-52 gate G5 closed (maintainer and TL): install test G5-7 passed, seat check G5-6 passed with a limit (user-level instructions also name the seat), publish word G5-9 given; CHANGELOG `[0.1.0] - 2026-11-21`; tagged `v0.1.0` and pushed 2026-11-21.
 - T-52f hosted CI green (`developer`): `tools/metrics/gitstats.py` reads the `Z` suffix that Python 3.10 refused (7 tests), symlink test expects the right error text (1 test); hosted run 44820472971 on bd69407: success, 1239 passed, 0 skipped; approved and pushed 2026-11-21.
-- Gate G5 publish-readiness audit (`auditor`, Fable): CONDITIONAL ACCEPT, 1 High, 7 Medium, 7 Low; DEC-080 (80 commits published as they are, 5 line groups accepted); fix round T-52b (`tech-writer`, public pages) and T-52c (`developer`, workflow `permissions` and timeout); `auditor-mini` re-verify: conditions 1 to 3 CLOSED, 4 PARTIAL; 1232 passed, 6 skipped (TL run); committed 80f7bc3.
-- T-61 README who did what and what was learned (`tech-writer`), and T-51 v0.1.0, marketplace entry, CI (`developer`): `plugin.json` 0.1.0; marketplace entry `sdlc`; tests workflow on Windows, Python 3.10; `claude plugin validate .` passed; 1232 passed, 6 skipped (TL run); approved 2026-11-19.
-- T-50 README (`tech-writer`): `README.md` 103 lines, engineer's note; bench "no difference" wording, scope 2 of 18 per arm, shell-write gap; TL fixed 2 points (role exceeded); approved 2026-11-19.
 
 ## Next
 
 - T-65 environment kit; then T-67 dev test (checks the meter against the CLI total; open from T-63: cost-state field map, 9 automated user lines count as `other`, permission waits not separated) and T-68 pilot.
+- Directory listing (DEC-085): v0.1.1 with the `fable` fallback for `auditor` and the optional MCP server, then the customer submits through the directory portal.
 - T-66 handoff runner after the build run T-69 (DEC-084).
 - v0.1.1 triage waits (items under Open questions, plus `docs/toolchain.md` V-10).
 
