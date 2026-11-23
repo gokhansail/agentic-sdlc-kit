@@ -704,3 +704,21 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: English texts can be committed and pre-registered as they are and rerun by others. A reference removes the risk of a test defect found mid-run, which would force a rescore of both arms. "Record it" would push the plain arm toward the behaviour the handoff measures.
 - Consequences: T-64 includes the reference (about 1 more session). The handoff ceilings (3 USD per run, 15 USD for 9 runs) are opinion until the pilot. Next: T-63 transcript meter in a fresh session.
 - Outcome:
+
+## DEC-084 Handoff runner moved after the build run
+- Date: 2026-11-23 · Question: keep the plan order T-65, T-66, T-67, T-68, or move T-66 later.
+- Facts: T-63 and T-64a to T-64d (meter, reference, hidden tests, scorer) took 5 tasks over 3 days; no arm step has run yet. T-66 (handoff runner) is needed only after step 8 of both arms (plan section 11). T-65, T-67 and T-68 do not use it.
+- Options: 1 plan order. 2 T-66 after T-69 and before T-70.
+- Decision: the customer's word, option 2. Order: T-65 environment kit, T-67 dev test, T-68 pilot, T-69 build run, T-66 handoff runner, T-70 handoff runs.
+- Reason: the first real data (pilot) comes one task earlier. Nothing before T-70 depends on T-66.
+- Consequences: the freeze record of T-68 cannot hash `tools/handoff_run.py` (plan section 9); T-66 gets its own freeze line before T-70. T-66 still reuses the build scorer.
+- Outcome:
+
+## DEC-085 Plugin name sdlc-lead before the directory listing
+- Date: 2026-11-23 · Question: the customer wants the kit listed in Anthropic's plugin directory; the plugin name `sdlc` is also used by other plugins.
+- Facts: at least 5 public Claude Code plugins are named `sdlc` (third-party plugin hubs, 2026-11-23). A search of GitHub repositories, the official marketplace file and the web found no plugin named `sdlc-lead`. The name is the command prefix (`/sdlc:init`). A rename after listing breaks existing installs.
+- Options: `contract-lead` (does not say software), `sdlc-lead`, `dev-lead` (generic), `agentic-dev-lead` (long).
+- Decision: the customer's word: `sdlc-lead`. Done in v0.1.1 together with the `fable` fallback and the optional MCP server, then the directory submission by the customer.
+- Reason: says software development and the lead seat in one short word; no name clash found.
+- Consequences: plugin manifest, marketplace entry, README, docs and tests change from `/sdlc:` to `/sdlc-lead:`. The build bench stays on the `v0.1.0` extract with `/sdlc:`.
+- Outcome:

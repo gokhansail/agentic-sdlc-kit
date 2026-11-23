@@ -2,6 +2,24 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-23 (2) - T-64d build scorer
+
+- Source: the T-64d block and its Result line in `TASKS.md`; NOW NEXT in `TASKS.md`; DEC-084 in `DECISIONS.md`.
+- Customer: gave the go-ahead and approved T-64d on 2026-11-23. No browser test by the customer in this task. The customer decided DEC-084: T-66 (handoff runner) moves after the build run T-69.
+- TL checks:
+  - Reference at handoff: 152 of 152 pass (engine 83, browser 69), arch 0, exit 0, no prompt, 26 s.
+  - Folder with `SPEC.md` only, step 1: 0 of 59 pass, 0 load errors, 5-sentence fix prompt, exit 1, 68 s.
+  - Page with a blocking script, step 1: 0 of 59 pass; all 24 browser tests ended on the 60 s navigation timeout; exit 1; 408 s against a computed 900 s limit. The T-64b watch item is closed.
+  - No temporary folder left; `bench/build/` unchanged.
+- Developer (`developer`, Sonnet, medium):
+  - `tools/build_score.py` 417 lines; `tests/test_build_score.py` 38 tests; `tests/fixtures/build_score/` (loop stub, 4 baseline files); 1 CHANGELOG line.
+  - Reading choices: one `node --test` process per engine file, run in parallel, 600 s per file, because one process cannot stop an endless loop at import. `--engine-timeout` flag added. `--out` inside the scored folder is refused too.
+  - No install, no network, no commit.
+- Tests: full suite 1399 passed, 6 skipped.
+- Metrics: review rounds 0, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- Commit: the commit that carries this entry.
+- Next: T-65 environment kit, then T-67 dev test and T-68 pilot; T-66 after T-69 (DEC-084).
+
 ## 2026-11-23 (1) - T-64b hidden browser tests
 
 - Source: the T-64b block and its Result line in `TASKS.md`; NOW NEXT in `TASKS.md`.

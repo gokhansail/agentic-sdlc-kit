@@ -1,0 +1,8 @@
+{
+  "step": 1,
+  "tests": {
+    "s1.engine.exports": "pass",
+    "s1.browser.start-audio": "pass",
+    "s1.engine.note-a440": "fail"
+  }
+}
