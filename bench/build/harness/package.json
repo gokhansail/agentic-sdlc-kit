@@ -1,0 +1,9 @@
+{
+  "name": "guitar-bench-harness",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pinned test runner for the build bench hidden browser tests.",
+  "dependencies": {
+    "@playwright/test": "1.65.1"
+  }
+}

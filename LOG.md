@@ -2,6 +2,37 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-23 (1) - T-64b hidden browser tests
+
+- Source: the T-64b block and its Result line in `TASKS.md`; NOW NEXT in `TASKS.md`.
+- Customer: gave the run go-ahead and the load-check go-ahead, and approved T-64b on 2026-11-23. No browser test by the customer in this task.
+- TL checks:
+  - Runner on the reference: 69 of 69 pass.
+  - Runner on a folder with `SPEC.md` only: 0 pass, 69 fail, 0 load errors.
+  - Harness files equal to the installed ones (`@playwright/test` 1.65.1).
+  - One full `python -m pytest -q` run failed 2 browser tests; the next run passed.
+  - 5 single runs with 8 workers: clean.
+  - 3 runners at once, 2 rounds: 2 of 6 runs had 1 failure each: `s2.browser.spread-zero` (upper bound read the arrival span) and `handoff.browser.song-strums` (page load over 8 s).
+- Review round 1 (`developer`, Sonnet, high):
+  - Upper bounds and the spread comparison read the `time` stamps of `SPEC.md`; lower bounds keep the larger span.
+  - Timeouts: navigation 60 s, action 20 s, expect 10 s, test 120 s. Retries stay 0, because a retry would hide an arm's own flaky code.
+  - `start-audio` must attach within 10 s, so an empty page fails fast.
+  - The developer went above the TL's values (navigation 30 s, action 10 s), because one round still failed at those values.
+- TL after round 1:
+  - 9 of 9 load runs: 69 of 69 pass.
+  - Empty folder: 69 of 69 fail.
+  - Full suite: 1361 passed, 6 skipped, 36 min with `GUITAR_HARNESS` set (12 to 18 min before).
+- Watch in the scorer: a page that never loads can reach the runner's 900 s limit and end as exit 2, not as fail.
+- Developer (`developer`, Sonnet, high):
+  - 71 Playwright tests in `bench/build/hidden/browser/` (69 not retired; the 2 spectrum tests retire at step 6): 8 step files, `handoff.spec.mjs`, `helpers.mjs`, `playwright.config.mjs`.
+  - `bench/build/run_browser.py` 228 lines; `bench/build/harness/package.json` and lock file pin `@playwright/test` 1.65.1.
+  - `bench/build/spec-map.json` 85 to 156 entries.
+  - `tests/test_build_bench.py` 74 tests; 1 CHANGELOG line.
+  - No install by the developer (the TL installed Playwright outside the repository after the go-ahead), no network, no commit.
+- Metrics: review rounds 1, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe).
+- Commit: the commit that carries this entry.
+- Next: the scorer, then T-65 environment kit.
+
 ## 2026-11-22 (2) - T-64c reference and engine tests for steps 2 to 8 and the handoff
 
 - Source: the T-64c block and its Result line in `TASKS.md`; NOW NEXT in `TASKS.md`.

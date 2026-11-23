@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-22
-Now: Phase 6: T-64c reference and engine tests for steps 2 to 8 and the handoff done 2026-11-22 (build bench, DEC-082, DEC-083); next T-64b browser tests (Playwright download, install go-ahead and install folder first), then the scorer · repository public · code written, last full run 1337 passed, 6 skipped
+Last updated: 2026-11-23
+Now: Phase 6: T-64b hidden browser tests done 2026-11-23 (build bench, DEC-082, DEC-083); next the scorer, then T-65 environment kit · repository public · code written, last full run 1361 passed, 6 skipped
 
 ## Phase
 
@@ -23,6 +23,7 @@ Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): pl
 
 ## Done
 
+- T-64b hidden browser tests (`developer`, Sonnet, high): 71 Playwright tests in `bench/build/hidden/browser/` (69 not retired), `run_browser.py` 228 lines, harness pinned to `@playwright/test` 1.65.1; TL checks: 69 of 69 on the reference; 0 pass, 69 fail, 0 load errors on a folder with `SPEC.md` only; under load 9 of 9 runs 69 of 69 after 1 review round (timeouts, upper bounds from `SPEC.md` stamps); full suite 1361 passed, 6 skipped; approved 2026-11-23.
 - T-64c reference and engine tests for steps 2 to 8 and the handoff (`developer`, Sonnet, high): `prompts/handoff.txt` byte-equal to plan section 11; engine tests `step2` to `step7` and `handoff/song.test.mjs`; `spec-map.json` 85 entries, spectrum tests retired at step 6; reference grown to step 8 plus song mode (5 new modules); `tests/test_build_bench.py` 50 tests; TL checks: 93 of 93 on the reference; 8 pass and 85 fail on a folder with `SPEC.md` only, 0 load errors; arch check 0; customer played it in Chrome; approved 2026-11-22.
 - T-64a frozen texts and reference guitar (`developer`, Sonnet, high): `bench/build/` frozen texts (`SPEC.md`, 8 prompts, `answers.md`, `fix-template.txt`, `texts.json` with 17 ids, `spec-map.json`), reference guitar in `bench/build/reference/`, 40 engine tests (35 project, 5 estimator), `arch_check.py`, 33 tests in `tests/test_build_bench.py`; TL checks: 40 of 40 on the reference; 5 pass and 35 fail on a folder with `SPEC.md` only, 0 load errors; worst pitch error 0.0026 cent; customer played it in Chrome; approved 2026-11-22.
 - T-63 transcript meter (`developer`, Sonnet, high): `tools/transcript_meter.py` 934 lines, `bench/build/prices.json`, `tests/test_transcript_meter.py` 54 tests, 13 synthetic fixture files, 1 CHANGELOG line; full suite 1287 passed, 6 skipped; TL checks: fixture run 17 lines to 10 messages, 0.037206 USD, `--raw-out` inside the repository refused; review rounds 0; approved 2026-11-21.
@@ -35,11 +36,10 @@ Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): pl
 - T-61 README who did what and what was learned (`tech-writer`), and T-51 v0.1.0, marketplace entry, CI (`developer`): `plugin.json` 0.1.0; marketplace entry `sdlc`; tests workflow on Windows, Python 3.10; `claude plugin validate .` passed; 1232 passed, 6 skipped (TL run); approved 2026-11-19.
 - T-50 README (`tech-writer`): `README.md` 103 lines, engineer's note; bench "no difference" wording, scope 2 of 18 per arm, shell-write gap; TL fixed 2 points (role exceeded); approved 2026-11-19.
 - T-60 bench results page: `docs/bench-results.md` from `tools/bench_table.py`; category "no difference" on B1 to B6 (18 of 18 full passes per arm, kit to plain 2.51x USD); B7 3 of 3 per arm, 2.15x USD; approved 2026-11-19.
-- Bench full run (DEC-078, maintainer's terminal): `full-1` 36 of 36 full passes, 6.48 USD; `full-1-b7` 6 of 6, 3.31 USD; 42 runs, 0 harness errors, 0 reruns.
 
 ## Next
 
-- T-64b browser tests (`developer`, Playwright download after the install go-ahead; install folder decision first), then the scorer.
+- The scorer, with the watch item: a page that never loads can reach the runner's 900 s limit and end as exit 2, not as fail.
 - Then T-65 environment kit; T-66 handoff runner; T-67 dev test (checks the meter against the CLI total; open from T-63: cost-state field map, 9 automated user lines count as `other`, permission waits not separated).
 - v0.1.1 triage waits (items under Open questions, plus `docs/toolchain.md` V-10).
 
