@@ -36,7 +36,7 @@ When the maintainer asks where things stand, read `STATUS.md`, the "NOW NEXT" li
 | `tech-writer` | Sonnet, medium | English documents, at most 2 rounds |
 | `scout` | Haiku, low | search, counts, measurement scripts; read only |
 | `scribe` | Haiku, low | LOG, STATUS, CHANGELOG check, metrics line; not called for an [E] task (DEC-058) |
-| `auditor` | Fable, xhigh | phase gates, publish readiness |
+| `auditor` | Opus, xhigh | phase gates, publish readiness |
 | `auditor-mini` | Opus, high | re-verification, metric samples |
 
 A sub-agent cannot ask the maintainer. It returns with the question. A sub-agent report is a claim: the TL checks the diff and the test output before saying "done". When the TL says a run stopped or a task is done, it shows the evidence: the output, the test summary or the file state. If a new role file is not visible in an open session, call `general-purpose` with the same model and the role file body.

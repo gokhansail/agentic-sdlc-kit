@@ -722,3 +722,12 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: says software development and the lead seat in one short word; no name clash found.
 - Consequences: plugin manifest, marketplace entry, README, docs and tests change from `/sdlc:` to `/sdlc-lead:`. The build bench stays on the `v0.1.0` extract with `/sdlc:`.
 - Outcome:
+
+## DEC-086 v0.1.1 for the directory: auditor on Opus, MCP server stays in the manifest
+- Date: 2026-11-25 · Question: the 2 open items of DEC-085 before the directory submission: the `auditor` role on `fable`, which not every account has; the MCP server, which fails to connect when the `mcp` package is missing.
+- Facts: Claude Code docs read 2026-11-25 (`claude-code-guide`, no file): third-party plugins go through the directory portal (paid plan, automated scan, a person reviews a new listing); README of 40 words, a license and a valid name block, nothing else here does; no rule on agent `model` values; the only documented model fallback is the `availableModels` allowlist; no rule that a bundled MCP server must start without setup; the name cannot change after listing. The repository holds 1 lock file (`bench/build/harness/package-lock.json`), which the scan holds for a reviewer, not a block.
+- Options (auditor): a) keep `fable`, add a written fallback (the lead calls the role on Opus) b) `opus` c) no change. Options (server): a) keep in `plugin.json`, make the install line easier to find b) remove from the default manifest, users add it by hand.
+- Decision: the customer's word: auditor b) `opus`, server a). Then v0.1.1 (T-74), tag, push; the customer submits through the portal.
+- Reason: auditor: works on every account; the TL recommended a), the customer chose b). Server: allowed by the docs; adding by hand needs the plugin cache path, which is harder than one pip line.
+- Consequences: `auditor` and `auditor-mini` both run on Opus, also in this repository (`.claude/agents/` equals `agents/`); the lead and both audit roles share one model family, so the independence of the audit rests on the separate context and the role file, not on a different model. Past audits stay as run on Fable.
+- Outcome:

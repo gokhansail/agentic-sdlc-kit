@@ -38,3 +38,5 @@ What is this file? General lessons from building agentic-sdlc-kit: problems met,
 - Cause: the TL listed the kit records in the contract's Files out to keep the developer away from them. Files out applies to the main session as well as to sub-agents, and it wins over everything else, so the TL locked its own records for the life of the contract.
 - Fix: the TL did not work around the guard; it wrote the record after the contract closed.
 - Lesson: keep the TL's own records out of Files out. A sub-agent already cannot write a file that Files in does not name, so listing the records in Files out adds nothing for the sub-agent and blocks the TL.
+- Repeated 2026-11-25 in T-74: `TASKS.md` again in Files out; the TL's mid-task contract edit was refused. The template does not warn about it; a check in `--check-contract` that flags record files in Files out would catch it.
+

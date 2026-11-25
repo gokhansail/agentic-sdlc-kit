@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-24
-Now: Phase 6: T-73 plugin renamed sdlc-lead 2026-11-24 (DEC-085); next T-65 environment kit · repository public · code written, last full run 1399 passed, 6 skipped.
+Last updated: 2026-11-26
+Now: Phase 6: T-74 v0.1.1 for the directory done 2026-11-26 (DEC-086), tagged; next the customer's install test and directory submission · repository public · code written, last full run 1391 passed, 15 skipped.
 
 ## Phase
 
@@ -23,7 +23,8 @@ Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): pl
 
 ## Done
 
-- T-73 plugin renamed `sdlc` to `sdlc-lead` (`developer`, Sonnet, medium): 17 files, DEC-085; commands `/sdlc-lead:*`, install `sdlc-lead@agentic-sdlc-kit`; TL checks: `claude plugin validate .` passed with 1 warning (no icon); full suite 1399 passed, 6 skipped; review rounds 1; customer check pending.
+- T-74 v0.1.1 for the directory (`developer`, Sonnet, medium): `auditor` on `opus` (DEC-086), `plugin.json` 0.1.1 with icon, homepage, repository, keywords; `.claude-plugin/icon.png` 1024 x 1024; TL checks: `git grep -i fable` 0 hits outside history, bench, eval, toolchain and tests; `claude plugin validate .` passed with 2 warnings; full suite 1391 passed, 15 skipped; review rounds 2; tagged `v0.1.1`.
+- T-73 plugin renamed `sdlc` to `sdlc-lead` (`developer`, Sonnet, medium): 17 files, DEC-085; commands `/sdlc-lead:*`, install `sdlc-lead@agentic-sdlc-kit`; TL checks: `claude plugin validate .` passed with 1 warning (no icon); full suite 1399 passed, 6 skipped; review rounds 1; customer check with v0.1.1.
 - T-64d build scorer (`developer`, Sonnet, medium): `tools/build_score.py` 417 lines, `tests/test_build_score.py` 38 tests, `tests/fixtures/build_score/`; TL checks: reference at handoff 152 of 152; folder with `SPEC.md` only at step 1: 0 of 59, 0 load errors; blocking-script page at step 1: 0 of 59, 408 s against a 900 s limit (T-64b watch item closed); full suite 1399 passed, 6 skipped; approved 2026-11-23.
 - T-64b hidden browser tests (`developer`, Sonnet, high): 71 Playwright tests in `bench/build/hidden/browser/` (69 not retired), `run_browser.py` 228 lines, harness pinned to `@playwright/test` 1.65.1; TL checks: 69 of 69 on the reference; 0 pass, 69 fail, 0 load errors on a folder with `SPEC.md` only; under load 9 of 9 runs 69 of 69 after 1 review round (timeouts, upper bounds from `SPEC.md` stamps); full suite 1361 passed, 6 skipped; approved 2026-11-23.
 - T-64c reference and engine tests for steps 2 to 8 and the handoff (`developer`, Sonnet, high): `prompts/handoff.txt` byte-equal to plan section 11; engine tests `step2` to `step7` and `handoff/song.test.mjs`; `spec-map.json` 85 entries, spectrum tests retired at step 6; reference grown to step 8 plus song mode (5 new modules); `tests/test_build_bench.py` 50 tests; TL checks: 93 of 93 on the reference; 8 pass and 85 fail on a folder with `SPEC.md` only, 0 load errors; arch check 0; customer played it in Chrome; approved 2026-11-22.
@@ -38,7 +39,7 @@ Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): pl
 ## Next
 
 - T-65 environment kit; then T-67 dev test (checks the meter against the CLI total; open from T-63: cost-state field map, 9 automated user lines count as `other`, permission waits not separated) and T-68 pilot.
-- Directory listing (DEC-085): v0.1.1 with the `fable` fallback for `auditor` and the optional MCP server, then the customer submits through the directory portal.
+- Customer install test of `sdlc-lead@agentic-sdlc-kit`, then the customer submits through the directory portal, tracking tag `v0.1.1`.
 - T-66 handoff runner after the build run T-69 (DEC-084).
 - v0.1.1 triage waits (items under Open questions, plus `docs/toolchain.md` V-10).
 

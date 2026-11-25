@@ -4,7 +4,7 @@ A Claude Code plugin and a written method for running software work with several
 
 One maintainer ran the work. The text, the code and the bench tasks were written by AI agents under this process. The repository is built with its own process, and its task, decision, audit and log records are in the repository.
 
-Status: version 0.1.0, experimental. The plugin was used on 2 real projects and measured on 2 synthetic projects, the bench sandbox and the eval repository. The limits are listed below.
+Status: version 0.1.1, experimental. The plugin was used on 2 real projects and measured on 2 synthetic projects, the bench sandbox and the eval repository. The limits are listed below.
 
 ## Who did what
 
@@ -39,7 +39,7 @@ Full tables and limits: `docs/bench-results.md`.
 
 ## Install and first steps
 
-Requirements: Claude Code, git, Python 3.10 or newer as `python`, `python3` or `py -3` (the hook checks for it; tested with 3.10.4 only), and `sh` (on Windows, Git Bash). The hooks run through `sh`. The 7 roles use the model aliases `opus`, `sonnet`, `haiku` and `fable`. `auditor` uses `fable`, which not every account has. A fallback for an account without it is not documented.
+Requirements: Claude Code, git, Python 3.10 or newer as `python`, `python3` or `py -3` (the hook checks for it; tested with 3.10.4 only), and `sh` (on Windows, Git Bash). The hooks run through `sh`. All 7 roles use the model aliases `opus`, `sonnet` or `haiku`. The MCP server is optional and needs the `mcp` Python package: `python -m pip install "mcp>=2.3,<3"` (see below).
 
 This repository is its own plugin marketplace. In a Claude Code session, add it and install the plugin:
 

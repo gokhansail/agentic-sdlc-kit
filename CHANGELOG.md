@@ -2,7 +2,7 @@
 
 What is this file? The user-visible changes per version, in Keep a Changelog style. Versions follow 0.0.x until the first release (0.1.0).
 
-## [Unreleased]
+## [0.1.1] - 2026-11-26
 
 ### Added
 
@@ -14,6 +14,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 
 ### Changed
 
+- Version 0.1.1 for the plugin directory (T-74, DEC-086, `agents/auditor.md`, `.claude/agents/auditor.md`, `CLAUDE.md`, `README.md`, `.claude-plugin/plugin.json`): `auditor` runs on `opus` (effort stays `xhigh`), so all 7 roles use `opus`, `sonnet` or `haiku`; `plugin.json` gets `homepage`, `repository` and `keywords`; the `mcp` install line is also in the README requirements; a 1024 x 1024 icon (`.claude-plugin/icon.png`, built by `tools/make_icon.py`).
 - Plugin renamed `sdlc` to `sdlc-lead` (T-73, DEC-085, `.claude-plugin/`, `README.md`, `PLAYBOOK.md`, `CLAUDE.md`, `docs/security.md`, `skills/`, `templates/`, `tools/scope_guard.py`, `tests/`): commands are `/sdlc-lead:init`, `/sdlc-lead:contract`, `/sdlc-lead:status`, `/sdlc-lead:review`, `/sdlc-lead:install-hooks`; install is `sdlc-lead@agentic-sdlc-kit`. The `.sdlc/` folder, the MCP server key `sdlc` and the version are unchanged.
 
 ## [0.1.0] - 2026-11-21

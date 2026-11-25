@@ -2,6 +2,23 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-26 (1) - T-74 v0.1.1 for the directory listing
+
+- Source: the T-74 block and its Result line in `TASKS.md`; NOW NEXT in `TASKS.md`; DEC-086 in `DECISIONS.md`; the `[0.1.1]` section of `CHANGELOG.md`.
+- Customer: on 2026-11-25 asked to put the plugin in Anthropic's directory under the new name first. For `auditor` the customer chose Opus; the TL had recommended keeping `fable` with a written fallback. The MCP server stays in the manifest unchanged (DEC-086).
+- Docs check by `claude-code-guide` on 2026-11-25 (no file): third-party plugins go through the directory portal (paid plan, automated scan, a person reviews a new listing). README, license and name are the only blocking items that apply. No rule on agent models. No rule that an MCP server must start without setup.
+- Customer: on 2026-11-25 asked for an icon after the validator said the portal takes it once. On 2026-11-26 said "commit and push when the tests finish".
+- Developer (`developer`, Sonnet, medium): `auditor` set to `opus` in `agents/auditor.md` and `.claude/agents/auditor.md`; `CLAUDE.md` agents row; `README.md` requirements and status line; `plugin.json` version 0.1.1, icon, homepage, repository, keywords; `.claude-plugin/icon.png` 1024 x 1024 built by `tools/make_icon.py`; 1 test updated, 1 icon test added; CHANGELOG `[0.1.1] - 2026-11-26`. Review rounds 2: the TL's brief put the icon script outside the root and the guard refused it; line ends changed outside the agent circles.
+- Lesson candidate: the TL put `TASKS.md` in the contract's Files out, so the guard refused the TL's own edit to the contract block mid-task.
+- TL checks:
+  - `git grep -i fable` outside history, bench, eval, toolchain and tests: 0 hits.
+  - `claude plugin validate .` passed with 2 warnings (`CLAUDE.md` and the untracked `CLAUDE.local.md` at the plugin root); the icon warning is gone.
+  - Icon byte-equal on 2 runs.
+  - Full suite: 1391 passed, 15 skipped.
+- Metrics: review rounds 2, questions back 1, out-of-scope files 0, models Sonnet (developer), Haiku (scribe), Opus (TL).
+- Commit: the commit that carries this entry; tag `v0.1.1`.
+- Next: customer install test of `sdlc-lead@agentic-sdlc-kit`, then the customer submits through the directory portal, tracking tag `v0.1.1`. Then T-65 environment kit or a smaller build bench, to open with the customer.
+
 ## 2026-11-24 (1) - T-73 plugin renamed sdlc-lead
 
 - Source: the T-73 block and its Result line in `TASKS.md`; NOW NEXT in `TASKS.md`; DEC-085 in `DECISIONS.md`.

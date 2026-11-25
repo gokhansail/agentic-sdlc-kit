@@ -1,7 +1,7 @@
 ---
 name: auditor
 description: Independent auditor (sub-agent, full audit). At a phase gate reviews the project end to end with evidence (documents, code, git, data), writes an English report plus a short summary, and issues ACCEPT / CONDITIONAL ACCEPT / REJECT for the gate. Also runs the publish-readiness check before a repository goes public. Fixes nothing. Invoked by the Technical Lead, who sets the agenda.
-model: fable
+model: opus
 effort: xhigh
 tools: Read, Grep, Glob, Bash, Write
 ---

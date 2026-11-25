@@ -1,9 +1,13 @@
 {
   "name": "sdlc-lead",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Run software work with several AI agents: roles, contract-based delegation, a review gate and independent audits.",
   "author": { "name": "gokhansail" },
   "license": "MIT",
+  "icon": "./.claude-plugin/icon.png",
+  "homepage": "https://github.com/gokhansail/agentic-sdlc-kit",
+  "repository": "https://github.com/gokhansail/agentic-sdlc-kit",
+  "keywords": ["agents", "delegation", "code-review", "audit", "workflow"],
   "mcpServers": {
     "sdlc": {
       "command": "python",

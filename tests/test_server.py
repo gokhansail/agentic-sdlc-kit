@@ -812,12 +812,24 @@ def test_marketplace_entry_matches_the_plugin_manifest() -> None:
     market = json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8"))
     assert market["name"] == "agentic-sdlc-kit"
     assert market["owner"]["name"]
-    assert plugin["version"] == "0.1.0"
+    assert plugin["version"] == "0.1.1"
     (entry,) = market["plugins"]
     assert entry["name"] == plugin["name"]
     assert entry["source"] == "./"
     assert "version" not in entry
     assert b"\r" not in (ROOT / ".claude-plugin" / "marketplace.json").read_bytes()
+
+
+def test_plugin_icon_is_a_1024_png_under_2_mb() -> None:
+    import struct
+
+    plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+    assert plugin["icon"] == "./.claude-plugin/icon.png"
+    data = (ROOT / ".claude-plugin" / "icon.png").read_bytes()
+    assert data[:8] == b"\x89PNG\r\n\x1a\n"
+    assert data[12:16] == b"IHDR"
+    assert struct.unpack(">II", data[16:24]) == (1024, 1024)
+    assert len(data) < 2 * 1024 * 1024
 
 
 def test_ci_workflow_has_the_expected_steps() -> None:
