@@ -175,6 +175,36 @@ def test_two_texts_pasted_in_one_message_match_as_a_sequence() -> None:
     assert tm.classify_turn("one twothree", texts) == ("other", ())  # no word boundary: not a match
 
 
+def test_the_key_spot_matches_a_key_shaped_value_only() -> None:
+    texts = tm.Texts({"S8": "step", "A": "answer"}, [("A", "A"), ("Bearer {FAKE_KEY}. Go", "S8")], "",
+                     {"S8": tm.key_pattern("Bearer {FAKE_KEY}. Go")})
+    key = "sk-" + "aB3" * 13 + "z"  # 40 characters after the prefix
+    assert len(key) == 43
+    assert tm.classify_turn(f"Bearer {key}. Go", texts) == ("step", ("S8",))
+    assert tm.classify_turn(f"A Bearer {key}. Go", texts) == ("other", ())  # mixed types
+    assert tm.classify_turn(f"Bearer {key[:-1]}. Go", texts) == ("other", ())  # 39 characters
+    assert tm.classify_turn(f"Bearer {key}x. Go", texts) == ("other", ())  # 41 characters
+    assert tm.classify_turn("Bearer sk-" + "!" * 40 + ". Go", texts) == ("other", ())
+    assert tm.classify_turn("Bearer {FAKE_KEY}. Go", texts) == ("other", ())  # the placeholder itself is not a key
+    assert tm.classify_turn(f"Bearer {key}. Go on", texts) == ("other", ())
+
+
+def test_the_s8_paste_with_a_real_shaped_key_is_a_step(tmp_path: Path) -> None:
+    key = "sk-" + "Q7" * 20
+    texts = {"S8": {"type": "step", "text": "Add a share button. Header Authorization: Bearer {FAKE_KEY}. Show the code."}}
+    good = [user("u1", "2026-01-01T09:01:00Z",
+                 f"Add a share button. Header Authorization: Bearer {key}. Show the code.")]
+    bad = [user("u1", "2026-01-01T09:01:00Z",
+                "Add a share button. Header Authorization: Bearer sk-short. Show the code.")]
+    for name, lines, expected in (("good", good, {"step": 1}), ("bad", bad, {"other": 1})):
+        paths = write_arm(tmp_path / name, {"main.jsonl": lines})
+        paths["texts"].write_text(json.dumps(texts), encoding="utf-8")
+        code, result, out, _ = run_meter(tmp_path / name, FIX, **paths)
+        assert code == 0 and result is not None
+        assert result["human_turns"] == expected
+        assert key not in out.read_text(encoding="utf-8")
+
+
 def test_non_human_user_lines_and_slash_text(tmp_path: Path) -> None:
     lines = [
         assistant("a1", "2026-01-01T09:00:30Z", "m1", 1),

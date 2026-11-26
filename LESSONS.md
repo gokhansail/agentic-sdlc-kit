@@ -40,3 +40,10 @@ What is this file? General lessons from building agentic-sdlc-kit: problems met,
 - Lesson: keep the TL's own records out of Files out. A sub-agent already cannot write a file that Files in does not name, so listing the records in Files out adds nothing for the sub-agent and blocks the TL.
 - Repeated 2026-11-25 in T-74: `TASKS.md` again in Files out; the TL's mid-task contract edit was refused. The template does not warn about it; a check in `--check-contract` that flags record files in Files out would catch it.
 
+
+### 2026-11-26 - Example addresses in records tripped the pre-push guard 3 times
+
+- Problem: after T-75 the push was refused 3 times in a row: a test-case address written as plain text in the `TASKS.md` result line, then in the `CHANGELOG.md` line, then in the commit message.
+- Cause: the TL copied the developer's example cases into the records as written; the test file built them from pieces, the records did not.
+- Fix: each one was reworded into words and the unpushed commit amended; the push then passed.
+- Lesson: in records and commit messages, describe a guard test case in words, never as the literal string the guard looks for. Before a push, grep the staged diff and the message for the guard's own patterns.

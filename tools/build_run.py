@@ -318,6 +318,22 @@ def init_arm(folder: Path, remote: Path) -> None:
     git("remote", "add", "origin", str(remote), cwd=folder)
 
 
+def disable_connectors(config: Path) -> None:
+    """Set `disableClaudeAiConnectors` in the config folder's settings.json, keeping any other key already there."""
+    path = config / "settings.json"
+    data: dict[str, Any] = {}
+    if path.is_file():
+        try:
+            loaded = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as error:
+            raise BenchError(f"{path.name} in a config folder is not readable JSON") from error
+        if not isinstance(loaded, dict):
+            raise BenchError(f"{path.name} in a config folder is not a JSON object")
+        data = loaded
+    data["disableClaudeAiConnectors"] = True
+    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
+
+
 def cmd_setup(args: argparse.Namespace) -> int:
     root = check_root(Path(args.root))
     if inside(root, user_home()):
@@ -335,6 +351,8 @@ def cmd_setup(args: argparse.Namespace) -> int:
     run = Run(root)
     for name in ("c0", "c1", "c2", "runlog", "private", "remotes", "harness"):
         (root / name).mkdir(parents=True, exist_ok=True)
+    for name in ("c0", "c1", "c2"):
+        disable_connectors(root / name)
     for name in ("package.json", "package-lock.json"):
         if (HARNESS_SRC / name).is_file():
             shutil.copyfile(HARNESS_SRC / name, root / "harness" / name)
@@ -393,13 +411,16 @@ def cmd_launch(args: argparse.Namespace) -> int:
     config = run.config_dir(setup, arm)
     env["CLAUDE_CONFIG_DIR"] = str(config)
     env["DISABLE_AUTOUPDATER"] = "1"
+    env["ENABLE_CLAUDEAI_MCP_SERVERS"] = "false"
     capture_cost_state(run, arm, config)
 
-    command = [claude, "--model", "opus"]
+    command = [claude, "--model", "opus", "--permission-mode", "auto", "--effort", "medium"]
     if arm == "kit":
         command += ["--plugin-dir", str(run.root / "kit")]
     if mode == "continue":
         command.append("--continue")
+    print("flags: " + " ".join(command[1:]).replace(str(run.root), "<root>"))
+    print("variable set: ENABLE_CLAUDEAI_MCP_SERVERS=false")
     print(f"launching: arm {arm}, step {step}, mode {mode}")
     run.log(arm, step, "launch", note=mode)
     done = subprocess.run(command, cwd=run.arm_dir(setup, arm), env=env)

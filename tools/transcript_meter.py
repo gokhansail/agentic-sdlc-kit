@@ -47,7 +47,7 @@ import json
 import re
 import sys
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
@@ -277,6 +277,17 @@ class Texts:
     types: dict[str, str]
     by_norm: list[tuple[str, str]]  # (normalised text, id) sorted by id
     sha256: str
+    patterns: dict[str, "re.Pattern[str]"] = field(default_factory=dict)  # id -> pattern, only for texts with the key spot
+
+
+KEY_SPOT = "{FAKE_KEY}"
+KEY_SHAPE = "sk-[A-Za-z0-9]{40}"
+
+
+def key_pattern(flat: str) -> "re.Pattern[str] | None":
+    if KEY_SPOT not in flat:
+        return None
+    return re.compile(KEY_SHAPE.join(re.escape(part) for part in flat.split(KEY_SPOT)))
 
 
 def load_texts(path: Path) -> Texts:
@@ -296,7 +307,8 @@ def load_texts(path: Path) -> Texts:
             raise MeterError(f"--texts: {text_id!r} and {seen[flat]!r} have the same text after whitespace normalisation")
         seen[flat] = text_id
         types[text_id] = item["type"]
-    return Texts(types, sorted(((t, i) for t, i in seen.items()), key=lambda pair: pair[1]), digest)
+    patterns = {i: p for t, i in seen.items() if (p := key_pattern(t)) is not None}
+    return Texts(types, sorted(((t, i) for t, i in seen.items()), key=lambda pair: pair[1]), digest, patterns)
 
 
 def match_texts(flat: str, texts: Texts) -> tuple[str, ...] | None:
@@ -304,9 +316,16 @@ def match_texts(flat: str, texts: Texts) -> tuple[str, ...] | None:
     @lru_cache(maxsize=None)
     def walk(start: int) -> tuple[str, ...] | None:
         for text, text_id in texts.by_norm:
-            if not flat.startswith(text, start):
+            pattern = texts.patterns.get(text_id)
+            if pattern is not None:
+                found = pattern.match(flat, start)
+                if found is None:
+                    continue
+                end = found.end()
+            elif not flat.startswith(text, start):
                 continue
-            end = start + len(text)
+            else:
+                end = start + len(text)
             if end == len(flat):
                 return (text_id,)
             if flat[end] == " ":

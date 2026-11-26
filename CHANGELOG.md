@@ -6,6 +6,7 @@ What is this file? The user-visible changes per version, in Keep a Changelog sty
 
 ### Added
 
+- Build bench, dev test part 1 fixes (T-77, `tools/build_run.py`, `tools/transcript_meter.py`): `launch` passes `--permission-mode auto --effort medium` and sets `ENABLE_CLAUDEAI_MCP_SERVERS=false`, and prints both; `setup` writes `"disableClaudeAiConnectors": true` into `c0`, `c1`, `c2`; the meter matches `{FAKE_KEY}` in a frozen text as `sk-` plus 40 letters or digits, so the S8 paste counts as a step.
 - Build bench, environment kit (T-65, DEC-087, `tools/build_run.py`, `bench/build/env/run.ps1`, `tests/test_build_run.py`, `tests/fixtures/build_run/`): `python tools/build_run.py <command> --root <ROOT>` with `setup` (neutral root, arm folders with one first commit, 3 bare remotes, `git archive v0.1.0` kit extract with a SHA-256 tree hash, fake key, setup record with a random arm-to-folder mapping and the CLI version pin; refuses a root under the home folder, inside this repository or with an instruction file in a parent), `launch`, `next`, `status`, `copy`, `log`, `score`, `end-step` and the effort log in the plan 6.3 columns, which `tools/transcript_meter.py` reads. `run.ps1` forwards its arguments. Handoff and blind parts are out (DEC-087). 21 tests with a stub `claude`; no model run.
 
 ## [0.1.1] - 2026-11-26

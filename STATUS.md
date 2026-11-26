@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-26
-Now: Phase 6: T-65 environment kit (slim, DEC-087) done 2026-11-26; next T-67 dev test · repository public · code written, last full run 1412 passed, 15 skipped.
+Now: Phase 6: T-77 fixes and T-67 dev test part 1 done 2026-11-26; next T-67 part 2 on a fresh setup · repository public · code written, last full run 1424 passed, 15 skipped.
 
 ## Phase
 
@@ -23,6 +23,8 @@ Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): pl
 
 ## Done
 
+- T-77 dev test fixes (`developer`, Sonnet, medium, review rounds 0): launch pins `--permission-mode auto` and `--effort medium`, turns off claude.ai connectors; setup disables them in the 3 config folders; meter matches the fake key placeholder; targeted 80 passed, full suite 1424 passed, 15 skipped; approved and pushed 2026-11-26.
+- T-67 dev test part 1 (maintainer's terminal, CLI 2.1.332): setup, launch refusal, separate logins, model, push to bare remote, end-step, transcripts all passed; 4 findings, 3 fixed in T-77, finding 3 (PostToolUse tip text with no hook) open for part 2.
 - T-65 environment kit, slim (`developer`, Sonnet, medium): `tools/build_run.py` 677 lines, `bench/build/env/run.ps1` 11 lines, `tests/test_build_run.py` 21 tests; TL checks: 21 passed, launch code read, full suite 1412 passed, 15 skipped; review rounds 0; approved and pushed 2026-11-26 (DEC-087).
 - T-74 v0.1.1 for the directory (`developer`, Sonnet, medium): `auditor` on `opus` (DEC-086), `plugin.json` 0.1.1 with icon, homepage, repository, keywords; `.claude-plugin/icon.png` 1024 x 1024; TL checks: `git grep -i fable` 0 hits outside history, bench, eval, toolchain and tests; `claude plugin validate .` passed with 2 warnings; full suite 1391 passed, 15 skipped; review rounds 2; tagged `v0.1.1`.
 - T-73 plugin renamed `sdlc` to `sdlc-lead` (`developer`, Sonnet, medium): 17 files, DEC-085; commands `/sdlc-lead:*`, install `sdlc-lead@agentic-sdlc-kit`; TL checks: `claude plugin validate .` passed with 1 warning (no icon); full suite 1399 passed, 6 skipped; review rounds 1; customer check with v0.1.1.
@@ -34,14 +36,12 @@ Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): pl
 - T-62 build bench plan (`cto`): 549 lines, 16 sections; design review by `auditor` (5 High findings, guitar app chosen); DEC-082 and DEC-083 by the customer.
 - Phase 5 closed 2026-11-21 (DEC-081): finish plan done, G5-1 to G5-9 met, project frozen at v0.1.0.
 - Repository public 2026-11-21 (maintainer): secret scanning, push protection, private vulnerability reporting, fork PR approval for all external contributors, read-only workflow token; rulesets `main` (no deletion, no force push) and `release tags` (`v*`, no deletion, no update), read back through the GitHub API.
-- T-52 gate G5 closed (maintainer and TL): install test G5-7 passed, seat check G5-6 passed with a limit (user-level instructions also name the seat), publish word G5-9 given; CHANGELOG `[0.1.0] - 2026-11-21`; tagged `v0.1.0` and pushed 2026-11-21.
-- T-52f hosted CI green (`developer`): `tools/metrics/gitstats.py` reads the `Z` suffix that Python 3.10 refused (7 tests), symlink test expects the right error text (1 test); hosted run 44820472971 on bd69407: success, 1239 passed, 0 skipped; approved and pushed 2026-11-21.
 
 ## Next
 
-- T-67 dev test in the maintainer's terminal (checks the meter against the CLI total; open from T-63: cost-state field map, 9 automated user lines count as `other`, permission waits not separated; open from T-65: the S8 fake key on the clipboard may count as `other`), then T-68 pilot, T-69 build run and T-72 results page. T-66, T-70 and T-71 are decided after T-69 (DEC-087).
-- Customer install test passed 2026-11-26 (marketplace update, project-scope install of `sdlc-lead@agentic-sdlc-kit`, the 5 `/sdlc-lead:` commands listed; test folder removed). Next: the customer submits through the directory portal on 2026-11-27, tracking tag `v0.1.1`.
-- v0.1.1 triage waits (items under Open questions, plus `docs/toolchain.md` V-10).
+- T-67 part 2 on a fresh setup (the harness install needs its own go-ahead). Open from part 1: finding 3 (PostToolUse tip text). Open from T-63: cost-state field map, 9 automated user lines count as `other`, permission waits not separated.
+- Then T-68 pilot, T-69 build run and T-72 results page. T-66, T-70 and T-71 are decided after T-69 (DEC-087).
+- Customer submits v0.1.1 to the plugin directory on 2026-11-27 (tracking tag `v0.1.1`); v0.1.1 triage waits (Open questions, plus `docs/toolchain.md` V-10).
 
 ## Repository
 

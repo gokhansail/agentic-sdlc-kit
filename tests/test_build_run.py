@@ -24,6 +24,7 @@ METER_FIX = ROOT / "tests" / "fixtures" / "transcripts"
 TEXTS = json.loads((ROOT / "bench" / "build" / "texts.json").read_text(encoding="utf-8"))
 PIN = "2.1.332 (Claude Code)"
 SECRET_VALUE = "hunter2-do-not-print"
+BASE_ARGV = ["--model", "opus", "--permission-mode", "auto", "--effort", "medium"]
 
 
 # ----------------------------------------------------------------------------------------------- helpers
@@ -194,7 +195,7 @@ def test_launch_arguments_and_environment(env, capsys):
     assert SECRET_VALUE not in out
     assert "CLAUDE_FOO" in out
     seen = json.loads((env.tmp / "stub-out.json").read_text(encoding="utf-8"))
-    assert seen["argv"] == ["--model", "opus", "--plugin-dir", str(root / "kit")]
+    assert seen["argv"] == [*BASE_ARGV, "--plugin-dir", str(root / "kit")]
     assert "CLAUDE_PROJECT_DIR" not in seen["names"] and "CLAUDE_CODE_SUBAGENT_MODEL" not in seen["names"]
     assert Path(seen["config_dir"]) == root / setup_json(root)["arms"]["kit"].replace("w", "c")
     assert Path(seen["cwd"]) == root / setup_json(root)["arms"]["kit"] / "guitar"
@@ -202,9 +203,45 @@ def test_launch_arguments_and_environment(env, capsys):
     goto(root, "plain", "2")
     assert run(root, "launch") == 0
     seen = json.loads((env.tmp / "stub-out.json").read_text(encoding="utf-8"))
-    assert seen["argv"] == ["--model", "opus", "--continue"]
+    assert seen["argv"] == [*BASE_ARGV, "--continue"]
     assert run(root, "launch", "--fresh") == 0
-    assert json.loads((env.tmp / "stub-out.json").read_text(encoding="utf-8"))["argv"] == ["--model", "opus"]
+    assert json.loads((env.tmp / "stub-out.json").read_text(encoding="utf-8"))["argv"] == BASE_ARGV
+
+
+def test_launch_sets_the_connector_variable_and_prints_the_flags(env, capsys):
+    root = make_setup(env)
+    seen_env: list[dict[str, str]] = []
+    real_run = subprocess.run
+
+    def spy(command, *args, **kwargs):
+        if "--version" not in command:
+            seen_env.append(dict(kwargs["env"]))
+        return real_run(command, *args, **kwargs)
+
+    env.monkeypatch.setattr(br.subprocess, "run", spy)
+    goto(root, "plain", "1")
+    capsys.readouterr()
+    assert run(root, "launch") == 0
+    out = capsys.readouterr().out
+    assert seen_env[-1]["ENABLE_CLAUDEAI_MCP_SERVERS"] == "false"
+    assert "--permission-mode auto --effort medium" in out and "ENABLE_CLAUDEAI_MCP_SERVERS=false" in out
+
+
+def test_setup_disables_the_connectors_in_all_config_folders(env):
+    root = make_setup(env)
+    for name in ("c0", "c1", "c2"):
+        data = json.loads((root / name / "settings.json").read_text(encoding="utf-8"))
+        assert data == {"disableClaudeAiConnectors": True}
+
+
+def test_disable_connectors_merges_into_an_existing_file_and_refuses_a_bad_one(tmp_path):
+    (tmp_path / "settings.json").write_text(json.dumps({"theme": "dark"}), encoding="utf-8")
+    br.disable_connectors(tmp_path)
+    assert json.loads((tmp_path / "settings.json").read_text(encoding="utf-8")) == {
+        "theme": "dark", "disableClaudeAiConnectors": True}
+    (tmp_path / "settings.json").write_text("{", encoding="utf-8")
+    with pytest.raises(br.BenchError):
+        br.disable_connectors(tmp_path)
 
 
 def test_launch_refuses_a_visible_key_and_never_prints_it(env, capsys):
