@@ -731,3 +731,11 @@ Entry format: date, question, options, decision, reason, consequences, outcome.
 - Reason: auditor: works on every account; the TL recommended a), the customer chose b). Server: allowed by the docs; adding by hand needs the plugin cache path, which is harder than one pip line.
 - Consequences: `auditor` and `auditor-mini` both run on Opus, also in this repository (`.claude/agents/` equals `agents/`); the lead and both audit roles share one model family, so the independence of the audit rests on the separate context and the role file, not on a different model. Past audits stay as run on Fable.
 - Outcome:
+
+## DEC-087 Build bench shrunk: build run first, handoff and blind step deferred
+- Date: 2026-11-26 · Question: the build bench after T-62 to T-64d (6 tasks, about 3 sessions of tooling, no arm step run yet); about 8 tasks left by the plan (T-65 to T-72), 7 to 8 sessions.
+- Options: 1 shrink: slim T-65, dev test, pilot, build run, results page; handoff runner, handoff runs, blind step and verify deferred. 2 stop at v0.1.1, tooling kept. 3 full plan.
+- Decision: the customer's word, option 1 (TL recommendation). Order: T-65 slim, T-67 dev test, T-68 pilot, T-69 build run, T-72 results page. T-66, T-70 and T-71 are decided after T-69, from its numbers.
+- Reason: the first real data comes about 2 sessions after this decision instead of 4 to 5; the tooling already took 6 tasks.
+- Consequences: without the handoff, the bench is a case study with n = 1 per arm; DEC-082 named the handoff as the only part that can carry a causal claim, and the results page says that it was not run. The 65 USD ceiling stays; the 15 USD handoff and 5 USD blind reserves stay unspent until the decision after T-69. T-65 drops the handoff config `c3`, the blind key and the separate `click` command (a permission click is a `log` line). The dev test drops no check that the build run needs.
+- Outcome:

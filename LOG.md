@@ -2,6 +2,19 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-26 (2) - T-65 environment kit, slim
+
+- Source: the T-65 block and its Result line in `TASKS.md`; the end of NOW NEXT in `TASKS.md`; DEC-087 in `DECISIONS.md`; the `[Unreleased]` section of `CHANGELOG.md`.
+- Customer: on 2026-11-26 chose to shrink the build bench (DEC-087, the TL's recommendation), asked to continue, approved T-65 and the push ("yes, push").
+- Also on 2026-11-26: the customer's install test of `sdlc-lead@agentic-sdlc-kit` passed (marketplace update, project-scope install, the 5 `/sdlc-lead:` commands listed). The test folder was removed. The customer plans the directory submission for 2026-11-27.
+- TL: the first Files out line of the T-65 contract named `tools/` and `bench/build/` as whole folders, which would have refused the developer's own files. The TL narrowed it to single paths before the call.
+- Developer (`developer`, Sonnet, medium): `tools/build_run.py` 677 lines (setup, launch, next, status, copy, log, score, end-step); `bench/build/env/run.ps1` 11 lines; `tests/test_build_run.py` 21 tests; 2 stubs in `tests/fixtures/build_run/`; 1 CHANGELOG line under `[Unreleased]`. Reading choices 11. Review rounds 0.
+- TL checks: `tests/test_build_run.py` 21 passed; launch code read (names only, pin check, environment removal); full suite 1412 passed, 15 skipped.
+- Open for T-67: S8 goes to the clipboard with the real fake key, so the meter may count that message as `other`. The real `claude`, the clipboard and `run.ps1` have not run on this machine.
+- Metrics: review rounds 0, questions back 0, out-of-scope files 0, models Sonnet (developer), Haiku (scribe), Opus (TL).
+- Commit: the commit that carries this entry.
+- Next: T-67 dev test in the maintainer's terminal (setup under a drive root, one login per config folder, harness install with its own go-ahead).
+
 ## 2026-11-26 (1) - T-74 v0.1.1 for the directory listing
 
 - Source: the T-74 block and its Result line in `TASKS.md`; NOW NEXT in `TASKS.md`; DEC-086 in `DECISIONS.md`; the `[0.1.1]` section of `CHANGELOG.md`.

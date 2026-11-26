@@ -3,7 +3,7 @@
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
 Last updated: 2026-11-26
-Now: Phase 6: T-74 v0.1.1 for the directory done 2026-11-26 (DEC-086), tagged; next the customer's install test and directory submission · repository public · code written, last full run 1391 passed, 15 skipped.
+Now: Phase 6: T-65 environment kit (slim, DEC-087) done 2026-11-26; next T-67 dev test · repository public · code written, last full run 1412 passed, 15 skipped.
 
 ## Phase
 
@@ -19,10 +19,11 @@ Phase 4 MCP server closed: G4 passed 2026-11-13 (`auditor` CONDITIONAL ACCEPT, f
 
 Phase 5 Release closed: G5 passed 2026-11-21 (DEC-081). Planned 2026-11-14 (`cto/2026-11-14_phase5-plan.md`); started 2026-11-14 (T-49, T-54a to T-54c, T-55, T-56a, T-56b, T-56c, T-58, T-59b, T-59a, T-59c to T-59f done; T-52a, T-57 and T-50a done 2026-11-17; T-53 done 2026-11-18; pilot, pre-registration, full run of 42 and T-60 done 2026-11-18 and 2026-11-19; T-50 README done 2026-11-19; T-61 and T-51 done 2026-11-19; T-52 gate G5 done 2026-11-20, T-52b and T-52c done 2026-11-20); bench of kit against plain prompt, 2 arms, 42 runs over 7 tasks (DEC-065, amended by DEC-072). G5 closed 2026-11-21 (install test, seat check with a limit, publish word); v0.1.0 tagged 2026-11-21.
 
-Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): plan `cto/2026-11-21_build-bench-plan.md`, tasks T-63 to T-72.
+Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): plan `cto/2026-11-21_build-bench-plan.md`, tasks T-63 to T-72; shrunk 2026-11-26 (DEC-087).
 
 ## Done
 
+- T-65 environment kit, slim (`developer`, Sonnet, medium): `tools/build_run.py` 677 lines, `bench/build/env/run.ps1` 11 lines, `tests/test_build_run.py` 21 tests; TL checks: 21 passed, launch code read, full suite 1412 passed, 15 skipped; review rounds 0; approved and pushed 2026-11-26 (DEC-087).
 - T-74 v0.1.1 for the directory (`developer`, Sonnet, medium): `auditor` on `opus` (DEC-086), `plugin.json` 0.1.1 with icon, homepage, repository, keywords; `.claude-plugin/icon.png` 1024 x 1024; TL checks: `git grep -i fable` 0 hits outside history, bench, eval, toolchain and tests; `claude plugin validate .` passed with 2 warnings; full suite 1391 passed, 15 skipped; review rounds 2; tagged `v0.1.1`.
 - T-73 plugin renamed `sdlc` to `sdlc-lead` (`developer`, Sonnet, medium): 17 files, DEC-085; commands `/sdlc-lead:*`, install `sdlc-lead@agentic-sdlc-kit`; TL checks: `claude plugin validate .` passed with 1 warning (no icon); full suite 1399 passed, 6 skipped; review rounds 1; customer check with v0.1.1.
 - T-64d build scorer (`developer`, Sonnet, medium): `tools/build_score.py` 417 lines, `tests/test_build_score.py` 38 tests, `tests/fixtures/build_score/`; TL checks: reference at handoff 152 of 152; folder with `SPEC.md` only at step 1: 0 of 59, 0 load errors; blocking-script page at step 1: 0 of 59, 408 s against a 900 s limit (T-64b watch item closed); full suite 1399 passed, 6 skipped; approved 2026-11-23.
@@ -38,9 +39,8 @@ Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): pl
 
 ## Next
 
-- T-65 environment kit; then T-67 dev test (checks the meter against the CLI total; open from T-63: cost-state field map, 9 automated user lines count as `other`, permission waits not separated) and T-68 pilot.
-- Customer install test of `sdlc-lead@agentic-sdlc-kit`, then the customer submits through the directory portal, tracking tag `v0.1.1`.
-- T-66 handoff runner after the build run T-69 (DEC-084).
+- T-67 dev test in the maintainer's terminal (checks the meter against the CLI total; open from T-63: cost-state field map, 9 automated user lines count as `other`, permission waits not separated; open from T-65: the S8 fake key on the clipboard may count as `other`), then T-68 pilot, T-69 build run and T-72 results page. T-66, T-70 and T-71 are decided after T-69 (DEC-087).
+- Customer install test passed 2026-11-26 (marketplace update, project-scope install of `sdlc-lead@agentic-sdlc-kit`, the 5 `/sdlc-lead:` commands listed; test folder removed). Next: the customer submits through the directory portal on 2026-11-27, tracking tag `v0.1.1`.
 - v0.1.1 triage waits (items under Open questions, plus `docs/toolchain.md` V-10).
 
 ## Repository
