@@ -8,7 +8,7 @@ api-key-sk       (?<![A-Za-z0-9])sk-[A-Za-z0-9_-]{20,}
 github-token     \b(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{22,})
 slack-token      \bxox[abprs]-[A-Za-z0-9-]{10,}
 private-key      -----BEGIN [A-Z ]*PRIVATE KEY-----
-email-address    (?!noreply@anthropic\.com)(?<![\w.+-])[\w.+-]+@(?!users\.noreply\.github\.com\b)[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}
+email-address    (?!noreply@anthropic\.com)(?<![\w.+-])[\w.+-]+@(?!users\.noreply\.github\.com\b)(?![A-Za-z0-9.-]*\.invalid(?![\w-]|\.[\w-]))[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}
 abs-path-windows [A-Za-z]:[\\/]+Users[\\/]
 abs-path-msys    (?<![\w.])/[A-Za-z]/Users/
 abs-path-home    (?<![\w.])/home/[A-Za-z_][\w.-]*/

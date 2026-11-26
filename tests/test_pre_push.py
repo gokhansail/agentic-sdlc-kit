@@ -119,6 +119,29 @@ def test_allowed_emails_pass(repo: Path) -> None:
     assert guard(repo, sha).returncode == 0
 
 
+@pytest.mark.parametrize("text", [
+    "bench" + "@" + "example.invalid",
+    "a" + "@" + "b.c.invalid",
+    "a" + "@" + "b.invalid.",
+])
+def test_reserved_invalid_domain_passes(repo: Path, text: str) -> None:
+    sha = commit(repo, {"f.txt": f"{text}\n"})
+    assert guard(repo, sha).returncode == 0
+
+
+@pytest.mark.parametrize("text", [
+    "someone" + "@" + "example.com",
+    "x" + "@" + "invalid.com",
+    "x" + "@" + "foo.invalidate.org",
+    "x" + "@" + "foo.invalid" + ".com",
+])
+def test_email_lookalikes_still_flagged(repo: Path, text: str) -> None:
+    sha = commit(repo, {"f.txt": f"{text}\n"})
+    res = guard(repo, sha)
+    assert res.returncode != 0
+    assert "email-address" in res.stderr
+
+
 def test_only_new_commits_are_scanned(repo: Path) -> None:
     old = commit(repo, {"f.txt": f"{AWS_KEY}\n"})
     new = commit(repo, {"g.txt": "clean\n"})
