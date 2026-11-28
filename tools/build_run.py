@@ -626,6 +626,7 @@ def cmd_end_step(args: argparse.Namespace) -> int:
     snapshots.mkdir(parents=True, exist_ok=True)
     bundle = git("bundle", "create", str(snapshots / f"{arm}-{step}.bundle"), "--all", cwd=folder, check=False)
     print("snapshot: " + ("written" if bundle.returncode == 0 else "failed"))
+    capture_cost_state(run, arm, run.config_dir(setup, arm))
     reason = run_meter(run, setup, arm)
     print("meter: " + ("written" if reason is None else f"not run ({reason})"))
     print(remote_state(folder))

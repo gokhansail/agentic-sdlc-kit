@@ -2,8 +2,8 @@
 
 What is this file? The current state of agentic-sdlc-kit on one page. A new session reads this first and resumes from here.
 
-Last updated: 2026-11-27
-Now: Phase 6: T-67 part 2 run 2026-11-27, D12 sub-agent check and finding 5 fix left before T-68 pilot · repository public · code written, last full run 1424 passed, 15 skipped.
+Last updated: 2026-11-28
+Now: Phase 6: T-78 (finding 5) done 2026-11-28; D12 sub-agent check left before T-68 pilot · repository public · code written, last full run 1425 passed, 15 skipped.
 
 ## Phase
 
@@ -23,6 +23,7 @@ Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): pl
 
 ## Done
 
+- T-78 end-step copies the CLI cost state (`developer`, Sonnet, medium, review rounds 0): 1 line in `cmd_end_step`, 1 new test; full suite 1425 passed, 15 skipped; finding 5 closed; pushed 2026-11-28.
 - T-67 dev test part 2 (maintainer's terminal, CLI 2.1.332, no download): D7, D8 kit half, D11, D13, D15, D16 passed (about 1.29 USD); D12 partial (CLI cost state 0.1165 USD, meter 0.1031 USD); finding 3 closed; finding 5 open, finding 6 recorded only; D9 and D10 not run; records pushed 2026-11-28.
 - T-77 dev test fixes (`developer`, Sonnet, medium, review rounds 0): launch pins `--permission-mode auto` and `--effort medium`, turns off claude.ai connectors; setup disables them in the 3 config folders; meter matches the fake key placeholder; targeted 80 passed, full suite 1424 passed, 15 skipped; approved and pushed 2026-11-26.
 - T-67 dev test part 1 (maintainer's terminal, CLI 2.1.332): setup, launch refusal, separate logins, model, push to bare remote, end-step, transcripts all passed; 4 findings, 3 fixed in T-77, finding 3 (PostToolUse tip text with no hook) open for part 2.
@@ -40,7 +41,7 @@ Phase 6 Ongoing: started 2026-11-21, no gate. Build bench (DEC-082, DEC-083): pl
 
 ## Next
 
-- Meter on the kit arm transcripts (go-ahead pending), fix task for finding 5 (end-step copies the CLI cost state), then T-68 pilot; D9 and D10 seen in the pilot. Open from T-63: cost-state field map, 9 automated user lines count as `other`, permission waits not separated.
+- Meter on the kit arm transcripts (go-ahead pending), then T-68 pilot; D9 and D10 seen in the pilot. Open from T-63: cost-state field map, 9 automated user lines count as `other`, permission waits not separated.
 - Then T-68 pilot, T-69 build run and T-72 results page. T-66, T-70 and T-71 are decided after T-69 (DEC-087).
 - Customer submits v0.1.1 to the plugin directory on 2026-11-27 (tracking tag `v0.1.1`); v0.1.1 triage waits (Open questions, plus `docs/toolchain.md` V-10).
 

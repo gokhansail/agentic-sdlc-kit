@@ -409,6 +409,33 @@ def test_end_step_snapshot_meter_and_state(env, capsys, monkeypatch):
     assert done.returncode == 0, done.stderr
 
 
+def test_end_step_copies_the_cost_state_and_the_meter_gets_the_newest(env, monkeypatch):
+    root = make_setup(env)
+    goto(root, "plain", "1")
+    config = root / setup_json(root)["arms"]["plain"].replace("w", "c")
+    state_file = config / ".claude.json"
+    state_file.write_text(json.dumps({"projects": {"p": {"lastCost": 1}}}), encoding="utf-8")
+    assert run(root, "launch") == 0  # plain-001: the state at launch
+    state_file.write_text(json.dumps({"projects": {"p": {"lastCost": 2}}}), encoding="utf-8")  # written during the session
+    run(root, "copy", "step")
+    shutil.copytree(METER_FIX / "arm" / "projects", config / "projects")
+    calls = []
+    real_run = subprocess.run
+
+    def spy(argv, *args, **kwargs):
+        calls.append(list(argv))
+        return real_run(argv, *args, **kwargs)
+
+    monkeypatch.setattr(br.subprocess, "run", spy)
+    monkeypatch.setattr(br, "ask", lambda question: "0")
+    assert run(root, "end-step") == 0
+    newest = root / "runlog" / "cost-state" / "plain-002.json"
+    assert json.loads(newest.read_text(encoding="utf-8")) == {"projects": {"p": {"lastCost": 2}}}
+    meter_calls = [c for c in calls if "--cost-state" in c]
+    assert len(meter_calls) == 1
+    assert Path(meter_calls[0][meter_calls[0].index("--cost-state") + 1]) == newest
+
+
 def test_end_step_rejects_a_bad_number_and_reports_a_pushed_head(env, monkeypatch, capsys):
     root = make_setup(env)
     goto(root, "plain", "1")
