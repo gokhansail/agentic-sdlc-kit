@@ -2,6 +2,18 @@
 
 What is this file? A dated record of what was asked, decided, built and checked. Newest entry on top. Entry format: `## YYYY-MM-DD (N) - title`, where N counts entries for that day.
 
+## 2026-11-27 (1) - T-67 dev test part 2
+
+- Source: the T-67 block in `TASKS.md` (part 2, part 2 D12, part 2 findings, left for T-67); the end of NOW NEXT in `TASKS.md`; the 2026-11-27 entry in `LESSONS.md`.
+- Customer: ran part 2 in their own terminal on a new throwaway root, CLI version 2.1.332, no download (the T-64b harness was reused through `--harness`). Stopped for the day before the last meter check.
+- Passed in part 2: D7 (init wrote `.sdlc/project.md`, pre-push wrapper installed, seat text in the second session, kit server with 10 tools, a write with no contract denied); D8 kit half (planted key rejected by the pre-push guard, value not printed); D11 (meter on a pasted pilot step); D13 (scorer on a folder with no app: 0 of 59 pass, 0 load errors); D15 (clipboard, key spot filled); D16 (dev test total about 1.29 USD).
+- D12 partial: CLI cost state for the pilot 0.1165 USD, meter 0.1031 USD (Opus about 11% under: one interrupted request and one background Haiku call are not in the transcript). Not done: sub-agent check (2%) and the `--cost-state` field map.
+- Findings: 5 and 6 added (5: launch copies the CLI cost state only at the next launch of the same arm; 6: the kit's TL closed a contract with `rm` instead of `/sdlc:contract close`, recorded only). Finding 3 closed: the `PostToolUse:Bash` tip also appears in the pilot arm with no plugin, so it is the CLI's own.
+- D9 and D10 (resume, interruption) not run. The TL proposed seeing them in the pilot; the maintainer chose the shorter path.
+- Lesson added to `LESSONS.md` (clipboard).
+- Committed and pushed 2026-11-28 (maintainer go-ahead).
+- Next: meter on the kit arm transcripts with a copied effort log and `--cost-state` (go-ahead pending), a fix task for finding 5, then T-68 pilot.
+
 ## 2026-11-26 (3) - T-67 dev test part 1, T-77 fixes
 
 - Source: the T-67 and T-77 tasks in `TASKS.md`; NOW NEXT in `TASKS.md`.
@@ -612,7 +624,7 @@ What is this file? A dated record of what was asked, decided, built and checked.
   - Budget logic checked: a call starts if actual spent plus the 0.25 USD cap fits, so 0.50 USD covers 40 runs at about 0.001 USD each.
 - Metrics (T-54b): review rounds 0; questions back 0; out-of-scope files 0; models Sonnet (developer), Haiku (scribe).
 - Next: maintainer approval and commit of T-54a and T-54b; then T-54c, the 4 runbook commands in the maintainer's terminal.
-- Not committed yet.
+- Committed and pushed 2026-11-28 (maintainer go-ahead).
 
 ## 2026-11-14 (3) - T-49 session start hook
 
@@ -642,7 +654,7 @@ What is this file? A dated record of what was asked, decided, built and checked.
 - Metrics (T-49): review rounds 0; questions back 0; out-of-scope files 0; models Sonnet (developer), Haiku (scribe).
 - Open: the live check in the maintainer's terminal (G5-6).
 - Next: maintainer approval and commit; then T-54a Haiku raw read.
-- Not committed yet.
+- Committed and pushed 2026-11-28 (maintainer go-ahead).
 
 ## 2026-11-14 (2) - Phase 5 plan by cto; DEC-064 to DEC-066
 
@@ -661,7 +673,7 @@ What is this file? A dated record of what was asked, decided, built and checked.
 - `TASKS.md`: not written by the scribe. The phase 5 ordered task list (DEC-064 to DEC-066) and NOW NEXT are for the TL.
 - Metrics (P-50 CTO plan): review rounds 0; questions back 0; out-of-scope files 0; models Opus (cto), Haiku (scribe).
 - Next: T-49 kit introduces itself, starting with a probe of the SessionStart hook.
-- Not committed yet.
+- Committed and pushed 2026-11-28 (maintainer go-ahead).
 
 ## 2026-11-14 (1) - DEC-063 evidence from a non-game project
 
@@ -742,7 +754,7 @@ What is this file? A dated record of what was asked, decided, built and checked.
   - Layout 2 is refused in the server path only, not by the `--check-worktree` CLI, which is the user's own command.
   - `/sdlc:review` runs `git status` with no config check.
 - Review rounds: 1. Questions back: 0. Out-of-scope files: 0.
-- Not committed yet.
+- Committed and pushed 2026-11-28 (maintainer go-ahead).
 - Metrics (T-45a): review rounds 1; questions back 0; out-of-scope files 0; models Sonnet (developer), Haiku (scribe).
 - Next: second fix task (P-1, P-2, S-2 and the Low findings), the live run in the maintainer's terminal, then `auditor-mini`.
 
@@ -826,7 +838,7 @@ What is this file? A dated record of what was asked, decided, built and checked.
 - Tests: 1065 passed, 6 skipped (developer run); 13 passed (TL run).
 - Review rounds: 1. Questions back: 0. Out-of-scope files: 0.
 - Limit: `--doc` is not root-locked; it is a local CLI the TL runs.
-- Not committed yet.
+- Committed and pushed 2026-11-28 (maintainer go-ahead).
 - Next: T-46g, `tech-writer` writes the results text with the narrow claim and the limits, and the runbook at 360 runs; then T-45 gate G4.
 - Metrics (T-46f): review rounds 1; questions back 0; out-of-scope files 0; models Sonnet (developer), Haiku (scribe).
 

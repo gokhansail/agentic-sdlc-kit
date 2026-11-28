@@ -47,3 +47,10 @@ What is this file? General lessons from building agentic-sdlc-kit: problems met,
 - Cause: the TL copied the developer's example cases into the records as written; the test file built them from pieces, the records did not.
 - Fix: each one was reworded into words and the unpushed commit amended; the push then passed.
 - Lesson: in records and commit messages, describe a guard test case in words, never as the literal string the guard looks for. Before a push, grep the staged diff and the message for the guard's own patterns.
+
+### 2026-11-27 - A clipboard check that measured the copied command
+
+- Problem: in the T-67 dev test the clipboard helper looked broken: after `copy S8` the key check gave `False`, and after `copy step` the clipboard held 27 characters instead of 675. A probe from the TL's shell showed the helper writes the clipboard correctly.
+- Cause: the maintainer copied each command from the chat with the copy button, which replaced the clipboard with the command text; 27 is the length of the length check itself. A screenshot taken between `copy` and the paste does the same, and one stray command went to the session as a human message.
+- Fix: the copy and the check were put on one line, so the helper writes after the line is copied; `copy step` ran from a second window right before the paste.
+- Lesson: in a run guide, any step that fills the clipboard comes last before the paste, with no copy or screenshot in between, and a check of the clipboard runs on the same line as the command that fills it.
